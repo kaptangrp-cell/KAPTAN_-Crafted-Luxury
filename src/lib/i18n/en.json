@@ -1,0 +1,139 @@
+{
+  "header": {
+    "craftedTag": "Crafted in Pakistan · Shipped from Germany"
+  },
+  "nav": {
+    "home": "Home",
+    "products": "Products",
+    "about": "About",
+    "contact": "Contact",
+    "admin": "Admin",
+    "signIn": "Sign In",
+    "signInRegister": "Sign In / Register",
+    "logout": "Logout",
+    "search": "Search...",
+    "wishlist": "Wishlist",
+    "cart": "Cart",
+    "account": "Account",
+    "menu": "Menu"
+  },
+  "theme": {
+    "light": "Light mode",
+    "dark": "Dark mode"
+  },
+  "language": {
+    "switch": "Language",
+    "en": "English",
+    "de": "Deutsch"
+  },
+  "footer": {
+    "tagline": "Crafted to Last. Lit to Inspire. Premium leather goods and authentic Himalayan salt lamps.",
+    "shop": "Shop",
+    "allProducts": "All Products",
+    "leatherWallets": "Leather Wallets",
+    "leatherBags": "Leather Bags",
+    "saltLamps": "Salt Lamps",
+    "giftSets": "Gift Sets",
+    "company": "Company",
+    "aboutUs": "About Us",
+    "contact": "Contact",
+    "faq": "FAQ",
+    "support": "Support",
+    "shipping": "Shipping Info",
+    "returns": "Returns",
+    "privacy": "Privacy Policy",
+    "copyright": "© {{year}} KAPTAN. All rights reserved. Made with craft, shipped with care.",
+    "followUs": "Follow us"
+  },
+  "home": {
+    "heroLine1": "Crafted Leather.",
+    "heroLine2": "Himalayan Light.",
+    "heroSubtitle": "Handcrafted leather goods & authentic Himalayan salt lamps — built for those who value the finest things.",
+    "shopLeather": "Shop Leather",
+    "discoverSaltLamps": "Discover Salt Lamps",
+    "secureCheckout": "Secure Checkout",
+    "secureCheckoutDesc": "Encrypted payments",
+    "handcrafted": "Handcrafted Quality",
+    "handcraftedDesc": "Artisan made",
+    "fastDelivery": "Fast Delivery",
+    "fastDeliveryDesc": "3–5 business days",
+    "sustainable": "Sustainably Sourced",
+    "sustainableDesc": "Ethical materials",
+    "collectionsTitle": "Explore Our Collections",
+    "leatherProducts": "Leather Products",
+    "himalayanSaltLamps": "Himalayan Salt Lamps",
+    "shopNow": "Shop Now →",
+    "bestSellers": "Best Sellers",
+    "storyTitle": "The KAPTAN Story",
+    "storyP1": "KAPTAN was born from a deep respect for craftsmanship and the natural world. Our journey began in the foothills of the Himalayas, where we discovered the warm, healing glow of authentic salt crystals.",
+    "storyP2": "We partner with master leather artisans who have honed their craft for generations, using only the finest full-grain hides and traditional techniques. Every stitch tells a story of patience and precision.",
+    "storyP3": "Our mission is simple: to bring you products that are not just beautiful, but built to last a lifetime.",
+    "learnMore": "Learn More →",
+    "testimonialsTitle": "What Our Customers Say",
+    "newsletterTitle": "Join the KAPTAN Circle",
+    "newsletterSubtitle": "Exclusive offers, new arrivals, and care tips delivered to your inbox.",
+    "emailPlaceholder": "Enter your email",
+    "subscribe": "Subscribe",
+    "t1Quote": "The quality of my KAPTAN wallet is unlike anything I've owned. It feels like it will last forever.",
+    "t1Product": "Heritage Bifold Wallet",
+    "t2Quote": "The salt lamp creates the most calming atmosphere in my living room. Absolutely beautiful craftsmanship.",
+    "t2Product": "Natural Salt Lamp — Medium",
+    "t3Quote": "Fast shipping and the leather bag exceeded my expectations. The smell of real leather is intoxicating.",
+    "t3Product": "Weekender Duffel Bag"
+  },
+  "faq": {
+    "title": "Frequently Asked Questions",
+    "items": [
+      { "q": "How long does shipping take?", "a": "Most orders ship within 1–2 business days and arrive in 3–5 business days domestically, or 7–14 days internationally." },
+      { "q": "Are your salt lamps authentic?", "a": "Yes — every lamp is hand-carved from salt mined directly at the Khewra mine in Pakistan, the world's second-largest salt mine." },
+      { "q": "How do I care for my leather?", "a": "Wipe with a soft, dry cloth. Condition every 3–6 months with a quality leather balm and keep away from prolonged sunlight." },
+      { "q": "Can I return an item?", "a": "Yes, we accept returns within 30 days of delivery for unused items in original condition. See our Returns page for details." }
+    ]
+  },
+  "shipping": {
+    "title": "Shipping Info",
+    "p1": "We ship worldwide from our workshop in Sialkot, Pakistan. Domestic orders arrive in 3–5 business days; international orders take 7–14 business days.",
+    "p2": "Shipping is free on orders over €100. A tracking number is emailed once your order ships.",
+    "p3": "Customs duties for international orders are the responsibility of the buyer."
+  },
+  "returns": {
+    "title": "Returns",
+    "p1": "We accept returns within 30 days of delivery. Items must be unused, in original packaging, and accompanied by proof of purchase.",
+    "p2": "Refunds are issued to the original payment method within 5–7 business days of receiving the return.",
+    "p3": "Custom or engraved pieces are final sale and cannot be returned."
+  },
+  "privacy": {
+    "title": "Privacy Policy",
+    "p1": "We collect only the information needed to fulfil your order — name, address, email, and payment details. We never sell your data.",
+    "p2": "Payments are processed by trusted third-party providers using industry-standard encryption.",
+    "p3": "You can request deletion of your account and data at any time by contacting us."
+  },
+  "about": {
+    "kicker": "Our Story",
+    "titlePart1": "Crafted to Last.",
+    "titlePart2": "Lit to Inspire.",
+    "intro": "KAPTAN is a tribute to mastery — bringing together the timeless art of Pakistani leatherwork and the natural beauty of authentic Himalayan salt, mined from the heart of the Khewra range.",
+    "leatherTitle": "Heritage Leather",
+    "leatherBody": "Each piece is hand-stitched by master craftsmen in Sialkot — a city renowned for centuries-old leather traditions. We use full-grain, vegetable-tanned hides that age into one-of-a-kind patinas.",
+    "saltTitle": "Authentic Salt Lamps",
+    "saltBody": "Our salt lamps are sourced directly from Pakistan's Khewra mine — the world's second-largest salt mine. Every lamp is hand-carved, giving it a unique shape and warm glow.",
+    "statHappy": "Happy Customers",
+    "statYears": "Years of Craft",
+    "statAuthentic": "Authentic"
+  },
+  "contact": {
+    "kicker": "Contact",
+    "title": "Get in Touch",
+    "subtitle": "Questions, custom orders, wholesale — we'd love to hear from you.",
+    "email": "Email",
+    "phone": "Phone",
+    "workshop": "Workshop",
+    "name": "Name",
+    "subject": "Subject",
+    "message": "Your message...",
+    "send": "Send Message",
+    "sending": "Sending...",
+    "success": "Message sent. We'll be in touch soon.",
+    "error": "Could not send message"
+  }
+}

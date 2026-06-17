@@ -1,0 +1,139 @@
+{
+  "header": {
+    "craftedTag": "Handgefertigt in Pakistan · Versand aus Deutschland"
+  },
+  "nav": {
+    "home": "Startseite",
+    "products": "Produkte",
+    "about": "Über uns",
+    "contact": "Kontakt",
+    "admin": "Admin",
+    "signIn": "Anmelden",
+    "signInRegister": "Anmelden / Registrieren",
+    "logout": "Abmelden",
+    "search": "Suchen...",
+    "wishlist": "Wunschliste",
+    "cart": "Warenkorb",
+    "account": "Konto",
+    "menu": "Menü"
+  },
+  "theme": {
+    "light": "Hell-Modus",
+    "dark": "Dunkel-Modus"
+  },
+  "language": {
+    "switch": "Sprache",
+    "en": "English",
+    "de": "Deutsch"
+  },
+  "footer": {
+    "tagline": "Gefertigt für die Ewigkeit. Erleuchtet zur Inspiration. Hochwertige Lederwaren und authentische Himalaya-Salzlampen.",
+    "shop": "Shop",
+    "allProducts": "Alle Produkte",
+    "leatherWallets": "Lederbörsen",
+    "leatherBags": "Ledertaschen",
+    "saltLamps": "Salzlampen",
+    "giftSets": "Geschenksets",
+    "company": "Unternehmen",
+    "aboutUs": "Über uns",
+    "contact": "Kontakt",
+    "faq": "FAQ",
+    "support": "Hilfe",
+    "shipping": "Versandinfo",
+    "returns": "Rücksendungen",
+    "privacy": "Datenschutz",
+    "copyright": "© {{year}} KAPTAN. Alle Rechte vorbehalten. Mit Handwerk gefertigt, mit Sorgfalt versendet.",
+    "followUs": "Folge uns"
+  },
+  "home": {
+    "heroLine1": "Edles Leder.",
+    "heroLine2": "Himalaya-Licht.",
+    "heroSubtitle": "Handgefertigte Lederwaren & authentische Himalaya-Salzlampen — für alle, die das Feinste schätzen.",
+    "shopLeather": "Leder entdecken",
+    "discoverSaltLamps": "Salzlampen entdecken",
+    "secureCheckout": "Sicherer Checkout",
+    "secureCheckoutDesc": "Verschlüsselte Zahlung",
+    "handcrafted": "Handgefertigte Qualität",
+    "handcraftedDesc": "Von Kunsthandwerkern",
+    "fastDelivery": "Schnelle Lieferung",
+    "fastDeliveryDesc": "3–5 Werktage",
+    "sustainable": "Nachhaltige Herkunft",
+    "sustainableDesc": "Ethische Materialien",
+    "collectionsTitle": "Unsere Kollektionen",
+    "leatherProducts": "Lederwaren",
+    "himalayanSaltLamps": "Himalaya-Salzlampen",
+    "shopNow": "Jetzt entdecken →",
+    "bestSellers": "Bestseller",
+    "storyTitle": "Die KAPTAN-Geschichte",
+    "storyP1": "KAPTAN entstand aus tiefem Respekt vor Handwerkskunst und Natur. Unsere Reise begann in den Ausläufern des Himalayas, wo wir das warme, heilende Leuchten echter Salzkristalle entdeckten.",
+    "storyP2": "Wir arbeiten mit Lederkünstlern zusammen, die ihr Handwerk über Generationen verfeinert haben — mit feinstem Vollnarbenleder und traditionellen Techniken. Jede Naht erzählt eine Geschichte von Geduld und Präzision.",
+    "storyP3": "Unsere Mission ist einfach: Produkte zu schaffen, die nicht nur schön sind, sondern ein Leben lang halten.",
+    "learnMore": "Mehr erfahren →",
+    "testimonialsTitle": "Was unsere Kunden sagen",
+    "newsletterTitle": "Werde Teil des KAPTAN-Kreises",
+    "newsletterSubtitle": "Exklusive Angebote, Neuheiten und Pflegetipps direkt in dein Postfach.",
+    "emailPlaceholder": "E-Mail-Adresse eingeben",
+    "subscribe": "Abonnieren",
+    "t1Quote": "Die Qualität meiner KAPTAN-Geldbörse ist mit nichts vergleichbar. Sie fühlt sich an, als würde sie ewig halten.",
+    "t1Product": "Heritage Bifold Geldbörse",
+    "t2Quote": "Die Salzlampe schafft die beruhigendste Atmosphäre in meinem Wohnzimmer. Absolut wunderschöne Handwerkskunst.",
+    "t2Product": "Natürliche Salzlampe — Medium",
+    "t3Quote": "Schneller Versand und die Ledertasche hat meine Erwartungen übertroffen. Der Geruch von echtem Leder ist berauschend.",
+    "t3Product": "Weekender Reisetasche"
+  },
+  "faq": {
+    "title": "Häufig gestellte Fragen",
+    "items": [
+      { "q": "Wie lange dauert der Versand?", "a": "Die meisten Bestellungen werden innerhalb von 1–2 Werktagen versandt und sind im Inland in 3–5 Werktagen, international in 7–14 Werktagen da." },
+      { "q": "Sind eure Salzlampen echt?", "a": "Ja — jede Lampe wird aus Salz handgeschnitzt, das direkt im Khewra-Bergwerk in Pakistan abgebaut wird, dem zweitgrößten Salzbergwerk der Welt." },
+      { "q": "Wie pflege ich mein Leder?", "a": "Mit einem weichen, trockenen Tuch abwischen. Alle 3–6 Monate mit hochwertigem Lederbalsam pflegen und vor langer Sonneneinstrahlung schützen." },
+      { "q": "Kann ich einen Artikel zurückgeben?", "a": "Ja, wir akzeptieren Rücksendungen innerhalb von 30 Tagen nach Lieferung für ungenutzte Artikel im Originalzustand. Details findest du auf unserer Rücksendungen-Seite." }
+    ]
+  },
+  "shipping": {
+    "title": "Versandinformationen",
+    "p1": "Wir versenden weltweit aus unserer Werkstatt in Sialkot, Pakistan. Inlandsbestellungen kommen in 3–5 Werktagen an; internationale Bestellungen dauern 7–14 Werktage.",
+    "p2": "Versand ist kostenlos ab 100 €. Eine Sendungsverfolgungsnummer wird nach Versand per E-Mail verschickt.",
+    "p3": "Zollgebühren für internationale Bestellungen trägt der Käufer."
+  },
+  "returns": {
+    "title": "Rücksendungen",
+    "p1": "Wir akzeptieren Rücksendungen innerhalb von 30 Tagen nach Lieferung. Artikel müssen unbenutzt, in Originalverpackung und mit Kaufbeleg sein.",
+    "p2": "Rückerstattungen erfolgen innerhalb von 5–7 Werktagen nach Eingang der Rücksendung auf die ursprüngliche Zahlungsmethode.",
+    "p3": "Sonderanfertigungen oder gravierte Stücke sind vom Umtausch ausgeschlossen."
+  },
+  "privacy": {
+    "title": "Datenschutzerklärung",
+    "p1": "Wir erfassen nur die Daten, die zur Abwicklung deiner Bestellung nötig sind — Name, Adresse, E-Mail und Zahlungsdaten. Wir verkaufen deine Daten niemals.",
+    "p2": "Zahlungen werden von vertrauenswürdigen Drittanbietern mit branchenüblicher Verschlüsselung verarbeitet.",
+    "p3": "Du kannst die Löschung deines Kontos und deiner Daten jederzeit per Kontaktanfrage verlangen."
+  },
+  "about": {
+    "kicker": "Unsere Geschichte",
+    "titlePart1": "Gefertigt für die Ewigkeit.",
+    "titlePart2": "Erleuchtet zur Inspiration.",
+    "intro": "KAPTAN ist eine Hommage an die Meisterschaft — wir vereinen die zeitlose Kunst pakistanischer Lederverarbeitung mit der natürlichen Schönheit echten Himalaya-Salzes aus dem Herzen der Khewra-Region.",
+    "leatherTitle": "Traditionelles Leder",
+    "leatherBody": "Jedes Stück wird von Meisterhandwerkern in Sialkot von Hand genäht — einer Stadt, die für ihre jahrhundertealte Lederverarbeitung berühmt ist. Wir verwenden vollnarbiges, pflanzlich gegerbtes Leder, das mit der Zeit eine einzigartige Patina entwickelt.",
+    "saltTitle": "Authentische Salzlampen",
+    "saltBody": "Unsere Salzlampen stammen direkt aus dem Khewra-Bergwerk in Pakistan — dem zweitgrößten Salzbergwerk der Welt. Jede Lampe wird von Hand geschnitzt und erhält so ihre einzigartige Form und warmes Leuchten.",
+    "statHappy": "Zufriedene Kunden",
+    "statYears": "Jahre Handwerk",
+    "statAuthentic": "Authentisch"
+  },
+  "contact": {
+    "kicker": "Kontakt",
+    "title": "Kontaktiere uns",
+    "subtitle": "Fragen, Sonderbestellungen, Großhandel — wir freuen uns auf deine Nachricht.",
+    "email": "E-Mail",
+    "phone": "Telefon",
+    "workshop": "Werkstatt",
+    "name": "Name",
+    "subject": "Betreff",
+    "message": "Deine Nachricht...",
+    "send": "Nachricht senden",
+    "sending": "Wird gesendet...",
+    "success": "Nachricht gesendet. Wir melden uns bald.",
+    "error": "Nachricht konnte nicht gesendet werden"
+  }
+}
