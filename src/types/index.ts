@@ -5,7 +5,8 @@ export interface Category {
   description: string | null;
   image_url: string | null;
   parent_id: string | null;
-  sort_order: number;
+  sort_order: number | null;
+  created_at?: string | null;
 }
 
 export interface Product {
@@ -18,12 +19,12 @@ export interface Product {
   price: number;
   compare_at_price: number | null;
   sku: string | null;
-  stock_quantity: number | null;
+  stock_quantity: number;
   low_stock_threshold: number | null;
   is_available: boolean | null;
   is_featured: boolean | null;
   tags: string[] | null;
-  specifications: unknown;
+  specifications: unknown | null;
   sold_count: number | null;
   average_rating: number | null;
   review_count: number | null;
@@ -36,9 +37,10 @@ export interface Product {
 export interface ProductImage {
   id: string;
   product_id: string;
-  url: string | null;
+  url: string;
   alt_text: string | null;
-  sort_order: number;
+  sort_order: number | null;
+  created_at?: string | null;
 }
 
 export interface ProductVariant {
@@ -50,7 +52,7 @@ export interface ProductVariant {
   stock_quantity: number | null;
   sku_override: string | null;
   is_available: boolean | null;
-  sort_order: number;
+  sort_order: number | null;
 }
 
 export interface CartItem {
@@ -70,7 +72,58 @@ export interface Profile {
   phone: string | null;
   avatar_url: string | null;
   date_of_birth: string | null;
-  email_marketing: boolean;
+  email_marketing: boolean | null;
+  created_at?: string | null;
+  updated_at?: string | null;
+}
+
+export interface Address {
+  id: string;
+  user_id: string;
+  full_name: string;
+  phone: string | null;
+  line1: string;
+  line2: string | null;
+  city: string;
+  state: string | null;
+  postal_code: string;
+  country: string;
+  label: string | null;
+  is_default: boolean | null;
+  created_at: string | null;
+}
+
+export interface Order {
+  id: string;
+  user_id: string | null;
+  order_number: string;
+  customer_name: string;
+  customer_email: string;
+  customer_phone: string | null;
+  shipping_address: unknown;
+  subtotal: number;
+  shipping_cost: number | null;
+  discount: number | null;
+  total: number;
+  status: string | null;
+  payment_method: string | null;
+  payment_status: string | null;
+  tracking_number: string | null;
+  admin_notes: string | null;
+  created_at: string | null;
+  updated_at: string | null;
+}
+
+export interface OrderItem {
+  id: string;
+  order_id: string;
+  product_id: string;
+  variant_id: string | null;
+  product_name: string;
+  variant_info: string | null;
+  quantity: number;
+  unit_price: number;
+  line_total: number;
 }
 
 export interface TeamMember {
@@ -79,8 +132,9 @@ export interface TeamMember {
   role: string;
   bio: string | null;
   avatar_url: string | null;
-  sort_order: number;
-  is_visible: boolean;
+  sort_order: number | null;
+  is_visible: boolean | null;
+  created_at?: string | null;
 }
 
 export interface ProductReview {
@@ -91,7 +145,26 @@ export interface ProductReview {
   rating: number;
   title: string | null;
   body: string | null;
-  is_verified: boolean;
-  is_approved: boolean;
-  created_at: string;
+  is_verified: boolean | null;
+  is_approved: boolean | null;
+  created_at: string | null;
+}
+
+export interface NewsletterSubscriber {
+  id: string;
+  email: string;
+  is_active: boolean | null;
+  created_at: string | null;
+}
+
+export interface FeedbackMessage {
+  id: string;
+  name: string;
+  email: string;
+  phone: string | null;
+  subject: string | null;
+  message: string;
+  order_ref: string | null;
+  status: string | null;
+  created_at: string | null;
 }
