@@ -40,40 +40,58 @@ export const createOrder = createServerFn({ method: "POST" })
   .inputValidator((input: unknown) => CreateOrderSchema.parse(input))
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
     const productIds = data.items.map((i) => i.productId);
     const variantIds = data.items.map((i) => i.variantId).filter(Boolean) as string[];
 
-    const { data: products, error: pErr } = await supabaseAdmin
+    const { data: products, error: pErr } = await supabase
       .from("products")
       .select("id, name, price, stock_quantity, is_available")
       .in("id", productIds);
+
     if (pErr) throw new Error(pErr.message);
 
-    const variantMap = new Map<string, { id: string; product_id: string; variant_type: string; variant_value: string; price_modifier: number | null; stock_quantity: number | null }>();
+    const variantMap = new Map<
+      string,
+      {
+        id: string;
+        product_id: string;
+        variant_type: string;
+        variant_value: string;
+        price_modifier: number | null;
+        stock_quantity: number | null;
+      }
+    >();
+
     if (variantIds.length) {
-      const { data: variants, error: vErr } = await supabaseAdmin
+      const { data: variants, error: vErr } = await supabase
         .from("product_variants")
         .select("id, product_id, variant_type, variant_value, price_modifier, stock_quantity")
         .in("id", variantIds);
+
       if (vErr) throw new Error(vErr.message);
       variants?.forEach((v) => variantMap.set(v.id, v));
     }
 
     let subtotal = 0;
+
     const orderItems = data.items.map((item) => {
       const product = products?.find((p) => p.id === item.productId);
+
       if (!product || product.is_available === false) {
         throw new Error(`Product unavailable: ${item.productId}`);
       }
+
       if (product.stock_quantity !== null && product.stock_quantity < item.quantity) {
         throw new Error(`Insufficient stock for ${product.name}`);
       }
+
       const variant = item.variantId ? variantMap.get(item.variantId) : null;
       const unitPrice = Number(product.price) + Number(variant?.price_modifier ?? 0);
       const lineTotal = unitPrice * item.quantity;
+
       subtotal += lineTotal;
+
       return {
         product_id: product.id,
         variant_id: variant?.id ?? null,
@@ -109,27 +127,25 @@ export const createOrder = createServerFn({ method: "POST" })
       })
       .select("id, order_number")
       .single();
+
     if (oErr) throw new Error(oErr.message);
 
-    const itemsWithOrder = orderItems.map((i) => ({ ...i, order_id: order.id }));
-    const { error: iErr } = await supabaseAdmin.from("order_items").insert(itemsWithOrder);
+    const itemsWithOrder = orderItems.map((i) => ({
+      ...i,
+      order_id: order.id,
+    }));
+
+    const { error: iErr } = await supabase.from("order_items").insert(itemsWithOrder);
+
     if (iErr) {
-      await supabaseAdmin.from("orders").delete().eq("id", order.id);
+      await supabase.from("orders").delete().eq("id", order.id);
       throw new Error(iErr.message);
     }
 
-    // Decrement stock
-    for (const item of data.items) {
-      const product = products?.find((p) => p.id === item.productId);
-      if (product && product.stock_quantity !== null) {
-        await supabaseAdmin
-          .from("products")
-          .update({ stock_quantity: Math.max(0, product.stock_quantity - item.quantity) })
-          .eq("id", product.id);
-      }
-    }
-
-    return { orderId: order.id, orderNumber: order.order_number };
+    return {
+      orderId: order.id,
+      orderNumber: order.order_number,
+    };
   });
 
 export const getMyOrders = createServerFn({ method: "GET" })
@@ -140,7 +156,9 @@ export const getMyOrders = createServerFn({ method: "GET" })
       .select("id, order_number, status, payment_status, total, created_at, order_items(quantity, product_name)")
       .eq("user_id", context.userId)
       .order("created_at", { ascending: false });
+
     if (error) throw new Error(error.message);
+
     return { orders: data ?? [] };
   });
 
@@ -154,6 +172,8 @@ export const getOrderById = createServerFn({ method: "POST" })
       .eq("id", data.id)
       .eq("user_id", context.userId)
       .single();
+
     if (error) throw new Error(error.message);
+
     return { order };
   });
