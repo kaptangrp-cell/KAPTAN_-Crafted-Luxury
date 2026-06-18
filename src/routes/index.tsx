@@ -154,7 +154,7 @@ function HomePage() {
         <div className="mx-auto grid max-w-7xl items-center gap-10 md:grid-cols-2">
           <div className="relative aspect-square bg-[#1A1A1A]">
             <img
-              src="/__l5e/assets-v1/a07138a0-0d59-4521-91be-2e8e2eb793fc/kaptan-logo.png"
+              src="/kaptan-logo.png"
               alt="KAPTAN"
               className="absolute inset-0 m-auto h-1/2 w-1/2 object-contain opacity-20"
             />
