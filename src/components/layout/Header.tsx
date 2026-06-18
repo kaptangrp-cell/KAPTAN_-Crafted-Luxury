@@ -35,20 +35,19 @@ export function Header() {
           </p>
         </div>
       </div>
+
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 md:px-6">
-        {/* Logo */}
-        <Link to="/" className="flex items-center gap-2">
+        <Link to="/" className="flex items-center gap-3">
           <img
-            src="/__l5e/assets-v1/a07138a0-0d59-4521-91be-2e8e2eb793fc/kaptan-logo.png"
+            src="/kaptan-logo.png"
             alt="KAPTAN"
-            className="h-10 w-10 object-contain"
+            className="h-12 w-12 object-contain"
           />
           <span className="hidden font-serif text-xl font-bold tracking-[0.15em] text-gold sm:inline-block">
             KAPTAN
           </span>
         </Link>
 
-        {/* Desktop Nav */}
         <nav className="hidden items-center gap-8 md:flex">
           {[
             { label: t("nav.home"), to: "/" },
@@ -66,7 +65,6 @@ export function Header() {
           ))}
         </nav>
 
-        {/* Right Actions */}
         <div className="flex items-center gap-2 md:gap-3">
           {searchOpen && (
             <input
@@ -84,6 +82,7 @@ export function Header() {
               }}
             />
           )}
+
           <button
             onClick={() => setSearchOpen(!searchOpen)}
             className="p-1 text-gold/80 transition-colors hover:text-gold md:hidden"
@@ -92,7 +91,6 @@ export function Header() {
             <Search size={20} />
           </button>
 
-          {/* Language toggle */}
           <button
             onClick={() => setLanguage(nextLang)}
             className="hidden items-center gap-1 p-1 text-xs font-semibold uppercase text-gold/80 transition-colors hover:text-gold sm:flex"
@@ -103,7 +101,6 @@ export function Header() {
             <span>{language.toUpperCase()}</span>
           </button>
 
-          {/* Theme toggle */}
           <button
             onClick={toggleTheme}
             className="p-1 text-gold/80 transition-colors hover:text-gold"
@@ -120,6 +117,7 @@ export function Header() {
           >
             <Heart size={20} />
           </Link>
+
           <button
             onClick={openCart}
             className="relative p-1 text-gold/80 transition-colors hover:text-gold"
@@ -173,7 +171,6 @@ export function Header() {
         </div>
       </div>
 
-      {/* Mobile Nav */}
       {mobileOpen && (
         <div className="border-t border-gold/20 bg-black px-4 pb-6 pt-4 md:hidden">
           <nav className="flex flex-col gap-4">
