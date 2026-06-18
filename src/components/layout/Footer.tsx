@@ -12,23 +12,27 @@ function TikTokIcon({ size = 20 }: { size?: number }) {
 
 export function Footer() {
   const { t } = useTranslation();
+
   return (
     <footer className="border-t border-gold/20 bg-black">
       <div className="mx-auto max-w-7xl px-4 py-12 md:px-6">
         <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
-          {/* Brand */}
           <div>
             <div className="mb-4 flex items-center gap-2">
               <img
-                src="/__l5e/assets-v1/a07138a0-0d59-4521-91be-2e8e2eb793fc/kaptan-logo.png"
+                src="/kaptan-logo.png"
                 alt="KAPTAN"
-                className="h-8 w-8 object-contain"
+                className="h-10 w-10 object-contain"
               />
               <span className="font-serif text-lg font-bold tracking-widest text-gold">
                 KAPTAN
               </span>
             </div>
-            <p className="mb-4 text-sm leading-relaxed text-white/70">{t("footer.tagline")}</p>
+
+            <p className="mb-4 text-sm leading-relaxed text-white/70">
+              {t("footer.tagline")}
+            </p>
+
             <div className="flex items-center gap-4">
               <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" aria-label="Instagram" className="text-gold transition-colors hover:text-gold-vivid">
                 <Instagram size={20} />
@@ -42,7 +46,6 @@ export function Footer() {
             </div>
           </div>
 
-          {/* Shop */}
           <div>
             <h4 className="mb-4 font-serif text-sm font-semibold uppercase tracking-wider text-gold">
               {t("footer.shop")}
@@ -56,7 +59,6 @@ export function Footer() {
             </ul>
           </div>
 
-          {/* Company */}
           <div>
             <h4 className="mb-4 font-serif text-sm font-semibold uppercase tracking-wider text-gold">
               {t("footer.company")}
@@ -68,7 +70,6 @@ export function Footer() {
             </ul>
           </div>
 
-          {/* Support */}
           <div>
             <h4 className="mb-4 font-serif text-sm font-semibold uppercase tracking-wider text-gold">
               {t("footer.support")}
