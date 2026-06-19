@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { supabase } from "@/integrations/supabase/client";
 
 const AddressSchema = z.object({
   full_name: z.string().min(1).max(120),
@@ -36,11 +37,8 @@ function generateOrderNumber() {
 }
 
 export const createOrder = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
   .inputValidator((input: unknown) => CreateOrderSchema.parse(input))
-  .handler(async ({ data, context }) => {
-    const { supabase, userId } = context;
-
+  .handler(async ({ data }) => {
     const productIds = data.items.map((i) => i.productId);
     const variantIds = data.items.map((i) => i.variantId).filter(Boolean) as string[];
 
@@ -111,7 +109,7 @@ export const createOrder = createServerFn({ method: "POST" })
       .from("orders")
       .insert({
         order_number,
-        user_id: userId,
+        user_id: null,
         customer_name: data.customer_name,
         customer_email: data.customer_email,
         customer_phone: data.customer_phone,
