@@ -3,7 +3,7 @@ import { Minus, Plus, Trash2 } from "lucide-react";
 import { useCartStore } from "@/stores/cartStore";
 import { PageLayout } from "@/components/layout/PageLayout";
 
-export const Route = createFileRoute("/_authenticated/cart")({
+export const Route = createFileRoute("/cart")({
   head: () => ({ meta: [{ title: "Your Cart — KAPTAN" }] }),
   component: CartPage,
 });
