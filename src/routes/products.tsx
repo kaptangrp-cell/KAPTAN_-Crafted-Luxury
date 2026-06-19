@@ -13,7 +13,14 @@ const searchSchema = z.object({
 function productsQueryOptions(search: { q?: string; category?: string }) {
   return queryOptions({
     queryKey: ["products", search],
-    queryFn: () => getProducts({ data: { search: search.q, categorySlug: search.category, limit: 48 } }),
+    queryFn: () =>
+      getProducts({
+        data: {
+          search: search.q,
+          categorySlug: search.category,
+          limit: 48,
+        },
+      }),
   });
 }
 
@@ -42,58 +49,102 @@ export const Route = createFileRoute("/products")({
 function ProductsPage() {
   const search = Route.useSearch();
   const navigate = Route.useNavigate();
-  const { data: prodData } = useSuspenseQuery(productsQueryOptions({ q: search.q, category: search.category }));
+
+  const { data: prodData } = useSuspenseQuery(
+    productsQueryOptions({ q: search.q, category: search.category })
+  );
   const { data: catData } = useSuspenseQuery(categoriesQueryOptions);
 
   const products = prodData?.products ?? [];
   const categories = catData?.categories ?? [];
+
+  const leatherCategories = categories.filter((c) =>
+    c.slug.toLowerCase().includes("leather")
+  );
+
+  const saltCategories = categories.filter((c) =>
+    c.slug.toLowerCase().includes("salt")
+  );
+
+  const otherCategories = categories.filter(
+    (c) =>
+      !c.slug.toLowerCase().includes("leather") &&
+      !c.slug.toLowerCase().includes("salt")
+  );
+
+  function selectCategory(slug?: string) {
+    navigate({
+      search: {
+        ...search,
+        category: slug,
+      },
+    });
+  }
 
   return (
     <PageLayout>
       <section className="mx-auto max-w-7xl px-4 py-12 md:px-6">
         <div className="mb-8 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
           <div>
-            <h1 className="font-serif text-4xl font-semibold text-white md:text-5xl">Shop</h1>
+            <h1 className="font-serif text-4xl font-semibold text-white md:text-5xl">
+              Shop
+            </h1>
             <p className="mt-2 text-sm text-white/60">
               {products.length} {products.length === 1 ? "product" : "products"} found
             </p>
           </div>
+
           <input
             type="search"
             defaultValue={search.q ?? ""}
             placeholder="Search products..."
             onKeyDown={(e) => {
               if (e.key === "Enter") {
-                navigate({ search: { ...search, q: (e.target as HTMLInputElement).value || undefined } });
+                navigate({
+                  search: {
+                    ...search,
+                    q: (e.target as HTMLInputElement).value || undefined,
+                  },
+                });
               }
             }}
             className="w-full border border-gold/30 bg-black px-3 py-2 text-sm text-white outline-none focus:border-gold md:w-72"
           />
         </div>
 
-        <div className="grid gap-8 md:grid-cols-[200px_1fr]">
+        <div className="grid gap-8 md:grid-cols-[240px_1fr]">
           <aside>
-            <h2 className="mb-3 font-serif text-sm uppercase tracking-wider text-gold">Categories</h2>
-            <ul className="space-y-2 text-sm">
-              <li>
-                <button
-                  onClick={() => navigate({ search: { ...search, category: undefined } })}
-                  className={`text-left ${!search.category ? "text-gold" : "text-white/70 hover:text-gold"}`}
-                >
-                  All Products
-                </button>
-              </li>
-              {categories.map((c) => (
-                <li key={c.id}>
-                  <button
-                    onClick={() => navigate({ search: { ...search, category: c.slug } })}
-                    className={`text-left ${search.category === c.slug ? "text-gold" : "text-white/70 hover:text-gold"}`}
-                  >
-                    {c.name}
-                  </button>
-                </li>
-              ))}
-            </ul>
+            <button
+              onClick={() => selectCategory(undefined)}
+              className={`mb-6 text-left text-sm font-semibold ${
+                !search.category ? "text-gold" : "text-white/70 hover:text-gold"
+              }`}
+            >
+              All Products
+            </button>
+
+            <CategoryGroup
+              title="Leather Products"
+              categories={leatherCategories}
+              activeCategory={search.category}
+              onSelect={selectCategory}
+            />
+
+            <CategoryGroup
+              title="Salt Lamps"
+              categories={saltCategories}
+              activeCategory={search.category}
+              onSelect={selectCategory}
+            />
+
+            {otherCategories.length > 0 && (
+              <CategoryGroup
+                title="Other"
+                categories={otherCategories}
+                activeCategory={search.category}
+                onSelect={selectCategory}
+              />
+            )}
           </aside>
 
           {products.length === 0 ? (
@@ -110,5 +161,44 @@ function ProductsPage() {
         </div>
       </section>
     </PageLayout>
+  );
+}
+
+function CategoryGroup({
+  title,
+  categories,
+  activeCategory,
+  onSelect,
+}: {
+  title: string;
+  categories: { id: string; name: string; slug: string }[];
+  activeCategory?: string;
+  onSelect: (slug: string) => void;
+}) {
+  if (categories.length === 0) return null;
+
+  return (
+    <div className="mb-8">
+      <h2 className="mb-3 font-serif text-sm uppercase tracking-wider text-gold">
+        {title}
+      </h2>
+
+      <ul className="space-y-2 text-sm">
+        {categories.map((c) => (
+          <li key={c.id}>
+            <button
+              onClick={() => onSelect(c.slug)}
+              className={`text-left ${
+                activeCategory === c.slug
+                  ? "text-gold"
+                  : "text-white/70 hover:text-gold"
+              }`}
+            >
+              {c.name}
+            </button>
+          </li>
+        ))}
+      </ul>
+    </div>
   );
 }
