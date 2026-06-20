@@ -1,35 +1,85 @@
 import { Link } from "@tanstack/react-router";
-import { ShoppingBag } from "lucide-react";
+import { useServerFn } from "@tanstack/react-start";
+import { useQueryClient } from "@tanstack/react-query";
+import { Heart, ShoppingBag } from "lucide-react";
+import { toast } from "sonner";
 import { useCartStore } from "@/stores/cartStore";
+import { useAuthStore } from "@/stores/authStore";
+import { toggleWishlist } from "@/lib/wishlist.functions";
 import type { Product } from "@/types";
 
 interface ProductCardProps {
-  product: Product & { categories?: { name: string; slug: string } | null; product_images?: { url: string }[] | null };
+  product: Product & {
+    categories?: { name: string; slug: string } | null;
+    product_images?: { url: string }[] | null;
+  };
 }
 
 export function ProductCard({ product }: ProductCardProps) {
+  const qc = useQueryClient();
   const addItem = useCartStore((s) => s.addItem);
-  const imageUrl = product.product_images?.[0]?.url ?? "https://images.unsplash.com/photo-1602028915047-37269d1a73f7?w=400&q=80";
+  const user = useAuthStore((s) => s.user);
+  const toggleWishlistFn = useServerFn(toggleWishlist);
+
+  const imageUrl =
+    product.product_images?.[0]?.url ??
+    "https://images.unsplash.com/photo-1602028915047-37269d1a73f7?w=400&q=80";
+
   const categoryName = product.categories?.name ?? "Product";
 
   function handleAddToCart(e: React.MouseEvent) {
     e.preventDefault();
     e.stopPropagation();
     addItem(product, null, 1, imageUrl);
+    toast.success(`${product.name} added to cart`);
+  }
+
+  async function handleWishlist(e: React.MouseEvent) {
+    e.preventDefault();
+    e.stopPropagation();
+
+    if (!user) {
+      toast.error("Please sign in to save wishlist items");
+      return;
+    }
+
+    try {
+      const result = await toggleWishlistFn({
+        data: { productId: product.id },
+      });
+
+      toast.success(result.saved ? "Added to wishlist" : "Removed from wishlist");
+      qc.invalidateQueries({ queryKey: ["wishlist"] });
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Wishlist failed");
+    }
   }
 
   return (
     <div className="group relative flex flex-col overflow-hidden border border-gold/10 bg-[#1A1A1A] transition-all duration-300 hover:border-gold/30 hover:gold-glow">
-      <Link to="/products/$slug" params={{ slug: product.slug }} className="relative block aspect-[4/3] overflow-hidden bg-black">
+      <Link
+        to="/products/$slug"
+        params={{ slug: product.slug }}
+        className="relative block aspect-[4/3] overflow-hidden bg-black"
+      >
         <img
           src={imageUrl}
           alt={product.name}
           loading="lazy"
           className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
         />
+
         <span className="absolute left-2 top-2 bg-gold px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-black">
           {categoryName}
         </span>
+
+        <button
+          onClick={handleWishlist}
+          className="absolute right-2 top-2 flex h-9 w-9 items-center justify-center rounded-full border border-gold/40 bg-black/80 text-gold transition-colors hover:bg-gold hover:text-black"
+          aria-label="Add to wishlist"
+        >
+          <Heart size={17} />
+        </button>
       </Link>
 
       <div className="flex flex-1 flex-col p-4">
@@ -38,6 +88,7 @@ export function ProductCard({ product }: ProductCardProps) {
             {product.name}
           </h3>
         </Link>
+
         <p className="mt-1 line-clamp-1 text-sm text-gold-dark/70">
           {product.short_description}
         </p>
@@ -46,9 +97,11 @@ export function ProductCard({ product }: ProductCardProps) {
           <span className="font-mono text-lg font-bold text-gold">
             €{product.price.toFixed(2)}
           </span>
+
           {(product.stock_quantity ?? 0) <= 5 && (product.stock_quantity ?? 0) > 0 && (
             <span className="text-xs text-amber-400">Low Stock</span>
           )}
+
           {(product.stock_quantity ?? 0) === 0 && (
             <span className="text-xs text-red-400">Out of Stock</span>
           )}
