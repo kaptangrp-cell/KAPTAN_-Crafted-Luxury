@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link, useNavigate } from "@tanstack/react-router";
 import {
   Search,
@@ -19,9 +19,13 @@ import { useUIStore } from "@/stores/uiStore";
 import { useCartStore } from "@/stores/cartStore";
 import { usePreferencesStore } from "@/stores/preferencesStore";
 
+const INACTIVITY_LIMIT = 15 * 60 * 1000;
+
 export function Header() {
   const [searchOpen, setSearchOpen] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+
+  const logoutTimer = useRef<number | null>(null);
 
   const { user, profile } = useAuthStore();
   const { openCart } = useUIStore();
@@ -40,9 +44,51 @@ export function Header() {
     "Account";
 
   async function handleLogout() {
+    if (logoutTimer.current) {
+      window.clearTimeout(logoutTimer.current);
+    }
+
     await supabase.auth.signOut();
     navigate({ to: "/" });
   }
+
+  useEffect(() => {
+    if (!user) return;
+
+    const logoutAfterInactivity = async () => {
+      await supabase.auth.signOut();
+      navigate({ to: "/" });
+    };
+
+    const resetTimer = () => {
+      if (logoutTimer.current) {
+        window.clearTimeout(logoutTimer.current);
+      }
+
+      logoutTimer.current = window.setTimeout(
+        logoutAfterInactivity,
+        INACTIVITY_LIMIT
+      );
+    };
+
+    const events = ["mousemove", "keydown", "click", "scroll", "touchstart"];
+
+    events.forEach((event) => {
+      window.addEventListener(event, resetTimer);
+    });
+
+    resetTimer();
+
+    return () => {
+      if (logoutTimer.current) {
+        window.clearTimeout(logoutTimer.current);
+      }
+
+      events.forEach((event) => {
+        window.removeEventListener(event, resetTimer);
+      });
+    };
+  }, [user, navigate]);
 
   return (
     <header className="sticky top-0 z-50 border-b border-gold/30 bg-black">
