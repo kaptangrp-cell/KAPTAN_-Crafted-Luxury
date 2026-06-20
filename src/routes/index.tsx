@@ -1,8 +1,12 @@
+import { useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
+import { toast } from "sonner";
 import { ChevronDown, ShieldCheck, Hand, Truck, Leaf } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { getFeaturedProducts, getCategories } from "@/lib/products.functions";
+import { subscribeNewsletter } from "@/lib/newsletter.functions";
 import { ProductCard } from "@/components/product/ProductCard";
 import { PageLayout } from "@/components/layout/PageLayout";
 
@@ -37,15 +41,35 @@ function HomePage() {
   const { t } = useTranslation();
   const { data: featuredData } = useSuspenseQuery(featuredQueryOptions);
   const { data: categoriesData } = useSuspenseQuery(categoriesQueryOptions);
+
+  const subscribeFn = useServerFn(subscribeNewsletter);
+  const [newsletterEmail, setNewsletterEmail] = useState("");
+  const [subscribing, setSubscribing] = useState(false);
+
   const featuredProducts = featuredData?.products ?? [];
   const categories = categoriesData?.categories ?? [];
 
-  const leatherCats = categories.filter((c) => c.slug.startsWith("leather"));
-  const saltCats = categories.filter((c) => c.slug.startsWith("salt"));
+  async function handleNewsletterSubmit(e: React.FormEvent) {
+    e.preventDefault();
+
+    try {
+      setSubscribing(true);
+
+      const result = await subscribeFn({
+        data: { email: newsletterEmail },
+      });
+
+      toast.success(result.message);
+      setNewsletterEmail("");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Subscription failed");
+    } finally {
+      setSubscribing(false);
+    }
+  }
 
   return (
     <PageLayout>
-      {/* Hero */}
       <section className="relative flex min-h-[80vh] items-center justify-center bg-black px-4">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,oklch(0.86_0.18_95/0.08),transparent_70%)]" />
         <div className="relative z-10 max-w-4xl text-center">
@@ -80,9 +104,6 @@ function HomePage() {
         </div>
       </section>
 
-
-
-      {/* Trust Badges */}
       <section className="border-b border-gold/10 bg-[#1A1A1A]">
         <div className="mx-auto grid max-w-7xl grid-cols-2 gap-6 px-4 py-10 md:grid-cols-4 md:px-6">
           {[
@@ -100,7 +121,6 @@ function HomePage() {
         </div>
       </section>
 
-      {/* Featured Categories */}
       <section className="bg-black px-4 py-16 md:px-6">
         <div className="mx-auto max-w-7xl">
           <div className="mb-10 text-center">
@@ -134,7 +154,6 @@ function HomePage() {
         </div>
       </section>
 
-      {/* Best Sellers */}
       <section className="bg-[#0D0D0D] px-4 py-16 md:px-6">
         <div className="mx-auto max-w-7xl">
           <div className="mb-10 text-center">
@@ -149,7 +168,6 @@ function HomePage() {
         </div>
       </section>
 
-      {/* Brand Story */}
       <section className="bg-black px-4 py-16 md:px-6">
         <div className="mx-auto grid max-w-7xl items-center gap-10 md:grid-cols-2">
           <div className="relative aspect-square bg-[#1A1A1A]">
@@ -172,7 +190,6 @@ function HomePage() {
         </div>
       </section>
 
-      {/* Testimonials */}
       <section className="bg-[#0D0D0D] px-4 py-16 md:px-6">
         <div className="mx-auto max-w-7xl">
           <div className="mb-10 text-center">
@@ -202,28 +219,30 @@ function HomePage() {
         </div>
       </section>
 
-      {/* Newsletter */}
       <section className="border-y border-gold/20 bg-black px-4 py-16 md:px-6">
         <div className="mx-auto max-w-xl text-center">
           <h2 className="font-serif text-3xl font-bold text-white">{t("home.newsletterTitle")}</h2>
           <p className="mt-3 text-white/60">{t("home.newsletterSubtitle")}</p>
+
           <form
-            onSubmit={(e) => {
-              e.preventDefault();
-            }}
+            onSubmit={handleNewsletterSubmit}
             className="mt-6 flex flex-col gap-3 sm:flex-row"
           >
             <input
               type="email"
               required
+              value={newsletterEmail}
+              onChange={(e) => setNewsletterEmail(e.target.value)}
               placeholder={t("home.emailPlaceholder")}
               className="flex-1 border border-gold/40 bg-[#1A1A1A] px-4 py-3 text-sm text-white placeholder:text-white/30 focus:border-gold focus:outline-none"
             />
+
             <button
               type="submit"
-              className="bg-gold px-6 py-3 text-sm font-bold text-black transition-colors hover:bg-gold-vivid"
+              disabled={subscribing}
+              className="bg-gold px-6 py-3 text-sm font-bold text-black transition-colors hover:bg-gold-vivid disabled:opacity-50"
             >
-              {t("home.subscribe")}
+              {subscribing ? "Subscribing..." : t("home.subscribe")}
             </button>
           </form>
         </div>
