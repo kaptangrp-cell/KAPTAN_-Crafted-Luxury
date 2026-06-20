@@ -65,7 +65,7 @@ function ContactPage() {
               <Phone className="mt-1 text-gold" size={18} />
               <div>
                 <p className="text-xs uppercase tracking-wider text-gold/70">{t("contact.phone")}</p>
-                <a href="tel:+4915216164830" className="text-sm text-white hover:text-gold">+49 152 16164830</a>
+                <a href="tel:+4915216164830" className="text-sm text-white hover:text-gold">+49 175 7134333</a>
               </div>
             </div>
             <div className="flex items-start gap-3">
