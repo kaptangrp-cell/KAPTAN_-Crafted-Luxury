@@ -1,6 +1,17 @@
 import { useState } from "react";
 import { Link, useNavigate } from "@tanstack/react-router";
-import { Search, Heart, ShoppingBag, Menu, X, User, Sun, Moon, Globe } from "lucide-react";
+import {
+  Search,
+  Heart,
+  ShoppingBag,
+  Menu,
+  X,
+  User,
+  Sun,
+  Moon,
+  Globe,
+  LogOut,
+} from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuthStore } from "@/stores/authStore";
@@ -11,25 +22,36 @@ import { usePreferencesStore } from "@/stores/preferencesStore";
 export function Header() {
   const [searchOpen, setSearchOpen] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+
   const { user, profile } = useAuthStore();
   const { openCart } = useUIStore();
   const totalItems = useCartStore((s) => s.totalItems());
+
   const navigate = useNavigate();
   const { t } = useTranslation();
   const { theme, toggleTheme, language, setLanguage } = usePreferencesStore();
+
+  const nextLang = language === "en" ? "de" : "en";
+
+  const userName =
+    profile?.full_name ||
+    user?.user_metadata?.full_name ||
+    user?.email?.split("@")[0] ||
+    "Account";
 
   async function handleLogout() {
     await supabase.auth.signOut();
     navigate({ to: "/" });
   }
 
-  const nextLang = language === "en" ? "de" : "en";
-
   return (
     <header className="sticky top-0 z-50 border-b border-gold/30 bg-black">
       <div className="border-b border-gold/20 bg-black">
         <div className="mx-auto flex max-w-7xl items-center justify-center gap-2 px-4 py-1.5 md:px-6">
-          <span className="inline-block h-1.5 w-1.5 rounded-full bg-gold" aria-hidden="true" />
+          <span
+            className="inline-block h-1.5 w-1.5 rounded-full bg-gold"
+            aria-hidden="true"
+          />
           <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-gold">
             {t("header.craftedTag")}
           </p>
@@ -132,24 +154,34 @@ export function Header() {
           </button>
 
           {user ? (
-            <div className="hidden items-center gap-2 md:flex">
+            <div className="hidden items-center gap-3 md:flex">
               {profile?.role === "admin" && (
-                <Link to="/admin" className="text-xs font-medium uppercase tracking-wider text-gold/90 hover:text-gold">
+                <Link
+                  to="/admin"
+                  className="text-xs font-medium uppercase tracking-wider text-gold/90 hover:text-gold"
+                >
                   {t("nav.admin")}
                 </Link>
               )}
+
               <Link
                 to="/profile"
-                className="flex h-8 w-8 items-center justify-center rounded-full border border-gold/40 text-gold"
+                className="flex items-center gap-2 text-xs font-semibold text-gold/90 hover:text-gold"
                 aria-label={t("nav.account")}
               >
-                <User size={16} />
+                <span className="max-w-[130px] truncate">{userName}</span>
+                <span className="flex h-8 w-8 items-center justify-center rounded-full border border-gold/40 text-gold">
+                  <User size={16} />
+                </span>
               </Link>
+
               <button
                 onClick={handleLogout}
-                className="text-xs font-medium text-gold/80 hover:text-gold"
+                className="flex items-center gap-1 text-xs font-medium text-gold/80 hover:text-gold"
+                title={t("nav.logout")}
               >
-                {t("nav.logout")}
+                <LogOut size={16} />
+                <span>{t("nav.logout")}</span>
               </button>
             </div>
           ) : (
@@ -189,12 +221,15 @@ export function Header() {
                 {item.label}
               </Link>
             ))}
+
             <button
               onClick={() => setLanguage(nextLang)}
               className="flex items-center gap-2 text-sm font-medium text-gold/80 hover:text-gold"
             >
-              <Globe size={16} /> {language === "en" ? t("language.de") : t("language.en")}
+              <Globe size={16} />{" "}
+              {language === "en" ? t("language.de") : t("language.en")}
             </button>
+
             {!user && (
               <Link
                 to="/auth"
@@ -204,16 +239,39 @@ export function Header() {
                 {t("nav.signInRegister")}
               </Link>
             )}
+
             {user && (
-              <button
-                onClick={() => {
-                  setMobileOpen(false);
-                  handleLogout();
-                }}
-                className="text-left text-sm font-medium text-gold/80 hover:text-gold"
-              >
-                {t("nav.logout")}
-              </button>
+              <>
+                <Link
+                  to="/profile"
+                  onClick={() => setMobileOpen(false)}
+                  className="flex items-center gap-2 text-sm font-semibold text-gold"
+                >
+                  <User size={16} />
+                  {userName}
+                </Link>
+
+                {profile?.role === "admin" && (
+                  <Link
+                    to="/admin"
+                    onClick={() => setMobileOpen(false)}
+                    className="text-sm font-semibold uppercase tracking-wider text-gold/90"
+                  >
+                    {t("nav.admin")}
+                  </Link>
+                )}
+
+                <button
+                  onClick={() => {
+                    setMobileOpen(false);
+                    handleLogout();
+                  }}
+                  className="flex items-center gap-2 text-left text-sm font-medium text-gold/80 hover:text-gold"
+                >
+                  <LogOut size={16} />
+                  {t("nav.logout")}
+                </button>
+              </>
             )}
           </nav>
         </div>
