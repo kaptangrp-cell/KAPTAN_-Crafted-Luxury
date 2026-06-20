@@ -6,13 +6,42 @@ export const getCategories = createServerFn({ method: "GET" }).handler(async () 
     .from("categories")
     .select("*")
     .order("sort_order", { ascending: true });
+
   if (error) throw new Error(error.message);
+
   return { categories: data ?? [] };
 });
 
 export const getProducts = createServerFn({ method: "POST" })
-  .inputValidator((input: { categorySlug?: string; search?: string; limit?: number; offset?: number }) => input)
+  .inputValidator(
+    (input: {
+      categorySlug?: string;
+      search?: string;
+      limit?: number;
+      offset?: number;
+    }) => input,
+  )
   .handler(async ({ data }) => {
+    let categoryId: string | null = null;
+
+    if (data.categorySlug) {
+      const { data: category, error: catError } = await supabase
+        .from("categories")
+        .select("id")
+        .eq("slug", data.categorySlug)
+        .single();
+
+      if (catError) {
+        return { products: [] };
+      }
+
+      categoryId = category?.id ?? null;
+
+      if (!categoryId) {
+        return { products: [] };
+      }
+    }
+
     let query = supabase
       .from("products")
       .select("*, categories(name, slug), product_images(url, sort_order)")
@@ -20,8 +49,8 @@ export const getProducts = createServerFn({ method: "POST" })
       .order("created_at", { ascending: false })
       .range(data.offset ?? 0, (data.offset ?? 0) + (data.limit ?? 24) - 1);
 
-    if (data.categorySlug) {
-      query = query.eq("categories.slug", data.categorySlug);
+    if (categoryId) {
+      query = query.eq("category_id", categoryId);
     }
 
     if (data.search) {
@@ -29,7 +58,9 @@ export const getProducts = createServerFn({ method: "POST" })
     }
 
     const { data: products, error } = await query;
+
     if (error) throw new Error(error.message);
+
     return { products: products ?? [] };
   });
 
@@ -41,7 +72,9 @@ export const getProductBySlug = createServerFn({ method: "POST" })
       .select("*, categories(name, slug), product_images(*), product_variants(*)")
       .eq("slug", data.slug)
       .single();
+
     if (error) throw new Error(error.message);
+
     return { product };
   });
 
@@ -53,6 +86,8 @@ export const getFeaturedProducts = createServerFn({ method: "GET" }).handler(asy
     .eq("is_available", true)
     .order("sold_count", { ascending: false })
     .limit(8);
+
   if (error) throw new Error(error.message);
+
   return { products: data ?? [] };
 });

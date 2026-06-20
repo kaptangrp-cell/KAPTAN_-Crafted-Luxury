@@ -51,25 +51,27 @@ function ProductsPage() {
   const navigate = Route.useNavigate();
 
   const { data: prodData } = useSuspenseQuery(
-    productsQueryOptions({ q: search.q, category: search.category })
+    productsQueryOptions({ q: search.q, category: search.category }),
   );
   const { data: catData } = useSuspenseQuery(categoriesQueryOptions);
 
   const products = prodData?.products ?? [];
   const categories = catData?.categories ?? [];
 
+  const activeCategory = categories.find((c) => c.slug === search.category);
+
   const leatherCategories = categories.filter((c) =>
-    c.slug.toLowerCase().includes("leather")
+    c.slug.toLowerCase().includes("leather"),
   );
 
   const saltCategories = categories.filter((c) =>
-    c.slug.toLowerCase().includes("salt")
+    c.slug.toLowerCase().includes("salt"),
   );
 
   const otherCategories = categories.filter(
     (c) =>
       !c.slug.toLowerCase().includes("leather") &&
-      !c.slug.toLowerCase().includes("salt")
+      !c.slug.toLowerCase().includes("salt"),
   );
 
   function selectCategory(slug?: string) {
@@ -80,6 +82,14 @@ function ProductsPage() {
       },
     });
   }
+
+  const emptyTitle = search.category
+    ? `${activeCategory?.name ?? "This category"} is coming soon`
+    : "No products available";
+
+  const emptyDescription = search.category
+    ? "We are preparing products for this category. Please check again soon."
+    : "Products will be added soon.";
 
   return (
     <PageLayout>
@@ -148,8 +158,17 @@ function ProductsPage() {
           </aside>
 
           {products.length === 0 ? (
-            <div className="flex min-h-[300px] items-center justify-center border border-dashed border-gold/20 text-white/60">
-              No products match your filters.
+            <div className="flex min-h-[360px] flex-col items-center justify-center border border-dashed border-gold/20 bg-[#1A1A1A] px-6 text-center">
+              <h2 className="font-serif text-3xl text-white">{emptyTitle}</h2>
+              <p className="mt-3 max-w-md text-sm leading-relaxed text-white/60">
+                {emptyDescription}
+              </p>
+              <button
+                onClick={() => selectCategory(undefined)}
+                className="mt-6 border border-gold px-4 py-2 text-sm font-semibold text-gold hover:bg-gold hover:text-black"
+              >
+                View All Products
+              </button>
             </div>
           ) : (
             <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
