@@ -136,7 +136,7 @@ export const createOrder = createServerFn({ method: "POST" })
         shipping_address: data.shipping_address,
         payment_method: data.payment_method,
         payment_status: "pending",
-        status: "pending",
+        status: "ordered",
         subtotal,
         shipping_cost,
         discount: 0,

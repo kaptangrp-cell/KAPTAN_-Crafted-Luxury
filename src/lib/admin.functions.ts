@@ -12,6 +12,7 @@ export const getAdminStats = createServerFn({ method: "GET" })
   .handler(async ({ context }) => {
     await assertAdmin(context.supabase, context.userId);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
     const [products, orders, customers, revenueRes, recent] = await Promise.all([
       supabaseAdmin.from("products").select("id", { count: "exact", head: true }),
       supabaseAdmin.from("orders").select("id, status", { count: "exact" }),
@@ -23,12 +24,15 @@ export const getAdminStats = createServerFn({ method: "GET" })
         .order("created_at", { ascending: false })
         .limit(10),
     ]);
+
     const revenue = (revenueRes.data ?? []).reduce((s, r) => s + Number(r.total), 0);
+
     const statusCounts = (orders.data ?? []).reduce<Record<string, number>>((acc, o) => {
-      const k = o.status ?? "pending";
+      const k = o.status ?? "ordered";
       acc[k] = (acc[k] ?? 0) + 1;
       return acc;
     }, {});
+
     return {
       productCount: products.count ?? 0,
       orderCount: orders.count ?? 0,
@@ -44,10 +48,12 @@ export const adminListProducts = createServerFn({ method: "GET" })
   .handler(async ({ context }) => {
     await assertAdmin(context.supabase, context.userId);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
     const { data, error } = await supabaseAdmin
       .from("products")
       .select("id, name, slug, price, stock_quantity, is_available, is_featured, category_id, categories(name), product_images(url, sort_order)")
       .order("created_at", { ascending: false });
+
     if (error) throw new Error(error.message);
     return { products: data ?? [] };
   });
@@ -73,20 +79,34 @@ export const adminUpsertProduct = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     await assertAdmin(context.supabase, context.userId);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
     const { id, image_url, ...payload } = data;
     let productId = id;
+
     if (id) {
       const { error } = await supabaseAdmin.from("products").update(payload).eq("id", id);
       if (error) throw new Error(error.message);
     } else {
-      const { data: row, error } = await supabaseAdmin.from("products").insert(payload).select("id").single();
+      const { data: row, error } = await supabaseAdmin
+        .from("products")
+        .insert(payload)
+        .select("id")
+        .single();
+
       if (error) throw new Error(error.message);
       productId = row.id;
     }
+
     if (image_url && productId) {
       await supabaseAdmin.from("product_images").delete().eq("product_id", productId);
-      await supabaseAdmin.from("product_images").insert({ product_id: productId, url: image_url, sort_order: 0, alt_text: payload.name });
+      await supabaseAdmin.from("product_images").insert({
+        product_id: productId,
+        url: image_url,
+        sort_order: 0,
+        alt_text: payload.name,
+      });
     }
+
     return { id: productId };
   });
 
@@ -96,8 +116,10 @@ export const adminDeleteProduct = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     await assertAdmin(context.supabase, context.userId);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
     const { error } = await supabaseAdmin.from("products").delete().eq("id", data.id);
     if (error) throw new Error(error.message);
+
     return { ok: true };
   });
 
@@ -106,8 +128,10 @@ export const adminListCategories = createServerFn({ method: "GET" })
   .handler(async ({ context }) => {
     await assertAdmin(context.supabase, context.userId);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
     const { data, error } = await supabaseAdmin.from("categories").select("*").order("sort_order");
     if (error) throw new Error(error.message);
+
     return { categories: data ?? [] };
   });
 
@@ -126,14 +150,23 @@ export const adminUpsertCategory = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     await assertAdmin(context.supabase, context.userId);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
     const { id, ...payload } = data;
+
     if (id) {
       const { error } = await supabaseAdmin.from("categories").update(payload).eq("id", id);
       if (error) throw new Error(error.message);
       return { id };
     }
-    const { data: row, error } = await supabaseAdmin.from("categories").insert(payload).select("id").single();
+
+    const { data: row, error } = await supabaseAdmin
+      .from("categories")
+      .insert(payload)
+      .select("id")
+      .single();
+
     if (error) throw new Error(error.message);
+
     return { id: row.id };
   });
 
@@ -143,8 +176,10 @@ export const adminDeleteCategory = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     await assertAdmin(context.supabase, context.userId);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
     const { error } = await supabaseAdmin.from("categories").delete().eq("id", data.id);
     if (error) throw new Error(error.message);
+
     return { ok: true };
   });
 
@@ -153,12 +188,15 @@ export const adminListOrders = createServerFn({ method: "GET" })
   .handler(async ({ context }) => {
     await assertAdmin(context.supabase, context.userId);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
     const { data, error } = await supabaseAdmin
       .from("orders")
       .select("id, order_number, customer_name, customer_email, total, status, payment_status, created_at")
       .order("created_at", { ascending: false })
       .limit(100);
+
     if (error) throw new Error(error.message);
+
     return { orders: data ?? [] };
   });
 
@@ -167,14 +205,20 @@ export const adminUpdateOrderStatus = createServerFn({ method: "POST" })
   .inputValidator((input: { id: string; status: string }) =>
     z.object({
       id: z.string().uuid(),
-      status: z.enum(["pending", "processing", "shipped", "delivered", "cancelled"]),
+      status: z.enum(["ordered", "packaging", "out_for_delivery", "delivered", "cancelled"]),
     }).parse(input),
   )
   .handler(async ({ data, context }) => {
     await assertAdmin(context.supabase, context.userId);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { error } = await supabaseAdmin.from("orders").update({ status: data.status }).eq("id", data.id);
+
+    const { error } = await supabaseAdmin
+      .from("orders")
+      .update({ status: data.status })
+      .eq("id", data.id);
+
     if (error) throw new Error(error.message);
+
     return { ok: true };
   });
 
@@ -183,11 +227,14 @@ export const adminListCustomers = createServerFn({ method: "GET" })
   .handler(async ({ context }) => {
     await assertAdmin(context.supabase, context.userId);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
     const { data, error } = await supabaseAdmin
       .from("profiles")
       .select("id, full_name, phone, role, created_at")
       .order("created_at", { ascending: false })
       .limit(200);
+
     if (error) throw new Error(error.message);
+
     return { customers: data ?? [] };
   });
