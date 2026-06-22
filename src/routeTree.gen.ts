@@ -21,7 +21,7 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as ProductsSlugRouteImport } from './routes/products.$slug'
+import { Route as ProductsSlugRouteImport } from './routes/products_.$slug'
 import { Route as AuthenticatedWishlistRouteImport } from './routes/_authenticated/wishlist'
 import { Route as AuthenticatedProfileRouteImport } from './routes/_authenticated/profile'
 import { Route as AuthenticatedOrdersRouteImport } from './routes/_authenticated/orders'
@@ -93,9 +93,9 @@ const IndexRoute = IndexRouteImport.update({
   getParentRoute: () => rootRouteImport,
 } as any)
 const ProductsSlugRoute = ProductsSlugRouteImport.update({
-  id: '/$slug',
-  path: '/$slug',
-  getParentRoute: () => ProductsRoute,
+  id: '/products_/$slug',
+  path: '/products/$slug',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedWishlistRoute = AuthenticatedWishlistRouteImport.update({
   id: '/wishlist',
@@ -161,7 +161,7 @@ export interface FileRoutesByFullPath {
   '/contact': typeof ContactRoute
   '/faq': typeof FaqRoute
   '/privacy': typeof PrivacyRoute
-  '/products': typeof ProductsRouteWithChildren
+  '/products': typeof ProductsRoute
   '/returns': typeof ReturnsRoute
   '/shipping': typeof ShippingRoute
   '/admin': typeof AuthenticatedAdminRouteRouteWithChildren
@@ -185,7 +185,7 @@ export interface FileRoutesByTo {
   '/contact': typeof ContactRoute
   '/faq': typeof FaqRoute
   '/privacy': typeof PrivacyRoute
-  '/products': typeof ProductsRouteWithChildren
+  '/products': typeof ProductsRoute
   '/returns': typeof ReturnsRoute
   '/shipping': typeof ShippingRoute
   '/orders': typeof AuthenticatedOrdersRouteWithChildren
@@ -210,14 +210,14 @@ export interface FileRoutesById {
   '/contact': typeof ContactRoute
   '/faq': typeof FaqRoute
   '/privacy': typeof PrivacyRoute
-  '/products': typeof ProductsRouteWithChildren
+  '/products': typeof ProductsRoute
   '/returns': typeof ReturnsRoute
   '/shipping': typeof ShippingRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRouteRouteWithChildren
   '/_authenticated/orders': typeof AuthenticatedOrdersRouteWithChildren
   '/_authenticated/profile': typeof AuthenticatedProfileRoute
   '/_authenticated/wishlist': typeof AuthenticatedWishlistRoute
-  '/products/$slug': typeof ProductsSlugRoute
+  '/products_/$slug': typeof ProductsSlugRoute
   '/_authenticated/admin/categories': typeof AuthenticatedAdminCategoriesRoute
   '/_authenticated/admin/customers': typeof AuthenticatedAdminCustomersRoute
   '/_authenticated/admin/orders': typeof AuthenticatedAdminOrdersRoute
@@ -291,7 +291,7 @@ export interface FileRouteTypes {
     | '/_authenticated/orders'
     | '/_authenticated/profile'
     | '/_authenticated/wishlist'
-    | '/products/$slug'
+    | '/products_/$slug'
     | '/_authenticated/admin/categories'
     | '/_authenticated/admin/customers'
     | '/_authenticated/admin/orders'
@@ -310,9 +310,10 @@ export interface RootRouteChildren {
   ContactRoute: typeof ContactRoute
   FaqRoute: typeof FaqRoute
   PrivacyRoute: typeof PrivacyRoute
-  ProductsRoute: typeof ProductsRouteWithChildren
+  ProductsRoute: typeof ProductsRoute
   ReturnsRoute: typeof ReturnsRoute
   ShippingRoute: typeof ShippingRoute
+  ProductsSlugRoute: typeof ProductsSlugRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -401,12 +402,12 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/products/$slug': {
-      id: '/products/$slug'
-      path: '/$slug'
+    '/products_/$slug': {
+      id: '/products_/$slug'
+      path: '/products/$slug'
       fullPath: '/products/$slug'
       preLoaderRoute: typeof ProductsSlugRouteImport
-      parentRoute: typeof ProductsRoute
+      parentRoute: typeof rootRouteImport
     }
     '/_authenticated/wishlist': {
       id: '/_authenticated/wishlist'
@@ -531,18 +532,6 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
 const AuthenticatedRouteRouteWithChildren =
   AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
 
-interface ProductsRouteChildren {
-  ProductsSlugRoute: typeof ProductsSlugRoute
-}
-
-const ProductsRouteChildren: ProductsRouteChildren = {
-  ProductsSlugRoute: ProductsSlugRoute,
-}
-
-const ProductsRouteWithChildren = ProductsRoute._addFileChildren(
-  ProductsRouteChildren,
-)
-
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
@@ -553,9 +542,10 @@ const rootRouteChildren: RootRouteChildren = {
   ContactRoute: ContactRoute,
   FaqRoute: FaqRoute,
   PrivacyRoute: PrivacyRoute,
-  ProductsRoute: ProductsRouteWithChildren,
+  ProductsRoute: ProductsRoute,
   ReturnsRoute: ReturnsRoute,
   ShippingRoute: ShippingRoute,
+  ProductsSlugRoute: ProductsSlugRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

@@ -24,7 +24,7 @@ function productQueryOptions(slug: string) {
   });
 }
 
-export const Route = createFileRoute("/products/$slug")({
+export const Route = createFileRoute("/products_/$slug")({
   loader: async ({ context, params }) => {
     try {
       await context.queryClient.ensureQueryData(productQueryOptions(params.slug));
