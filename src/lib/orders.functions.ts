@@ -1,8 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
-import { createClient } from "@supabase/supabase-js";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
-import type { Database } from "@/integrations/supabase/types";
 
 const AddressSchema = z.object({
   full_name: z.string().min(1).max(120),
@@ -37,54 +35,32 @@ function generateOrderNumber() {
   return `KPT-${ts}-${rand}`;
 }
 
-function createGuestSupabaseClient() {
-  const SUPABASE_URL = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL;
-  const SUPABASE_PUBLISHABLE_KEY =
-    process.env.SUPABASE_PUBLISHABLE_KEY || process.env.VITE_SUPABASE_PUBLISHABLE_KEY;
-
-  if (!SUPABASE_URL || !SUPABASE_PUBLISHABLE_KEY) {
-    throw new Error("Missing Supabase public environment variables");
-  }
-
-  return createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
-    auth: {
-      persistSession: false,
-      autoRefreshToken: false,
-    },
-  });
-}
-
 export const createOrder = createServerFn({ method: "POST" })
   .inputValidator((input: unknown) => CreateOrderSchema.parse(input))
   .handler(async ({ data }) => {
-    const supabase = createGuestSupabaseClient();
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
     const productIds = data.items.map((i) => i.productId);
-    const variantIds = data.items
-      .map((i) => i.variantId)
-      .filter(Boolean) as string[];
+    const variantIds = data.items.map((i) => i.variantId).filter(Boolean) as string[];
 
-    const { data: products, error: pErr } = await supabase
+    const { data: products, error: pErr } = await supabaseAdmin
       .from("products")
       .select("id, name, price, stock_quantity, is_available")
       .in("id", productIds);
 
     if (pErr) throw new Error(pErr.message);
 
-    const variantMap = new Map<
-      string,
-      {
-        id: string;
-        product_id: string;
-        variant_type: string;
-        variant_value: string;
-        price_modifier: number | null;
-        stock_quantity: number | null;
-      }
-    >();
+    const variantMap = new Map<string, {
+      id: string;
+      product_id: string;
+      variant_type: string;
+      variant_value: string;
+      price_modifier: number | null;
+      stock_quantity: number | null;
+    }>();
 
     if (variantIds.length) {
-      const { data: variants, error: vErr } = await supabase
+      const { data: variants, error: vErr } = await supabaseAdmin
         .from("product_variants")
         .select("id, product_id, variant_type, variant_value, price_modifier, stock_quantity")
         .in("id", variantIds);
@@ -102,10 +78,7 @@ export const createOrder = createServerFn({ method: "POST" })
         throw new Error(`Product unavailable: ${item.productId}`);
       }
 
-      if (
-        product.stock_quantity !== null &&
-        product.stock_quantity < item.quantity
-      ) {
+      if (product.stock_quantity !== null && product.stock_quantity < item.quantity) {
         throw new Error(`Insufficient stock for ${product.name}`);
       }
 
@@ -119,9 +92,7 @@ export const createOrder = createServerFn({ method: "POST" })
         product_id: product.id,
         variant_id: variant?.id ?? null,
         product_name: product.name,
-        variant_info: variant
-          ? `${variant.variant_type}: ${variant.variant_value}`
-          : null,
+        variant_info: variant ? `${variant.variant_type}: ${variant.variant_value}` : null,
         quantity: item.quantity,
         unit_price: unitPrice,
         line_total: lineTotal,
@@ -132,7 +103,7 @@ export const createOrder = createServerFn({ method: "POST" })
     const total = subtotal + shipping_cost;
     const order_number = generateOrderNumber();
 
-    const { data: order, error: oErr } = await supabase
+    const { data: order, error: oErr } = await supabaseAdmin
       .from("orders")
       .insert({
         order_number,
@@ -153,21 +124,14 @@ export const createOrder = createServerFn({ method: "POST" })
       .select("id, order_number")
       .single();
 
-    if (oErr) {
-      throw new Error(oErr.message);
-    }
+    if (oErr) throw new Error(oErr.message);
 
-    const itemsWithOrder = orderItems.map((item) => ({
-      ...item,
-      order_id: order.id,
-    }));
-
-    const { error: iErr } = await supabase
+    const { error: iErr } = await supabaseAdmin
       .from("order_items")
-      .insert(itemsWithOrder);
+      .insert(orderItems.map((item) => ({ ...item, order_id: order.id })));
 
     if (iErr) {
-      await supabase.from("orders").delete().eq("id", order.id);
+      await supabaseAdmin.from("orders").delete().eq("id", order.id);
       throw new Error(iErr.message);
     }
 
@@ -182,21 +146,18 @@ export const getMyOrders = createServerFn({ method: "GET" })
   .handler(async ({ context }) => {
     const { data, error } = await context.supabase
       .from("orders")
-      .select(
-        "id, order_number, status, payment_status, total, created_at, order_items(quantity, product_name)",
-      )
+      .select("id, order_number, status, payment_status, total, created_at, order_items(quantity, product_name)")
       .eq("user_id", context.userId)
       .order("created_at", { ascending: false });
 
     if (error) throw new Error(error.message);
-
     return { orders: data ?? [] };
   });
 
 export const getOrderById = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: { id: string }) =>
-    z.object({ id: z.string().uuid() }).parse(input),
+    z.object({ id: z.string().uuid() }).parse(input)
   )
   .handler(async ({ data, context }) => {
     const { data: order, error } = await context.supabase
@@ -207,6 +168,5 @@ export const getOrderById = createServerFn({ method: "POST" })
       .single();
 
     if (error) throw new Error(error.message);
-
     return { order };
   });
