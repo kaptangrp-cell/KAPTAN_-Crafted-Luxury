@@ -10,6 +10,7 @@ import {
   Leaf,
   Heart,
   CreditCard,
+  Play,
 } from "lucide-react";
 import { toast } from "sonner";
 import { getProductBySlug } from "@/lib/products.functions";
@@ -53,7 +54,13 @@ function ProductDetailPage() {
     full_description: string | null;
     stock_quantity: number | null;
     tags: string[] | null;
-    product_images: { id: string; url: string; alt_text: string | null; sort_order?: number | null }[];
+    product_images: {
+      id: string;
+      url: string;
+      alt_text: string | null;
+      sort_order?: number | null;
+      media_type?: "image" | "video" | null;
+    }[];
     product_variants: {
       id: string;
       variant_type: string;
@@ -65,21 +72,25 @@ function ProductDetailPage() {
   };
 
   const [qty, setQty] = useState(1);
-  const [activeImage, setActiveImage] = useState(0);
+  const [activeMedia, setActiveMedia] = useState(0);
   const [variantId, setVariantId] = useState<string | null>(null);
 
   const addItem = useCartStore((s) => s.addItem);
   const openCart = useUIStore((s) => s.openCart);
 
-  const images = product.product_images?.length
+  const media = product.product_images?.length
     ? [...product.product_images].sort((a, b) => Number(a.sort_order ?? 0) - Number(b.sort_order ?? 0))
     : [
         {
           id: "ph",
           url: "https://images.unsplash.com/photo-1602028915047-37269d1a73f7?w=800&q=80",
           alt_text: product.name,
+          media_type: "image" as const,
         },
       ];
+
+  const active = media[activeMedia];
+  const firstImage = media.find((m) => m.media_type !== "video") ?? media[0];
 
   const variants = product.product_variants ?? [];
   const variant = variants.find((v) => v.id === variantId) ?? null;
@@ -87,13 +98,13 @@ function ProductDetailPage() {
   const outOfStock = product.stock_quantity === 0;
 
   function handleAdd() {
-    addItem(product as never, variant as never, qty, images[0].url);
+    addItem(product as never, variant as never, qty, firstImage.url);
     toast.success(`${product.name} added to cart`);
     openCart();
   }
 
   function handleBuyNow() {
-    addItem(product as never, variant as never, qty, images[0].url);
+    addItem(product as never, variant as never, qty, firstImage.url);
     toast.success(`${product.name} added to cart`);
     navigate({ to: "/checkout" });
   }
@@ -112,24 +123,42 @@ function ProductDetailPage() {
         <div className="grid gap-10 md:grid-cols-2">
           <div>
             <div className="aspect-square overflow-hidden border border-gold/10 bg-[#1A1A1A]">
-              <img
-                src={images[activeImage].url}
-                alt={images[activeImage].alt_text ?? product.name}
-                className="h-full w-full object-cover"
-              />
+              {active.media_type === "video" ? (
+                <video
+                  src={active.url}
+                  controls
+                  playsInline
+                  className="h-full w-full object-cover"
+                />
+              ) : (
+                <img
+                  src={active.url}
+                  alt={active.alt_text ?? product.name}
+                  className="h-full w-full object-cover"
+                />
+              )}
             </div>
 
-            {images.length > 1 && (
+            {media.length > 1 && (
               <div className="mt-3 flex gap-2 overflow-x-auto">
-                {images.map((img, i) => (
+                {media.map((item, i) => (
                   <button
-                    key={img.id}
-                    onClick={() => setActiveImage(i)}
-                    className={`h-20 w-20 flex-shrink-0 overflow-hidden border ${
-                      i === activeImage ? "border-gold" : "border-gold/20"
+                    key={item.id ?? item.url}
+                    onClick={() => setActiveMedia(i)}
+                    className={`relative h-20 w-20 flex-shrink-0 overflow-hidden border ${
+                      i === activeMedia ? "border-gold" : "border-gold/20"
                     }`}
                   >
-                    <img src={img.url} alt="" className="h-full w-full object-cover" />
+                    {item.media_type === "video" ? (
+                      <>
+                        <video src={item.url} className="h-full w-full object-cover" muted />
+                        <span className="absolute inset-0 flex items-center justify-center bg-black/40 text-gold">
+                          <Play size={18} />
+                        </span>
+                      </>
+                    ) : (
+                      <img src={item.url} alt="" className="h-full w-full object-cover" />
+                    )}
                   </button>
                 ))}
               </div>
@@ -201,20 +230,14 @@ function ProductDetailPage() {
                 Number of units
               </h3>
 
-              <div className="flex items-center border border-gold/30 w-fit">
-                <button
-                  onClick={() => setQty(Math.max(1, qty - 1))}
-                  className="px-3 py-2 text-gold"
-                >
+              <div className="flex w-fit items-center border border-gold/30">
+                <button onClick={() => setQty(Math.max(1, qty - 1))} className="px-3 py-2 text-gold">
                   <Minus size={16} />
                 </button>
 
                 <span className="min-w-[3ch] px-4 text-center text-white">{qty}</span>
 
-                <button
-                  onClick={() => setQty(qty + 1)}
-                  className="px-3 py-2 text-gold"
-                >
+                <button onClick={() => setQty(qty + 1)} className="px-3 py-2 text-gold">
                   <Plus size={16} />
                 </button>
               </div>

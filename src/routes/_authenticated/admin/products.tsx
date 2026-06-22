@@ -1,9 +1,10 @@
 import { useState } from "react";
+import type { ReactNode } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { Plus, Pencil, Trash2 } from "lucide-react";
+import { Plus, Pencil, Trash2, ImageIcon, Video, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import {
   adminListProducts,
@@ -16,17 +17,32 @@ export const Route = createFileRoute("/_authenticated/admin/products")({
   component: AdminProductsPage,
 });
 
+type MediaItem = {
+  url: string;
+  media_type: "image" | "video";
+  sort_order: number;
+};
+
 type ProductRow = {
   id: string;
   name: string;
   slug: string;
   price: number;
+  compare_at_price: number | null;
+  short_description: string | null;
+  full_description: string | null;
   stock_quantity: number;
   is_available: boolean | null;
   is_featured: boolean | null;
   category_id: string | null;
   categories: { name: string } | null;
-  product_images: { url: string; sort_order: number }[];
+  product_images: {
+    id?: string;
+    url: string;
+    sort_order: number;
+    alt_text?: string | null;
+    media_type?: "image" | "video" | null;
+  }[];
 };
 
 const empty = {
@@ -41,7 +57,7 @@ const empty = {
   stock_quantity: 0,
   is_available: true,
   is_featured: false,
-  image_url: "",
+  media_items: [] as MediaItem[],
 };
 
 function AdminProductsPage() {
@@ -78,7 +94,11 @@ function AdminProductsPage() {
           stock_quantity: Number(form.stock_quantity),
           is_available: form.is_available,
           is_featured: form.is_featured,
-          image_url: form.image_url || null,
+          media_items: form.media_items.map((m, index) => ({
+            url: m.url,
+            media_type: m.media_type,
+            sort_order: index,
+          })),
         },
       }),
     onSuccess: () => {
@@ -104,14 +124,54 @@ function AdminProductsPage() {
       name: p.name,
       slug: p.slug,
       category_id: p.category_id,
-      short_description: "",
-      full_description: "",
+      short_description: p.short_description ?? "",
+      full_description: p.full_description ?? "",
       price: Number(p.price),
-      compare_at_price: null,
+      compare_at_price: p.compare_at_price ? Number(p.compare_at_price) : null,
       stock_quantity: p.stock_quantity,
       is_available: p.is_available ?? true,
       is_featured: p.is_featured ?? false,
-      image_url: p.product_images?.[0]?.url ?? "",
+      media_items: (p.product_images ?? [])
+        .sort((a, b) => Number(a.sort_order ?? 0) - Number(b.sort_order ?? 0))
+        .map((m, index) => ({
+          url: m.url,
+          media_type: m.media_type === "video" ? "video" : "image",
+          sort_order: index,
+        })),
+    });
+  }
+
+  function addMedia(type: "image" | "video") {
+    if (!editing) return;
+
+    setEditing({
+      ...editing,
+      media_items: [
+        ...editing.media_items,
+        {
+          url: "",
+          media_type: type,
+          sort_order: editing.media_items.length,
+        },
+      ],
+    });
+  }
+
+  function updateMedia(index: number, patch: Partial<MediaItem>) {
+    if (!editing) return;
+
+    setEditing({
+      ...editing,
+      media_items: editing.media_items.map((m, i) => (i === index ? { ...m, ...patch } : m)),
+    });
+  }
+
+  function removeMedia(index: number) {
+    if (!editing) return;
+
+    setEditing({
+      ...editing,
+      media_items: editing.media_items.filter((_, i) => i !== index),
     });
   }
 
@@ -136,6 +196,7 @@ function AdminProductsPage() {
             <tr>
               <th className="p-3">Product</th>
               <th className="p-3">Category</th>
+              <th className="p-3">Media</th>
               <th className="p-3">Price</th>
               <th className="p-3">Stock</th>
               <th className="p-3">Status</th>
@@ -146,72 +207,75 @@ function AdminProductsPage() {
           <tbody>
             {isLoading && (
               <tr>
-                <td colSpan={6} className="p-6 text-center text-white/50">
+                <td colSpan={7} className="p-6 text-center text-white/50">
                   Loading...
                 </td>
               </tr>
             )}
 
-            {products.map((p) => (
-              <tr key={p.id} className="border-t border-gold/5">
-                <td className="p-3">
-                  <div className="flex items-center gap-3">
-                    {p.product_images?.[0]?.url && (
-                      <img
-                        src={p.product_images[0].url}
-                        alt=""
-                        className="h-10 w-10 object-cover"
-                      />
-                    )}
-                    <span className="text-white">{p.name}</span>
-                  </div>
-                </td>
+            {products.map((p) => {
+              const sortedMedia = (p.product_images ?? []).sort(
+                (a, b) => Number(a.sort_order ?? 0) - Number(b.sort_order ?? 0),
+              );
+              const firstImage = sortedMedia.find((m) => m.media_type !== "video") ?? sortedMedia[0];
 
-                <td className="p-3 text-white/60">{p.categories?.name ?? "—"}</td>
-                <td className="p-3 font-mono text-gold">€{Number(p.price).toFixed(2)}</td>
-                <td className="p-3 font-mono text-white/70">{p.stock_quantity}</td>
+              return (
+                <tr key={p.id} className="border-t border-gold/5">
+                  <td className="p-3">
+                    <div className="flex items-center gap-3">
+                      {firstImage?.url && firstImage.media_type === "video" ? (
+                        <video src={firstImage.url} className="h-10 w-10 object-cover" muted />
+                      ) : firstImage?.url ? (
+                        <img src={firstImage.url} alt="" className="h-10 w-10 object-cover" />
+                      ) : null}
+                      <span className="text-white">{p.name}</span>
+                    </div>
+                  </td>
 
-                <td className="p-3 text-xs">
-                  <span
-                    className={`rounded-full px-2 py-0.5 ${
-                      p.is_available
-                        ? "bg-green-500/20 text-green-300"
-                        : "bg-red-500/20 text-red-300"
-                    }`}
-                  >
-                    {p.is_available ? "Active" : "Hidden"}
-                  </span>
+                  <td className="p-3 text-white/60">{p.categories?.name ?? "—"}</td>
+                  <td className="p-3 text-white/60">{sortedMedia.length}</td>
+                  <td className="p-3 font-mono text-gold">€{Number(p.price).toFixed(2)}</td>
+                  <td className="p-3 font-mono text-white/70">{p.stock_quantity}</td>
 
-                  {p.is_featured && (
-                    <span className="ml-1 rounded-full bg-gold/20 px-2 py-0.5 text-gold">
-                      Featured
+                  <td className="p-3 text-xs">
+                    <span
+                      className={`rounded-full px-2 py-0.5 ${
+                        p.is_available
+                          ? "bg-green-500/20 text-green-300"
+                          : "bg-red-500/20 text-red-300"
+                      }`}
+                    >
+                      {p.is_available ? "Active" : "Hidden"}
                     </span>
-                  )}
-                </td>
 
-                <td className="p-3">
-                  <div className="flex justify-end gap-2">
-                    <button
-                      onClick={() => startEdit(p)}
-                      className="text-gold/70 hover:text-gold"
-                    >
-                      <Pencil size={14} />
-                    </button>
+                    {p.is_featured && (
+                      <span className="ml-1 rounded-full bg-gold/20 px-2 py-0.5 text-gold">
+                        Featured
+                      </span>
+                    )}
+                  </td>
 
-                    <button
-                      onClick={() => confirm(`Delete ${p.name}?`) && del.mutate(p.id)}
-                      className="text-white/40 hover:text-red-400"
-                    >
-                      <Trash2 size={14} />
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            ))}
+                  <td className="p-3">
+                    <div className="flex justify-end gap-2">
+                      <button onClick={() => startEdit(p)} className="text-gold/70 hover:text-gold">
+                        <Pencil size={14} />
+                      </button>
+
+                      <button
+                        onClick={() => confirm(`Delete ${p.name}?`) && del.mutate(p.id)}
+                        className="text-white/40 hover:text-red-400"
+                      >
+                        <Trash2 size={14} />
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              );
+            })}
 
             {!isLoading && !products.length && (
               <tr>
-                <td colSpan={6} className="p-6 text-center text-white/50">
+                <td colSpan={7} className="p-6 text-center text-white/50">
                   No products yet.
                 </td>
               </tr>
@@ -272,13 +336,6 @@ function AdminProductsPage() {
                 ))}
               </select>
             </label>
-
-            <ImageUpload
-              label="Product Image"
-              value={editing.image_url}
-              folder="products"
-              onUploaded={(url) => setEditing({ ...editing, image_url: url })}
-            />
 
             <F
               label="Price (€)"
@@ -345,6 +402,50 @@ function AdminProductsPage() {
                 className="w-full border border-gold/20 bg-[#0D0D0D] px-3 py-2 text-sm text-white"
               />
             </label>
+
+            <div className="md:col-span-2">
+              <div className="mb-3 flex items-center justify-between">
+                <span className="text-xs uppercase tracking-wider text-gold/70">
+                  Product Photos & Videos
+                </span>
+
+                <div className="flex gap-2">
+                  <button
+                    type="button"
+                    onClick={() => addMedia("image")}
+                    className="flex items-center gap-1 border border-gold/30 px-3 py-1 text-xs text-gold hover:bg-gold hover:text-black"
+                  >
+                    <ImageIcon size={14} /> Add Image
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => addMedia("video")}
+                    className="flex items-center gap-1 border border-gold/30 px-3 py-1 text-xs text-gold hover:bg-gold hover:text-black"
+                  >
+                    <Video size={14} /> Add Video
+                  </button>
+                </div>
+              </div>
+
+              <div className="space-y-4">
+                {editing.media_items.length === 0 && (
+                  <p className="border border-dashed border-gold/20 p-4 text-center text-sm text-white/50">
+                    No media added yet. Add at least one product image.
+                  </p>
+                )}
+
+                {editing.media_items.map((item, index) => (
+                  <MediaUpload
+                    key={index}
+                    item={item}
+                    index={index}
+                    onChange={(patch) => updateMedia(index, patch)}
+                    onRemove={() => removeMedia(index)}
+                  />
+                ))}
+              </div>
+            </div>
 
             <label className="flex items-center gap-2 text-sm text-white/80">
               <input
@@ -433,16 +534,16 @@ function F({
   );
 }
 
-function ImageUpload({
-  label,
-  value,
-  folder,
-  onUploaded,
+function MediaUpload({
+  item,
+  index,
+  onChange,
+  onRemove,
 }: {
-  label: string;
-  value: string;
-  folder: string;
-  onUploaded: (url: string) => void;
+  item: MediaItem;
+  index: number;
+  onChange: (patch: Partial<MediaItem>) => void;
+  onRemove: () => void;
 }) {
   const [uploading, setUploading] = useState(false);
 
@@ -450,58 +551,68 @@ function ImageUpload({
     try {
       setUploading(true);
 
-      const ext = file.name.split(".").pop() || "png";
-      const fileName = `${folder}/${Date.now()}-${Math.random()
-        .toString(36)
-        .slice(2)}.${ext}`;
+      const ext = file.name.split(".").pop() || (item.media_type === "video" ? "mp4" : "png");
+      const fileName = `products/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
 
-      const { error } = await supabase.storage
-        .from("product-images")
-        .upload(fileName, file, {
-          cacheControl: "3600",
-          upsert: true,
-        });
+      const { error } = await supabase.storage.from("product-images").upload(fileName, file, {
+        cacheControl: "3600",
+        upsert: true,
+      });
 
       if (error) throw error;
 
       const { data } = supabase.storage.from("product-images").getPublicUrl(fileName);
 
-      onUploaded(data.publicUrl);
-      toast.success("Image uploaded");
+      onChange({ url: data.publicUrl });
+      toast.success(item.media_type === "video" ? "Video uploaded" : "Image uploaded");
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Image upload failed");
+      toast.error(err instanceof Error ? err.message : "Upload failed");
     } finally {
       setUploading(false);
     }
   }
 
   return (
-    <label className="block">
-      <span className="mb-1 block text-xs uppercase tracking-wider text-gold/70">
-        {label}
-      </span>
+    <div className="border border-gold/15 bg-[#0D0D0D] p-3">
+      <div className="mb-2 flex items-center justify-between">
+        <p className="text-xs uppercase tracking-wider text-white/50">
+          {item.media_type === "video" ? "Video" : "Image"} #{index + 1}
+        </p>
+
+        <button type="button" onClick={onRemove} className="text-white/40 hover:text-red-400">
+          <X size={16} />
+        </button>
+      </div>
 
       <input
         type="file"
-        accept="image/*"
+        accept={item.media_type === "video" ? "video/*" : "image/*"}
         disabled={uploading}
         onChange={(e) => {
           const file = e.target.files?.[0];
           if (file) handleFile(file);
         }}
-        className="w-full border border-gold/20 bg-[#0D0D0D] px-3 py-2 text-sm text-white"
+        className="w-full border border-gold/20 bg-black px-3 py-2 text-sm text-white"
+      />
+
+      <input
+        type="url"
+        value={item.url}
+        onChange={(e) => onChange({ url: e.target.value })}
+        placeholder={item.media_type === "video" ? "Video URL" : "Image URL"}
+        className="mt-2 w-full border border-gold/20 bg-black px-3 py-2 text-sm text-white outline-none focus:border-gold"
       />
 
       {uploading && <p className="mt-1 text-xs text-gold">Uploading...</p>}
 
-      {value && (
-        <img
-          src={value}
-          alt=""
-          className="mt-3 h-24 w-24 border border-gold/20 object-cover"
-        />
+      {item.url && item.media_type === "video" && (
+        <video src={item.url} controls className="mt-3 h-32 w-full border border-gold/20 object-cover" />
       )}
-    </label>
+
+      {item.url && item.media_type === "image" && (
+        <img src={item.url} alt="" className="mt-3 h-32 w-32 border border-gold/20 object-cover" />
+      )}
+    </div>
   );
 }
 
@@ -511,12 +622,12 @@ export function Modal({
   onClose,
 }: {
   title: string;
-  children: React.ReactNode;
+  children: ReactNode;
   onClose: () => void;
 }) {
   return (
     <div className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-black/80 p-4 pt-16">
-      <div className="w-full max-w-2xl border border-gold/30 bg-[#1A1A1A]">
+      <div className="w-full max-w-3xl border border-gold/30 bg-[#1A1A1A]">
         <div className="flex items-center justify-between border-b border-gold/10 p-4">
           <h2 className="font-serif text-lg text-white">{title}</h2>
           <button onClick={onClose} className="text-white/40 hover:text-white">

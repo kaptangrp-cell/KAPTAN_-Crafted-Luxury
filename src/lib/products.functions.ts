@@ -31,20 +31,16 @@ export const getProducts = createServerFn({ method: "POST" })
         .eq("slug", data.categorySlug)
         .single();
 
-      if (catError) {
-        return { products: [] };
-      }
+      if (catError) return { products: [] };
 
       categoryId = category?.id ?? null;
 
-      if (!categoryId) {
-        return { products: [] };
-      }
+      if (!categoryId) return { products: [] };
     }
 
     let query = supabase
       .from("products")
-      .select("*, categories(name, slug), product_images(url, sort_order)")
+      .select("*, categories(name, slug), product_images(url, sort_order, media_type)")
       .eq("is_available", true)
       .order("created_at", { ascending: false })
       .range(data.offset ?? 0, (data.offset ?? 0) + (data.limit ?? 24) - 1);
@@ -81,7 +77,7 @@ export const getProductBySlug = createServerFn({ method: "POST" })
 export const getFeaturedProducts = createServerFn({ method: "GET" }).handler(async () => {
   const { data, error } = await supabase
     .from("products")
-    .select("*, categories(name, slug), product_images(url, sort_order)")
+    .select("*, categories(name, slug), product_images(url, sort_order, media_type)")
     .eq("is_featured", true)
     .eq("is_available", true)
     .order("sold_count", { ascending: false })

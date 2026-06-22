@@ -51,12 +51,33 @@ export const adminListProducts = createServerFn({ method: "GET" })
 
     const { data, error } = await supabaseAdmin
       .from("products")
-      .select("id, name, slug, price, stock_quantity, is_available, is_featured, category_id, categories(name), product_images(url, sort_order)")
+      .select(`
+        id,
+        name,
+        slug,
+        price,
+        compare_at_price,
+        short_description,
+        full_description,
+        stock_quantity,
+        is_available,
+        is_featured,
+        category_id,
+        categories(name),
+        product_images(id, url, sort_order, alt_text, media_type)
+      `)
       .order("created_at", { ascending: false });
 
     if (error) throw new Error(error.message);
+
     return { products: data ?? [] };
   });
+
+const MediaItemSchema = z.object({
+  url: z.string().url().max(2000),
+  media_type: z.enum(["image", "video"]),
+  sort_order: z.number().int().min(0),
+});
 
 const ProductSchema = z.object({
   id: z.string().uuid().nullable().optional(),
@@ -70,7 +91,7 @@ const ProductSchema = z.object({
   stock_quantity: z.number().int().min(0),
   is_available: z.boolean(),
   is_featured: z.boolean(),
-  image_url: z.string().url().max(2000).nullable().optional(),
+  media_items: z.array(MediaItemSchema).optional().default([]),
 });
 
 export const adminUpsertProduct = createServerFn({ method: "POST" })
@@ -80,7 +101,7 @@ export const adminUpsertProduct = createServerFn({ method: "POST" })
     await assertAdmin(context.supabase, context.userId);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
-    const { id, image_url, ...payload } = data;
+    const { id, media_items, ...payload } = data;
     let productId = id;
 
     if (id) {
@@ -97,14 +118,24 @@ export const adminUpsertProduct = createServerFn({ method: "POST" })
       productId = row.id;
     }
 
-    if (image_url && productId) {
+    if (productId) {
       await supabaseAdmin.from("product_images").delete().eq("product_id", productId);
-      await supabaseAdmin.from("product_images").insert({
-        product_id: productId,
-        url: image_url,
-        sort_order: 0,
-        alt_text: payload.name,
-      });
+
+      const cleanMedia = (media_items ?? []).filter((m) => m.url.trim());
+
+      if (cleanMedia.length > 0) {
+        const { error } = await supabaseAdmin.from("product_images").insert(
+          cleanMedia.map((m, index) => ({
+            product_id: productId,
+            url: m.url,
+            media_type: m.media_type,
+            sort_order: index,
+            alt_text: payload.name,
+          })),
+        );
+
+        if (error) throw new Error(error.message);
+      }
     }
 
     return { id: productId };
