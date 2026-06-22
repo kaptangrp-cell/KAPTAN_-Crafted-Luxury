@@ -194,7 +194,7 @@ function HomePage() {
           <div className="relative aspect-video overflow-hidden border border-gold/20 bg-[#1A1A1A] shadow-lg md:aspect-square">
             <iframe
               className="h-full w-full"
-              src="https://www.youtube.com/embed/E_rwyu6cdmc?rel=0&modestbranding=1"
+              src="https://www.youtube.com/watch?v=PS78866qStM"
               title="KAPTAN leather craft demo video"
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
               allowFullScreen
