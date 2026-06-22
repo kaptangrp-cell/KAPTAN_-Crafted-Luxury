@@ -24,9 +24,15 @@ export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
       { title: "KAPTAN — Crafted to Last. Lit to Inspire." },
-      { name: "description", content: "Premium handcrafted leather products and authentic Himalayan salt lamps." },
+      {
+        name: "description",
+        content: "Premium handcrafted leather products and authentic Himalayan salt lamps.",
+      },
       { property: "og:title", content: "KAPTAN — Crafted to Last. Lit to Inspire." },
-      { property: "og:description", content: "Premium handcrafted leather products and authentic Himalayan salt lamps." },
+      {
+        property: "og:description",
+        content: "Premium handcrafted leather products and authentic Himalayan salt lamps.",
+      },
     ],
   }),
   loader: ({ context }) =>
@@ -124,9 +130,12 @@ function HomePage() {
       <section className="bg-black px-4 py-16 md:px-6">
         <div className="mx-auto max-w-7xl">
           <div className="mb-10 text-center">
-            <h2 className="font-serif text-3xl font-bold text-white md:text-4xl">{t("home.collectionsTitle")}</h2>
+            <h2 className="font-serif text-3xl font-bold text-white md:text-4xl">
+              {t("home.collectionsTitle")}
+            </h2>
             <div className="mx-auto mt-3 h-0.5 w-12 bg-gold" />
           </div>
+
           <div className="grid gap-6 md:grid-cols-2">
             <Link
               to="/products"
@@ -135,10 +144,15 @@ function HomePage() {
             >
               <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent" />
               <div className="relative z-10 text-center">
-                <h3 className="font-serif text-2xl font-bold text-white">{t("home.leatherProducts")}</h3>
-                <span className="mt-2 inline-block text-sm text-gold transition-transform group-hover:translate-x-1">{t("home.shopNow")}</span>
+                <h3 className="font-serif text-2xl font-bold text-white">
+                  {t("home.leatherProducts")}
+                </h3>
+                <span className="mt-2 inline-block text-sm text-gold transition-transform group-hover:translate-x-1">
+                  {t("home.shopNow")}
+                </span>
               </div>
             </Link>
+
             <Link
               to="/products"
               search={{ category: "salt-lamp-natural" }}
@@ -146,8 +160,12 @@ function HomePage() {
             >
               <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent" />
               <div className="relative z-10 text-center">
-                <h3 className="font-serif text-2xl font-bold text-white">{t("home.himalayanSaltLamps")}</h3>
-                <span className="mt-2 inline-block text-sm text-gold transition-transform group-hover:translate-x-1">{t("home.shopNow")}</span>
+                <h3 className="font-serif text-2xl font-bold text-white">
+                  {t("home.himalayanSaltLamps")}
+                </h3>
+                <span className="mt-2 inline-block text-sm text-gold transition-transform group-hover:translate-x-1">
+                  {t("home.shopNow")}
+                </span>
               </div>
             </Link>
           </div>
@@ -157,9 +175,12 @@ function HomePage() {
       <section className="bg-[#0D0D0D] px-4 py-16 md:px-6">
         <div className="mx-auto max-w-7xl">
           <div className="mb-10 text-center">
-            <h2 className="font-serif text-3xl font-bold text-white md:text-4xl">{t("home.bestSellers")}</h2>
+            <h2 className="font-serif text-3xl font-bold text-white md:text-4xl">
+              {t("home.bestSellers")}
+            </h2>
             <div className="mx-auto mt-3 h-0.5 w-12 bg-gold" />
           </div>
+
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
             {featuredProducts.map((p) => (
               <ProductCard key={p.id} product={p} />
@@ -170,20 +191,29 @@ function HomePage() {
 
       <section className="bg-black px-4 py-16 md:px-6">
         <div className="mx-auto grid max-w-7xl items-center gap-10 md:grid-cols-2">
-          <div className="relative aspect-square bg-[#1A1A1A]">
-            <img
-              src="/kaptan-logo.png"
-              alt="KAPTAN"
-              className="absolute inset-0 m-auto h-1/2 w-1/2 object-contain opacity-20"
+          <div className="relative aspect-video overflow-hidden border border-gold/20 bg-[#1A1A1A] shadow-lg md:aspect-square">
+            <iframe
+              className="h-full w-full"
+              src="https://www.youtube.com/embed/E_rwyu6cdmc?rel=0&modestbranding=1"
+              title="KAPTAN leather craft demo video"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowFullScreen
             />
+            <div className="pointer-events-none absolute inset-0 border border-gold/10" />
           </div>
+
           <div>
-            <h2 className="font-serif text-3xl font-bold text-white md:text-4xl">{t("home.storyTitle")}</h2>
+            <h2 className="font-serif text-3xl font-bold text-white md:text-4xl">
+              {t("home.storyTitle")}
+            </h2>
             <div className="mt-3 h-0.5 w-12 bg-gold" />
             <p className="mt-6 leading-relaxed text-white/70">{t("home.storyP1")}</p>
             <p className="mt-4 leading-relaxed text-white/70">{t("home.storyP2")}</p>
             <p className="mt-4 leading-relaxed text-white/70">{t("home.storyP3")}</p>
-            <Link to="/about" className="mt-6 inline-block text-sm font-semibold text-gold hover:underline">
+            <Link
+              to="/about"
+              className="mt-6 inline-block text-sm font-semibold text-gold hover:underline"
+            >
               {t("home.learnMore")}
             </Link>
           </div>
@@ -193,9 +223,12 @@ function HomePage() {
       <section className="bg-[#0D0D0D] px-4 py-16 md:px-6">
         <div className="mx-auto max-w-7xl">
           <div className="mb-10 text-center">
-            <h2 className="font-serif text-3xl font-bold text-white md:text-4xl">{t("home.testimonialsTitle")}</h2>
+            <h2 className="font-serif text-3xl font-bold text-white md:text-4xl">
+              {t("home.testimonialsTitle")}
+            </h2>
             <div className="mx-auto mt-3 h-0.5 w-12 bg-gold" />
           </div>
+
           <div className="grid gap-6 md:grid-cols-3">
             {[
               { quote: t("home.t1Quote"), name: "Omar H.", location: "Dubai, UAE", product: t("home.t1Product") },
@@ -205,13 +238,17 @@ function HomePage() {
               <div key={i} className="border border-gold/10 bg-[#1A1A1A] p-6">
                 <div className="mb-3 flex gap-0.5">
                   {Array.from({ length: 5 }).map((_, j) => (
-                    <span key={j} className="text-gold">★</span>
+                    <span key={j} className="text-gold">
+                      ★
+                    </span>
                   ))}
                 </div>
                 <p className="font-serif italic leading-relaxed text-white/80">"{tm.quote}"</p>
                 <div className="mt-4 border-t border-gold/10 pt-4">
                   <p className="text-sm font-semibold text-white">{tm.name}</p>
-                  <p className="text-xs text-gold/60">{tm.location} — {tm.product}</p>
+                  <p className="text-xs text-gold/60">
+                    {tm.location} — {tm.product}
+                  </p>
                 </div>
               </div>
             ))}
@@ -221,7 +258,9 @@ function HomePage() {
 
       <section className="border-y border-gold/20 bg-black px-4 py-16 md:px-6">
         <div className="mx-auto max-w-xl text-center">
-          <h2 className="font-serif text-3xl font-bold text-white">{t("home.newsletterTitle")}</h2>
+          <h2 className="font-serif text-3xl font-bold text-white">
+            {t("home.newsletterTitle")}
+          </h2>
           <p className="mt-3 text-white/60">{t("home.newsletterSubtitle")}</p>
 
           <form
