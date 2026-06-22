@@ -8,9 +8,21 @@ export const Route = createFileRoute("/_authenticated/admin/")({
   component: AdminDashboard,
 });
 
+const STATUS_BREAKDOWN = [
+  { key: "ordered", label: "Ordered" },
+  { key: "packaging", label: "Packaging" },
+  { key: "out_for_delivery", label: "Out for Delivery" },
+  { key: "delivered", label: "Delivered" },
+  { key: "cancelled", label: "Cancelled" },
+];
+
 function AdminDashboard() {
   const fn = useServerFn(getAdminStats);
-  const { data, isLoading } = useQuery({ queryKey: ["admin-stats"], queryFn: () => fn() });
+
+  const { data, isLoading } = useQuery({
+    queryKey: ["admin-stats"],
+    queryFn: () => fn(),
+  });
 
   if (isLoading) return <p className="text-white/60">Loading...</p>;
   if (!data) return null;
@@ -30,7 +42,9 @@ function AdminDashboard() {
         {stats.map((s) => (
           <div key={s.label} className="border border-gold/15 bg-[#1A1A1A] p-4">
             <div className="flex items-center justify-between">
-              <span className="text-xs uppercase tracking-wider text-white/50">{s.label}</span>
+              <span className="text-xs uppercase tracking-wider text-white/50">
+                {s.label}
+              </span>
               <s.icon size={18} className="text-gold/70" />
             </div>
             <p className="mt-3 font-mono text-2xl text-gold">{s.value}</p>
@@ -38,26 +52,53 @@ function AdminDashboard() {
         ))}
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-[1fr_280px]">
+      <div className="grid gap-6 lg:grid-cols-[1fr_320px]">
         <div className="border border-gold/15 bg-[#1A1A1A]">
           <div className="border-b border-gold/10 p-4">
             <h2 className="font-serif text-lg text-white">Recent Orders</h2>
           </div>
+
           <table className="w-full text-sm">
             <thead className="text-left text-xs uppercase tracking-wider text-white/50">
-              <tr><th className="p-3">Order</th><th className="p-3">Customer</th><th className="p-3">Status</th><th className="p-3 text-right">Total</th></tr>
+              <tr>
+                <th className="p-3">Order</th>
+                <th className="p-3">Customer</th>
+                <th className="p-3">Status</th>
+                <th className="p-3 text-right">Total</th>
+              </tr>
             </thead>
+
             <tbody>
               {data.recentOrders.map((o) => (
                 <tr key={o.id} className="border-t border-gold/5">
-                  <td className="p-3"><Link to="/orders/$id" params={{ id: o.id }} className="font-mono text-gold">{o.order_number}</Link></td>
+                  <td className="p-3">
+                    <Link
+                      to="/orders/$id"
+                      params={{ id: o.id }}
+                      className="font-mono text-gold"
+                    >
+                      {o.order_number}
+                    </Link>
+                  </td>
+
                   <td className="p-3 text-white/80">{o.customer_name}</td>
-                  <td className="p-3 text-xs capitalize text-white/60">{o.status}</td>
-                  <td className="p-3 text-right font-mono text-white">€{Number(o.total).toFixed(2)}</td>
+
+                  <td className="p-3 text-xs text-white/60">
+                    {statusLabel(o.status)}
+                  </td>
+
+                  <td className="p-3 text-right font-mono text-white">
+                    €{Number(o.total).toFixed(2)}
+                  </td>
                 </tr>
               ))}
+
               {!data.recentOrders.length && (
-                <tr><td colSpan={4} className="p-6 text-center text-white/50">No orders yet.</td></tr>
+                <tr>
+                  <td colSpan={4} className="p-6 text-center text-white/50">
+                    No orders yet.
+                  </td>
+                </tr>
               )}
             </tbody>
           </table>
@@ -65,11 +106,14 @@ function AdminDashboard() {
 
         <div className="border border-gold/15 bg-[#1A1A1A] p-4">
           <h2 className="font-serif text-lg text-white">Status Breakdown</h2>
+
           <ul className="mt-4 space-y-2 text-sm">
-            {["pending", "processing", "shipped", "delivered", "cancelled"].map((s) => (
-              <li key={s} className="flex justify-between text-white/70">
-                <span className="capitalize">{s}</span>
-                <span className="font-mono text-gold">{data.statusCounts[s] ?? 0}</span>
+            {STATUS_BREAKDOWN.map((s) => (
+              <li key={s.key} className="flex justify-between text-white/70">
+                <span>{s.label}</span>
+                <span className="font-mono text-gold">
+                  {data.statusCounts[s.key] ?? 0}
+                </span>
               </li>
             ))}
           </ul>
@@ -77,4 +121,27 @@ function AdminDashboard() {
       </div>
     </div>
   );
+}
+
+function statusLabel(status: string | null) {
+  switch (status) {
+    case "ordered":
+      return "Ordered";
+    case "packaging":
+      return "Packaging";
+    case "out_for_delivery":
+      return "Out for Delivery";
+    case "delivered":
+      return "Delivered";
+    case "cancelled":
+      return "Cancelled";
+    case "pending":
+      return "Ordered";
+    case "processing":
+      return "Packaging";
+    case "shipped":
+      return "Out for Delivery";
+    default:
+      return "Ordered";
+  }
 }
