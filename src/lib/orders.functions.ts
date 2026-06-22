@@ -60,7 +60,9 @@ export const createOrder = createServerFn({ method: "POST" })
     const supabase = createGuestSupabaseClient();
 
     const productIds = data.items.map((i) => i.productId);
-    const variantIds = data.items.map((i) => i.variantId).filter(Boolean) as string[];
+    const variantIds = data.items
+      .map((i) => i.variantId)
+      .filter(Boolean) as string[];
 
     const { data: products, error: pErr } = await supabase
       .from("products")
@@ -100,7 +102,10 @@ export const createOrder = createServerFn({ method: "POST" })
         throw new Error(`Product unavailable: ${item.productId}`);
       }
 
-      if (product.stock_quantity !== null && product.stock_quantity < item.quantity) {
+      if (
+        product.stock_quantity !== null &&
+        product.stock_quantity < item.quantity
+      ) {
         throw new Error(`Insufficient stock for ${product.name}`);
       }
 
@@ -114,7 +119,9 @@ export const createOrder = createServerFn({ method: "POST" })
         product_id: product.id,
         variant_id: variant?.id ?? null,
         product_name: product.name,
-        variant_info: variant ? `${variant.variant_type}: ${variant.variant_value}` : null,
+        variant_info: variant
+          ? `${variant.variant_type}: ${variant.variant_value}`
+          : null,
         quantity: item.quantity,
         unit_price: unitPrice,
         line_total: lineTotal,
@@ -146,14 +153,18 @@ export const createOrder = createServerFn({ method: "POST" })
       .select("id, order_number")
       .single();
 
-    if (oErr) throw new Error(oErr.message);
+    if (oErr) {
+      throw new Error(oErr.message);
+    }
 
-    const itemsWithOrder = orderItems.map((i) => ({
-      ...i,
+    const itemsWithOrder = orderItems.map((item) => ({
+      ...item,
       order_id: order.id,
     }));
 
-    const { error: iErr } = await supabase.from("order_items").insert(itemsWithOrder);
+    const { error: iErr } = await supabase
+      .from("order_items")
+      .insert(itemsWithOrder);
 
     if (iErr) {
       await supabase.from("orders").delete().eq("id", order.id);
@@ -171,7 +182,9 @@ export const getMyOrders = createServerFn({ method: "GET" })
   .handler(async ({ context }) => {
     const { data, error } = await context.supabase
       .from("orders")
-      .select("id, order_number, status, payment_status, total, created_at, order_items(quantity, product_name)")
+      .select(
+        "id, order_number, status, payment_status, total, created_at, order_items(quantity, product_name)",
+      )
       .eq("user_id", context.userId)
       .order("created_at", { ascending: false });
 
@@ -182,7 +195,9 @@ export const getMyOrders = createServerFn({ method: "GET" })
 
 export const getOrderById = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: { id: string }) => z.object({ id: z.string().uuid() }).parse(input))
+  .inputValidator((input: { id: string }) =>
+    z.object({ id: z.string().uuid() }).parse(input),
+  )
   .handler(async ({ data, context }) => {
     const { data: order, error } = await context.supabase
       .from("orders")
