@@ -1,4 +1,4 @@
-import { Link } from "@tanstack/react-router";
+import { useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useQueryClient } from "@tanstack/react-query";
 import { Heart, ShoppingBag } from "lucide-react";
@@ -16,6 +16,7 @@ interface ProductCardProps {
 }
 
 export function ProductCard({ product }: ProductCardProps) {
+  const navigate = useNavigate();
   const qc = useQueryClient();
   const addItem = useCartStore((s) => s.addItem);
   const user = useAuthStore((s) => s.user);
@@ -27,15 +28,20 @@ export function ProductCard({ product }: ProductCardProps) {
 
   const categoryName = product.categories?.name ?? "Product";
 
+  function openProduct() {
+    navigate({
+      to: "/products/$slug",
+      params: { slug: product.slug },
+    });
+  }
+
   function handleAddToCart(e: React.MouseEvent) {
-    e.preventDefault();
     e.stopPropagation();
     addItem(product, null, 1, imageUrl);
     toast.success(`${product.name} added to cart`);
   }
 
   async function handleWishlist(e: React.MouseEvent) {
-    e.preventDefault();
     e.stopPropagation();
 
     if (!user) {
@@ -56,12 +62,11 @@ export function ProductCard({ product }: ProductCardProps) {
   }
 
   return (
-    <div className="group relative flex flex-col overflow-hidden border border-gold/10 bg-[#1A1A1A] transition-all duration-300 hover:border-gold/30 hover:gold-glow">
-      <Link
-        to="/products/$slug"
-        params={{ slug: product.slug }}
-        className="relative block aspect-[4/3] overflow-hidden bg-black"
-      >
+    <div
+      onClick={openProduct}
+      className="group relative flex cursor-pointer flex-col overflow-hidden border border-gold/10 bg-[#1A1A1A] transition-all duration-300 hover:border-gold/30 hover:gold-glow"
+    >
+      <div className="relative block aspect-[4/3] overflow-hidden bg-black">
         <img
           src={imageUrl}
           alt={product.name}
@@ -80,14 +85,12 @@ export function ProductCard({ product }: ProductCardProps) {
         >
           <Heart size={17} />
         </button>
-      </Link>
+      </div>
 
       <div className="flex flex-1 flex-col p-4">
-        <Link to="/products/$slug" params={{ slug: product.slug }}>
-          <h3 className="font-serif text-base font-medium text-white transition-colors hover:text-gold">
-            {product.name}
-          </h3>
-        </Link>
+        <h3 className="font-serif text-base font-medium text-white transition-colors group-hover:text-gold">
+          {product.name}
+        </h3>
 
         <p className="mt-1 line-clamp-1 text-sm text-gold-dark/70">
           {product.short_description}
