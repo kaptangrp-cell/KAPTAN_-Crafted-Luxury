@@ -1,6 +1,109 @@
 @import "tailwindcss";
 @source "../src";
+@import "tw-animate-css";
 
-body {
-  margin: 0;
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --radius-2xl: calc(var(--radius) + 8px);
+  --radius-3xl: calc(var(--radius) + 12px);
+  --radius-4xl: calc(var(--radius) + 16px);
+
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-serif: "Playfair Display", ui-serif, Georgia, serif;
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-gold: #FFEB00;
+  --color-gold-vivid: #FFF200;
+  --color-gold-dark: #FFD700;
+  --color-warm-grey: #1A1A1A;
+  --color-off-white: #F9F6EE;
+  --color-brand-black: #000000;
+  --color-brand-dark: #0D0D0D;
+}
+
+:root {
+  --radius: 0.25rem;
+  --background: #000000;
+  --foreground: #ffffff;
+}
+
+.light {
+  --background: #ffffff;
+  --foreground: #0a0a0a;
+}
+
+@layer base {
+  * {
+    border-color: rgba(255, 235, 0, 0.15);
+  }
+
+  body {
+    margin: 0;
+    background-color: var(--background);
+    color: var(--foreground);
+    font-family: var(--font-sans);
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: var(--font-serif);
+  }
+}
+
+@utility gold-glow {
+  box-shadow: 0 0 12px rgba(255, 235, 0, 0.25);
+}
+
+@utility gold-glow-lg {
+  box-shadow: 0 0 24px rgba(255, 235, 0, 0.35);
+}
+
+/* Light mode fixes */
+.light .bg-black {
+  background-color: #ffffff !important;
+}
+
+.light .bg-\[\#1A1A1A\] {
+  background-color: #ffffff !important;
+}
+
+.light .bg-\[\#0D0D0D\] {
+  background-color: #fafafa !important;
+}
+
+.light .text-white {
+  color: #0a0a0a !important;
+}
+
+.light .text-white\/80,
+.light .text-white\/70,
+.light .text-white\/60 {
+  color: rgba(10, 10, 10, 0.7) !important;
+}
+
+.light .text-gold,
+.light .text-gold\/80,
+.light .text-gold\/70,
+.light .text-gold-dark {
+  color: #1a1a1a !important;
+}
+
+.light .bg-gold {
+  background-color: #FFEB00 !important;
+  color: #000000 !important;
+}
+
+.light .border-gold {
+  border-color: #FFEB00 !important;
 }
