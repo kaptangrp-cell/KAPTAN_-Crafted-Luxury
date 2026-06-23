@@ -1,208 +1,97 @@
-@import "tailwindcss" source(none);
-@source "../src";
-@import "tw-animate-css";
+/* ===== KAPTAN Landing Page Moving Product Images ===== */
 
-@custom-variant dark (&:is(.dark *));
-
-/*
- * KAPTAN Design System — Dark Luxury
- * Primary Gold: #FFD700 | Vivid Gold: #FCD116 | Pure Black: #000000
- * Off-White: #F9F6EE | Warm Grey: #1A1A1A | Text Secondary: #D4AF37
- */
-
-@theme inline {
-  --radius-sm: calc(var(--radius) - 4px);
-  --radius-md: calc(var(--radius) - 2px);
-  --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) + 4px);
-  --radius-2xl: calc(var(--radius) + 8px);
-  --radius-3xl: calc(var(--radius) + 12px);
-  --radius-4xl: calc(var(--radius) + 16px);
-
-  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
-  --font-serif: "Playfair Display", ui-serif, Georgia, serif;
-  --font-mono: "JetBrains Mono", ui-monospace, monospace;
-
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --color-card: var(--card);
-  --color-card-foreground: var(--card-foreground);
-  --color-popover: var(--popover);
-  --color-popover-foreground: var(--popover-foreground);
-  --color-primary: var(--primary);
-  --color-primary-foreground: var(--primary-foreground);
-  --color-secondary: var(--secondary);
-  --color-secondary-foreground: var(--secondary-foreground);
-  --color-muted: var(--muted);
-  --color-muted-foreground: var(--muted-foreground);
-  --color-accent: var(--accent);
-  --color-accent-foreground: var(--accent-foreground);
-  --color-destructive: var(--destructive);
-  --color-destructive-foreground: var(--destructive-foreground);
-  --color-border: var(--border);
-  --color-input: var(--input);
-  --color-ring: var(--ring);
-  --color-ring-offset-background: var(--background);
-  --color-chart-1: var(--chart-1);
-  --color-chart-2: var(--chart-2);
-  --color-chart-3: var(--chart-3);
-  --color-chart-4: var(--chart-4);
-  --color-chart-5: var(--chart-5);
-  --color-sidebar: var(--sidebar);
-  --color-sidebar-foreground: var(--sidebar-foreground);
-  --color-sidebar-primary: var(--sidebar-primary);
-  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
-  --color-sidebar-accent: var(--sidebar-accent);
-  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
-  --color-sidebar-border: var(--sidebar-border);
-  --color-sidebar-ring: var(--sidebar-ring);
-
-  --color-gold: #FFEB00;
-  --color-gold-vivid: #FFF200;
-  --color-gold-dark: #FFD700;
-  --color-warm-grey: #1A1A1A;
-  --color-off-white: #F9F6EE;
-  --color-brand-black: #000000;
-  --color-brand-dark: #0D0D0D;
+.kaptan-hero-slider {
+  position: absolute;
+  left: 0;
+  display: flex;
+  width: max-content;
+  gap: 1.25rem;
+  opacity: 0.42;
+  pointer-events: none;
+  filter: saturate(1.1) contrast(1.08);
 }
 
-:root {
-  --radius: 0.25rem;
-  --background: oklch(0 0 0);
-  --foreground: oklch(1 0 0);
-  --card: oklch(0.15 0 0);
-  --card-foreground: oklch(1 0 0);
-  --popover: oklch(0.15 0 0);
-  --popover-foreground: oklch(1 0 0);
-  --primary: oklch(0.86 0.18 95);
-  --primary-foreground: oklch(0.1 0 0);
-  --secondary: oklch(0.2 0 0);
-  --secondary-foreground: oklch(1 0 0);
-  --muted: oklch(0.2 0 0);
-  --muted-foreground: oklch(0.65 0.05 95);
-  --accent: oklch(0.72 0.12 95);
-  --accent-foreground: oklch(0.1 0 0);
-  --destructive: oklch(0.58 0.25 25);
-  --destructive-foreground: oklch(1 0 0);
-  --border: oklch(0.86 0.18 95 / 0.15);
-  --input: oklch(0.86 0.18 95 / 0.2);
-  --ring: oklch(0.86 0.18 95);
-  --chart-1: oklch(0.86 0.18 95);
-  --chart-2: oklch(0.72 0.12 95);
-  --chart-3: oklch(0.65 0.05 95);
-  --chart-4: oklch(0.6 0.08 80);
-  --chart-5: oklch(0.55 0.06 70);
-  --sidebar: oklch(0.08 0 0);
-  --sidebar-foreground: oklch(1 0 0);
-  --sidebar-primary: oklch(0.86 0.18 95);
-  --sidebar-primary-foreground: oklch(0.1 0 0);
-  --sidebar-accent: oklch(0.2 0 0);
-  --sidebar-accent-foreground: oklch(1 0 0);
-  --sidebar-border: oklch(0.86 0.18 95 / 0.15);
-  --sidebar-ring: oklch(0.86 0.18 95);
+.kaptan-hero-slider-top {
+  top: 9%;
+  animation: kaptan-slide-left 42s linear infinite;
 }
 
-/* ===== Light Mode — White + Logo Gold (#FFD700) + Black accents ===== */
-.light {
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.15 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.15 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.15 0 0);
-  --primary: oklch(0 0 0);
-  --primary-foreground: oklch(1 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.15 0 0);
-  --muted: oklch(0.96 0 0);
-  --muted-foreground: oklch(0.40 0 0);
-  --accent: oklch(0.86 0.18 95);
-  --accent-foreground: oklch(0.1 0 0);
-  --destructive: oklch(0.55 0.25 25);
-  --destructive-foreground: oklch(1 0 0);
-  --border: oklch(0 0 0 / 0.12);
-  --input: oklch(0 0 0 / 0.15);
-  --ring: oklch(0.86 0.18 95);
-  --sidebar: oklch(1 0 0);
-  --sidebar-foreground: oklch(0.15 0 0);
-  --sidebar-primary: oklch(0 0 0);
-  --sidebar-primary-foreground: oklch(1 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.15 0 0);
-  --sidebar-border: oklch(0 0 0 / 0.1);
-  --sidebar-ring: oklch(0.86 0.18 95);
+.kaptan-hero-slider-bottom {
+  bottom: 8%;
+  animation: kaptan-slide-right 46s linear infinite;
 }
 
-/* Remap hardcoded dark palette to white + black + logo gold in light mode. */
-.light .bg-black { background-color: #FFFFFF !important; }
-.light .bg-\[\#1A1A1A\] { background-color: #FFFFFF !important; }
-.light .bg-\[\#0D0D0D\] { background-color: #FAFAFA !important; }
-.light .text-white { color: #0A0A0A !important; }
-.light .text-white\/90 { color: rgba(10,10,10,0.90) !important; }
-.light .text-white\/80 { color: rgba(10,10,10,0.85) !important; }
-.light .text-white\/70 { color: rgba(10,10,10,0.75) !important; }
-.light .text-white\/60 { color: rgba(10,10,10,0.65) !important; }
-.light .text-white\/40 { color: rgba(10,10,10,0.55) !important; }
-.light .text-white\/30 { color: rgba(10,10,10,0.45) !important; }
-.light .placeholder\:text-white\/30::placeholder { color: rgba(10,10,10,0.45) !important; }
-
-/* Borders: subtle black instead of translucent gold for crispness on white. */
-.light .border-gold\/30 { border-color: rgba(0,0,0,0.12) !important; }
-.light .border-gold\/20 { border-color: rgba(0,0,0,0.10) !important; }
-.light .border-gold\/10 { border-color: rgba(0,0,0,0.08) !important; }
-
-/* Light mode: replace any mustard text with near-black for readability on white. */
-.light .text-gold,
-.light .text-gold\/80,
-.light .text-gold\/90,
-.light .text-gold\/70 { color: #1A1A1A !important; }
-.light .text-gold\/60,
-.light .text-gold\/40 { color: rgba(26,26,26,0.75) !important; }
-.light .text-gold-dark { color: #1A1A1A !important; }
-
-/* Solid yellow surfaces keep bright logo yellow with black text. */
-.light .bg-gold { background-color: #FFEB00 !important; color: #000 !important; }
-.light .border-gold { border-color: #FFEB00 !important; }
-
-/* Gradient radial overlay used in hero — soften it on white. */
-.light section .bg-\[radial-gradient\(circle_at_center\2c oklch\(0\.86_0\.18_95\/0\.08\)\2c transparent_70\%\)\] {
-  background: radial-gradient(circle at center, rgba(255,235,0,0.20), transparent 70%) !important;
+.kaptan-hero-tile {
+  height: 220px;
+  width: 300px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 235, 0, 0.18);
+  background: #1a1a1a;
+  box-shadow: 0 18px 60px rgba(0, 0, 0, 0.45);
+  transform: rotate(-2deg);
 }
 
+.kaptan-hero-slider-bottom .kaptan-hero-tile {
+  transform: rotate(2deg);
+}
 
+.kaptan-hero-tile img {
+  height: 100%;
+  width: 100%;
+  object-fit: cover;
+  animation: kaptan-soft-zoom 8s ease-in-out infinite alternate;
+}
 
-@layer base {
-  * {
-    border-color: var(--color-border);
+@keyframes kaptan-slide-left {
+  from {
+    transform: translateX(0);
   }
-
-  body {
-    background-color: var(--color-background);
-    color: var(--color-foreground);
-    font-family: var(--font-sans);
-  }
-
-  h1, h2, h3, h4, h5, h6 {
-    font-family: var(--font-serif);
+  to {
+    transform: translateX(-50%);
   }
 }
 
-@utility gold-glow {
-  box-shadow: 0 0 12px oklch(0.86 0.18 95 / 0.25);
+@keyframes kaptan-slide-right {
+  from {
+    transform: translateX(-50%);
+  }
+  to {
+    transform: translateX(0);
+  }
 }
 
-@utility gold-glow-lg {
-  box-shadow: 0 0 24px oklch(0.86 0.18 95 / 0.35);
+@keyframes kaptan-soft-zoom {
+  from {
+    transform: scale(1);
+  }
+  to {
+    transform: scale(1.08);
+  }
 }
 
-@utility text-gold {
-  color: #FFEB00;
+@media (max-width: 768px) {
+  .kaptan-hero-tile {
+    height: 150px;
+    width: 210px;
+  }
+
+  .kaptan-hero-slider {
+    opacity: 0.28;
+  }
+
+  .kaptan-hero-slider-top {
+    top: 12%;
+  }
+
+  .kaptan-hero-slider-bottom {
+    bottom: 10%;
+  }
 }
 
-@utility bg-gold {
-  background-color: #FFEB00;
+.light .kaptan-hero-slider {
+  opacity: 0.22;
 }
 
-@utility border-gold {
-  border-color: #FFEB00;
+.light .kaptan-hero-tile {
+  border-color: rgba(0, 0, 0, 0.12);
 }
