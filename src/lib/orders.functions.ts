@@ -20,6 +20,7 @@ const CartItemSchema = z.object({
 });
 
 const CreateOrderSchema = z.object({
+  user_id: z.string().uuid().nullable().optional(),
   customer_name: z.string().min(1).max(120),
   customer_email: z.string().email(),
   customer_phone: z.string().min(3).max(40),
@@ -50,14 +51,17 @@ export const createOrder = createServerFn({ method: "POST" })
 
     if (pErr) throw new Error(pErr.message);
 
-    const variantMap = new Map<string, {
-      id: string;
-      product_id: string;
-      variant_type: string;
-      variant_value: string;
-      price_modifier: number | null;
-      stock_quantity: number | null;
-    }>();
+    const variantMap = new Map<
+      string,
+      {
+        id: string;
+        product_id: string;
+        variant_type: string;
+        variant_value: string;
+        price_modifier: number | null;
+        stock_quantity: number | null;
+      }
+    >();
 
     if (variantIds.length) {
       const { data: variants, error: vErr } = await supabaseAdmin
@@ -107,9 +111,9 @@ export const createOrder = createServerFn({ method: "POST" })
       .from("orders")
       .insert({
         order_number,
-        user_id: null,
+        user_id: data.user_id ?? null,
         customer_name: data.customer_name,
-        customer_email: data.customer_email,
+        customer_email: data.customer_email.toLowerCase(),
         customer_phone: data.customer_phone,
         shipping_address: data.shipping_address,
         payment_method: data.payment_method,
@@ -141,32 +145,59 @@ export const createOrder = createServerFn({ method: "POST" })
     };
   });
 
+async function getAuthEmail(userId: string) {
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  const { data } = await supabaseAdmin.auth.admin.getUserById(userId);
+  return data.user?.email?.toLowerCase() ?? null;
+}
+
 export const getMyOrders = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
-    const { data, error } = await context.supabase
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const email = await getAuthEmail(context.userId);
+
+    let query = supabaseAdmin
       .from("orders")
-      .select("id, order_number, status, payment_status, total, created_at, order_items(quantity, product_name)")
-      .eq("user_id", context.userId)
+      .select("id, order_number, status, payment_status, total, created_at, customer_email, order_items(quantity, product_name)")
       .order("created_at", { ascending: false });
 
+    if (email) {
+      query = query.or(`user_id.eq.${context.userId},customer_email.eq.${email}`);
+    } else {
+      query = query.eq("user_id", context.userId);
+    }
+
+    const { data, error } = await query;
+
     if (error) throw new Error(error.message);
+
     return { orders: data ?? [] };
   });
 
 export const getOrderById = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: { id: string }) =>
-    z.object({ id: z.string().uuid() }).parse(input)
+    z.object({ id: z.string().uuid() }).parse(input),
   )
   .handler(async ({ data, context }) => {
-    const { data: order, error } = await context.supabase
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const email = await getAuthEmail(context.userId);
+
+    let query = supabaseAdmin
       .from("orders")
       .select("*, order_items(*)")
-      .eq("id", data.id)
-      .eq("user_id", context.userId)
-      .single();
+      .eq("id", data.id);
+
+    if (email) {
+      query = query.or(`user_id.eq.${context.userId},customer_email.eq.${email}`);
+    } else {
+      query = query.eq("user_id", context.userId);
+    }
+
+    const { data: order, error } = await query.single();
 
     if (error) throw new Error(error.message);
+
     return { order };
   });

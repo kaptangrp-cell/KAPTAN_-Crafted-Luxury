@@ -54,6 +54,7 @@ function CheckoutPage() {
     try {
       const { orderId, orderNumber } = await createOrderFn({
         data: {
+          user_id: user?.id ?? null,
           customer_name: form.customer_name,
           customer_email: form.customer_email,
           customer_phone: form.customer_phone,
