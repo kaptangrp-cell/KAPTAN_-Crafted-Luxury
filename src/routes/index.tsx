@@ -28,6 +28,11 @@ export const Route = createFileRoute("/")({
         name: "description",
         content: "Premium handcrafted leather products and authentic Himalayan salt lamps.",
       },
+      { property: "og:title", content: "KAPTAN — Crafted to Last. Lit to Inspire." },
+      {
+        property: "og:description",
+        content: "Premium handcrafted leather products and authentic Himalayan salt lamps.",
+      },
     ],
   }),
   loader: ({ context }) =>
@@ -41,29 +46,14 @@ export const Route = createFileRoute("/")({
 function HomePage() {
   const { t } = useTranslation();
   const { data: featuredData } = useSuspenseQuery(featuredQueryOptions);
-  useSuspenseQuery(categoriesQueryOptions);
+  const { data: categoriesData } = useSuspenseQuery(categoriesQueryOptions);
 
   const subscribeFn = useServerFn(subscribeNewsletter);
   const [newsletterEmail, setNewsletterEmail] = useState("");
   const [subscribing, setSubscribing] = useState(false);
 
   const featuredProducts = featuredData?.products ?? [];
-
-  const productImages = featuredProducts
-    .flatMap((p: any) => p.product_images ?? [])
-    .filter((img: any) => img?.url && img?.media_type !== "video")
-    .map((img: any) => img.url);
-
-  const fallbackImages = [
-    "https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=800&q=80",
-    "https://images.unsplash.com/photo-1627123424574-724758594e93?w=800&q=80",
-    "https://images.unsplash.com/photo-1523170335258-f5ed11844a49?w=800&q=80",
-    "https://images.unsplash.com/photo-1600721391776-b5cd0e0048f9?w=800&q=80",
-    "https://images.unsplash.com/photo-1616627451515-cbc80e362745?w=800&q=80",
-    "https://images.unsplash.com/photo-1590736969955-71cc94901144?w=800&q=80",
-  ];
-
-  const sliderImages = productImages.length >= 3 ? productImages : fallbackImages;
+  const categories = categoriesData?.categories ?? [];
 
   async function handleNewsletterSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -88,20 +78,16 @@ function HomePage() {
     <PageLayout>
       <section className="relative flex min-h-[80vh] items-center justify-center bg-black px-4">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,oklch(0.86_0.18_95/0.08),transparent_70%)]" />
-
         <div className="relative z-10 max-w-4xl text-center">
           <h1 className="font-serif text-4xl font-bold leading-tight text-white md:text-6xl lg:text-7xl">
             {t("home.heroLine1")}
             <br />
             {t("home.heroLine2")}
           </h1>
-
           <p className="mx-auto mt-6 max-w-xl text-base leading-relaxed text-gold-dark md:text-lg">
             {t("home.heroSubtitle")}
           </p>
-
           <div className="mx-auto mt-6 h-px w-24 bg-gold/40" />
-
           <div className="mt-8 flex flex-col items-center justify-center gap-4 sm:flex-row">
             <Link
               to="/products"
@@ -110,7 +96,6 @@ function HomePage() {
             >
               {t("home.shopLeather")}
             </Link>
-
             <Link
               to="/products"
               search={{ category: "salt-lamp-natural" }}
@@ -119,14 +104,11 @@ function HomePage() {
               {t("home.discoverSaltLamps")}
             </Link>
           </div>
-
           <div className="mt-12 animate-bounce text-gold">
             <ChevronDown size={24} className="mx-auto" />
           </div>
         </div>
       </section>
-
-      <ProductMovingStrip images={sliderImages} />
 
       <section className="border-b border-gold/10 bg-[#1A1A1A]">
         <div className="mx-auto grid max-w-7xl grid-cols-2 gap-6 px-4 py-10 md:grid-cols-4 md:px-6">
@@ -212,7 +194,7 @@ function HomePage() {
           <div className="relative aspect-video overflow-hidden border border-gold/20 bg-[#1A1A1A] shadow-lg md:aspect-square">
             <iframe
               className="h-full w-full"
-              src="https://www.youtube.com/embed/PS78866qStM"
+              src="https://www.youtube.com/embed/E_rwyu6cdmc?rel=0&modestbranding=1"
               title="KAPTAN leather craft demo video"
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
               allowFullScreen
@@ -228,7 +210,6 @@ function HomePage() {
             <p className="mt-6 leading-relaxed text-white/70">{t("home.storyP1")}</p>
             <p className="mt-4 leading-relaxed text-white/70">{t("home.storyP2")}</p>
             <p className="mt-4 leading-relaxed text-white/70">{t("home.storyP3")}</p>
-
             <Link
               to="/about"
               className="mt-6 inline-block text-sm font-semibold text-gold hover:underline"
@@ -257,14 +238,12 @@ function HomePage() {
               <div key={i} className="border border-gold/10 bg-[#1A1A1A] p-6">
                 <div className="mb-3 flex gap-0.5">
                   {Array.from({ length: 5 }).map((_, j) => (
-                    <span key={j} className="text-gold">★</span>
+                    <span key={j} className="text-gold">
+                      ★
+                    </span>
                   ))}
                 </div>
-
-                <p className="font-serif italic leading-relaxed text-white/80">
-                  "{tm.quote}"
-                </p>
-
+                <p className="font-serif italic leading-relaxed text-white/80">"{tm.quote}"</p>
                 <div className="mt-4 border-t border-gold/10 pt-4">
                   <p className="text-sm font-semibold text-white">{tm.name}</p>
                   <p className="text-xs text-gold/60">
@@ -308,55 +287,5 @@ function HomePage() {
         </div>
       </section>
     </PageLayout>
-  );
-}
-
-function ProductMovingStrip({ images }: { images: string[] }) {
-  const loopImages = [...images, ...images];
-
-  return (
-    <section className="overflow-hidden border-y border-gold/10 bg-[#0D0D0D] py-5">
-      <style>
-        {`
-          @keyframes kaptan-safe-marquee {
-            from { transform: translateX(0); }
-            to { transform: translateX(-50%); }
-          }
-
-          .kaptan-safe-marquee {
-            display: flex;
-            width: max-content;
-            gap: 16px;
-            animation: kaptan-safe-marquee 38s linear infinite;
-          }
-
-          .kaptan-safe-marquee:hover {
-            animation-play-state: paused;
-          }
-        `}
-      </style>
-
-      <div className="mb-4 text-center">
-        <p className="text-xs font-semibold uppercase tracking-[0.25em] text-gold/70">
-          Featured Craftsmanship
-        </p>
-      </div>
-
-      <div className="kaptan-safe-marquee">
-        {loopImages.map((src, index) => (
-          <div
-            key={`${src}-${index}`}
-            className="h-32 w-44 flex-shrink-0 overflow-hidden border border-gold/20 bg-black sm:h-40 sm:w-60"
-          >
-            <img
-              src={src}
-              alt=""
-              loading="lazy"
-              className="h-full w-full object-cover transition-transform duration-500 hover:scale-110"
-            />
-          </div>
-        ))}
-      </div>
-    </section>
   );
 }
