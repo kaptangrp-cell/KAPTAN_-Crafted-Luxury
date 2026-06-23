@@ -49,6 +49,22 @@ function HomePage() {
 
   const featuredProducts = featuredData?.products ?? [];
 
+  const productImages = featuredProducts
+    .flatMap((p: any) => p.product_images ?? [])
+    .filter((img: any) => img?.url && img?.media_type !== "video")
+    .map((img: any) => img.url);
+
+  const fallbackImages = [
+    "https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=800&q=80",
+    "https://images.unsplash.com/photo-1627123424574-724758594e93?w=800&q=80",
+    "https://images.unsplash.com/photo-1523170335258-f5ed11844a49?w=800&q=80",
+    "https://images.unsplash.com/photo-1600721391776-b5cd0e0048f9?w=800&q=80",
+    "https://images.unsplash.com/photo-1616627451515-cbc80e362745?w=800&q=80",
+    "https://images.unsplash.com/photo-1590736969955-71cc94901144?w=800&q=80",
+  ];
+
+  const sliderImages = productImages.length >= 3 ? productImages : fallbackImages;
+
   async function handleNewsletterSubmit(e: React.FormEvent) {
     e.preventDefault();
 
@@ -109,6 +125,8 @@ function HomePage() {
           </div>
         </div>
       </section>
+
+      <ProductMovingStrip images={sliderImages} />
 
       <section className="border-b border-gold/10 bg-[#1A1A1A]">
         <div className="mx-auto grid max-w-7xl grid-cols-2 gap-6 px-4 py-10 md:grid-cols-4 md:px-6">
@@ -290,5 +308,55 @@ function HomePage() {
         </div>
       </section>
     </PageLayout>
+  );
+}
+
+function ProductMovingStrip({ images }: { images: string[] }) {
+  const loopImages = [...images, ...images];
+
+  return (
+    <section className="overflow-hidden border-y border-gold/10 bg-[#0D0D0D] py-5">
+      <style>
+        {`
+          @keyframes kaptan-safe-marquee {
+            from { transform: translateX(0); }
+            to { transform: translateX(-50%); }
+          }
+
+          .kaptan-safe-marquee {
+            display: flex;
+            width: max-content;
+            gap: 16px;
+            animation: kaptan-safe-marquee 38s linear infinite;
+          }
+
+          .kaptan-safe-marquee:hover {
+            animation-play-state: paused;
+          }
+        `}
+      </style>
+
+      <div className="mb-4 text-center">
+        <p className="text-xs font-semibold uppercase tracking-[0.25em] text-gold/70">
+          Featured Craftsmanship
+        </p>
+      </div>
+
+      <div className="kaptan-safe-marquee">
+        {loopImages.map((src, index) => (
+          <div
+            key={`${src}-${index}`}
+            className="h-32 w-44 flex-shrink-0 overflow-hidden border border-gold/20 bg-black sm:h-40 sm:w-60"
+          >
+            <img
+              src={src}
+              alt=""
+              loading="lazy"
+              className="h-full w-full object-cover transition-transform duration-500 hover:scale-110"
+            />
+          </div>
+        ))}
+      </div>
+    </section>
   );
 }
