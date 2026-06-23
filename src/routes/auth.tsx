@@ -6,9 +6,7 @@ import { lovable } from "@/integrations/lovable";
 import { PageLayout } from "@/components/layout/PageLayout";
 
 export const Route = createFileRoute("/auth")({
-  head: () => ({
-    meta: [{ title: "Sign In — KAPTAN" }],
-  }),
+  head: () => ({ meta: [{ title: "Sign In — KAPTAN" }] }),
   component: AuthPage,
 });
 
@@ -62,7 +60,7 @@ function AuthPage() {
 
         if (error) throw error;
 
-        toast.success("Password reset link sent. Check your email.");
+        toast.success("Password reset link sent. Please check your email.");
       }
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Authentication failed");
@@ -110,30 +108,13 @@ function AuthPage() {
 
         <form onSubmit={handleSubmit} className="mt-8 w-full space-y-4">
           {mode === "signup" && (
-            <Field
-              label="Full Name"
-              value={fullName}
-              onChange={setFullName}
-              required
-            />
+            <Field label="Full Name" value={fullName} onChange={setFullName} required />
           )}
 
-          <Field
-            label="Email"
-            type="email"
-            value={email}
-            onChange={setEmail}
-            required
-          />
+          <Field label="Email" type="email" value={email} onChange={setEmail} required />
 
           {mode !== "forgot" && (
-            <Field
-              label="Password"
-              type="password"
-              value={password}
-              onChange={setPassword}
-              required
-            />
+            <Field label="Password" type="password" value={password} onChange={setPassword} required />
           )}
 
           <button
@@ -168,36 +149,24 @@ function AuthPage() {
 
         {mode === "signin" && (
           <>
-            <button
-              onClick={() => setMode("forgot")}
-              className="mt-5 text-sm text-gold/70 hover:text-gold"
-            >
+            <button onClick={() => setMode("forgot")} className="mt-5 text-sm text-gold/70 hover:text-gold">
               Forgot password?
             </button>
 
-            <button
-              onClick={() => setMode("signup")}
-              className="mt-4 text-sm text-gold/70 hover:text-gold"
-            >
+            <button onClick={() => setMode("signup")} className="mt-4 text-sm text-gold/70 hover:text-gold">
               Need an account? Sign up
             </button>
           </>
         )}
 
         {mode === "signup" && (
-          <button
-            onClick={() => setMode("signin")}
-            className="mt-6 text-sm text-gold/70 hover:text-gold"
-          >
+          <button onClick={() => setMode("signin")} className="mt-6 text-sm text-gold/70 hover:text-gold">
             Already have an account? Sign in
           </button>
         )}
 
         {mode === "forgot" && (
-          <button
-            onClick={() => setMode("signin")}
-            className="mt-6 text-sm text-gold/70 hover:text-gold"
-          >
+          <button onClick={() => setMode("signin")} className="mt-6 text-sm text-gold/70 hover:text-gold">
             Back to sign in
           </button>
         )}
@@ -221,9 +190,7 @@ function Field({
 }) {
   return (
     <label className="block">
-      <span className="mb-1 block text-xs uppercase tracking-wider text-gold/70">
-        {label}
-      </span>
+      <span className="mb-1 block text-xs uppercase tracking-wider text-gold/70">{label}</span>
       <input
         type={type}
         required={required}
