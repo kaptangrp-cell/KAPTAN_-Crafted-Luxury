@@ -26,8 +26,12 @@ export const Route = createFileRoute("/")({
       { title: "KAPTAN — Crafted to Last. Lit to Inspire." },
       {
         name: "description",
-        content:
-          "Premium handcrafted leather products and authentic Himalayan salt lamps.",
+        content: "Premium handcrafted leather products and authentic Himalayan salt lamps.",
+      },
+      { property: "og:title", content: "KAPTAN — Crafted to Last. Lit to Inspire." },
+      {
+        property: "og:description",
+        content: "Premium handcrafted leather products and authentic Himalayan salt lamps.",
       },
     ],
   }),
@@ -42,31 +46,14 @@ export const Route = createFileRoute("/")({
 function HomePage() {
   const { t } = useTranslation();
   const { data: featuredData } = useSuspenseQuery(featuredQueryOptions);
-  useSuspenseQuery(categoriesQueryOptions);
+  const { data: categoriesData } = useSuspenseQuery(categoriesQueryOptions);
 
   const subscribeFn = useServerFn(subscribeNewsletter);
   const [newsletterEmail, setNewsletterEmail] = useState("");
   const [subscribing, setSubscribing] = useState(false);
 
   const featuredProducts = featuredData?.products ?? [];
-
-  const fallbackImages = [
-    "https://images.unsplash.com/photo-1627123424574-724758594e93?w=900&q=80",
-    "https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=900&q=80",
-    "https://images.unsplash.com/photo-1600721391776-b5cd0e0048f9?w=900&q=80",
-    "https://images.unsplash.com/photo-1523170335258-f5ed11844a49?w=900&q=80",
-    "https://images.unsplash.com/photo-1590736969955-71cc94901144?w=900&q=80",
-    "https://images.unsplash.com/photo-1616627451515-cbc80e362745?w=900&q=80",
-  ];
-
-  const productImages =
-    featuredProducts
-      .flatMap((p: any) => p.product_images ?? [])
-      .filter((img: any) => img?.url && img?.media_type !== "video")
-      .map((img: any) => img.url) ?? [];
-
-  const heroImages =
-    productImages.length >= 3 ? productImages.slice(0, 8) : fallbackImages;
+  const categories = categoriesData?.categories ?? [];
 
   async function handleNewsletterSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -89,45 +76,18 @@ function HomePage() {
 
   return (
     <PageLayout>
-      <section className="relative flex min-h-[86vh] items-center justify-center overflow-hidden bg-black px-4">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,oklch(0.86_0.18_95/0.12),transparent_65%)]" />
-
-        <div className="kaptan-hero-slider kaptan-hero-slider-top">
-          {[...heroImages, ...heroImages].map((src, i) => (
-            <div key={`top-${i}`} className="kaptan-hero-tile">
-              <img src={src} alt="" />
-            </div>
-          ))}
-        </div>
-
-        <div className="kaptan-hero-slider kaptan-hero-slider-bottom">
-          {[...heroImages].reverse().concat(heroImages).map((src, i) => (
-            <div key={`bottom-${i}`} className="kaptan-hero-tile">
-              <img src={src} alt="" />
-            </div>
-          ))}
-        </div>
-
-        <div className="absolute inset-0 bg-black/70" />
-        <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-black/60 to-black" />
-
-        <div className="relative z-10 max-w-5xl text-center">
-          <p className="mb-5 text-xs font-semibold uppercase tracking-[0.35em] text-gold">
-            Premium Leather Goods & Himalayan Salt Lamps
-          </p>
-
+      <section className="relative flex min-h-[80vh] items-center justify-center bg-black px-4">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,oklch(0.86_0.18_95/0.08),transparent_70%)]" />
+        <div className="relative z-10 max-w-4xl text-center">
           <h1 className="font-serif text-4xl font-bold leading-tight text-white md:text-6xl lg:text-7xl">
             {t("home.heroLine1")}
             <br />
             {t("home.heroLine2")}
           </h1>
-
-          <p className="mx-auto mt-6 max-w-2xl text-base leading-relaxed text-gold md:text-lg">
+          <p className="mx-auto mt-6 max-w-xl text-base leading-relaxed text-gold-dark md:text-lg">
             {t("home.heroSubtitle")}
           </p>
-
-          <div className="mx-auto mt-6 h-px w-24 bg-gold/50" />
-
+          <div className="mx-auto mt-6 h-px w-24 bg-gold/40" />
           <div className="mt-8 flex flex-col items-center justify-center gap-4 sm:flex-row">
             <Link
               to="/products"
@@ -136,7 +96,6 @@ function HomePage() {
             >
               {t("home.shopLeather")}
             </Link>
-
             <Link
               to="/products"
               search={{ category: "salt-lamp-natural" }}
@@ -145,7 +104,6 @@ function HomePage() {
               {t("home.discoverSaltLamps")}
             </Link>
           </div>
-
           <div className="mt-12 animate-bounce text-gold">
             <ChevronDown size={24} className="mx-auto" />
           </div>
@@ -155,32 +113,14 @@ function HomePage() {
       <section className="border-b border-gold/10 bg-[#1A1A1A]">
         <div className="mx-auto grid max-w-7xl grid-cols-2 gap-6 px-4 py-10 md:grid-cols-4 md:px-6">
           {[
-            {
-              icon: ShieldCheck,
-              label: t("home.secureCheckout"),
-              desc: t("home.secureCheckoutDesc"),
-            },
-            {
-              icon: Hand,
-              label: t("home.handcrafted"),
-              desc: t("home.handcraftedDesc"),
-            },
-            {
-              icon: Truck,
-              label: t("home.fastDelivery"),
-              desc: t("home.fastDeliveryDesc"),
-            },
-            {
-              icon: Leaf,
-              label: t("home.sustainable"),
-              desc: t("home.sustainableDesc"),
-            },
+            { icon: ShieldCheck, label: t("home.secureCheckout"), desc: t("home.secureCheckoutDesc") },
+            { icon: Hand, label: t("home.handcrafted"), desc: t("home.handcraftedDesc") },
+            { icon: Truck, label: t("home.fastDelivery"), desc: t("home.fastDeliveryDesc") },
+            { icon: Leaf, label: t("home.sustainable"), desc: t("home.sustainableDesc") },
           ].map((b) => (
             <div key={b.label} className="flex flex-col items-center text-center">
               <b.icon size={28} className="text-gold" strokeWidth={1.5} />
-              <span className="mt-2 text-sm font-semibold text-white">
-                {b.label}
-              </span>
+              <span className="mt-2 text-sm font-semibold text-white">{b.label}</span>
               <span className="text-xs text-gold/60">{b.desc}</span>
             </div>
           ))}
@@ -202,12 +142,7 @@ function HomePage() {
               search={{ category: "leather-wallets" }}
               className="group relative flex h-64 items-center justify-center overflow-hidden border border-gold/10 bg-[#1A1A1A] transition-all hover:border-gold/30 hover:gold-glow md:h-80"
             >
-              <img
-                src={fallbackImages[0]}
-                alt=""
-                className="absolute inset-0 h-full w-full object-cover opacity-50 transition-transform duration-700 group-hover:scale-110"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/90 to-black/20" />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent" />
               <div className="relative z-10 text-center">
                 <h3 className="font-serif text-2xl font-bold text-white">
                   {t("home.leatherProducts")}
@@ -223,12 +158,7 @@ function HomePage() {
               search={{ category: "salt-lamp-natural" }}
               className="group relative flex h-64 items-center justify-center overflow-hidden border border-gold/10 bg-[#1A1A1A] transition-all hover:border-gold/30 hover:gold-glow md:h-80"
             >
-              <img
-                src={fallbackImages[4]}
-                alt=""
-                className="absolute inset-0 h-full w-full object-cover opacity-50 transition-transform duration-700 group-hover:scale-110"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/90 to-black/20" />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent" />
               <div className="relative z-10 text-center">
                 <h3 className="font-serif text-2xl font-bold text-white">
                   {t("home.himalayanSaltLamps")}
@@ -252,7 +182,7 @@ function HomePage() {
           </div>
 
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-            {featuredProducts.map((p: any) => (
+            {featuredProducts.map((p) => (
               <ProductCard key={p.id} product={p} />
             ))}
           </div>
@@ -264,7 +194,7 @@ function HomePage() {
           <div className="relative aspect-video overflow-hidden border border-gold/20 bg-[#1A1A1A] shadow-lg md:aspect-square">
             <iframe
               className="h-full w-full"
-              src="https://www.youtube.com/embed/PS78866qStM"
+              src="https://www.youtube.com/embed/E_rwyu6cdmc?rel=0&modestbranding=1"
               title="KAPTAN leather craft demo video"
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
               allowFullScreen
@@ -277,15 +207,9 @@ function HomePage() {
               {t("home.storyTitle")}
             </h2>
             <div className="mt-3 h-0.5 w-12 bg-gold" />
-            <p className="mt-6 leading-relaxed text-white/70">
-              {t("home.storyP1")}
-            </p>
-            <p className="mt-4 leading-relaxed text-white/70">
-              {t("home.storyP2")}
-            </p>
-            <p className="mt-4 leading-relaxed text-white/70">
-              {t("home.storyP3")}
-            </p>
+            <p className="mt-6 leading-relaxed text-white/70">{t("home.storyP1")}</p>
+            <p className="mt-4 leading-relaxed text-white/70">{t("home.storyP2")}</p>
+            <p className="mt-4 leading-relaxed text-white/70">{t("home.storyP3")}</p>
             <Link
               to="/about"
               className="mt-6 inline-block text-sm font-semibold text-gold hover:underline"
@@ -307,24 +231,9 @@ function HomePage() {
 
           <div className="grid gap-6 md:grid-cols-3">
             {[
-              {
-                quote: t("home.t1Quote"),
-                name: "Omar H.",
-                location: "Dubai, UAE",
-                product: t("home.t1Product"),
-              },
-              {
-                quote: t("home.t2Quote"),
-                name: "Sarah M.",
-                location: "London, UK",
-                product: t("home.t2Product"),
-              },
-              {
-                quote: t("home.t3Quote"),
-                name: "Ali R.",
-                location: "Karachi, Pakistan",
-                product: t("home.t3Product"),
-              },
+              { quote: t("home.t1Quote"), name: "Omar H.", location: "Dubai, UAE", product: t("home.t1Product") },
+              { quote: t("home.t2Quote"), name: "Sarah M.", location: "London, UK", product: t("home.t2Product") },
+              { quote: t("home.t3Quote"), name: "Ali R.", location: "Karachi, Pakistan", product: t("home.t3Product") },
             ].map((tm, i) => (
               <div key={i} className="border border-gold/10 bg-[#1A1A1A] p-6">
                 <div className="mb-3 flex gap-0.5">
@@ -334,11 +243,7 @@ function HomePage() {
                     </span>
                   ))}
                 </div>
-
-                <p className="font-serif italic leading-relaxed text-white/80">
-                  "{tm.quote}"
-                </p>
-
+                <p className="font-serif italic leading-relaxed text-white/80">"{tm.quote}"</p>
                 <div className="mt-4 border-t border-gold/10 pt-4">
                   <p className="text-sm font-semibold text-white">{tm.name}</p>
                   <p className="text-xs text-gold/60">
