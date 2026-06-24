@@ -2,7 +2,13 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { adminListOrders, adminUpdateOrderStatus } from "@/lib/admin.functions";
+import * as XLSX from "xlsx";
+import { Download } from "lucide-react";
+import {
+  adminListOrders,
+  adminUpdateOrderStatus,
+  adminExportOrders,
+} from "@/lib/admin.functions";
 
 export const Route = createFileRoute("/_authenticated/admin/orders")({
   component: AdminOrdersPage,
@@ -20,6 +26,7 @@ function AdminOrdersPage() {
   const qc = useQueryClient();
   const listFn = useServerFn(adminListOrders);
   const updateFn = useServerFn(adminUpdateOrderStatus);
+  const exportFn = useServerFn(adminExportOrders);
 
   const { data, isLoading } = useQuery({
     queryKey: ["admin-orders"],
@@ -27,18 +34,118 @@ function AdminOrdersPage() {
   });
 
   const updateStatus = useMutation({
-    mutationFn: ({ id, status }: { id: string; status: string }) =>
-      updateFn({ data: { id, status } }),
+    mutationFn: ({ id, status }: { id: string; status: string }) => updateFn({ data: { id, status } }),
     onSuccess: () => {
       toast.success("Delivery status updated");
       qc.invalidateQueries({ queryKey: ["admin-orders"] });
+      qc.invalidateQueries({ queryKey: ["admin-stats"] });
+      qc.invalidateQueries({ queryKey: ["admin-analytics"] });
     },
     onError: (e: Error) => toast.error(e.message),
   });
 
+  async function getExportRows() {
+    const result = await exportFn();
+
+    return (result.orders ?? []).map((o: any) => {
+      const address = o.shipping_address ?? {};
+      const items = (o.order_items ?? [])
+        .map((item: any) => `${item.product_name} x ${item.quantity}`)
+        .join(", ");
+
+      return {
+        order_number: o.order_number,
+        customer_name: o.customer_name,
+        customer_email: o.customer_email,
+        customer_phone: o.customer_phone,
+        status: statusLabel(o.status),
+        payment_status: o.payment_status,
+        payment_method: o.payment_method,
+        subtotal: Number(o.subtotal ?? 0),
+        shipping_cost: Number(o.shipping_cost ?? 0),
+        total: Number(o.total ?? 0),
+        address_line_1: address.line1 ?? "",
+        address_line_2: address.line2 ?? "",
+        city: address.city ?? "",
+        state: address.state ?? "",
+        postal_code: address.postal_code ?? "",
+        country: address.country ?? "",
+        items,
+        created_at: o.created_at ? new Date(o.created_at).toLocaleString() : "",
+      };
+    });
+  }
+
+  async function exportExcel() {
+    try {
+      const rows = await getExportRows();
+
+      if (!rows.length) {
+        toast.error("No orders to export");
+        return;
+      }
+
+      const ws = XLSX.utils.json_to_sheet(rows);
+      const wb = XLSX.utils.book_new();
+
+      XLSX.utils.book_append_sheet(wb, ws, "Orders");
+      XLSX.writeFile(wb, `kaptan-orders-${new Date().toISOString().slice(0, 10)}.xlsx`);
+
+      toast.success("Excel exported");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Export failed");
+    }
+  }
+
+  async function exportCSV() {
+    try {
+      const rows = await getExportRows();
+
+      if (!rows.length) {
+        toast.error("No orders to export");
+        return;
+      }
+
+      const ws = XLSX.utils.json_to_sheet(rows);
+      const csv = XLSX.utils.sheet_to_csv(ws);
+      const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+
+      a.href = url;
+      a.download = `kaptan-orders-${new Date().toISOString().slice(0, 10)}.csv`;
+      a.click();
+
+      URL.revokeObjectURL(url);
+      toast.success("CSV exported");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Export failed");
+    }
+  }
+
   return (
     <div className="space-y-6">
-      <h1 className="font-serif text-3xl text-white">Orders</h1>
+      <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+        <h1 className="font-serif text-3xl text-white">Orders</h1>
+
+        <div className="flex flex-wrap gap-2">
+          <button
+            onClick={exportExcel}
+            className="flex items-center gap-2 bg-gold px-4 py-2 text-sm font-bold text-black hover:bg-gold-vivid"
+          >
+            <Download size={16} />
+            Export Excel
+          </button>
+
+          <button
+            onClick={exportCSV}
+            className="flex items-center gap-2 border border-gold px-4 py-2 text-sm font-bold text-gold hover:bg-gold hover:text-black"
+          >
+            <Download size={16} />
+            Export CSV
+          </button>
+        </div>
+      </div>
 
       <div className="overflow-x-auto border border-gold/15 bg-[#1A1A1A]">
         <table className="w-full text-sm">
@@ -65,11 +172,7 @@ function AdminOrdersPage() {
             {(data?.orders ?? []).map((o) => (
               <tr key={o.id} className="border-t border-gold/5">
                 <td className="p-3">
-                  <Link
-                    to="/orders/$id"
-                    params={{ id: o.id }}
-                    className="font-mono text-gold hover:underline"
-                  >
+                  <Link to="/orders/$id" params={{ id: o.id }} className="font-mono text-gold hover:underline">
                     {o.order_number}
                   </Link>
                 </td>
@@ -124,4 +227,27 @@ function AdminOrdersPage() {
       </div>
     </div>
   );
+}
+
+function statusLabel(status: string | null) {
+  switch (status) {
+    case "ordered":
+      return "Ordered";
+    case "packaging":
+      return "Packaging";
+    case "out_for_delivery":
+      return "Out for Delivery";
+    case "delivered":
+      return "Delivered";
+    case "cancelled":
+      return "Cancelled";
+    case "pending":
+      return "Ordered";
+    case "processing":
+      return "Packaging";
+    case "shipped":
+      return "Out for Delivery";
+    default:
+      return "Ordered";
+  }
 }

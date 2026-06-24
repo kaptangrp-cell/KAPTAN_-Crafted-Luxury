@@ -43,6 +43,95 @@ export const getAdminStats = createServerFn({ method: "GET" })
     };
   });
 
+export const adminGetAnalytics = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    await assertAdmin(context.supabase, context.userId);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
+    const { data: orders, error: orderError } = await supabaseAdmin
+      .from("orders")
+      .select("id, order_number, customer_name, total, status, payment_status, created_at")
+      .order("created_at", { ascending: true });
+
+    if (orderError) throw new Error(orderError.message);
+
+    const { data: items, error: itemError } = await supabaseAdmin
+      .from("order_items")
+      .select("product_id, product_name, quantity, line_total");
+
+    if (itemError) throw new Error(itemError.message);
+
+    const salesByDayMap = new Map<string, { date: string; revenue: number; orders: number }>();
+    const revenueByStatusMap = new Map<string, number>();
+
+    for (const order of orders ?? []) {
+      const date = order.created_at ? new Date(order.created_at).toISOString().slice(0, 10) : "Unknown";
+      const current = salesByDayMap.get(date) ?? { date, revenue: 0, orders: 0 };
+
+      current.revenue += Number(order.total ?? 0);
+      current.orders += 1;
+
+      salesByDayMap.set(date, current);
+
+      const status = order.status ?? "ordered";
+      revenueByStatusMap.set(status, (revenueByStatusMap.get(status) ?? 0) + Number(order.total ?? 0));
+    }
+
+    const bestProductsMap = new Map<
+      string,
+      { product_name: string; quantity: number; revenue: number }
+    >();
+
+    for (const item of items ?? []) {
+      const key = item.product_name ?? "Unknown Product";
+      const current = bestProductsMap.get(key) ?? {
+        product_name: key,
+        quantity: 0,
+        revenue: 0,
+      };
+
+      current.quantity += Number(item.quantity ?? 0);
+      current.revenue += Number(item.line_total ?? 0);
+
+      bestProductsMap.set(key, current);
+    }
+
+    return {
+      salesByDay: Array.from(salesByDayMap.values()).map((r) => ({
+        ...r,
+        revenue: Number(r.revenue.toFixed(2)),
+      })),
+      revenueByStatus: Array.from(revenueByStatusMap.entries()).map(([status, revenue]) => ({
+        status,
+        revenue: Number(revenue.toFixed(2)),
+      })),
+      bestProducts: Array.from(bestProductsMap.values())
+        .sort((a, b) => b.quantity - a.quantity)
+        .slice(0, 10)
+        .map((r) => ({
+          ...r,
+          revenue: Number(r.revenue.toFixed(2)),
+        })),
+    };
+  });
+
+export const adminExportOrders = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    await assertAdmin(context.supabase, context.userId);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
+    const { data, error } = await supabaseAdmin
+      .from("orders")
+      .select("*, order_items(*)")
+      .order("created_at", { ascending: false });
+
+    if (error) throw new Error(error.message);
+
+    return { orders: data ?? [] };
+  });
+
 export const adminListProducts = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
@@ -108,12 +197,7 @@ export const adminUpsertProduct = createServerFn({ method: "POST" })
       const { error } = await supabaseAdmin.from("products").update(payload).eq("id", id);
       if (error) throw new Error(error.message);
     } else {
-      const { data: row, error } = await supabaseAdmin
-        .from("products")
-        .insert(payload)
-        .select("id")
-        .single();
-
+      const { data: row, error } = await supabaseAdmin.from("products").insert(payload).select("id").single();
       if (error) throw new Error(error.message);
       productId = row.id;
     }
@@ -210,7 +294,6 @@ export const adminBulkCreateProducts = createServerFn({ method: "POST" })
     }));
 
     const { data: inserted, error } = await supabaseAdmin.from("products").insert(rows).select("id");
-
     if (error) throw new Error(error.message);
 
     return { created: inserted?.length ?? 0 };
@@ -265,12 +348,7 @@ export const adminUpsertCategory = createServerFn({ method: "POST" })
       return { id };
     }
 
-    const { data: row, error } = await supabaseAdmin
-      .from("categories")
-      .insert(payload)
-      .select("id")
-      .single();
-
+    const { data: row, error } = await supabaseAdmin.from("categories").insert(payload).select("id").single();
     if (error) throw new Error(error.message);
 
     return { id: row.id };
@@ -319,7 +397,6 @@ export const adminUpdateOrderStatus = createServerFn({ method: "POST" })
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
     const { error } = await supabaseAdmin.from("orders").update({ status: data.status }).eq("id", data.id);
-
     if (error) throw new Error(error.message);
 
     return { ok: true };
