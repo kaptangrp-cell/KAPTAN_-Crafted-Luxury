@@ -7,6 +7,45 @@ async function assertAdmin(supabase: any, userId: string) {
   if (!data || data.role !== "admin") throw new Error("Forbidden");
 }
 
+const AnalyticsSchema = z.object({
+  period: z.enum(["all", "7d", "30d", "90d", "this_month", "last_month"]).default("30d"),
+  status: z.string().optional(),
+  productName: z.string().optional(),
+});
+
+function getPeriodStart(period: string) {
+  const now = new Date();
+  const start = new Date(now);
+
+  if (period === "7d") start.setDate(now.getDate() - 7);
+  if (period === "30d") start.setDate(now.getDate() - 30);
+  if (period === "90d") start.setDate(now.getDate() - 90);
+
+  if (period === "this_month") {
+    start.setDate(1);
+    start.setHours(0, 0, 0, 0);
+  }
+
+  if (period === "last_month") {
+    start.setMonth(now.getMonth() - 1);
+    start.setDate(1);
+    start.setHours(0, 0, 0, 0);
+  }
+
+  return start;
+}
+
+function getPeriodEnd(period: string) {
+  const now = new Date();
+
+  if (period !== "last_month") return now;
+
+  const end = new Date(now);
+  end.setDate(1);
+  end.setHours(0, 0, 0, 0);
+  return end;
+}
+
 export const getAdminStats = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
@@ -43,71 +82,86 @@ export const getAdminStats = createServerFn({ method: "GET" })
     };
   });
 
-export const adminGetAnalytics = createServerFn({ method: "GET" })
+export const adminGetAnalytics = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .handler(async ({ context }) => {
+  .inputValidator((input: unknown) => AnalyticsSchema.parse(input ?? {}))
+  .handler(async ({ data, context }) => {
     await assertAdmin(context.supabase, context.userId);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
-    const { data: orders, error: orderError } = await supabaseAdmin
+    let query = supabaseAdmin
       .from("orders")
-      .select("id, order_number, customer_name, total, status, payment_status, created_at")
+      .select("id, order_number, customer_name, total, status, payment_status, created_at, order_items(product_name, quantity, line_total)")
       .order("created_at", { ascending: true });
 
-    if (orderError) throw new Error(orderError.message);
+    if (data.period !== "all") {
+      query = query
+        .gte("created_at", getPeriodStart(data.period).toISOString())
+        .lt("created_at", getPeriodEnd(data.period).toISOString());
+    }
 
-    const { data: items, error: itemError } = await supabaseAdmin
-      .from("order_items")
-      .select("product_id, product_name, quantity, line_total");
+    if (data.status && data.status !== "all") {
+      query = query.eq("status", data.status);
+    }
 
-    if (itemError) throw new Error(itemError.message);
+    const { data: orders, error } = await query;
+    if (error) throw new Error(error.message);
 
-    const salesByDayMap = new Map<string, { date: string; revenue: number; orders: number }>();
-    const revenueByStatusMap = new Map<string, number>();
+    const filteredOrders = (orders ?? []).filter((o: any) => {
+      if (!data.productName || data.productName === "all") return true;
+      return (o.order_items ?? []).some((i: any) => i.product_name === data.productName);
+    });
 
-    for (const order of orders ?? []) {
-      const date = order.created_at ? new Date(order.created_at).toISOString().slice(0, 10) : "Unknown";
-      const current = salesByDayMap.get(date) ?? { date, revenue: 0, orders: 0 };
+    const salesByDay = new Map<string, { date: string; revenue: number; orders: number }>();
+    const statusRevenue = new Map<string, { status: string; revenue: number; orders: number }>();
+    const bestProducts = new Map<string, { product_name: string; quantity: number; revenue: number }>();
+    const productNames = new Set<string>();
 
-      current.revenue += Number(order.total ?? 0);
-      current.orders += 1;
-
-      salesByDayMap.set(date, current);
+    for (const order of filteredOrders) {
+      const date = new Date(order.created_at).toISOString().slice(0, 10);
+      const day = salesByDay.get(date) ?? { date, revenue: 0, orders: 0 };
+      day.revenue += Number(order.total ?? 0);
+      day.orders += 1;
+      salesByDay.set(date, day);
 
       const status = order.status ?? "ordered";
-      revenueByStatusMap.set(status, (revenueByStatusMap.get(status) ?? 0) + Number(order.total ?? 0));
+      const statusRow = statusRevenue.get(status) ?? { status, revenue: 0, orders: 0 };
+      statusRow.revenue += Number(order.total ?? 0);
+      statusRow.orders += 1;
+      statusRevenue.set(status, statusRow);
+
+      for (const item of order.order_items ?? []) {
+        productNames.add(item.product_name);
+        const p = bestProducts.get(item.product_name) ?? {
+          product_name: item.product_name,
+          quantity: 0,
+          revenue: 0,
+        };
+        p.quantity += Number(item.quantity ?? 0);
+        p.revenue += Number(item.line_total ?? 0);
+        bestProducts.set(item.product_name, p);
+      }
     }
 
-    const bestProductsMap = new Map<
-      string,
-      { product_name: string; quantity: number; revenue: number }
-    >();
-
-    for (const item of items ?? []) {
-      const key = item.product_name ?? "Unknown Product";
-      const current = bestProductsMap.get(key) ?? {
-        product_name: key,
-        quantity: 0,
-        revenue: 0,
-      };
-
-      current.quantity += Number(item.quantity ?? 0);
-      current.revenue += Number(item.line_total ?? 0);
-
-      bestProductsMap.set(key, current);
-    }
+    const totalRevenue = filteredOrders.reduce((s: number, o: any) => s + Number(o.total ?? 0), 0);
+    const totalOrders = filteredOrders.length;
+    const averageOrderValue = totalOrders ? totalRevenue / totalOrders : 0;
 
     return {
-      salesByDay: Array.from(salesByDayMap.values()).map((r) => ({
+      totalRevenue,
+      totalOrders,
+      averageOrderValue,
+      productNames: Array.from(productNames).sort(),
+      salesByDay: Array.from(salesByDay.values()).map((r) => ({
         ...r,
         revenue: Number(r.revenue.toFixed(2)),
       })),
-      revenueByStatus: Array.from(revenueByStatusMap.entries()).map(([status, revenue]) => ({
-        status,
-        revenue: Number(revenue.toFixed(2)),
+      revenueByStatus: Array.from(statusRevenue.values()).map((r) => ({
+        ...r,
+        revenue: Number(r.revenue.toFixed(2)),
       })),
-      bestProducts: Array.from(bestProductsMap.values())
-        .sort((a, b) => b.quantity - a.quantity)
+      bestProducts: Array.from(bestProducts.values())
+        .sort((a, b) => b.revenue - a.revenue)
         .slice(0, 10)
         .map((r) => ({
           ...r,
@@ -128,7 +182,6 @@ export const adminExportOrders = createServerFn({ method: "GET" })
       .order("created_at", { ascending: false });
 
     if (error) throw new Error(error.message);
-
     return { orders: data ?? [] };
   });
 
@@ -158,7 +211,6 @@ export const adminListProducts = createServerFn({ method: "GET" })
       .order("created_at", { ascending: false });
 
     if (error) throw new Error(error.message);
-
     return { products: data ?? [] };
   });
 
@@ -204,7 +256,6 @@ export const adminUpsertProduct = createServerFn({ method: "POST" })
 
     if (productId) {
       await supabaseAdmin.from("product_images").delete().eq("product_id", productId);
-
       const cleanMedia = (media_items ?? []).filter((m) => m.url.trim());
 
       if (cleanMedia.length > 0) {
