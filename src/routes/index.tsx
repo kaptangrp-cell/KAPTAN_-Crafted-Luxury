@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
@@ -9,6 +9,29 @@ import { getFeaturedProducts, getCategories } from "@/lib/products.functions";
 import { subscribeNewsletter } from "@/lib/newsletter.functions";
 import { ProductCard } from "@/components/product/ProductCard";
 import { PageLayout } from "@/components/layout/PageLayout";
+
+const heroSlides = [
+  {
+    image: "/banners/leather-bags.jpg",
+    title: "Premium Leather Bags",
+    subtitle: "New arrivals crafted for daily elegance.",
+  },
+  {
+    image: "/banners/leather-belts.jpg",
+    title: "Luxury Leather Belts",
+    subtitle: "Strong details. Timeless finish.",
+  },
+  {
+    image: "/banners/leather-footwear.jpg",
+    title: "Leather Footwear",
+    subtitle: "Built to last with premium comfort.",
+  },
+  {
+    image: "/banners/leather-jackets.jpg",
+    title: "Leather Jackets",
+    subtitle: "Bold style for every season.",
+  },
+];
 
 const featuredQueryOptions = queryOptions({
   queryKey: ["featured-products"],
@@ -28,11 +51,6 @@ export const Route = createFileRoute("/")({
         name: "description",
         content: "Premium handcrafted leather products and authentic Himalayan salt lamps.",
       },
-      { property: "og:title", content: "KAPTAN — Crafted to Last. Lit to Inspire." },
-      {
-        property: "og:description",
-        content: "Premium handcrafted leather products and authentic Himalayan salt lamps.",
-      },
     ],
   }),
   loader: ({ context }) =>
@@ -46,25 +64,29 @@ export const Route = createFileRoute("/")({
 function HomePage() {
   const { t } = useTranslation();
   const { data: featuredData } = useSuspenseQuery(featuredQueryOptions);
-  const { data: categoriesData } = useSuspenseQuery(categoriesQueryOptions);
+  useSuspenseQuery(categoriesQueryOptions);
 
   const subscribeFn = useServerFn(subscribeNewsletter);
   const [newsletterEmail, setNewsletterEmail] = useState("");
   const [subscribing, setSubscribing] = useState(false);
+  const [activeSlide, setActiveSlide] = useState(0);
 
   const featuredProducts = featuredData?.products ?? [];
-  const categories = categoriesData?.categories ?? [];
+
+  useEffect(() => {
+    const timer = window.setInterval(() => {
+      setActiveSlide((current) => (current + 1) % heroSlides.length);
+    }, 3000);
+
+    return () => window.clearInterval(timer);
+  }, []);
 
   async function handleNewsletterSubmit(e: React.FormEvent) {
     e.preventDefault();
 
     try {
       setSubscribing(true);
-
-      const result = await subscribeFn({
-        data: { email: newsletterEmail },
-      });
-
+      const result = await subscribeFn({ data: { email: newsletterEmail } });
       toast.success(result.message);
       setNewsletterEmail("");
     } catch (err) {
@@ -74,38 +96,74 @@ function HomePage() {
     }
   }
 
+  const slide = heroSlides[activeSlide];
+
   return (
     <PageLayout>
-      <section className="relative flex min-h-[80vh] items-center justify-center bg-black px-4">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,oklch(0.86_0.18_95/0.08),transparent_70%)]" />
-        <div className="relative z-10 max-w-4xl text-center">
-          <h1 className="font-serif text-4xl font-bold leading-tight text-white md:text-6xl lg:text-7xl">
-            {t("home.heroLine1")}
-            <br />
-            {t("home.heroLine2")}
-          </h1>
-          <p className="mx-auto mt-6 max-w-xl text-base leading-relaxed text-gold-dark md:text-lg">
-            {t("home.heroSubtitle")}
-          </p>
-          <div className="mx-auto mt-6 h-px w-24 bg-gold/40" />
-          <div className="mt-8 flex flex-col items-center justify-center gap-4 sm:flex-row">
-            <Link
-              to="/products"
-              search={{ category: "leather-wallets" }}
-              className="bg-gold px-8 py-3 font-semibold text-black transition-colors hover:bg-gold-vivid"
-            >
-              {t("home.shopLeather")}
-            </Link>
-            <Link
-              to="/products"
-              search={{ category: "salt-lamp-natural" }}
-              className="border border-gold px-8 py-3 font-semibold text-gold transition-colors hover:bg-gold hover:text-black"
-            >
-              {t("home.discoverSaltLamps")}
-            </Link>
-          </div>
-          <div className="mt-12 animate-bounce text-gold">
-            <ChevronDown size={24} className="mx-auto" />
+      <section className="relative min-h-[80vh] overflow-hidden bg-black">
+        <Link to="/products" className="absolute inset-0 block">
+          {heroSlides.map((s, index) => (
+            <img
+              key={s.image}
+              src={s.image}
+              alt={s.title}
+              className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-700 ${
+                index === activeSlide ? "opacity-70" : "opacity-0"
+              }`}
+            />
+          ))}
+          <div className="absolute inset-0 bg-black/60" />
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,oklch(0.86_0.18_95/0.12),transparent_70%)]" />
+        </Link>
+
+        <div className="relative z-10 flex min-h-[80vh] items-center justify-center px-4 text-center">
+          <div className="max-w-4xl">
+            <p className="mb-4 text-sm font-bold uppercase tracking-[0.4em] text-gold">
+              KAPTAN
+            </p>
+
+            <h1 className="font-serif text-4xl font-bold leading-tight text-white md:text-6xl lg:text-7xl">
+              {slide.title}
+            </h1>
+
+            <p className="mx-auto mt-6 max-w-xl text-base leading-relaxed text-gold-dark md:text-lg">
+              {slide.subtitle}
+            </p>
+
+            <div className="mx-auto mt-6 h-px w-24 bg-gold/40" />
+
+            <div className="mt-8 flex flex-col items-center justify-center gap-4 sm:flex-row">
+              <Link
+                to="/products"
+                className="bg-gold px-8 py-3 font-semibold text-black transition-colors hover:bg-gold-vivid"
+              >
+                Shop Now
+              </Link>
+              <Link
+                to="/products"
+                search={{ category: "salt-lamp-natural" }}
+                className="border border-gold px-8 py-3 font-semibold text-gold transition-colors hover:bg-gold hover:text-black"
+              >
+                Discover Salt Lamps
+              </Link>
+            </div>
+
+            <div className="mt-8 flex justify-center gap-2">
+              {heroSlides.map((s, index) => (
+                <button
+                  key={s.image}
+                  onClick={() => setActiveSlide(index)}
+                  className={`h-2 rounded-full transition-all ${
+                    index === activeSlide ? "w-8 bg-gold" : "w-2 bg-white/40"
+                  }`}
+                  aria-label={`Go to slide ${index + 1}`}
+                />
+              ))}
+            </div>
+
+            <div className="mt-10 animate-bounce text-gold">
+              <ChevronDown size={24} className="mx-auto" />
+            </div>
           </div>
         </div>
       </section>
@@ -263,10 +321,7 @@ function HomePage() {
           </h2>
           <p className="mt-3 text-white/60">{t("home.newsletterSubtitle")}</p>
 
-          <form
-            onSubmit={handleNewsletterSubmit}
-            className="mt-6 flex flex-col gap-3 sm:flex-row"
-          >
+          <form onSubmit={handleNewsletterSubmit} className="mt-6 flex flex-col gap-3 sm:flex-row">
             <input
               type="email"
               required
