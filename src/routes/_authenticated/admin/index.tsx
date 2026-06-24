@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery } from "@tanstack/react-query";
@@ -14,6 +15,7 @@ import {
   PieChart,
   Pie,
   Cell,
+  CartesianGrid,
 } from "recharts";
 import { getAdminStats, adminGetAnalytics } from "@/lib/admin.functions";
 
@@ -29,11 +31,24 @@ const STATUS_BREAKDOWN = [
   { key: "cancelled", label: "Cancelled" },
 ];
 
-const CHART_COLORS = ["#FFEB00", "#FFD700", "#BFA600", "#8A7800", "#5C5200"];
+const PERIODS = [
+  { value: "7d", label: "Last 7 Days" },
+  { value: "30d", label: "Last 30 Days" },
+  { value: "90d", label: "Last 90 Days" },
+  { value: "this_month", label: "This Month" },
+  { value: "last_month", label: "Last Month" },
+  { value: "all", label: "All Time" },
+];
+
+const CHART_COLORS = ["#FFEB00", "#38BDF8", "#22C55E", "#F97316", "#EF4444"];
 
 function AdminDashboard() {
   const statsFn = useServerFn(getAdminStats);
   const analyticsFn = useServerFn(adminGetAnalytics);
+
+  const [period, setPeriod] = useState("30d");
+  const [status, setStatus] = useState("all");
+  const [productName, setProductName] = useState("all");
 
   const { data, isLoading } = useQuery({
     queryKey: ["admin-stats"],
@@ -41,8 +56,15 @@ function AdminDashboard() {
   });
 
   const { data: analytics, isLoading: analyticsLoading } = useQuery({
-    queryKey: ["admin-analytics"],
-    queryFn: () => analyticsFn(),
+    queryKey: ["admin-analytics", period, status, productName],
+    queryFn: () =>
+      analyticsFn({
+        data: {
+          period,
+          status,
+          productName,
+        },
+      }),
   });
 
   if (isLoading) return <p className="text-white/60">Loading...</p>;
@@ -74,6 +96,38 @@ function AdminDashboard() {
             <p className="mt-3 font-mono text-2xl text-gold">{s.value}</p>
           </div>
         ))}
+      </div>
+
+      <div className="border border-gold/15 bg-[#1A1A1A] p-4">
+        <h2 className="font-serif text-lg text-white">Analytics Filters</h2>
+
+        <div className="mt-4 grid gap-3 md:grid-cols-3">
+          <Select label="Time Period" value={period} onChange={setPeriod}>
+            {PERIODS.map((p) => (
+              <option key={p.value} value={p.value}>{p.label}</option>
+            ))}
+          </Select>
+
+          <Select label="Order Status" value={status} onChange={setStatus}>
+            <option value="all">All Statuses</option>
+            {STATUS_BREAKDOWN.map((s) => (
+              <option key={s.key} value={s.key}>{s.label}</option>
+            ))}
+          </Select>
+
+          <Select label="Product" value={productName} onChange={setProductName}>
+            <option value="all">All Products</option>
+            {(analytics?.productNames ?? []).map((p) => (
+              <option key={p} value={p}>{p}</option>
+            ))}
+          </Select>
+        </div>
+
+        <div className="mt-5 grid gap-4 md:grid-cols-3">
+          <MiniStat label="Filtered Revenue" value={`€${Number(analytics?.totalRevenue ?? 0).toFixed(2)}`} />
+          <MiniStat label="Filtered Orders" value={String(analytics?.totalOrders ?? 0)} />
+          <MiniStat label="Average Order" value={`€${Number(analytics?.averageOrderValue ?? 0).toFixed(2)}`} />
+        </div>
       </div>
 
       <div className="grid gap-6 lg:grid-cols-[1fr_320px]">
@@ -138,7 +192,13 @@ function AdminDashboard() {
                       <Cell key={index} fill={CHART_COLORS[index % CHART_COLORS.length]} />
                     ))}
                   </Pie>
-                  <Tooltip />
+                  <Tooltip
+                    contentStyle={{
+                      backgroundColor: "#0D0D0D",
+                      border: "1px solid rgba(255,235,0,0.3)",
+                      color: "#fff",
+                    }}
+                  />
                 </PieChart>
               </ResponsiveContainer>
             ) : (
@@ -149,49 +209,125 @@ function AdminDashboard() {
       </div>
 
       <div className="grid gap-6 lg:grid-cols-2">
-        <div className="border border-gold/15 bg-[#1A1A1A] p-4">
-          <h2 className="font-serif text-lg text-white">Sales by Day</h2>
+        <ChartBox title="Sales by Day">
+          {analyticsLoading ? (
+            <p className="text-white/50">Loading chart...</p>
+          ) : analytics?.salesByDay?.length ? (
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart data={analytics.salesByDay}>
+                <CartesianGrid stroke="rgba(255,255,255,0.08)" />
+                <XAxis dataKey="date" stroke="#CFCFCF" fontSize={11} />
+                <YAxis stroke="#CFCFCF" fontSize={11} />
+                <Tooltip
+                  contentStyle={{
+                    backgroundColor: "#0D0D0D",
+                    border: "1px solid rgba(255,235,0,0.3)",
+                    color: "#fff",
+                  }}
+                />
+                <Line type="monotone" dataKey="revenue" stroke="#FFEB00" strokeWidth={3} name="Revenue €" />
+                <Line type="monotone" dataKey="orders" stroke="#38BDF8" strokeWidth={2} name="Orders" />
+              </LineChart>
+            </ResponsiveContainer>
+          ) : (
+            <p className="text-white/50">No sales data for this filter.</p>
+          )}
+        </ChartBox>
 
-          <div className="mt-4 h-72">
-            {analyticsLoading ? (
-              <p className="text-white/50">Loading chart...</p>
-            ) : analytics?.salesByDay?.length ? (
-              <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={analytics.salesByDay}>
-                  <XAxis dataKey="date" stroke="#D4D4D4" fontSize={11} />
-                  <YAxis stroke="#D4D4D4" fontSize={11} />
-                  <Tooltip />
-                  <Line type="monotone" dataKey="revenue" stroke="#FFEB00" strokeWidth={2} name="Revenue €" />
-                  <Line type="monotone" dataKey="orders" stroke="#FFFFFF" strokeWidth={2} name="Orders" />
-                </LineChart>
-              </ResponsiveContainer>
-            ) : (
-              <p className="text-white/50">No sales data yet.</p>
-            )}
-          </div>
-        </div>
-
-        <div className="border border-gold/15 bg-[#1A1A1A] p-4">
-          <h2 className="font-serif text-lg text-white">Best Selling Products</h2>
-
-          <div className="mt-4 h-72">
-            {analyticsLoading ? (
-              <p className="text-white/50">Loading chart...</p>
-            ) : analytics?.bestProducts?.length ? (
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={analytics.bestProducts}>
-                  <XAxis dataKey="product_name" stroke="#D4D4D4" fontSize={10} />
-                  <YAxis stroke="#D4D4D4" fontSize={11} />
-                  <Tooltip />
-                  <Bar dataKey="quantity" fill="#FFEB00" name="Units Sold" />
-                </BarChart>
-              </ResponsiveContainer>
-            ) : (
-              <p className="text-white/50">No product sales yet.</p>
-            )}
-          </div>
-        </div>
+        <ChartBox title="Best Selling Products">
+          {analyticsLoading ? (
+            <p className="text-white/50">Loading chart...</p>
+          ) : analytics?.bestProducts?.length ? (
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={analytics.bestProducts}>
+                <CartesianGrid stroke="rgba(255,255,255,0.08)" />
+                <XAxis dataKey="product_name" stroke="#CFCFCF" fontSize={10} />
+                <YAxis stroke="#CFCFCF" fontSize={11} />
+                <Tooltip
+                  contentStyle={{
+                    backgroundColor: "#0D0D0D",
+                    border: "1px solid rgba(255,235,0,0.3)",
+                    color: "#fff",
+                  }}
+                />
+                <Bar dataKey="quantity" fill="#FFEB00" name="Units Sold" />
+                <Bar dataKey="revenue" fill="#38BDF8" name="Revenue €" />
+              </BarChart>
+            </ResponsiveContainer>
+          ) : (
+            <p className="text-white/50">No product sales for this filter.</p>
+          )}
+        </ChartBox>
       </div>
+
+      <ChartBox title="Revenue by Delivery Status">
+        {analyticsLoading ? (
+          <p className="text-white/50">Loading chart...</p>
+        ) : analytics?.revenueByStatus?.length ? (
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart data={analytics.revenueByStatus}>
+              <CartesianGrid stroke="rgba(255,255,255,0.08)" />
+              <XAxis dataKey="status" stroke="#CFCFCF" fontSize={11} tickFormatter={statusLabel} />
+              <YAxis stroke="#CFCFCF" fontSize={11} />
+              <Tooltip
+                contentStyle={{
+                  backgroundColor: "#0D0D0D",
+                  border: "1px solid rgba(255,235,0,0.3)",
+                  color: "#fff",
+                }}
+                labelFormatter={statusLabel}
+              />
+              <Bar dataKey="revenue" fill="#22C55E" name="Revenue €" />
+              <Bar dataKey="orders" fill="#F97316" name="Orders" />
+            </BarChart>
+          </ResponsiveContainer>
+        ) : (
+          <p className="text-white/50">No revenue data for this filter.</p>
+        )}
+      </ChartBox>
+    </div>
+  );
+}
+
+function Select({
+  label,
+  value,
+  onChange,
+  children,
+}: {
+  label: string;
+  value: string;
+  onChange: (v: string) => void;
+  children: React.ReactNode;
+}) {
+  return (
+    <label className="block">
+      <span className="mb-1 block text-xs uppercase tracking-wider text-gold/70">{label}</span>
+      <select
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        className="w-full border border-gold/20 bg-[#0D0D0D] px-3 py-2 text-sm text-white outline-none focus:border-gold"
+      >
+        {children}
+      </select>
+    </label>
+  );
+}
+
+function MiniStat({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="border border-gold/10 bg-[#0D0D0D] p-3">
+      <p className="text-xs uppercase tracking-wider text-white/40">{label}</p>
+      <p className="mt-1 font-mono text-xl text-gold">{value}</p>
+    </div>
+  );
+}
+
+function ChartBox({ title, children }: { title: string; children: React.ReactNode }) {
+  return (
+    <div className="border border-gold/15 bg-[#1A1A1A] p-4">
+      <h2 className="font-serif text-lg text-white">{title}</h2>
+      <div className="mt-4 h-72">{children}</div>
     </div>
   );
 }
