@@ -4,13 +4,24 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { Plus, Pencil, Trash2, ImageIcon, Video, X } from "lucide-react";
+import * as XLSX from "xlsx";
+import {
+  Plus,
+  Pencil,
+  Trash2,
+  ImageIcon,
+  Video,
+  X,
+  Upload,
+  Download,
+} from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import {
   adminListProducts,
   adminUpsertProduct,
   adminDeleteProduct,
   adminListCategories,
+  adminBulkCreateProducts,
 } from "@/lib/admin.functions";
 
 export const Route = createFileRoute("/_authenticated/admin/products")({
@@ -45,6 +56,19 @@ type ProductRow = {
   }[];
 };
 
+type BulkProductInput = {
+  name: string;
+  slug: string;
+  category_slug: string;
+  price: number;
+  compare_at_price: number | null;
+  stock_quantity: number;
+  short_description: string | null;
+  full_description: string | null;
+  is_available: boolean;
+  is_featured: boolean;
+};
+
 const empty = {
   id: null as string | null,
   name: "",
@@ -66,6 +90,7 @@ function AdminProductsPage() {
   const catsFn = useServerFn(adminListCategories);
   const upsertFn = useServerFn(adminUpsertProduct);
   const deleteFn = useServerFn(adminDeleteProduct);
+  const bulkCreateFn = useServerFn(adminBulkCreateProducts);
 
   const { data: prodData, isLoading } = useQuery({
     queryKey: ["admin-products"],
@@ -104,6 +129,18 @@ function AdminProductsPage() {
     onSuccess: () => {
       toast.success("Product saved");
       setEditing(null);
+      qc.invalidateQueries({ queryKey: ["admin-products"] });
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  const bulkCreate = useMutation({
+    mutationFn: (products: BulkProductInput[]) =>
+      bulkCreateFn({
+        data: { products },
+      }),
+    onSuccess: (result) => {
+      toast.success(`${result.created} products imported`);
       qc.invalidateQueries({ queryKey: ["admin-products"] });
     },
     onError: (e: Error) => toast.error(e.message),
@@ -175,19 +212,160 @@ function AdminProductsPage() {
     });
   }
 
+  function parseBoolean(value: unknown, defaultValue: boolean) {
+    if (value === undefined || value === null || value === "") return defaultValue;
+
+    const text = String(value).trim().toLowerCase();
+
+    if (["true", "yes", "1", "y"].includes(text)) return true;
+    if (["false", "no", "0", "n"].includes(text)) return false;
+
+    return defaultValue;
+  }
+
+  async function handleExcelUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    e.target.value = "";
+
+    if (!file) return;
+
+    try {
+      const buffer = await file.arrayBuffer();
+      const workbook = XLSX.read(buffer);
+      const firstSheetName = workbook.SheetNames[0];
+
+      if (!firstSheetName) {
+        toast.error("Excel file has no sheets");
+        return;
+      }
+
+      const sheet = workbook.Sheets[firstSheetName];
+      const rows = XLSX.utils.sheet_to_json<Record<string, unknown>>(sheet, {
+        defval: "",
+      });
+
+      if (rows.length === 0) {
+        toast.error("Excel file has no product rows");
+        return;
+      }
+
+      const products: BulkProductInput[] = rows.map((row, index) => {
+        const name = String(row.name ?? "").trim();
+        const slug = String(row.slug ?? "").trim();
+        const category_slug = String(row.category_slug ?? "").trim();
+        const price = Number(row.price);
+        const stock_quantity = Number(row.stock_quantity);
+
+        if (!name || !slug || !category_slug) {
+          throw new Error(`Row ${index + 2}: name, slug, and category_slug are required`);
+        }
+
+        if (Number.isNaN(price)) {
+          throw new Error(`Row ${index + 2}: price must be a number`);
+        }
+
+        if (Number.isNaN(stock_quantity)) {
+          throw new Error(`Row ${index + 2}: stock_quantity must be a number`);
+        }
+
+        const compareRaw = row.compare_at_price;
+        const compare_at_price =
+          compareRaw === undefined || compareRaw === null || compareRaw === ""
+            ? null
+            : Number(compareRaw);
+
+        if (compare_at_price !== null && Number.isNaN(compare_at_price)) {
+          throw new Error(`Row ${index + 2}: compare_at_price must be a number or empty`);
+        }
+
+        return {
+          name,
+          slug,
+          category_slug,
+          price,
+          compare_at_price,
+          stock_quantity,
+          short_description: String(row.short_description ?? "").trim() || null,
+          full_description: String(row.full_description ?? "").trim() || null,
+          is_available: parseBoolean(row.is_available, true),
+          is_featured: parseBoolean(row.is_featured, false),
+        };
+      });
+
+      bulkCreate.mutate(products);
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Invalid Excel file");
+    }
+  }
+
+  function downloadTemplate() {
+    const sample = [
+      {
+        name: "Premium Leather Wallet",
+        slug: "premium-leather-wallet",
+        category_slug: "leather-wallets",
+        price: 29.99,
+        compare_at_price: 39.99,
+        stock_quantity: 50,
+        short_description: "Handcrafted genuine leather wallet.",
+        full_description: "Premium handcrafted leather wallet with durable stitching and elegant finish.",
+        is_available: true,
+        is_featured: false,
+      },
+    ];
+
+    const ws = XLSX.utils.json_to_sheet(sample);
+    const wb = XLSX.utils.book_new();
+
+    XLSX.utils.book_append_sheet(wb, ws, "Products");
+    XLSX.writeFile(wb, "kaptan-products-template.xlsx");
+  }
+
   const products = (prodData?.products ?? []) as never as ProductRow[];
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
         <h1 className="font-serif text-3xl text-white">Products</h1>
 
-        <button
-          onClick={() => setEditing(empty)}
-          className="flex items-center gap-2 bg-gold px-4 py-2 text-sm font-bold text-black hover:bg-gold-vivid"
-        >
-          <Plus size={16} /> New Product
-        </button>
+        <div className="flex flex-wrap gap-2">
+          <button
+            onClick={() => setEditing(empty)}
+            className="flex items-center gap-2 bg-gold px-4 py-2 text-sm font-bold text-black hover:bg-gold-vivid"
+          >
+            <Plus size={16} /> New Product
+          </button>
+
+          <button
+            type="button"
+            onClick={() => document.getElementById("excel-upload")?.click()}
+            disabled={bulkCreate.isPending}
+            className="flex items-center gap-2 border border-gold px-4 py-2 text-sm font-bold text-gold hover:bg-gold hover:text-black disabled:opacity-50"
+          >
+            <Upload size={16} /> {bulkCreate.isPending ? "Importing..." : "Upload Excel"}
+          </button>
+
+          <button
+            type="button"
+            onClick={downloadTemplate}
+            className="flex items-center gap-2 border border-gold/40 px-4 py-2 text-sm font-bold text-gold hover:bg-gold hover:text-black"
+          >
+            <Download size={16} /> Template
+          </button>
+
+          <input
+            id="excel-upload"
+            type="file"
+            accept=".xlsx,.xls"
+            hidden
+            onChange={handleExcelUpload}
+          />
+        </div>
+      </div>
+
+      <div className="border border-gold/20 bg-[#1A1A1A] p-4 text-sm text-white/60">
+        Excel upload is for text data only. Product images and videos can be uploaded manually after the products are created.
+        Required Excel columns: <span className="text-gold">name, slug, category_slug, price, stock_quantity</span>.
       </div>
 
       <div className="border border-gold/15 bg-[#1A1A1A]">

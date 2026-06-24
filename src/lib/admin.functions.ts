@@ -141,6 +141,81 @@ export const adminUpsertProduct = createServerFn({ method: "POST" })
     return { id: productId };
   });
 
+const BulkProductSchema = z.object({
+  name: z.string().min(1).max(200),
+  slug: z.string().min(1).max(200).regex(/^[a-z0-9-]+$/),
+  category_slug: z.string().min(1).max(100),
+  short_description: z.string().max(500).nullable().optional(),
+  full_description: z.string().max(5000).nullable().optional(),
+  price: z.number().min(0),
+  compare_at_price: z.number().min(0).nullable().optional(),
+  stock_quantity: z.number().int().min(0),
+  is_available: z.boolean().default(true),
+  is_featured: z.boolean().default(false),
+});
+
+const BulkCreateProductsSchema = z.object({
+  products: z.array(BulkProductSchema).min(1).max(500),
+});
+
+export const adminBulkCreateProducts = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) => BulkCreateProductsSchema.parse(input))
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context.supabase, context.userId);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
+    const categorySlugs = [...new Set(data.products.map((p) => p.category_slug))];
+
+    const { data: categories, error: catErr } = await supabaseAdmin
+      .from("categories")
+      .select("id, slug")
+      .in("slug", categorySlugs);
+
+    if (catErr) throw new Error(catErr.message);
+
+    const categoryMap = new Map((categories ?? []).map((c) => [c.slug, c.id]));
+    const missingCategories = categorySlugs.filter((slug) => !categoryMap.has(slug));
+
+    if (missingCategories.length > 0) {
+      throw new Error(`Category slug not found: ${missingCategories.join(", ")}`);
+    }
+
+    const slugs = data.products.map((p) => p.slug);
+
+    const { data: existing, error: existingErr } = await supabaseAdmin
+      .from("products")
+      .select("slug")
+      .in("slug", slugs);
+
+    if (existingErr) throw new Error(existingErr.message);
+
+    const existingSlugs = new Set((existing ?? []).map((p) => p.slug));
+
+    if (existingSlugs.size > 0) {
+      throw new Error(`Product slug already exists: ${Array.from(existingSlugs).join(", ")}`);
+    }
+
+    const rows = data.products.map((p) => ({
+      name: p.name,
+      slug: p.slug,
+      category_id: categoryMap.get(p.category_slug) ?? null,
+      short_description: p.short_description || null,
+      full_description: p.full_description || null,
+      price: p.price,
+      compare_at_price: p.compare_at_price ?? null,
+      stock_quantity: p.stock_quantity,
+      is_available: p.is_available,
+      is_featured: p.is_featured,
+    }));
+
+    const { data: inserted, error } = await supabaseAdmin.from("products").insert(rows).select("id");
+
+    if (error) throw new Error(error.message);
+
+    return { created: inserted?.length ?? 0 };
+  });
+
 export const adminDeleteProduct = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: { id: string }) => z.object({ id: z.string().uuid() }).parse(input))
@@ -243,10 +318,7 @@ export const adminUpdateOrderStatus = createServerFn({ method: "POST" })
     await assertAdmin(context.supabase, context.userId);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
-    const { error } = await supabaseAdmin
-      .from("orders")
-      .update({ status: data.status })
-      .eq("id", data.id);
+    const { error } = await supabaseAdmin.from("orders").update({ status: data.status }).eq("id", data.id);
 
     if (error) throw new Error(error.message);
 
