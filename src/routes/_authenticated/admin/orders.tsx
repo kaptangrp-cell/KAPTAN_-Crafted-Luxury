@@ -34,7 +34,8 @@ function AdminOrdersPage() {
   });
 
   const updateStatus = useMutation({
-    mutationFn: ({ id, status }: { id: string; status: string }) => updateFn({ data: { id, status } }),
+    mutationFn: ({ id, status }: { id: string; status: string }) =>
+      updateFn({ data: { id, status } }),
     onSuccess: () => {
       toast.success("Delivery status updated");
       qc.invalidateQueries({ queryKey: ["admin-orders"] });
@@ -172,7 +173,11 @@ function AdminOrdersPage() {
             {(data?.orders ?? []).map((o) => (
               <tr key={o.id} className="border-t border-gold/5">
                 <td className="p-3">
-                  <Link to="/orders/$id" params={{ id: o.id }} className="font-mono text-gold hover:underline">
+                  <Link
+                    to="/orders/$id"
+                    params={{ id: o.id }}
+                    className="font-mono text-gold hover:underline"
+                  >
                     {o.order_number}
                   </Link>
                 </td>
