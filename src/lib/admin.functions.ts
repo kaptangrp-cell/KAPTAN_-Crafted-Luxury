@@ -435,6 +435,111 @@ export const adminListOrders = createServerFn({ method: "GET" })
     return { orders: data ?? [] };
   });
 
+async function sendOrderStatusEmail({
+  to,
+  customerName,
+  orderNumber,
+  status,
+}: {
+  to: string;
+  customerName: string;
+  orderNumber: string;
+  status: "ordered" | "packaging" | "out_for_delivery" | "delivered" | "cancelled";
+}) {
+  const RESEND_API_KEY = process.env.RESEND_API_KEY;
+  const FROM_EMAIL = process.env.FROM_EMAIL || "KAPTAN <orders@kaptangrp.com>";
+
+  if (!RESEND_API_KEY) {
+    console.warn("RESEND_API_KEY missing. Email not sent.");
+    return;
+  }
+
+  const { Resend } = await import("resend");
+  const resend = new Resend(RESEND_API_KEY);
+
+  const statusText = statusLabelForEmail(status);
+  const message = statusMessageForEmail(status);
+
+  const { error } = await resend.emails.send({
+    from: FROM_EMAIL,
+    to: [to],
+    subject: `KAPTAN Order ${orderNumber}: ${statusText}`,
+    html: `
+      <div style="font-family: Arial, sans-serif; background:#000; color:#fff; padding:30px;">
+        <div style="max-width:600px; margin:auto; border:1px solid #FFEB00; padding:24px;">
+          <h1 style="color:#FFEB00; margin:0 0 16px;">KAPTAN</h1>
+          <h2 style="margin:0 0 16px;">Order Status Updated</h2>
+
+          <p>Hi ${escapeHtml(customerName || "Customer")},</p>
+
+          <p>Your order <strong style="color:#FFEB00;">${escapeHtml(orderNumber)}</strong> status is now:</p>
+
+          <p style="font-size:22px; font-weight:bold; color:#FFEB00;">
+            ${escapeHtml(statusText)}
+          </p>
+
+          <p>${escapeHtml(message)}</p>
+
+          <p style="margin-top:24px;">Thank you for shopping with KAPTAN.</p>
+
+          <hr style="border:none; border-top:1px solid rgba(255,235,0,0.3); margin:24px 0;" />
+
+          <p style="font-size:12px; color:#aaa;">
+            This is an automatic email from KAPTAN. Please do not reply to this message.
+          </p>
+        </div>
+      </div>
+    `,
+  });
+
+  if (error) {
+    console.error("Order status email failed:", error);
+  }
+}
+
+function statusLabelForEmail(status: string) {
+  switch (status) {
+    case "ordered":
+      return "Ordered";
+    case "packaging":
+      return "Packaging";
+    case "out_for_delivery":
+      return "Out for Delivery";
+    case "delivered":
+      return "Delivered";
+    case "cancelled":
+      return "Cancelled";
+    default:
+      return "Updated";
+  }
+}
+
+function statusMessageForEmail(status: string) {
+  switch (status) {
+    case "ordered":
+      return "We have received your order and it is now in our system.";
+    case "packaging":
+      return "Your order is being prepared and packed carefully.";
+    case "out_for_delivery":
+      return "Your order is on the way and will be delivered soon.";
+    case "delivered":
+      return "Your order has been delivered. We hope you enjoy your purchase.";
+    case "cancelled":
+      return "Your order has been cancelled. If you have questions, please contact our support team.";
+    default:
+      return "Your order status has been updated.";
+  }
+}
+
+function escapeHtml(value: string) {
+  return value
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+}
+
 export const adminUpdateOrderStatus = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: { id: string; status: string }) =>
@@ -447,8 +552,29 @@ export const adminUpdateOrderStatus = createServerFn({ method: "POST" })
     await assertAdmin(context.supabase, context.userId);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
-    const { error } = await supabaseAdmin.from("orders").update({ status: data.status }).eq("id", data.id);
+    const { data: beforeOrder, error: beforeError } = await supabaseAdmin
+      .from("orders")
+      .select("id, order_number, customer_name, customer_email, status")
+      .eq("id", data.id)
+      .single();
+
+    if (beforeError) throw new Error(beforeError.message);
+
+    const { error } = await supabaseAdmin
+      .from("orders")
+      .update({ status: data.status })
+      .eq("id", data.id);
+
     if (error) throw new Error(error.message);
+
+    if (beforeOrder?.status !== data.status && beforeOrder?.customer_email) {
+      await sendOrderStatusEmail({
+        to: beforeOrder.customer_email,
+        customerName: beforeOrder.customer_name,
+        orderNumber: beforeOrder.order_number,
+        status: data.status,
+      });
+    }
 
     return { ok: true };
   });
