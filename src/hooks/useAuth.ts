@@ -11,45 +11,64 @@ export function useAuth() {
   useEffect(() => {
     let mounted = true;
 
+    async function loadProfile(userId: string) {
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("id, role, full_name, phone, avatar_url, date_of_birth, email_marketing")
+        .eq("id", userId)
+        .single();
+
+      if (mounted) {
+        setProfile((profile as Profile) ?? null);
+      }
+    }
+
     async function getInitialSession() {
       setLoading(true);
+
       const { data: { session } } = await supabase.auth.getSession();
+
       if (!mounted) return;
 
       if (session?.user) {
         setUser(session.user);
-        const { data: profile } = await supabase
-          .from("profiles")
-          .select("id, role, full_name, phone, avatar_url, date_of_birth, email_marketing")
-          .eq("id", session.user.id)
-          .single();
-        if (mounted) setProfile((profile as Profile) ?? null);
+        await loadProfile(session.user.id);
       }
+
       if (mounted) setLoading(false);
     }
 
     getInitialSession();
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
-        if (event === "SIGNED_OUT") {
-          logout();
-          queryClient.clear();
-          return;
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (event === "PASSWORD_RECOVERY") {
+        if (session?.user) {
+          setUser(session.user);
+          await loadProfile(session.user.id);
         }
-        if (event === "SIGNED_IN" || event === "USER_UPDATED") {
-          if (session?.user) {
-            setUser(session.user);
-            const { data: profile } = await supabase
-              .from("profiles")
-              .select("id, role, full_name, phone, avatar_url, date_of_birth, email_marketing")
-              .eq("id", session.user.id)
-              .single();
-            setProfile((profile as Profile) ?? null);
-          }
+
+        if (window.location.pathname !== "/reset-password") {
+          window.location.href = "/reset-password";
+        }
+
+        return;
+      }
+
+      if (event === "SIGNED_OUT") {
+        logout();
+        queryClient.clear();
+        return;
+      }
+
+      if (event === "SIGNED_IN" || event === "USER_UPDATED") {
+        if (session?.user) {
+          setUser(session.user);
+          await loadProfile(session.user.id);
         }
       }
-    );
+    });
 
     return () => {
       mounted = false;
