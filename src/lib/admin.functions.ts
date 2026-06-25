@@ -494,7 +494,14 @@ async function sendOrderStatusEmail({
 
   if (error) {
     console.error("Order status email failed:", error);
+    throw new Error(
+      typeof error === "object" && error !== null && "message" in error
+        ? String(error.message)
+        : "Order status email failed"
+    );
   }
+
+  console.log("Order status email sent to:", to);
 }
 
 function statusLabelForEmail(status: string) {
