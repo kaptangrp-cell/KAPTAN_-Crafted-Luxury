@@ -9,6 +9,8 @@ import {
 } from "@tanstack/react-router";
 import { useEffect, type ReactNode } from "react";
 import { Toaster } from "sonner";
+import { Analytics } from "@vercel/analytics/react";
+import { SpeedInsights } from "@vercel/speed-insights/react";
 import i18n from "@/lib/i18n";
 import { usePreferencesStore } from "@/stores/preferencesStore";
 
@@ -40,6 +42,7 @@ function NotFoundComponent() {
 function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
   console.error(error);
   const router = useRouter();
+
   useEffect(() => {
     reportLovableError(error, { boundary: "tanstack_root_error_component" });
   }, [error]);
@@ -81,9 +84,15 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
       { title: "KAPTAN — Crafted to Last. Lit to Inspire." },
-      { name: "description", content: "Premium handcrafted leather products and authentic Himalayan salt lamps." },
+      {
+        name: "description",
+        content: "Premium handcrafted leather products and authentic Himalayan salt lamps.",
+      },
       { property: "og:title", content: "KAPTAN — Crafted to Last. Lit to Inspire." },
-      { property: "og:description", content: "Premium handcrafted leather products and authentic Himalayan salt lamps." },
+      {
+        property: "og:description",
+        content: "Premium handcrafted leather products and authentic Himalayan salt lamps.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
       { name: "twitter:site", content: "@kaptan.store" },
@@ -91,8 +100,15 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     links: [
       { rel: "stylesheet", href: appCss },
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
-      { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
-      { rel: "stylesheet", href: "https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" },
+      {
+        rel: "preconnect",
+        href: "https://fonts.gstatic.com",
+        crossOrigin: "anonymous",
+      },
+      {
+        rel: "stylesheet",
+        href: "https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap",
+      },
     ],
   }),
   shellComponent: RootShell,
@@ -119,7 +135,6 @@ function RootComponent() {
   const { queryClient } = Route.useRouteContext();
 
   useEffect(() => {
-    // Trigger persist hydration after first client render to keep SSR markup stable.
     usePreferencesStore.persist.rehydrate()?.then(() => {
       const { theme, language } = usePreferencesStore.getState();
       document.documentElement.classList.toggle("light", theme === "light");
@@ -133,6 +148,7 @@ function RootComponent() {
   return (
     <QueryClientProvider client={queryClient}>
       <Outlet />
+
       <Toaster
         position="bottom-right"
         toastOptions={{
@@ -143,6 +159,9 @@ function RootComponent() {
           },
         }}
       />
+
+      <Analytics />
+      <SpeedInsights />
     </QueryClientProvider>
   );
 }
