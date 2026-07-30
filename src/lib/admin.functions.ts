@@ -53,7 +53,21 @@ export const getAdminStats = createServerFn({ method: "GET" })
     await assertAdmin(context.supabase, context.userId);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
-    const [products, orders, customers, revenueRes, recent] = await Promise.all([
+    const todayStart = new Date();
+    todayStart.setHours(0, 0, 0, 0);
+    const todayStartIso = todayStart.toISOString();
+
+    const [
+      products,
+      orders,
+      customers,
+      revenueRes,
+      recent,
+      todaysOrdersRes,
+      todaysCustomersRes,
+      lowStockProductsRes,
+      pendingOrdersRes,
+    ] = await Promise.all([
       supabaseAdmin.from("products").select("id", { count: "exact", head: true }),
       supabaseAdmin.from("orders").select("id, status", { count: "exact" }),
       supabaseAdmin.from("profiles").select("id", { count: "exact", head: true }),
@@ -63,6 +77,22 @@ export const getAdminStats = createServerFn({ method: "GET" })
         .select("id, order_number, customer_name, total, status, created_at")
         .order("created_at", { ascending: false })
         .limit(10),
+      supabaseAdmin
+        .from("orders")
+        .select("id, total, status, order_items(quantity)")
+        .gte("created_at", todayStartIso),
+      supabaseAdmin
+        .from("profiles")
+        .select("id", { count: "exact", head: true })
+        .gte("created_at", todayStartIso),
+      supabaseAdmin
+        .from("products")
+        .select("id, stock_quantity, low_stock_threshold")
+        .eq("is_available", true),
+      supabaseAdmin
+        .from("orders")
+        .select("id", { count: "exact", head: true })
+        .eq("status", "ordered"),
     ]);
 
     const revenue = (revenueRes.data ?? []).reduce((s, r) => s + Number(r.total), 0);
@@ -73,6 +103,17 @@ export const getAdminStats = createServerFn({ method: "GET" })
       return acc;
     }, {});
 
+    const todaysOrders = (todaysOrdersRes.data ?? []).filter((o) => o.status !== "cancelled");
+    const todaysSales = todaysOrders.reduce((s, o) => s + Number(o.total ?? 0), 0);
+    const todaysProductsSold = todaysOrders.reduce(
+      (s, o) => s + (o.order_items ?? []).reduce((si, item) => si + Number(item.quantity ?? 0), 0),
+      0,
+    );
+
+    const lowStockCount = (lowStockProductsRes.data ?? []).filter(
+      (p) => Number(p.stock_quantity ?? 0) <= Number(p.low_stock_threshold ?? 5),
+    ).length;
+
     return {
       productCount: products.count ?? 0,
       orderCount: orders.count ?? 0,
@@ -80,6 +121,12 @@ export const getAdminStats = createServerFn({ method: "GET" })
       revenue,
       statusCounts,
       recentOrders: recent.data ?? [],
+      todaysSales,
+      todaysOrderCount: todaysOrders.length,
+      todaysNewCustomers: todaysCustomersRes.count ?? 0,
+      todaysProductsSold,
+      lowStockCount,
+      pendingOrdersCount: pendingOrdersRes.count ?? 0,
     };
   });
 
@@ -90,15 +137,18 @@ export const adminGetAnalytics = createServerFn({ method: "POST" })
     await assertAdmin(context.supabase, context.userId);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
+    const periodStart = data.period !== "all" ? getPeriodStart(data.period) : null;
+    const periodEnd = data.period !== "all" ? getPeriodEnd(data.period) : null;
+
     let query = supabaseAdmin
       .from("orders")
-      .select("id, order_number, customer_name, total, status, payment_status, created_at, order_items(product_name, quantity, line_total)")
+      .select(
+        "id, order_number, customer_name, customer_email, user_id, total, status, payment_status, created_at, order_items(product_id, product_name, quantity, line_total, products(cost_price))",
+      )
       .order("created_at", { ascending: true });
 
-    if (data.period !== "all") {
-      query = query
-        .gte("created_at", getPeriodStart(data.period).toISOString())
-        .lt("created_at", getPeriodEnd(data.period).toISOString());
+    if (periodStart && periodEnd) {
+      query = query.gte("created_at", periodStart.toISOString()).lt("created_at", periodEnd.toISOString());
     }
 
     if (data.status && data.status !== "all") {
@@ -107,6 +157,14 @@ export const adminGetAnalytics = createServerFn({ method: "POST" })
 
     const { data: orders, error } = await query;
     if (error) throw new Error(error.message);
+
+    // Visits logged in the same window, for conversion rate = orders / visits.
+    let visitsQuery = supabaseAdmin.from("site_visits").select("id", { count: "exact", head: true });
+    if (periodStart && periodEnd) {
+      visitsQuery = visitsQuery.gte("created_at", periodStart.toISOString()).lt("created_at", periodEnd.toISOString());
+    }
+    const { count: totalVisits, error: visitsError } = await visitsQuery;
+    if (visitsError) throw new Error(visitsError.message);
 
     const filteredOrders = (orders ?? []).filter((o: any) => {
       if (!data.productName || data.productName === "all") return true;
@@ -117,6 +175,11 @@ export const adminGetAnalytics = createServerFn({ method: "POST" })
     const statusRevenue = new Map<string, { status: string; revenue: number; orders: number }>();
     const bestProducts = new Map<string, { product_name: string; quantity: number; revenue: number }>();
     const productNames = new Set<string>();
+    const customerOrderCounts = new Map<string, number>();
+
+    let totalCost = 0;
+    let costTrackedRevenue = 0;
+    let itemsMissingCost = 0;
 
     for (const order of filteredOrders) {
       const date = new Date(order.created_at).toISOString().slice(0, 10);
@@ -131,6 +194,9 @@ export const adminGetAnalytics = createServerFn({ method: "POST" })
       statusRow.orders += 1;
       statusRevenue.set(status, statusRow);
 
+      const customerKey = order.user_id ?? order.customer_email?.toLowerCase() ?? order.id;
+      customerOrderCounts.set(customerKey, (customerOrderCounts.get(customerKey) ?? 0) + 1);
+
       for (const item of order.order_items ?? []) {
         productNames.add(item.product_name);
         const p = bestProducts.get(item.product_name) ?? {
@@ -141,12 +207,26 @@ export const adminGetAnalytics = createServerFn({ method: "POST" })
         p.quantity += Number(item.quantity ?? 0);
         p.revenue += Number(item.line_total ?? 0);
         bestProducts.set(item.product_name, p);
+
+        const costPrice = item.products?.cost_price;
+        if (costPrice === null || costPrice === undefined) {
+          itemsMissingCost += 1;
+        } else {
+          totalCost += Number(costPrice) * Number(item.quantity ?? 0);
+          costTrackedRevenue += Number(item.line_total ?? 0);
+        }
       }
     }
 
     const totalRevenue = filteredOrders.reduce((s: number, o: any) => s + Number(o.total ?? 0), 0);
     const totalOrders = filteredOrders.length;
     const averageOrderValue = totalOrders ? totalRevenue / totalOrders : 0;
+
+    const totalCustomers = customerOrderCounts.size;
+    const returningCustomers = Array.from(customerOrderCounts.values()).filter((n) => n > 1).length;
+    const returningCustomerRate = totalCustomers ? returningCustomers / totalCustomers : 0;
+
+    const conversionRate = totalVisits ? totalOrders / totalVisits : null;
 
     return {
       totalRevenue,
@@ -168,6 +248,14 @@ export const adminGetAnalytics = createServerFn({ method: "POST" })
           ...r,
           revenue: Number(r.revenue.toFixed(2)),
         })),
+      returningCustomers,
+      totalCustomers,
+      returningCustomerRate,
+      totalVisits: totalVisits ?? 0,
+      conversionRate,
+      profit: Number((costTrackedRevenue - totalCost).toFixed(2)),
+      profitRevenueBasis: Number(costTrackedRevenue.toFixed(2)),
+      itemsMissingCost,
     };
   });
 
@@ -200,6 +288,7 @@ export const adminListProducts = createServerFn({ method: "GET" })
         slug,
         price,
         compare_at_price,
+        cost_price,
         short_description,
         full_description,
         stock_quantity,
@@ -230,6 +319,7 @@ const ProductSchema = z.object({
   full_description: z.string().max(5000).nullable(),
   price: z.number().min(0),
   compare_at_price: z.number().min(0).nullable(),
+  cost_price: z.number().min(0).nullable(),
   stock_quantity: z.number().int().min(0),
   is_available: z.boolean(),
   is_featured: z.boolean(),

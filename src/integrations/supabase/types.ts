@@ -464,6 +464,7 @@ export type Database = {
           average_rating: number | null
           category_id: string | null
           compare_at_price: number | null
+          cost_price: number | null
           created_at: string | null
           full_description: string | null
           id: string
@@ -488,6 +489,7 @@ export type Database = {
           average_rating?: number | null
           category_id?: string | null
           compare_at_price?: number | null
+          cost_price?: number | null
           created_at?: string | null
           full_description?: string | null
           id?: string
@@ -512,6 +514,7 @@ export type Database = {
           average_rating?: number | null
           category_id?: string | null
           compare_at_price?: number | null
+          cost_price?: number | null
           created_at?: string | null
           full_description?: string | null
           id?: string
@@ -575,6 +578,30 @@ export type Database = {
           phone?: string | null
           role?: string
           updated_at?: string | null
+        }
+        Relationships: []
+      }
+      site_visits: {
+        Row: {
+          created_at: string | null
+          id: string
+          path: string | null
+          referrer: string | null
+          session_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          path?: string | null
+          referrer?: string | null
+          session_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          path?: string | null
+          referrer?: string | null
+          session_id?: string
         }
         Relationships: []
       }

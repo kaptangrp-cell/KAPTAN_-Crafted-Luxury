@@ -40,6 +40,7 @@ type ProductRow = {
   slug: string;
   price: number;
   compare_at_price: number | null;
+  cost_price: number | null;
   short_description: string | null;
   full_description: string | null;
   stock_quantity: number;
@@ -78,6 +79,7 @@ const empty = {
   full_description: "",
   price: 0,
   compare_at_price: null as number | null,
+  cost_price: null as number | null,
   stock_quantity: 0,
   is_available: true,
   is_featured: false,
@@ -116,6 +118,7 @@ function AdminProductsPage() {
           full_description: form.full_description || null,
           price: Number(form.price),
           compare_at_price: form.compare_at_price ? Number(form.compare_at_price) : null,
+          cost_price: form.cost_price ? Number(form.cost_price) : null,
           stock_quantity: Number(form.stock_quantity),
           is_available: form.is_available,
           is_featured: form.is_featured,
@@ -165,6 +168,7 @@ function AdminProductsPage() {
       full_description: p.full_description ?? "",
       price: Number(p.price),
       compare_at_price: p.compare_at_price ? Number(p.compare_at_price) : null,
+      cost_price: p.cost_price ? Number(p.cost_price) : null,
       stock_quantity: p.stock_quantity,
       is_available: p.is_available ?? true,
       is_featured: p.is_featured ?? false,
@@ -531,6 +535,18 @@ function AdminProductsPage() {
                 setEditing({
                   ...editing,
                   compare_at_price: v ? Number(v) : null,
+                })
+              }
+            />
+
+            <F
+              label="Cost Price (€) — for profit reports"
+              type="number"
+              value={editing.cost_price?.toString() ?? ""}
+              onChange={(v) =>
+                setEditing({
+                  ...editing,
+                  cost_price: v ? Number(v) : null,
                 })
               }
             />

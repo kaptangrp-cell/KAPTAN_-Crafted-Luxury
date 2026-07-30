@@ -8,12 +8,14 @@ import {
   Scripts,
 } from "@tanstack/react-router";
 import { useEffect, type ReactNode } from "react";
+import { useServerFn } from "@tanstack/react-start";
 import { Toaster } from "sonner";
 import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/react";
 import i18n from "@/lib/i18n";
 import { usePreferencesStore } from "@/stores/preferencesStore";
 import { WhatsAppButton } from "@/components/layout/WhatsAppButton";
+import { logVisit } from "@/lib/analytics.functions";
 
 import appCss from "../styles.css?url";
 
@@ -160,6 +162,7 @@ function RootShell({ children }: { children: ReactNode }) {
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
+  const logVisitFn = useServerFn(logVisit);
 
   useEffect(() => {
     usePreferencesStore.persist.rehydrate()?.then(() => {
@@ -171,6 +174,33 @@ function RootComponent() {
       usePreferencesStore.setState({ hasHydrated: true });
     });
   }, []);
+
+  // Log one visit per browser session (not per pageview) so the admin
+  // dashboard can compute conversion rate = orders / visits. Fire-and-forget;
+  // never blocks rendering and never surfaces errors to the shopper.
+  useEffect(() => {
+    const FLAG = "kaptan_visit_logged";
+
+    if (sessionStorage.getItem(FLAG)) return;
+
+    let sessionId = localStorage.getItem("kaptan_session_id");
+    if (!sessionId) {
+      sessionId = crypto.randomUUID();
+      localStorage.setItem("kaptan_session_id", sessionId);
+    }
+
+    sessionStorage.setItem(FLAG, "1");
+
+    logVisitFn({
+      data: {
+        sessionId,
+        path: window.location.pathname,
+        referrer: document.referrer || undefined,
+      },
+    }).catch(() => {
+      // Analytics is best-effort — silently ignore failures.
+    });
+  }, [logVisitFn]);
 
   return (
     <QueryClientProvider client={queryClient}>

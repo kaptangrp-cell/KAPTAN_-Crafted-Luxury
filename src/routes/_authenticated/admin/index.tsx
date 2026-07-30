@@ -2,7 +2,18 @@ import { useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery } from "@tanstack/react-query";
-import { Package, ShoppingCart, Users, TrendingUp } from "lucide-react";
+import {
+  Package,
+  ShoppingCart,
+  Users,
+  TrendingUp,
+  AlertTriangle,
+  Clock,
+  Boxes,
+  Repeat,
+  MousePointerClick,
+  Wallet,
+} from "lucide-react";
 import {
   LineChart,
   Line,
@@ -77,6 +88,15 @@ function AdminDashboard() {
     { label: "Customers", value: data.customerCount, icon: Users },
   ];
 
+  const todayStats = [
+    { label: "Today's Sales", value: `€${data.todaysSales.toFixed(2)}`, icon: TrendingUp, alert: false },
+    { label: "Orders", value: data.todaysOrderCount, icon: ShoppingCart, alert: false },
+    { label: "Customers", value: data.todaysNewCustomers, icon: Users, alert: false },
+    { label: "Products Sold", value: data.todaysProductsSold, icon: Boxes, alert: false },
+    { label: "Low Stock", value: data.lowStockCount, icon: AlertTriangle, alert: data.lowStockCount > 0 },
+    { label: "Pending Orders", value: data.pendingOrdersCount, icon: Clock, alert: data.pendingOrdersCount > 0 },
+  ];
+
   const statusChartData = STATUS_BREAKDOWN.map((s) => ({
     name: s.label,
     value: data.statusCounts[s.key] ?? 0,
@@ -85,6 +105,30 @@ function AdminDashboard() {
   return (
     <div className="space-y-6">
       <h1 className="font-serif text-3xl text-white">Dashboard</h1>
+
+      <div>
+        <h2 className="mb-3 text-xs font-semibold uppercase tracking-wider text-white/50">
+          Today
+        </h2>
+        <div className="grid gap-4 sm:grid-cols-3 lg:grid-cols-6">
+          {todayStats.map((s) => (
+            <div
+              key={s.label}
+              className={`border p-4 ${
+                s.alert ? "border-amber-500/40 bg-amber-500/5" : "border-gold/15 bg-[#1A1A1A]"
+              }`}
+            >
+              <div className="flex items-center justify-between">
+                <span className="text-xs uppercase tracking-wider text-white/50">{s.label}</span>
+                <s.icon size={16} className={s.alert ? "text-amber-400" : "text-gold/70"} />
+              </div>
+              <p className={`mt-3 font-mono text-2xl ${s.alert ? "text-amber-400" : "text-gold"}`}>
+                {s.value}
+              </p>
+            </div>
+          ))}
+        </div>
+      </div>
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {stats.map((s) => (
@@ -124,9 +168,42 @@ function AdminDashboard() {
         </div>
 
         <div className="mt-5 grid gap-4 md:grid-cols-3">
-          <MiniStat label="Filtered Revenue" value={`€${Number(analytics?.totalRevenue ?? 0).toFixed(2)}`} />
-          <MiniStat label="Filtered Orders" value={String(analytics?.totalOrders ?? 0)} />
-          <MiniStat label="Average Order" value={`€${Number(analytics?.averageOrderValue ?? 0).toFixed(2)}`} />
+          <MiniStat label="Filtered Revenue" value={`€${Number(analytics?.totalRevenue ?? 0).toFixed(2)}`} icon={TrendingUp} />
+          <MiniStat label="Filtered Orders" value={String(analytics?.totalOrders ?? 0)} icon={ShoppingCart} />
+          <MiniStat label="Average Order Value" value={`€${Number(analytics?.averageOrderValue ?? 0).toFixed(2)}`} icon={Wallet} />
+        </div>
+
+        <div className="mt-4 grid gap-4 md:grid-cols-3">
+          <MiniStat
+            label="Conversion Rate"
+            value={
+              analytics && analytics.totalVisits > 0
+                ? `${(Number(analytics.conversionRate ?? 0) * 100).toFixed(2)}%`
+                : "No visit data yet"
+            }
+            hint={analytics && analytics.totalVisits > 0 ? `${analytics.totalVisits} visits tracked` : undefined}
+            icon={MousePointerClick}
+          />
+          <MiniStat
+            label="Returning Customers"
+            value={
+              analytics
+                ? `${analytics.returningCustomers} (${(Number(analytics.returningCustomerRate ?? 0) * 100).toFixed(0)}%)`
+                : "—"
+            }
+            hint={analytics ? `of ${analytics.totalCustomers} customers` : undefined}
+            icon={Repeat}
+          />
+          <MiniStat
+            label="Profit"
+            value={analytics ? `€${Number(analytics.profit ?? 0).toFixed(2)}` : "—"}
+            hint={
+              analytics && analytics.itemsMissingCost > 0
+                ? `${analytics.itemsMissingCost} line items missing cost price`
+                : "Based on product cost price"
+            }
+            icon={Wallet}
+          />
         </div>
       </div>
 
@@ -314,11 +391,25 @@ function Select({
   );
 }
 
-function MiniStat({ label, value }: { label: string; value: string }) {
+function MiniStat({
+  label,
+  value,
+  hint,
+  icon: Icon,
+}: {
+  label: string;
+  value: string;
+  hint?: string;
+  icon?: React.ComponentType<{ size?: number; className?: string }>;
+}) {
   return (
     <div className="border border-gold/10 bg-[#0D0D0D] p-3">
-      <p className="text-xs uppercase tracking-wider text-white/40">{label}</p>
+      <div className="flex items-center justify-between">
+        <p className="text-xs uppercase tracking-wider text-white/40">{label}</p>
+        {Icon && <Icon size={14} className="text-gold/60" />}
+      </div>
       <p className="mt-1 font-mono text-xl text-gold">{value}</p>
+      {hint && <p className="mt-0.5 text-[11px] text-white/40">{hint}</p>}
     </div>
   );
 }
