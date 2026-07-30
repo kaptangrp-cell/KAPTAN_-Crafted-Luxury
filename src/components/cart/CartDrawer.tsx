@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { X, Minus, Plus, Trash2 } from "lucide-react";
+import { X, Minus, Plus, Trash2, Lock } from "lucide-react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { useUIStore } from "@/stores/uiStore";
 import { useCartStore } from "@/stores/cartStore";
@@ -102,6 +102,11 @@ export function CartDrawer() {
               >
                 Continue Shopping
               </button>
+
+              <p className="mt-3 flex items-center justify-center gap-1.5 text-[11px] text-white/40">
+                <Lock size={12} className="text-gold" />
+                Secure checkout · Card, COD & bank transfer
+              </p>
             </div>
           </>
         )}

@@ -8,9 +8,15 @@ import { ProductCard } from "@/components/product/ProductCard";
 const searchSchema = z.object({
   q: z.string().optional(),
   category: z.string().optional(),
+  sort: z.enum(["newest", "price_asc", "price_desc", "popular"]).optional(),
+  minPrice: z.coerce.number().optional(),
+  maxPrice: z.coerce.number().optional(),
+  inStock: z.coerce.boolean().optional(),
 });
 
-function productsQueryOptions(search: { q?: string; category?: string }) {
+type ProductsSearch = z.infer<typeof searchSchema>;
+
+function productsQueryOptions(search: ProductsSearch) {
   return queryOptions({
     queryKey: ["products", search],
     queryFn: () =>
@@ -18,6 +24,10 @@ function productsQueryOptions(search: { q?: string; category?: string }) {
         data: {
           search: search.q,
           categorySlug: search.category,
+          sort: search.sort,
+          minPrice: search.minPrice,
+          maxPrice: search.maxPrice,
+          inStockOnly: search.inStock,
           limit: 48,
         },
       }),
@@ -31,7 +41,7 @@ const categoriesQueryOptions = queryOptions({
 
 export const Route = createFileRoute("/products")({
   validateSearch: (s) => searchSchema.parse(s),
-  loaderDeps: ({ search }) => ({ q: search.q, category: search.category }),
+  loaderDeps: ({ search }) => search,
   loader: ({ context, deps }) =>
     Promise.all([
       context.queryClient.ensureQueryData(productsQueryOptions(deps)),
@@ -46,13 +56,18 @@ export const Route = createFileRoute("/products")({
   component: ProductsPage,
 });
 
+const SORT_OPTIONS: { value: NonNullable<ProductsSearch["sort"]>; label: string }[] = [
+  { value: "newest", label: "Newest" },
+  { value: "popular", label: "Most Popular" },
+  { value: "price_asc", label: "Price: Low to High" },
+  { value: "price_desc", label: "Price: High to Low" },
+];
+
 function ProductsPage() {
   const search = Route.useSearch();
   const navigate = Route.useNavigate();
 
-  const { data: prodData } = useSuspenseQuery(
-    productsQueryOptions({ q: search.q, category: search.category }),
-  );
+  const { data: prodData } = useSuspenseQuery(productsQueryOptions(search));
   const { data: catData } = useSuspenseQuery(categoriesQueryOptions);
 
   const products = prodData?.products ?? [];
@@ -83,6 +98,19 @@ function ProductsPage() {
     });
   }
 
+  function updateFilter(patch: Partial<ProductsSearch>) {
+    navigate({ search: { ...search, ...patch } });
+  }
+
+  const hasActiveFilters =
+    Boolean(search.minPrice) || Boolean(search.maxPrice) || Boolean(search.inStock) || Boolean(search.sort);
+
+  function clearFilters() {
+    navigate({
+      search: { ...search, sort: undefined, minPrice: undefined, maxPrice: undefined, inStock: undefined },
+    });
+  }
+
   const emptyTitle = search.category
     ? `${activeCategory?.name ?? "This category"} is coming soon`
     : "No products available";
@@ -104,22 +132,37 @@ function ProductsPage() {
             </p>
           </div>
 
-          <input
-            type="search"
-            defaultValue={search.q ?? ""}
-            placeholder="Search products..."
-            onKeyDown={(e) => {
-              if (e.key === "Enter") {
-                navigate({
-                  search: {
-                    ...search,
-                    q: (e.target as HTMLInputElement).value || undefined,
-                  },
-                });
-              }
-            }}
-            className="w-full border border-gold/30 bg-black px-3 py-2 text-sm text-white outline-none focus:border-gold md:w-72"
-          />
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+            <input
+              type="search"
+              defaultValue={search.q ?? ""}
+              placeholder="Search products..."
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  navigate({
+                    search: {
+                      ...search,
+                      q: (e.target as HTMLInputElement).value || undefined,
+                    },
+                  });
+                }
+              }}
+              className="w-full border border-gold/30 bg-black px-3 py-2 text-sm text-white outline-none focus:border-gold sm:w-56"
+            />
+
+            <select
+              value={search.sort ?? "newest"}
+              onChange={(e) => updateFilter({ sort: e.target.value as ProductsSearch["sort"] })}
+              className="w-full border border-gold/30 bg-black px-3 py-2 text-sm text-white outline-none focus:border-gold sm:w-48"
+              aria-label="Sort products"
+            >
+              {SORT_OPTIONS.map((opt) => (
+                <option key={opt.value} value={opt.value} className="bg-black">
+                  {opt.label}
+                </option>
+              ))}
+            </select>
+          </div>
         </div>
 
         <div className="grid gap-8 md:grid-cols-[240px_1fr]">
@@ -154,6 +197,54 @@ function ProductsPage() {
                 activeCategory={search.category}
                 onSelect={selectCategory}
               />
+            )}
+
+            <div className="mb-8">
+              <h2 className="mb-3 font-serif text-sm uppercase tracking-wider text-gold">
+                Price Range (€)
+              </h2>
+              <div className="flex items-center gap-2">
+                <input
+                  type="number"
+                  min={0}
+                  placeholder="Min"
+                  defaultValue={search.minPrice ?? ""}
+                  onBlur={(e) =>
+                    updateFilter({ minPrice: e.target.value ? Number(e.target.value) : undefined })
+                  }
+                  className="w-full border border-gold/20 bg-black px-2 py-1.5 text-sm text-white outline-none focus:border-gold"
+                />
+                <span className="text-white/40">–</span>
+                <input
+                  type="number"
+                  min={0}
+                  placeholder="Max"
+                  defaultValue={search.maxPrice ?? ""}
+                  onBlur={(e) =>
+                    updateFilter({ maxPrice: e.target.value ? Number(e.target.value) : undefined })
+                  }
+                  className="w-full border border-gold/20 bg-black px-2 py-1.5 text-sm text-white outline-none focus:border-gold"
+                />
+              </div>
+            </div>
+
+            <label className="mb-8 flex cursor-pointer items-center gap-2 text-sm text-white/70 hover:text-gold">
+              <input
+                type="checkbox"
+                checked={Boolean(search.inStock)}
+                onChange={(e) => updateFilter({ inStock: e.target.checked || undefined })}
+                className="accent-gold"
+              />
+              In stock only
+            </label>
+
+            {hasActiveFilters && (
+              <button
+                onClick={clearFilters}
+                className="mb-8 text-xs font-semibold uppercase tracking-wider text-gold/70 hover:text-gold"
+              >
+                Clear Filters
+              </button>
             )}
           </aside>
 

@@ -19,9 +19,9 @@
 
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --color-gold: #FFEB00;
-  --color-gold-vivid: #FFF200;
-  --color-gold-dark: #FFD700;
+  --color-gold: #C9A227;
+  --color-gold-vivid: #E4C55A;
+  --color-gold-dark: #A8841F;
   --color-warm-grey: #1A1A1A;
   --color-off-white: #F9F6EE;
   --color-brand-black: #000000;
@@ -41,7 +41,7 @@
 
 @layer base {
   * {
-    border-color: rgba(255, 235, 0, 0.15);
+    border-color: rgba(201, 162, 39, 0.15);
   }
 
   body {
@@ -62,11 +62,11 @@
 }
 
 @utility gold-glow {
-  box-shadow: 0 0 12px rgba(255, 235, 0, 0.25);
+  box-shadow: 0 0 12px rgba(201, 162, 39, 0.25);
 }
 
 @utility gold-glow-lg {
-  box-shadow: 0 0 24px rgba(255, 235, 0, 0.35);
+  box-shadow: 0 0 24px rgba(201, 162, 39, 0.35);
 }
 
 /* Light mode fixes */
@@ -100,10 +100,10 @@
 }
 
 .light .bg-gold {
-  background-color: #FFEB00 !important;
+  background-color: #C9A227 !important;
   color: #000000 !important;
 }
 
 .light .border-gold {
-  border-color: #FFEB00 !important;
+  border-color: #C9A227 !important;
 }

@@ -19,8 +19,12 @@ import process from "node:process";
 export function getServerConfig() {
   return {
     nodeEnv: process.env.NODE_ENV,
-    // Add server-only values here, e.g.:
-    //   databaseUrl: process.env.DATABASE_URL,
-    //   stripeSecretKey: process.env.STRIPE_SECRET_KEY,
+    stripeSecretKey: process.env.STRIPE_SECRET_KEY || undefined,
+    stripeWebhookSecret: process.env.STRIPE_WEBHOOK_SECRET || undefined,
   };
+}
+
+/** True once STRIPE_SECRET_KEY has been set — used to gate the Card payment option. */
+export function isStripeConfigured() {
+  return Boolean(process.env.STRIPE_SECRET_KEY);
 }

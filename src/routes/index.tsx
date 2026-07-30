@@ -3,7 +3,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
-import { ChevronDown, ShieldCheck, Hand, Truck, Leaf } from "lucide-react";
+import { ChevronDown, ShieldCheck, Hand, Truck, Leaf, Play } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { getFeaturedProducts, getCategories } from "@/lib/products.functions";
 import { subscribeNewsletter } from "@/lib/newsletter.functions";
@@ -13,25 +13,31 @@ import { PageLayout } from "@/components/layout/PageLayout";
 const heroSlides = [
   {
     image: "/banners/leather-bags.jpg",
+    imageWebp: "/banners/leather-bags.webp",
     title: "Premium Leather Bags",
     subtitle: "New arrivals crafted for daily elegance.",
   },
   {
     image: "/banners/leather-belts.jpg",
+    imageWebp: "/banners/leather-belts.webp",
     title: "Luxury Leather Belts",
     subtitle: "Strong details. Timeless finish.",
   },
   {
     image: "/banners/leather-footwear.jpg",
+    imageWebp: "/banners/leather-footwear.webp",
     title: "Leather Footwear",
     subtitle: "Built to last with premium comfort.",
   },
   {
     image: "/banners/leather-jackets.jpg",
+    imageWebp: "/banners/leather-jackets.webp",
     title: "Leather Jackets",
     subtitle: "Bold style for every season.",
   },
 ];
+
+const YOUTUBE_ID = "E_rwyu6cdmc";
 
 const featuredQueryOptions = queryOptions({
   queryKey: ["featured-products"],
@@ -70,16 +76,24 @@ function HomePage() {
   const [newsletterEmail, setNewsletterEmail] = useState("");
   const [subscribing, setSubscribing] = useState(false);
   const [activeSlide, setActiveSlide] = useState(0);
+  const [heroPaused, setHeroPaused] = useState(false);
+  const [videoPlaying, setVideoPlaying] = useState(false);
 
   const featuredProducts = featuredData?.products ?? [];
 
   useEffect(() => {
+    const prefersReducedMotion = window.matchMedia(
+      "(prefers-reduced-motion: reduce)",
+    ).matches;
+
+    if (prefersReducedMotion || heroPaused) return;
+
     const timer = window.setInterval(() => {
       setActiveSlide((current) => (current + 1) % heroSlides.length);
-    }, 3000);
+    }, 4000);
 
     return () => window.clearInterval(timer);
-  }, []);
+  }, [heroPaused]);
 
   async function handleNewsletterSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -100,17 +114,30 @@ function HomePage() {
 
   return (
     <PageLayout>
-      <section className="relative min-h-[80vh] overflow-hidden bg-black">
+      <section
+        className="relative min-h-[80vh] overflow-hidden bg-black"
+        onMouseEnter={() => setHeroPaused(true)}
+        onMouseLeave={() => setHeroPaused(false)}
+        onFocus={() => setHeroPaused(true)}
+        onBlur={() => setHeroPaused(false)}
+      >
         <Link to="/products" className="absolute inset-0 block">
           {heroSlides.map((s, index) => (
-            <img
-              key={s.image}
-              src={s.image}
-              alt={s.title}
-              className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-700 ${
-                index === activeSlide ? "opacity-70" : "opacity-0"
-              }`}
-            />
+            <picture key={s.image}>
+              <source srcSet={s.imageWebp} type="image/webp" />
+              <img
+                src={s.image}
+                alt={s.title}
+                width={2200}
+                height={1467}
+                fetchPriority={index === 0 ? "high" : "low"}
+                loading={index === 0 ? "eager" : "lazy"}
+                decoding="async"
+                className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-700 ${
+                  index === activeSlide ? "opacity-70" : "opacity-0"
+                }`}
+              />
+            </picture>
           ))}
           <div className="absolute inset-0 bg-black/60" />
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,oklch(0.86_0.18_95/0.12),transparent_70%)]" />
@@ -250,13 +277,35 @@ function HomePage() {
       <section className="bg-black px-4 py-16 md:px-6">
         <div className="mx-auto grid max-w-7xl items-center gap-10 md:grid-cols-2">
           <div className="relative aspect-video overflow-hidden border border-gold/20 bg-[#1A1A1A] shadow-lg md:aspect-square">
-            <iframe
-              className="h-full w-full"
-              src="https://www.youtube.com/embed/E_rwyu6cdmc?rel=0&modestbranding=1"
-              title="KAPTAN leather craft demo video"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-              allowFullScreen
-            />
+            {videoPlaying ? (
+              <iframe
+                className="h-full w-full"
+                src={`https://www.youtube.com/embed/${YOUTUBE_ID}?rel=0&modestbranding=1&autoplay=1`}
+                title="KAPTAN leather craft demo video"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+              />
+            ) : (
+              <button
+                type="button"
+                onClick={() => setVideoPlaying(true)}
+                className="group relative h-full w-full"
+                aria-label="Play KAPTAN leather craft demo video"
+              >
+                <img
+                  src={`https://img.youtube.com/vi/${YOUTUBE_ID}/hqdefault.jpg`}
+                  alt="KAPTAN leather craft demo video thumbnail"
+                  loading="lazy"
+                  decoding="async"
+                  className="h-full w-full object-cover opacity-70 transition-opacity group-hover:opacity-90"
+                />
+                <span className="absolute inset-0 flex items-center justify-center bg-black/30">
+                  <span className="flex h-16 w-16 items-center justify-center rounded-full border border-gold bg-black/70 text-gold transition-transform group-hover:scale-110">
+                    <Play size={26} className="ml-1" fill="currentColor" />
+                  </span>
+                </span>
+              </button>
+            )}
             <div className="pointer-events-none absolute inset-0 border border-gold/10" />
           </div>
 

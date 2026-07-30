@@ -2,10 +2,14 @@ import { useState } from "react";
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
+import { ShieldCheck, Lock, Truck } from "lucide-react";
 import { useCartStore } from "@/stores/cartStore";
 import { useAuthStore } from "@/stores/authStore";
 import { PageLayout } from "@/components/layout/PageLayout";
 import { createOrder } from "@/lib/orders.functions";
+import { createStripeCheckoutSession } from "@/lib/payments.functions";
+
+const STRIPE_ENABLED = Boolean(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
 
 export const Route = createFileRoute("/checkout")({
   head: () => ({ meta: [{ title: "Checkout — KAPTAN" }] }),
@@ -17,6 +21,7 @@ function CheckoutPage() {
   const { items, subtotal, clearCart } = useCartStore();
   const { user, profile } = useAuthStore();
   const createOrderFn = useServerFn(createOrder);
+  const createStripeSessionFn = useServerFn(createStripeCheckoutSession);
   const [submitting, setSubmitting] = useState(false);
 
   const total = subtotal();
@@ -33,7 +38,7 @@ function CheckoutPage() {
     state: "",
     postal_code: "",
     country: "DE",
-    payment_method: "cod" as "cod" | "bank_transfer",
+    payment_method: "cod" as "cod" | "bank_transfer" | "card",
     notes: "",
   });
 
@@ -77,6 +82,15 @@ function CheckoutPage() {
           notes: form.notes || null,
         },
       });
+
+      if (form.payment_method === "card") {
+        const { url } = await createStripeSessionFn({
+          data: { orderId, origin: window.location.origin },
+        });
+        clearCart();
+        window.location.href = url;
+        return;
+      }
 
       clearCart();
       toast.success(`Order ${orderNumber} placed!`);
@@ -136,20 +150,34 @@ function CheckoutPage() {
               <h2 className="font-serif text-lg text-gold">Payment Method</h2>
               <div className="mt-3 space-y-2">
                 {[
-                  { v: "cod", label: "Cash on Delivery", desc: "Pay when your order arrives." },
-                  { v: "bank_transfer", label: "Bank Transfer", desc: "Manual transfer; we'll email instructions." },
+                  {
+                    v: "card",
+                    label: "Card (Visa, Mastercard, Amex)",
+                    desc: STRIPE_ENABLED
+                      ? "Secure checkout powered by Stripe."
+                      : "Coming soon — secure checkout powered by Stripe.",
+                    disabled: !STRIPE_ENABLED,
+                  },
+                  { v: "cod", label: "Cash on Delivery", desc: "Pay when your order arrives.", disabled: false },
+                  {
+                    v: "bank_transfer",
+                    label: "Bank Transfer",
+                    desc: "Manual transfer; we'll email instructions.",
+                    disabled: false,
+                  },
                 ].map((opt) => (
                   <label
                     key={opt.v}
-                    className={`flex cursor-pointer items-start gap-3 border p-3 ${
-                      form.payment_method === opt.v ? "border-gold bg-gold/5" : "border-gold/20"
-                    }`}
+                    className={`flex items-start gap-3 border p-3 ${
+                      opt.disabled ? "cursor-not-allowed opacity-50" : "cursor-pointer"
+                    } ${form.payment_method === opt.v ? "border-gold bg-gold/5" : "border-gold/20"}`}
                   >
                     <input
                       type="radio"
                       name="payment"
+                      disabled={opt.disabled}
                       checked={form.payment_method === opt.v}
-                      onChange={() => set("payment_method", opt.v as "cod" | "bank_transfer")}
+                      onChange={() => set("payment_method", opt.v as "cod" | "bank_transfer" | "card")}
                       className="mt-1 accent-gold"
                     />
                     <div>
@@ -212,6 +240,21 @@ function CheckoutPage() {
             <p className="mt-3 text-center text-xs text-white/40">
               By placing this order you agree to our terms.
             </p>
+
+            <div className="mt-5 flex items-center justify-center gap-4 border-t border-gold/10 pt-4 text-white/50">
+              <span className="flex items-center gap-1.5 text-[11px] uppercase tracking-wider">
+                <Lock size={13} className="text-gold" />
+                Secure Checkout
+              </span>
+              <span className="flex items-center gap-1.5 text-[11px] uppercase tracking-wider">
+                <ShieldCheck size={13} className="text-gold" />
+                Buyer Protection
+              </span>
+              <span className="flex items-center gap-1.5 text-[11px] uppercase tracking-wider">
+                <Truck size={13} className="text-gold" />
+                Tracked Delivery
+              </span>
+            </div>
           </aside>
         </form>
       </section>

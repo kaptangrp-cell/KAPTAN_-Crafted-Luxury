@@ -84,10 +84,22 @@
   "faq": {
     "title": "Häufig gestellte Fragen",
     "items": [
-      { "q": "Wie lange dauert der Versand?", "a": "Die meisten Bestellungen werden innerhalb von 1–2 Werktagen versandt und sind im Inland in 3–5 Werktagen, international in 7–14 Werktagen da." },
-      { "q": "Sind eure Salzlampen echt?", "a": "Ja — jede Lampe wird aus Salz handgeschnitzt, das direkt im Khewra-Bergwerk in Pakistan abgebaut wird, dem zweitgrößten Salzbergwerk der Welt." },
-      { "q": "Wie pflege ich mein Leder?", "a": "Mit einem weichen, trockenen Tuch abwischen. Alle 3–6 Monate mit hochwertigem Lederbalsam pflegen und vor langer Sonneneinstrahlung schützen." },
-      { "q": "Kann ich einen Artikel zurückgeben?", "a": "Ja, wir akzeptieren Rücksendungen innerhalb von 30 Tagen nach Lieferung für ungenutzte Artikel im Originalzustand. Details findest du auf unserer Rücksendungen-Seite." }
+      {
+        "q": "Wie lange dauert der Versand?",
+        "a": "Die meisten Bestellungen werden innerhalb von 1–2 Werktagen versandt und sind im Inland in 3–5 Werktagen, international in 7–14 Werktagen da."
+      },
+      {
+        "q": "Sind eure Salzlampen echt?",
+        "a": "Ja — jede Lampe wird aus Salz handgeschnitzt, das direkt im Khewra-Bergwerk in Pakistan abgebaut wird, dem zweitgrößten Salzbergwerk der Welt."
+      },
+      {
+        "q": "Wie pflege ich mein Leder?",
+        "a": "Mit einem weichen, trockenen Tuch abwischen. Alle 3–6 Monate mit hochwertigem Lederbalsam pflegen und vor langer Sonneneinstrahlung schützen."
+      },
+      {
+        "q": "Kann ich einen Artikel zurückgeben?",
+        "a": "Ja, wir akzeptieren Rücksendungen innerhalb von 30 Tagen nach Lieferung für ungenutzte Artikel im Originalzustand. Details findest du auf unserer Rücksendungen-Seite."
+      }
     ]
   },
   "shipping": {
@@ -135,5 +147,9 @@
     "sending": "Wird gesendet...",
     "success": "Nachricht gesendet. Wir melden uns bald.",
     "error": "Nachricht konnte nicht gesendet werden"
+  },
+  "whatsapp": {
+    "label": "Chatten Sie mit uns auf WhatsApp",
+    "prefill": "Hallo KAPTAN, ich habe eine Frage zu euren Produkten."
   }
 }

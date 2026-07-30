@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { createFileRoute, notFound, Link, useNavigate } from "@tanstack/react-router";
-import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
+import { queryOptions, useSuspenseQuery, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
 import {
   ShoppingBag,
   Minus,
@@ -11,17 +12,37 @@ import {
   Heart,
   CreditCard,
   Play,
+  Star,
+  Sparkles,
 } from "lucide-react";
 import { toast } from "sonner";
-import { getProductBySlug } from "@/lib/products.functions";
+import { getProductBySlug, getRelatedProducts } from "@/lib/products.functions";
+import { toggleWishlist } from "@/lib/wishlist.functions";
 import { PageLayout } from "@/components/layout/PageLayout";
+import { ProductCard } from "@/components/product/ProductCard";
 import { useCartStore } from "@/stores/cartStore";
+import { useAuthStore } from "@/stores/authStore";
 import { useUIStore } from "@/stores/uiStore";
+
+const CARE_INSTRUCTIONS = [
+  "Wipe clean with a soft, dry cloth after each use to remove dust and surface residue.",
+  "Keep away from direct sunlight, heat sources, and prolonged moisture exposure.",
+  "Apply a quality leather conditioner every 2–3 months to preserve suppleness.",
+  "Store in the provided dust bag when not in use to prevent scratches and dryness.",
+];
 
 function productQueryOptions(slug: string) {
   return queryOptions({
     queryKey: ["product", slug],
     queryFn: () => getProductBySlug({ data: { slug } }),
+  });
+}
+
+function relatedProductsQueryOptions(categoryId: string | null | undefined, excludeId: string) {
+  return queryOptions({
+    queryKey: ["related-products", categoryId, excludeId],
+    queryFn: () => getRelatedProducts({ data: { categoryId, excludeProductId: excludeId, limit: 4 } }),
+    enabled: Boolean(categoryId),
   });
 }
 
@@ -54,6 +75,9 @@ function ProductDetailPage() {
     full_description: string | null;
     stock_quantity: number | null;
     tags: string[] | null;
+    category_id: string | null;
+    average_rating: number | null;
+    review_count: number | null;
     product_images: {
       id: string;
       url: string;
@@ -74,9 +98,19 @@ function ProductDetailPage() {
   const [qty, setQty] = useState(1);
   const [activeMedia, setActiveMedia] = useState(0);
   const [variantId, setVariantId] = useState<string | null>(null);
+  const [wishlisted, setWishlisted] = useState(false);
+  const [wishlistLoading, setWishlistLoading] = useState(false);
 
   const addItem = useCartStore((s) => s.addItem);
   const openCart = useUIStore((s) => s.openCart);
+  const user = useAuthStore((s) => s.user);
+  const qc = useQueryClient();
+  const toggleWishlistFn = useServerFn(toggleWishlist);
+
+  const { data: relatedData } = useQuery(
+    relatedProductsQueryOptions(product.category_id, product.id),
+  );
+  const relatedProducts = relatedData?.products ?? [];
 
   const media = product.product_images?.length
     ? [...product.product_images].sort((a, b) => Number(a.sort_order ?? 0) - Number(b.sort_order ?? 0))
@@ -96,11 +130,31 @@ function ProductDetailPage() {
   const variant = variants.find((v) => v.id === variantId) ?? null;
   const finalPrice = Number(product.price) + Number(variant?.price_modifier ?? 0);
   const outOfStock = product.stock_quantity === 0;
+  const maxQty = product.stock_quantity ?? 99;
 
   function handleAdd() {
     addItem(product as never, variant as never, qty, firstImage.url);
     toast.success(`${product.name} added to cart`);
     openCart();
+  }
+
+  async function handleWishlistToggle() {
+    if (!user) {
+      toast.error("Please sign in to save wishlist items");
+      return;
+    }
+
+    try {
+      setWishlistLoading(true);
+      const result = await toggleWishlistFn({ data: { productId: product.id } });
+      setWishlisted(result.saved);
+      toast.success(result.saved ? "Added to wishlist" : "Removed from wishlist");
+      qc.invalidateQueries({ queryKey: ["wishlist"] });
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Wishlist failed");
+    } finally {
+      setWishlistLoading(false);
+    }
   }
 
   function handleBuyNow() {
@@ -178,6 +232,27 @@ function ProductDetailPage() {
               {product.short_description}
             </p>
 
+            {(product.review_count ?? 0) > 0 && (
+              <div className="mt-3 flex items-center gap-2">
+                <div className="flex gap-0.5">
+                  {Array.from({ length: 5 }).map((_, i) => (
+                    <Star
+                      key={i}
+                      size={14}
+                      className={
+                        i < Math.round(product.average_rating ?? 0)
+                          ? "fill-gold text-gold"
+                          : "text-gold/20"
+                      }
+                    />
+                  ))}
+                </div>
+                <span className="text-xs text-white/50">
+                  {Number(product.average_rating ?? 0).toFixed(1)} ({product.review_count} reviews)
+                </span>
+              </div>
+            )}
+
             <div className="mt-5 flex items-baseline gap-3">
               <span className="font-mono text-3xl font-bold text-gold">
                 €{finalPrice.toFixed(2)}
@@ -231,16 +306,27 @@ function ProductDetailPage() {
               </h3>
 
               <div className="flex w-fit items-center border border-gold/30">
-                <button onClick={() => setQty(Math.max(1, qty - 1))} className="px-3 py-2 text-gold">
+                <button
+                  onClick={() => setQty(Math.max(1, qty - 1))}
+                  disabled={qty <= 1}
+                  className="px-3 py-2 text-gold disabled:opacity-30"
+                >
                   <Minus size={16} />
                 </button>
 
                 <span className="min-w-[3ch] px-4 text-center text-white">{qty}</span>
 
-                <button onClick={() => setQty(qty + 1)} className="px-3 py-2 text-gold">
+                <button
+                  onClick={() => setQty(Math.min(maxQty, qty + 1))}
+                  disabled={qty >= maxQty}
+                  className="px-3 py-2 text-gold disabled:opacity-30"
+                >
                   <Plus size={16} />
                 </button>
               </div>
+              {qty >= maxQty && maxQty > 0 && (
+                <p className="mt-1 text-xs text-gold-dark/70">Maximum available stock reached.</p>
+              )}
             </div>
 
             <div className="mt-6 grid gap-3 sm:grid-cols-2">
@@ -264,11 +350,12 @@ function ProductDetailPage() {
             </div>
 
             <button
-              onClick={() => toast.info("Use the heart icon on product cards to save wishlist items.")}
-              className="mt-3 flex items-center gap-2 text-sm text-gold/80 hover:text-gold"
+              onClick={handleWishlistToggle}
+              disabled={wishlistLoading}
+              className="mt-3 flex items-center gap-2 text-sm text-gold/80 hover:text-gold disabled:opacity-50"
             >
-              <Heart size={16} />
-              Save for later
+              <Heart size={16} className={wishlisted ? "fill-gold text-gold" : ""} />
+              {wishlisted ? "Saved to wishlist" : "Save for later"}
             </button>
 
             <div className="mt-8 grid grid-cols-3 gap-3 border-y border-gold/10 py-4 text-xs">
@@ -293,14 +380,79 @@ function ProductDetailPage() {
             )}
 
             <div className="mt-8 border border-gold/15 bg-[#1A1A1A] p-4">
+              <h3 className="flex items-center gap-2 font-serif text-lg text-white">
+                <Sparkles size={16} className="text-gold" />
+                Care Instructions
+              </h3>
+              <ul className="mt-3 space-y-2 text-sm leading-relaxed text-white/60">
+                {CARE_INSTRUCTIONS.map((line) => (
+                  <li key={line} className="flex gap-2">
+                    <span className="text-gold">•</span>
+                    <span>{line}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            <div className="mt-8 border border-gold/15 bg-[#1A1A1A] p-4">
               <h3 className="font-serif text-lg text-white">Payment Methods</h3>
               <p className="mt-2 text-sm text-white/60">
-                You can choose Cash on Delivery or Bank Transfer on the checkout page.
+                Cash on Delivery, Bank Transfer, and secure card payment are available at checkout.
               </p>
             </div>
           </div>
         </div>
+
+        {relatedProducts.length > 0 && (
+          <div className="mt-16">
+            <div className="mb-8 text-center">
+              <h2 className="font-serif text-2xl font-bold text-white md:text-3xl">
+                You May Also Like
+              </h2>
+              <div className="mx-auto mt-3 h-0.5 w-12 bg-gold" />
+            </div>
+
+            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+              {relatedProducts.map((p) => (
+                <ProductCard key={p.id} product={p as never} />
+              ))}
+            </div>
+          </div>
+        )}
       </section>
+
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "Product",
+            name: product.name,
+            description: product.short_description ?? product.full_description ?? undefined,
+            image: media.filter((m) => m.media_type !== "video").map((m) => m.url),
+            sku: product.id,
+            brand: { "@type": "Brand", name: "KAPTAN" },
+            ...((product.review_count ?? 0) > 0
+              ? {
+                  aggregateRating: {
+                    "@type": "AggregateRating",
+                    ratingValue: product.average_rating ?? 0,
+                    reviewCount: product.review_count,
+                  },
+                }
+              : {}),
+            offers: {
+              "@type": "Offer",
+              url: `https://kaptangrp.com/products/${product.slug}`,
+              priceCurrency: "EUR",
+              price: finalPrice.toFixed(2),
+              availability: outOfStock
+                ? "https://schema.org/OutOfStock"
+                : "https://schema.org/InStock",
+            },
+          }),
+        }}
+      />
     </PageLayout>
   );
 }

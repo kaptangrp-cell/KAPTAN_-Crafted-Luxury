@@ -13,8 +13,31 @@ import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/react";
 import i18n from "@/lib/i18n";
 import { usePreferencesStore } from "@/stores/preferencesStore";
+import { WhatsAppButton } from "@/components/layout/WhatsAppButton";
 
 import appCss from "../styles.css?url";
+
+const organizationJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  name: "KAPTAN",
+  url: "https://kaptangrp.com",
+  logo: "https://kaptangrp.com/kaptan-logo.png",
+  description:
+    "Premium handcrafted leather products and authentic Himalayan salt lamps.",
+  email: "contact@kaptangrp.com",
+  telephone: "+491757134333",
+  address: {
+    "@type": "PostalAddress",
+    addressLocality: "Marburg",
+    addressCountry: "DE",
+  },
+  sameAs: [
+    "https://instagram.com",
+    "https://facebook.com",
+    "https://www.tiktok.com/@kaptan",
+  ],
+};
 import { reportLovableError } from "../lib/lovable-error-reporting";
 
 function NotFoundComponent() {
@@ -125,6 +148,10 @@ function RootShell({ children }: { children: ReactNode }) {
       </head>
       <body>
         {children}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd) }}
+        />
         <Scripts />
       </body>
     </html>
@@ -155,13 +182,14 @@ function RootComponent() {
           style: {
             background: "#1A1A1A",
             color: "#FFFFFF",
-            border: "1px solid #FFEB0040",
+            border: "1px solid #C9A22740",
           },
         }}
       />
 
       <Analytics />
       <SpeedInsights />
+      <WhatsAppButton />
     </QueryClientProvider>
   );
 }
