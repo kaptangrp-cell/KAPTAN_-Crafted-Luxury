@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { getStripeClient } from "@/lib/payments/stripe.server";
+import { isPaypalConfigured, createPaypalOrder, capturePaypalOrder } from "@/lib/payments/paypal.server";
 
 const CreateCheckoutSessionSchema = z.object({
   orderId: z.string().uuid(),
@@ -73,3 +74,104 @@ export const createStripeCheckoutSession = createServerFn({ method: "POST" })
 
     return { url: session.url };
   });
+
+const CreatePaypalOrderSchema = z.object({
+  orderId: z.string().uuid(),
+  origin: z.string().url(),
+});
+
+/**
+ * Creates a PayPal order for an already-created internal order and returns
+ * the "approve" URL to redirect the customer to.
+ *
+ * Requires PAYPAL_CLIENT_ID / PAYPAL_CLIENT_SECRET — throws a friendly error
+ * otherwise so the checkout UI can fall back to another payment method.
+ */
+export const createPaypalCheckoutOrder = createServerFn({ method: "POST" })
+  .inputValidator((input: unknown) => CreatePaypalOrderSchema.parse(input))
+  .handler(async ({ data }) => {
+    if (!isPaypalConfigured()) {
+      throw new Error("PayPal is not configured yet. Please choose another payment method.");
+    }
+
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
+    const { data: order, error } = await supabaseAdmin
+      .from("orders")
+      .select("*, order_items(*)")
+      .eq("id", data.orderId)
+      .single();
+
+    if (error || !order) throw new Error("Order not found");
+
+    const items = (order.order_items ?? []).map((item) => ({
+      name: item.variant_info ? `${item.product_name} (${item.variant_info})` : item.product_name,
+      quantity: item.quantity,
+      unitAmount: Number(item.unit_price),
+    }));
+
+    const itemTotal = Number(order.subtotal);
+    const shippingTotal = Number(order.shipping_cost ?? 0);
+
+    const { paypalOrderId, approveUrl } = await createPaypalOrder({
+      orderNumber: order.order_number,
+      currency: "EUR",
+      itemTotal,
+      shippingTotal,
+      total: Number(order.total),
+      items,
+      returnUrl: `${data.origin}/checkout/paypal-return?orderId=${order.id}`,
+      cancelUrl: `${data.origin}/checkout?payment=cancelled`,
+    });
+
+    // Stash the PayPal order id so the return page knows what to capture,
+    // and so support can trace payments from the order record.
+    await supabaseAdmin
+      .from("orders")
+      .update({
+        admin_notes: order.admin_notes
+          ? `${order.admin_notes}\nPayPal Order ID: ${paypalOrderId}`
+          : `PayPal Order ID: ${paypalOrderId}`,
+      })
+      .eq("id", order.id);
+
+    return { url: approveUrl, paypalOrderId };
+  });
+
+const CapturePaypalOrderSchema = z.object({
+  orderId: z.string().uuid(),
+  paypalOrderId: z.string().min(1),
+});
+
+/**
+ * Captures an approved PayPal order and marks the matching internal order
+ * as paid. Called from the /checkout/paypal-return page after the customer
+ * approves payment on PayPal's site.
+ */
+export const capturePaypalCheckoutOrder = createServerFn({ method: "POST" })
+  .inputValidator((input: unknown) => CapturePaypalOrderSchema.parse(input))
+  .handler(async ({ data }) => {
+    if (!isPaypalConfigured()) {
+      throw new Error("PayPal is not configured");
+    }
+
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
+    const { completed } = await capturePaypalOrder(data.paypalOrderId);
+
+    if (!completed) {
+      throw new Error("PayPal payment was not completed");
+    }
+
+    const { data: order, error } = await supabaseAdmin
+      .from("orders")
+      .update({ payment_status: "paid" })
+      .eq("id", data.orderId)
+      .select("id, order_number, total")
+      .single();
+
+    if (error || !order) throw new Error("Could not update order after payment");
+
+    return { orderId: order.id, orderNumber: order.order_number };
+  });
+

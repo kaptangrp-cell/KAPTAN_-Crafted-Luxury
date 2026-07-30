@@ -7,9 +7,10 @@ import { useCartStore } from "@/stores/cartStore";
 import { useAuthStore } from "@/stores/authStore";
 import { PageLayout } from "@/components/layout/PageLayout";
 import { createOrder } from "@/lib/orders.functions";
-import { createStripeCheckoutSession } from "@/lib/payments.functions";
+import { createStripeCheckoutSession, createPaypalCheckoutOrder } from "@/lib/payments.functions";
 
 const STRIPE_ENABLED = Boolean(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
+const PAYPAL_ENABLED = Boolean(import.meta.env.VITE_PAYPAL_CLIENT_ID);
 
 export const Route = createFileRoute("/checkout")({
   head: () => ({ meta: [{ title: "Checkout — KAPTAN" }] }),
@@ -22,6 +23,7 @@ function CheckoutPage() {
   const { user, profile } = useAuthStore();
   const createOrderFn = useServerFn(createOrder);
   const createStripeSessionFn = useServerFn(createStripeCheckoutSession);
+  const createPaypalOrderFn = useServerFn(createPaypalCheckoutOrder);
   const [submitting, setSubmitting] = useState(false);
 
   const total = subtotal();
@@ -38,7 +40,7 @@ function CheckoutPage() {
     state: "",
     postal_code: "",
     country: "DE",
-    payment_method: "cod" as "cod" | "bank_transfer" | "card",
+    payment_method: "cod" as "cod" | "bank_transfer" | "card" | "paypal",
     notes: "",
   });
 
@@ -85,6 +87,15 @@ function CheckoutPage() {
 
       if (form.payment_method === "card") {
         const { url } = await createStripeSessionFn({
+          data: { orderId, origin: window.location.origin },
+        });
+        clearCart();
+        window.location.href = url;
+        return;
+      }
+
+      if (form.payment_method === "paypal") {
+        const { url } = await createPaypalOrderFn({
           data: { orderId, origin: window.location.origin },
         });
         clearCart();
@@ -158,6 +169,14 @@ function CheckoutPage() {
                       : "Coming soon — secure checkout powered by Stripe.",
                     disabled: !STRIPE_ENABLED,
                   },
+                  {
+                    v: "paypal",
+                    label: "PayPal",
+                    desc: PAYPAL_ENABLED
+                      ? "Pay with your PayPal balance, card, or bank account."
+                      : "Coming soon — pay with your PayPal account.",
+                    disabled: !PAYPAL_ENABLED,
+                  },
                   { v: "cod", label: "Cash on Delivery", desc: "Pay when your order arrives.", disabled: false },
                   {
                     v: "bank_transfer",
@@ -177,7 +196,9 @@ function CheckoutPage() {
                       name="payment"
                       disabled={opt.disabled}
                       checked={form.payment_method === opt.v}
-                      onChange={() => set("payment_method", opt.v as "cod" | "bank_transfer" | "card")}
+                      onChange={() =>
+                        set("payment_method", opt.v as "cod" | "bank_transfer" | "card" | "paypal")
+                      }
                       className="mt-1 accent-gold"
                     />
                     <div>

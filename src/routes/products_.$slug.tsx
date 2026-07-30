@@ -397,7 +397,7 @@ function ProductDetailPage() {
             <div className="mt-8 border border-gold/15 bg-[#1A1A1A] p-4">
               <h3 className="font-serif text-lg text-white">Payment Methods</h3>
               <p className="mt-2 text-sm text-white/60">
-                Cash on Delivery, Bank Transfer, and secure card payment are available at checkout.
+                Cash on Delivery, Bank Transfer, Card, and PayPal are available at checkout.
               </p>
             </div>
           </div>

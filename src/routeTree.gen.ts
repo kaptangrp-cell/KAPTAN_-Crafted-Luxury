@@ -23,6 +23,7 @@ import { Route as AboutRouteImport } from './routes/about'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ProductsSlugRouteImport } from './routes/products_.$slug'
+import { Route as CheckoutPaypalReturnRouteImport } from './routes/checkout_.paypal-return'
 import { Route as AuthenticatedWishlistRouteImport } from './routes/_authenticated/wishlist'
 import { Route as AuthenticatedProfileRouteImport } from './routes/_authenticated/profile'
 import { Route as AuthenticatedOrdersRouteImport } from './routes/_authenticated/orders'
@@ -103,6 +104,11 @@ const ProductsSlugRoute = ProductsSlugRouteImport.update({
   path: '/products/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CheckoutPaypalReturnRoute = CheckoutPaypalReturnRouteImport.update({
+  id: '/checkout_/paypal-return',
+  path: '/checkout/paypal-return',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthenticatedWishlistRoute = AuthenticatedWishlistRouteImport.update({
   id: '/wishlist',
   path: '/wishlist',
@@ -175,6 +181,7 @@ export interface FileRoutesByFullPath {
   '/orders': typeof AuthenticatedOrdersRouteWithChildren
   '/profile': typeof AuthenticatedProfileRoute
   '/wishlist': typeof AuthenticatedWishlistRoute
+  '/checkout/paypal-return': typeof CheckoutPaypalReturnRoute
   '/products/$slug': typeof ProductsSlugRoute
   '/admin/categories': typeof AuthenticatedAdminCategoriesRoute
   '/admin/customers': typeof AuthenticatedAdminCustomersRoute
@@ -199,6 +206,7 @@ export interface FileRoutesByTo {
   '/orders': typeof AuthenticatedOrdersRouteWithChildren
   '/profile': typeof AuthenticatedProfileRoute
   '/wishlist': typeof AuthenticatedWishlistRoute
+  '/checkout/paypal-return': typeof CheckoutPaypalReturnRoute
   '/products/$slug': typeof ProductsSlugRoute
   '/admin/categories': typeof AuthenticatedAdminCategoriesRoute
   '/admin/customers': typeof AuthenticatedAdminCustomersRoute
@@ -226,6 +234,7 @@ export interface FileRoutesById {
   '/_authenticated/orders': typeof AuthenticatedOrdersRouteWithChildren
   '/_authenticated/profile': typeof AuthenticatedProfileRoute
   '/_authenticated/wishlist': typeof AuthenticatedWishlistRoute
+  '/checkout_/paypal-return': typeof CheckoutPaypalReturnRoute
   '/products_/$slug': typeof ProductsSlugRoute
   '/_authenticated/admin/categories': typeof AuthenticatedAdminCategoriesRoute
   '/_authenticated/admin/customers': typeof AuthenticatedAdminCustomersRoute
@@ -253,6 +262,7 @@ export interface FileRouteTypes {
     | '/orders'
     | '/profile'
     | '/wishlist'
+    | '/checkout/paypal-return'
     | '/products/$slug'
     | '/admin/categories'
     | '/admin/customers'
@@ -277,6 +287,7 @@ export interface FileRouteTypes {
     | '/orders'
     | '/profile'
     | '/wishlist'
+    | '/checkout/paypal-return'
     | '/products/$slug'
     | '/admin/categories'
     | '/admin/customers'
@@ -303,6 +314,7 @@ export interface FileRouteTypes {
     | '/_authenticated/orders'
     | '/_authenticated/profile'
     | '/_authenticated/wishlist'
+    | '/checkout_/paypal-return'
     | '/products_/$slug'
     | '/_authenticated/admin/categories'
     | '/_authenticated/admin/customers'
@@ -326,6 +338,7 @@ export interface RootRouteChildren {
   ResetPasswordRoute: typeof ResetPasswordRoute
   ReturnsRoute: typeof ReturnsRoute
   ShippingRoute: typeof ShippingRoute
+  CheckoutPaypalReturnRoute: typeof CheckoutPaypalReturnRoute
   ProductsSlugRoute: typeof ProductsSlugRoute
 }
 
@@ -427,6 +440,13 @@ declare module '@tanstack/react-router' {
       path: '/products/$slug'
       fullPath: '/products/$slug'
       preLoaderRoute: typeof ProductsSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/checkout_/paypal-return': {
+      id: '/checkout_/paypal-return'
+      path: '/checkout/paypal-return'
+      fullPath: '/checkout/paypal-return'
+      preLoaderRoute: typeof CheckoutPaypalReturnRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated/wishlist': {
@@ -566,6 +586,7 @@ const rootRouteChildren: RootRouteChildren = {
   ResetPasswordRoute: ResetPasswordRoute,
   ReturnsRoute: ReturnsRoute,
   ShippingRoute: ShippingRoute,
+  CheckoutPaypalReturnRoute: CheckoutPaypalReturnRoute,
   ProductsSlugRoute: ProductsSlugRoute,
 }
 export const routeTree = rootRouteImport

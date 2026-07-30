@@ -26,7 +26,7 @@ const CreateOrderSchema = z.object({
   customer_phone: z.string().min(3).max(40),
   shipping_address: AddressSchema,
   items: z.array(CartItemSchema).min(1).max(50),
-  payment_method: z.enum(["cod", "bank_transfer", "card"]).default("cod"),
+  payment_method: z.enum(["cod", "bank_transfer", "card", "paypal"]).default("cod"),
   notes: z.string().max(1000).optional().nullable(),
 });
 
