@@ -3,6 +3,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { queryOptions, useSuspenseQuery, useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
+import { motion } from "framer-motion";
 import { ChevronDown, ShieldCheck, Hand, Truck, Leaf, Play } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { getFeaturedProducts, getCategories } from "@/lib/products.functions";
@@ -54,6 +55,28 @@ const featuredReviewsQueryOptions = queryOptions({
   queryKey: ["featured-reviews"],
   queryFn: () => getFeaturedReviews(),
 });
+
+function Reveal({
+  children,
+  className,
+  delay = 0,
+}: {
+  children: React.ReactNode;
+  className?: string;
+  delay?: number;
+}) {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 28 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: "-80px" }}
+      transition={{ duration: 0.7, ease: "easeOut", delay }}
+      className={className}
+    >
+      {children}
+    </motion.div>
+  );
+}
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -221,88 +244,119 @@ function HomePage() {
         </div>
       </section>
 
-      <section className="border-b border-gold/10 bg-[#1A1A1A]">
-        <div className="mx-auto grid max-w-7xl grid-cols-2 gap-6 px-4 py-10 md:grid-cols-4 md:px-6">
+      <section className="bg-black px-4 py-24 md:px-6">
+        <Reveal className="mx-auto max-w-3xl text-center">
+          <p className="text-xs font-bold uppercase tracking-[0.4em] text-gold">
+            {t("home.manifestoEyebrow")}
+          </p>
+          <p className="mt-6 font-serif text-2xl font-medium leading-snug text-white/90 md:text-3xl lg:text-4xl">
+            {t("home.manifestoLine")}
+          </p>
+          <div className="mx-auto mt-8 h-px w-16 bg-gold/40" />
+        </Reveal>
+      </section>
+
+      <section className="border-y border-gold/10 bg-[#1A1A1A]">
+        <div className="mx-auto grid max-w-7xl grid-cols-2 gap-6 px-4 py-8 md:grid-cols-4 md:divide-x md:divide-gold/10 md:px-6">
           {[
             { icon: ShieldCheck, label: t("home.secureCheckout"), desc: t("home.secureCheckoutDesc") },
             { icon: Hand, label: t("home.handcrafted"), desc: t("home.handcraftedDesc") },
             { icon: Truck, label: t("home.fastDelivery"), desc: t("home.fastDeliveryDesc") },
             { icon: Leaf, label: t("home.sustainable"), desc: t("home.sustainableDesc") },
           ].map((b) => (
-            <div key={b.label} className="flex flex-col items-center text-center">
-              <b.icon size={28} className="text-gold" strokeWidth={1.5} />
-              <span className="mt-2 text-sm font-semibold text-white">{b.label}</span>
+            <div key={b.label} className="flex flex-col items-center gap-1 text-center md:py-2">
+              <b.icon size={24} className="text-gold" strokeWidth={1.5} />
+              <span className="mt-1 text-sm font-semibold text-white">{b.label}</span>
               <span className="text-xs text-gold/60">{b.desc}</span>
             </div>
           ))}
         </div>
       </section>
 
-      <section className="bg-black px-4 py-16 md:px-6">
-        <div className="mx-auto max-w-7xl">
-          <div className="mb-10 text-center">
-            <h2 className="font-serif text-3xl font-bold text-white md:text-4xl">
-              {t("home.collectionsTitle")}
-            </h2>
-            <div className="mx-auto mt-3 h-0.5 w-12 bg-gold" />
-          </div>
+      <section className="bg-black">
+        <Reveal className="grid md:grid-cols-2">
+          <Link
+            to="/products"
+            search={{ category: "leather-wallets" }}
+            className="group relative flex h-[420px] items-center justify-center overflow-hidden md:h-[560px]"
+          >
+            <picture>
+              <source srcSet="/banners/leather-bags.webp" type="image/webp" />
+              <img
+                src="/banners/leather-bags.jpg"
+                alt={t("home.leatherProducts")}
+                loading="lazy"
+                decoding="async"
+                className="absolute inset-0 h-full w-full scale-105 object-cover opacity-60 transition-all duration-700 ease-out group-hover:scale-110 group-hover:opacity-75"
+              />
+            </picture>
+            <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-black/10" />
+            <div className="relative z-10 text-center">
+              <p className="text-xs font-bold uppercase tracking-[0.3em] text-gold/70">
+                Full-Grain Leather
+              </p>
+              <h3 className="mt-3 font-serif text-3xl font-bold text-white md:text-4xl">
+                {t("home.leatherProducts")}
+              </h3>
+              <span className="mt-4 inline-flex items-center gap-1 border-b border-gold pb-0.5 text-sm text-gold transition-all group-hover:gap-2">
+                {t("home.shopNow")}
+              </span>
+            </div>
+          </Link>
 
-          <div className="grid gap-6 md:grid-cols-2">
-            <Link
-              to="/products"
-              search={{ category: "leather-wallets" }}
-              className="group relative flex h-64 items-center justify-center overflow-hidden border border-gold/10 bg-[#1A1A1A] transition-all hover:border-gold/30 hover:gold-glow md:h-80"
-            >
-              <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent" />
-              <div className="relative z-10 text-center">
-                <h3 className="font-serif text-2xl font-bold text-white">
-                  {t("home.leatherProducts")}
-                </h3>
-                <span className="mt-2 inline-block text-sm text-gold transition-transform group-hover:translate-x-1">
-                  {t("home.shopNow")}
-                </span>
-              </div>
-            </Link>
-
-            <Link
-              to="/products"
-              search={{ category: "salt-lamp-natural" }}
-              className="group relative flex h-64 items-center justify-center overflow-hidden border border-gold/10 bg-[#1A1A1A] transition-all hover:border-gold/30 hover:gold-glow md:h-80"
-            >
-              <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent" />
-              <div className="relative z-10 text-center">
-                <h3 className="font-serif text-2xl font-bold text-white">
-                  {t("home.himalayanSaltLamps")}
-                </h3>
-                <span className="mt-2 inline-block text-sm text-gold transition-transform group-hover:translate-x-1">
-                  {t("home.shopNow")}
-                </span>
-              </div>
-            </Link>
-          </div>
-        </div>
+          <Link
+            to="/products"
+            search={{ category: "salt-lamp-natural" }}
+            className="group relative flex h-[420px] items-center justify-center overflow-hidden bg-[#1A1A1A] md:h-[560px]"
+          >
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,oklch(0.7_0.15_70/0.25),transparent_70%)] transition-opacity duration-700 group-hover:opacity-80" />
+            <div className="absolute inset-0 bg-gradient-to-t from-black via-black/30 to-transparent" />
+            <div className="relative z-10 text-center">
+              <p className="text-xs font-bold uppercase tracking-[0.3em] text-gold/70">
+                Hand-Carved · Khewra Salt
+              </p>
+              <h3 className="mt-3 font-serif text-3xl font-bold text-white md:text-4xl">
+                {t("home.himalayanSaltLamps")}
+              </h3>
+              <span className="mt-4 inline-flex items-center gap-1 border-b border-gold pb-0.5 text-sm text-gold transition-all group-hover:gap-2">
+                {t("home.shopNow")}
+              </span>
+            </div>
+          </Link>
+        </Reveal>
       </section>
 
-      <section className="bg-[#0D0D0D] px-4 py-16 md:px-6">
+      <section className="bg-[#0D0D0D] px-4 py-20 md:px-6">
         <div className="mx-auto max-w-7xl">
-          <div className="mb-10 text-center">
+          <Reveal className="mb-10 text-center">
             <h2 className="font-serif text-3xl font-bold text-white md:text-4xl">
               {t("home.bestSellers")}
             </h2>
             <div className="mx-auto mt-3 h-0.5 w-12 bg-gold" />
-          </div>
+          </Reveal>
 
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-            {featuredProducts.map((p) => (
-              <ProductCard key={p.id} product={p} />
+            {featuredProducts.map((p, i) => (
+              <Reveal key={p.id} delay={Math.min(i, 3) * 0.08}>
+                <ProductCard product={p} />
+              </Reveal>
             ))}
           </div>
         </div>
       </section>
 
-      <section className="bg-black px-4 py-16 md:px-6">
-        <div className="mx-auto grid max-w-7xl items-center gap-10 md:grid-cols-2">
-          <div className="relative aspect-video overflow-hidden border border-gold/20 bg-[#1A1A1A] shadow-lg md:aspect-square">
+      <section className="bg-black px-4 py-24 md:px-6">
+        <div className="mx-auto max-w-6xl">
+          <Reveal className="text-center">
+            <p className="text-xs font-bold uppercase tracking-[0.4em] text-gold">
+              {t("home.journeyEyebrow")}
+            </p>
+            <h2 className="mt-3 font-serif text-3xl font-bold text-white md:text-4xl">
+              {t("home.storyTitle")}
+            </h2>
+          </Reveal>
+
+          <Reveal delay={0.1} className="relative mx-auto mt-10 aspect-video max-w-4xl overflow-hidden border border-gold/20 bg-[#1A1A1A] shadow-2xl">
             {videoPlaying ? (
               <iframe
                 className="h-full w-full"
@@ -333,38 +387,51 @@ function HomePage() {
               </button>
             )}
             <div className="pointer-events-none absolute inset-0 border border-gold/10" />
+          </Reveal>
+
+          <div className="mt-16 grid gap-10 md:grid-cols-3 md:gap-8">
+            {[
+              { label: t("home.step1Label"), copy: t("home.storyP1") },
+              { label: t("home.step2Label"), copy: t("home.storyP2") },
+              { label: t("home.step3Label"), copy: t("home.storyP3") },
+            ].map((step, i) => (
+              <Reveal key={step.label} delay={0.15 + i * 0.1}>
+                <div className="border-t border-gold/20 pt-6 md:border-t-0 md:border-l md:pl-8">
+                  <span className="font-serif text-4xl font-bold text-gold/30">
+                    0{i + 1}
+                  </span>
+                  <h3 className="mt-2 font-serif text-lg font-semibold text-white">
+                    {step.label}
+                  </h3>
+                  <p className="mt-3 text-sm leading-relaxed text-white/60">{step.copy}</p>
+                </div>
+              </Reveal>
+            ))}
           </div>
 
-          <div>
-            <h2 className="font-serif text-3xl font-bold text-white md:text-4xl">
-              {t("home.storyTitle")}
-            </h2>
-            <div className="mt-3 h-0.5 w-12 bg-gold" />
-            <p className="mt-6 leading-relaxed text-white/70">{t("home.storyP1")}</p>
-            <p className="mt-4 leading-relaxed text-white/70">{t("home.storyP2")}</p>
-            <p className="mt-4 leading-relaxed text-white/70">{t("home.storyP3")}</p>
+          <Reveal delay={0.4} className="mt-12 text-center">
             <Link
               to="/about"
-              className="mt-6 inline-block text-sm font-semibold text-gold hover:underline"
+              className="inline-block border border-gold px-8 py-3 text-sm font-semibold text-gold transition-colors hover:bg-gold hover:text-black"
             >
               {t("home.learnMore")}
             </Link>
-          </div>
+          </Reveal>
         </div>
       </section>
 
-      <section className="bg-[#0D0D0D] px-4 py-16 md:px-6">
+      <section className="bg-[#0D0D0D] px-4 py-20 md:px-6">
         <div className="mx-auto max-w-7xl">
-          <div className="mb-10 text-center">
+          <Reveal className="mb-10 text-center">
             <h2 className="font-serif text-3xl font-bold text-white md:text-4xl">
               {t("home.testimonialsTitle")}
             </h2>
             <div className="mx-auto mt-3 h-0.5 w-12 bg-gold" />
-          </div>
+          </Reveal>
 
           <div className="grid gap-6 md:grid-cols-3">
             {testimonials.map((tm, i) => (
-              <div key={i} className="border border-gold/10 bg-[#1A1A1A] p-6">
+              <Reveal key={i} delay={i * 0.1} className="border border-gold/10 bg-[#1A1A1A] p-6">
                 <div className="mb-3 flex items-center gap-2">
                   <div className="flex gap-0.5">
                     {Array.from({ length: 5 }).map((_, j) => (
@@ -384,14 +451,14 @@ function HomePage() {
                   <p className="text-sm font-semibold text-white">{tm.name}</p>
                   <p className="text-xs text-gold/60">{tm.subtitle}</p>
                 </div>
-              </div>
+              </Reveal>
             ))}
           </div>
         </div>
       </section>
 
-      <section className="border-y border-gold/20 bg-black px-4 py-16 md:px-6">
-        <div className="mx-auto max-w-xl text-center">
+      <section className="border-y border-gold/20 bg-black px-4 py-20 md:px-6">
+        <Reveal className="mx-auto max-w-xl text-center">
           <h2 className="font-serif text-3xl font-bold text-white">
             {t("home.newsletterTitle")}
           </h2>
@@ -415,7 +482,7 @@ function HomePage() {
               {subscribing ? "Subscribing..." : t("home.subscribe")}
             </button>
           </form>
-        </div>
+        </Reveal>
       </section>
     </PageLayout>
   );
