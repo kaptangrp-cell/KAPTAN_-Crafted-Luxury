@@ -14,6 +14,7 @@ import {
   confirmStripeOrderPayment,
 } from "@/lib/payments.functions";
 import { getStripeJs } from "@/lib/payments/stripe-client";
+import { useDisplayPrice } from "@/hooks/useCurrency";
 
 const STRIPE_ENABLED = Boolean(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
 const PAYPAL_ENABLED = Boolean(import.meta.env.VITE_PAYPAL_CLIENT_ID);
@@ -181,6 +182,7 @@ function CheckoutPage() {
   const total = subtotal();
   const shipping = total > 50 ? 0 : 5.99;
   const grandTotal = total + shipping;
+  const grandTotalEstimate = useDisplayPrice(grandTotal);
 
   const [form, setForm] = useState({
     customer_name: profile?.full_name ?? "",
@@ -417,6 +419,13 @@ function CheckoutPage() {
                 <dt>Total</dt>
                 <dd className="font-mono text-gold">€{grandTotal.toFixed(2)}</dd>
               </div>
+              {grandTotalEstimate.isConverted && (
+                <div className="flex justify-end">
+                  <span className="text-xs text-white/40">
+                    ≈ {grandTotalEstimate.formatted} — you're charged in EUR
+                  </span>
+                </div>
+              )}
             </dl>
 
             <button

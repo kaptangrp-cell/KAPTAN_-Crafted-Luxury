@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { Minus, Plus, Trash2 } from "lucide-react";
 import { useCartStore } from "@/stores/cartStore";
 import { PageLayout } from "@/components/layout/PageLayout";
+import { Price } from "@/components/common/Price";
 
 export const Route = createFileRoute("/cart")({
   head: () => ({ meta: [{ title: "Your Cart — KAPTAN" }] }),
@@ -35,7 +36,7 @@ function CartPage() {
                     <div>
                       <h3 className="font-serif text-white">{item.name}</h3>
                       {item.variantLabel && <p className="text-xs text-gold-dark">{item.variantLabel}</p>}
-                      <p className="mt-1 font-mono text-gold">€{item.price.toFixed(2)}</p>
+                      <p className="mt-1 font-mono text-gold"><Price amount={item.price} /></p>
                     </div>
                     <div className="flex items-center justify-between">
                       <div className="flex items-center border border-gold/30">
@@ -56,9 +57,9 @@ function CartPage() {
             <aside className="h-fit border border-gold/20 bg-[#1A1A1A] p-6">
               <h2 className="font-serif text-lg text-white">Order Summary</h2>
               <dl className="mt-4 space-y-2 text-sm">
-                <div className="flex justify-between text-white/70"><dt>Subtotal</dt><dd className="font-mono">€{total.toFixed(2)}</dd></div>
-                <div className="flex justify-between text-white/70"><dt>Shipping</dt><dd className="font-mono">{shipping === 0 ? "Free" : `€${shipping.toFixed(2)}`}</dd></div>
-                <div className="mt-3 flex justify-between border-t border-gold/10 pt-3 text-base text-white"><dt>Total</dt><dd className="font-mono text-gold">€{(total + shipping).toFixed(2)}</dd></div>
+                <div className="flex justify-between text-white/70"><dt>Subtotal</dt><dd className="font-mono"><Price amount={total} /></dd></div>
+                <div className="flex justify-between text-white/70"><dt>Shipping</dt><dd className="font-mono">{shipping === 0 ? "Free" : <Price amount={shipping} />}</dd></div>
+                <div className="mt-3 flex justify-between border-t border-gold/10 pt-3 text-base text-white"><dt>Total</dt><dd className="font-mono text-gold"><Price amount={total + shipping} /></dd></div>
               </dl>
               <Link
                 to="/checkout"

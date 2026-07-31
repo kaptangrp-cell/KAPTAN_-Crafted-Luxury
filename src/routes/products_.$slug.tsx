@@ -33,6 +33,7 @@ import { toggleWishlist } from "@/lib/wishlist.functions";
 import { getProductReviews, submitProductReview } from "@/lib/reviews.functions";
 import { trackProductView, getRecentlyViewedIds } from "@/lib/recentlyViewed";
 import { PageLayout } from "@/components/layout/PageLayout";
+import { Price } from "@/components/common/Price";
 import { ProductCard } from "@/components/product/ProductCard";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useCartStore } from "@/stores/cartStore";
@@ -422,14 +423,13 @@ function ProductDetailPage() {
             )}
 
             <div className="mt-5 flex items-baseline gap-3">
-              <span className="font-mono text-3xl font-bold text-gold">
-                €{finalPrice.toFixed(2)}
-              </span>
+              <Price amount={finalPrice} className="font-mono text-3xl font-bold text-gold" />
 
               {product.compare_at_price && product.compare_at_price > finalPrice && (
-                <span className="font-mono text-lg text-white/40 line-through">
-                  €{product.compare_at_price.toFixed(2)}
-                </span>
+                <Price
+                  amount={product.compare_at_price}
+                  className="font-mono text-lg text-white/40 line-through"
+                />
               )}
             </div>
 
@@ -625,7 +625,7 @@ function ProductDetailPage() {
                       <p className="max-w-[90px] text-center text-xs text-white/70">
                         {companion.name}
                       </p>
-                      <p className="font-mono text-xs text-gold">€{Number(companion.price).toFixed(2)}</p>
+                      <Price amount={Number(companion.price)} className="font-mono text-xs text-gold" />
                     </label>
                   );
                 })}
@@ -633,15 +633,15 @@ function ProductDetailPage() {
 
               <div className="border-t border-gold/10 pt-4 md:w-56 md:border-l md:border-t-0 md:pl-6 md:pt-0">
                 <p className="text-xs uppercase tracking-wider text-gold/70">Bundle Total</p>
-                <p className="mt-1 font-mono text-2xl text-gold">
-                  €
-                  {(
+                <Price
+                  amount={
                     finalPrice +
                     frequentlyBoughtWith
                       .filter((c) => bundleSelection.has(c.id))
                       .reduce((s, c) => s + Number(c.price), 0)
-                  ).toFixed(2)}
-                </p>
+                  }
+                  className="mt-1 block font-mono text-2xl text-gold"
+                />
                 <button
                   onClick={handleAddBundleToCart}
                   className="mt-3 w-full bg-gold py-2.5 text-sm font-bold uppercase tracking-wider text-black transition-colors hover:bg-gold-vivid"

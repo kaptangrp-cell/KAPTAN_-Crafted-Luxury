@@ -3,6 +3,7 @@ import { X, Minus, Plus, Trash2, Lock } from "lucide-react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { useUIStore } from "@/stores/uiStore";
 import { useCartStore } from "@/stores/cartStore";
+import { Price } from "@/components/common/Price";
 
 export function CartDrawer() {
   const { isCartOpen, closeCart } = useUIStore();
@@ -50,7 +51,7 @@ export function CartDrawer() {
                         {item.variantLabel && (
                           <p className="text-xs text-gold-dark">{item.variantLabel}</p>
                         )}
-                        <p className="mt-1 font-mono text-sm text-gold">€{item.price.toFixed(2)}</p>
+                        <p className="mt-1 font-mono text-sm text-gold"><Price amount={item.price} /></p>
                       </div>
                       <div className="mt-2 flex items-center justify-between">
                         <div className="flex items-center gap-2 border border-gold/20">
@@ -87,7 +88,7 @@ export function CartDrawer() {
             <div className="border-t border-gold/10 pt-4">
               <div className="mb-4 flex justify-between font-mono text-white">
                 <span>Subtotal</span>
-                <span className="text-gold">€{subtotal().toFixed(2)}</span>
+                <span className="text-gold"><Price amount={subtotal()} /></span>
               </div>
               <Link
                 to="/cart"

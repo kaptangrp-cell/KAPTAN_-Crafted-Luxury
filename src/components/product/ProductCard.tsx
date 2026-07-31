@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import { useCartStore } from "@/stores/cartStore";
 import { useAuthStore } from "@/stores/authStore";
 import { toggleWishlist } from "@/lib/wishlist.functions";
+import { Price } from "@/components/common/Price";
 import type { Product } from "@/types";
 
 interface ProductCardProps {
@@ -97,9 +98,7 @@ export function ProductCard({ product }: ProductCardProps) {
         </p>
 
         <div className="mt-3 flex items-center justify-between">
-          <span className="font-mono text-lg font-bold text-gold">
-            €{product.price.toFixed(2)}
-          </span>
+          <Price amount={product.price} className="font-mono text-lg font-bold text-gold" />
 
           {(product.stock_quantity ?? 0) <= 5 && (product.stock_quantity ?? 0) > 0 && (
             <span className="text-xs text-amber-400">Low Stock</span>

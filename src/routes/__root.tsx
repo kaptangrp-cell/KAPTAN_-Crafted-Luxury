@@ -14,6 +14,9 @@ import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/react";
 import i18n from "@/lib/i18n";
 import { usePreferencesStore } from "@/stores/preferencesStore";
+import { useCurrencyStore } from "@/stores/currencyStore";
+import { detectVisitorCountry } from "@/lib/currency.functions";
+import { detectCurrencyFromCountry, detectCurrencyFromLocale } from "@/lib/currency";
 import { WhatsAppButton } from "@/components/layout/WhatsAppButton";
 import { logVisit } from "@/lib/analytics.functions";
 
@@ -172,6 +175,26 @@ function RootComponent() {
       document.documentElement.lang = language;
       if (i18n.language !== language) i18n.changeLanguage(language);
       usePreferencesStore.setState({ hasHydrated: true });
+    });
+  }, []);
+
+  // Currency: rehydrate the shopper's explicit choice (if any), then — only
+  // when they haven't picked one — detect a sensible default for this
+  // session from Vercel's edge geo header, falling back to browser locale
+  // when that header isn't present (local dev / non-Vercel hosting).
+  useEffect(() => {
+    useCurrencyStore.persist.rehydrate()?.then(async () => {
+      useCurrencyStore.setState({ hasHydrated: true });
+
+      if (useCurrencyStore.getState().userCurrency) return;
+
+      try {
+        const { country } = await detectVisitorCountry();
+        const fromGeo = detectCurrencyFromCountry(country);
+        useCurrencyStore.getState().setDetectedCurrency(fromGeo ?? detectCurrencyFromLocale());
+      } catch {
+        useCurrencyStore.getState().setDetectedCurrency(detectCurrencyFromLocale());
+      }
     });
   }, []);
 

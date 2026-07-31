@@ -5,6 +5,7 @@ import { Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { getMyWishlist, removeFromWishlist } from "@/lib/wishlist.functions";
 import { PageLayout } from "@/components/layout/PageLayout";
+import { Price } from "@/components/common/Price";
 
 export const Route = createFileRoute("/_authenticated/wishlist")({
   head: () => ({ meta: [{ title: "Wishlist — KAPTAN" }] }),
@@ -59,7 +60,7 @@ function WishlistPage() {
                       <Link to="/products/$slug" params={{ slug: p.slug }} className="font-serif text-sm text-white hover:text-gold">
                         {p.name}
                       </Link>
-                      <p className="mt-1 font-mono text-sm text-gold">€{Number(p.price).toFixed(2)}</p>
+                      <p className="mt-1 font-mono text-sm text-gold"><Price amount={Number(p.price)} /></p>
                     </div>
                     <button
                       onClick={() => removeMutation.mutate(p.id)}

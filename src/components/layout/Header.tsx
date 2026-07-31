@@ -18,6 +18,7 @@ import { useAuthStore } from "@/stores/authStore";
 import { useUIStore } from "@/stores/uiStore";
 import { useCartStore } from "@/stores/cartStore";
 import { usePreferencesStore } from "@/stores/preferencesStore";
+import { CurrencySwitcher } from "@/components/layout/CurrencySwitcher";
 
 const INACTIVITY_LIMIT = 15 * 60 * 1000;
 
@@ -170,6 +171,8 @@ export function Header() {
             <span>{language.toUpperCase()}</span>
           </button>
 
+          <CurrencySwitcher className="hidden sm:block" />
+
           <button
             onClick={toggleTheme}
             className="p-1 text-gold/80 transition-colors hover:text-gold"
@@ -277,6 +280,8 @@ export function Header() {
               <Globe size={16} />{" "}
               {language === "en" ? t("language.de") : t("language.en")}
             </button>
+
+            <CurrencySwitcher />
 
             {!user && (
               <Link

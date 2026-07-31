@@ -381,6 +381,20 @@ function ImageUpload({
 
       {uploading && <p className="mt-1 text-xs text-gold">Uploading...</p>}
 
+      <p className="mb-1 mt-3 text-[11px] uppercase tracking-wider text-white/40">
+        Or paste an image URL
+      </p>
+      <input
+        type="url"
+        placeholder="https://images.unsplash.com/..."
+        defaultValue={value}
+        onBlur={(e) => {
+          const v = e.target.value.trim();
+          if (v) onUploaded(v);
+        }}
+        className="w-full border border-gold/20 bg-[#0D0D0D] px-3 py-2 text-sm text-white outline-none focus:border-gold"
+      />
+
       {value && (
         <img
           src={value}
