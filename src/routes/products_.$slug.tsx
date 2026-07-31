@@ -16,9 +16,19 @@ import {
   Sparkles,
   BadgeCheck,
   PenLine,
+  ZoomIn,
+  X,
+  ChevronLeft,
+  ChevronRight,
+  Flame,
 } from "lucide-react";
 import { toast } from "sonner";
-import { getProductBySlug, getRelatedProducts, getProductsByIds } from "@/lib/products.functions";
+import {
+  getProductBySlug,
+  getRelatedProducts,
+  getProductsByIds,
+  getProductInsights,
+} from "@/lib/products.functions";
 import { toggleWishlist } from "@/lib/wishlist.functions";
 import { getProductReviews, submitProductReview } from "@/lib/reviews.functions";
 import { trackProductView, getRecentlyViewedIds } from "@/lib/recentlyViewed";
@@ -56,6 +66,13 @@ function recentlyViewedQueryOptions(ids: string[]) {
     queryKey: ["recently-viewed", ids],
     queryFn: () => getProductsByIds({ data: { ids } }),
     enabled: ids.length > 0,
+  });
+}
+
+function insightsQueryOptions(productId: string) {
+  return queryOptions({
+    queryKey: ["product-insights", productId],
+    queryFn: () => getProductInsights({ data: { productId } }),
   });
 }
 
@@ -141,6 +158,54 @@ function ProductDetailPage() {
 
   const { data: recentlyViewedData } = useQuery(recentlyViewedQueryOptions(recentIds));
   const recentlyViewedProducts = recentlyViewedData?.products ?? [];
+
+  const { data: insightsData } = useQuery(insightsQueryOptions(product.id));
+  const soldLast30Days = insightsData?.soldLast30Days ?? 0;
+  const frequentlyBoughtWith = insightsData?.frequentlyBoughtWith ?? [];
+
+  const [bundleSelection, setBundleSelection] = useState<Set<string>>(new Set());
+
+  useEffect(() => {
+    setBundleSelection(new Set(frequentlyBoughtWith.map((p) => p.id)));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [frequentlyBoughtWith.length]);
+
+  function toggleBundleItem(id: string) {
+    setBundleSelection((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  }
+
+  function handleAddBundleToCart() {
+    addItem(product as never, null, 1, firstImage.url);
+    let added = 1;
+
+    for (const companion of frequentlyBoughtWith) {
+      if (!bundleSelection.has(companion.id)) continue;
+      const companionImage =
+        (companion as unknown as { product_images?: { url: string }[] }).product_images?.[0]?.url ??
+        "https://images.unsplash.com/photo-1602028915047-37269d1a73f7?w=400&q=80";
+      addItem(companion as never, null, 1, companionImage);
+      added += 1;
+    }
+
+    toast.success(`${added} item${added > 1 ? "s" : ""} added to cart`);
+    openCart();
+  }
+
+  const [lightboxOpen, setLightboxOpen] = useState(false);
+  const [zoomActive, setZoomActive] = useState(false);
+  const [zoomOrigin, setZoomOrigin] = useState("50% 50%");
+
+  function handleImageMouseMove(e: React.MouseEvent<HTMLDivElement>) {
+    const rect = e.currentTarget.getBoundingClientRect();
+    const x = ((e.clientX - rect.left) / rect.width) * 100;
+    const y = ((e.clientY - rect.top) / rect.height) * 100;
+    setZoomOrigin(`${x}% ${y}%`);
+  }
 
   const { data: reviewsData } = useQuery(reviewsQueryOptions(product.id));
   const reviews = reviewsData?.reviews ?? [];
@@ -263,20 +328,37 @@ function ProductDetailPage() {
 
         <div className="grid gap-10 md:grid-cols-2">
           <div>
-            <div className="aspect-square overflow-hidden border border-gold/10 bg-[#1A1A1A]">
+            <div
+              className="group relative aspect-square cursor-zoom-in overflow-hidden border border-gold/10 bg-[#1A1A1A]"
+              onMouseMove={active.media_type !== "video" ? handleImageMouseMove : undefined}
+              onMouseEnter={() => active.media_type !== "video" && setZoomActive(true)}
+              onMouseLeave={() => setZoomActive(false)}
+              onClick={() => active.media_type !== "video" && setLightboxOpen(true)}
+            >
               {active.media_type === "video" ? (
                 <video
                   src={active.url}
                   controls
                   playsInline
-                  className="h-full w-full object-cover"
+                  className="h-full w-full cursor-auto object-cover"
+                  onClick={(e) => e.stopPropagation()}
                 />
               ) : (
                 <img
                   src={active.url}
                   alt={active.alt_text ?? product.name}
-                  className="h-full w-full object-cover"
+                  className="h-full w-full object-cover transition-transform duration-200 ease-out"
+                  style={{
+                    transform: zoomActive ? "scale(2)" : "scale(1)",
+                    transformOrigin: zoomOrigin,
+                  }}
                 />
+              )}
+
+              {active.media_type !== "video" && (
+                <span className="pointer-events-none absolute right-3 top-3 flex h-9 w-9 items-center justify-center rounded-full border border-gold/40 bg-black/70 text-gold opacity-0 transition-opacity group-hover:opacity-100">
+                  <ZoomIn size={16} />
+                </span>
               )}
             </div>
 
@@ -360,6 +442,13 @@ function ProductDetailPage() {
                 </span>
               )}
             </p>
+
+            {soldLast30Days > 0 && (
+              <p className="mt-1.5 flex items-center gap-1.5 text-xs text-gold/80">
+                <Flame size={13} />
+                {soldLast30Days} sold in the last 30 days
+              </p>
+            )}
 
             {variants.length > 0 && (
               <div className="mt-6">
@@ -488,6 +577,81 @@ function ProductDetailPage() {
             </div>
           </div>
         </div>
+
+        {frequentlyBoughtWith.length > 0 && (
+          <div className="mt-16 border-t border-gold/10 pt-12">
+            <h2 className="mb-6 font-serif text-2xl font-bold text-white">
+              Frequently Bought Together
+            </h2>
+
+            <div className="flex flex-col gap-6 md:flex-row md:items-center">
+              <div className="flex flex-1 flex-wrap items-center gap-4">
+                <div className="flex flex-col items-center gap-2">
+                  <div className="h-20 w-20 overflow-hidden border border-gold/30 bg-[#1A1A1A]">
+                    <img src={firstImage.url} alt={product.name} className="h-full w-full object-cover" />
+                  </div>
+                  <p className="max-w-[90px] text-center text-xs text-white/70">This item</p>
+                </div>
+
+                {frequentlyBoughtWith.map((companion) => {
+                  const companionImage =
+                    (companion as unknown as { product_images?: { url: string }[] }).product_images?.[0]?.url ??
+                    "https://images.unsplash.com/photo-1602028915047-37269d1a73f7?w=200&q=80";
+                  const selected = bundleSelection.has(companion.id);
+
+                  return (
+                    <label
+                      key={companion.id}
+                      className="flex cursor-pointer flex-col items-center gap-2"
+                    >
+                      <span className="text-lg text-gold/40">+</span>
+                      <div
+                        className={`relative h-20 w-20 overflow-hidden border ${
+                          selected ? "border-gold" : "border-gold/20 opacity-50"
+                        }`}
+                      >
+                        <img
+                          src={companionImage}
+                          alt={companion.name}
+                          className="h-full w-full object-cover"
+                        />
+                      </div>
+                      <input
+                        type="checkbox"
+                        checked={selected}
+                        onChange={() => toggleBundleItem(companion.id)}
+                        className="accent-gold"
+                      />
+                      <p className="max-w-[90px] text-center text-xs text-white/70">
+                        {companion.name}
+                      </p>
+                      <p className="font-mono text-xs text-gold">€{Number(companion.price).toFixed(2)}</p>
+                    </label>
+                  );
+                })}
+              </div>
+
+              <div className="border-t border-gold/10 pt-4 md:w-56 md:border-l md:border-t-0 md:pl-6 md:pt-0">
+                <p className="text-xs uppercase tracking-wider text-gold/70">Bundle Total</p>
+                <p className="mt-1 font-mono text-2xl text-gold">
+                  €
+                  {(
+                    finalPrice +
+                    frequentlyBoughtWith
+                      .filter((c) => bundleSelection.has(c.id))
+                      .reduce((s, c) => s + Number(c.price), 0)
+                  ).toFixed(2)}
+                </p>
+                <button
+                  onClick={handleAddBundleToCart}
+                  className="mt-3 w-full bg-gold py-2.5 text-sm font-bold uppercase tracking-wider text-black transition-colors hover:bg-gold-vivid"
+                >
+                  Add Bundle to Cart
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
 
         <div id="reviews" className="mt-16 scroll-mt-24 border-t border-gold/10 pt-12">
           <div className="flex flex-col gap-8 md:flex-row md:gap-12">
@@ -690,6 +854,53 @@ function ProductDetailPage() {
           </form>
         </DialogContent>
       </Dialog>
+
+      {lightboxOpen && active.media_type !== "video" && (
+        <div
+          className="fixed inset-0 z-[60] flex items-center justify-center bg-black/95 p-4"
+          onClick={() => setLightboxOpen(false)}
+        >
+          <button
+            onClick={() => setLightboxOpen(false)}
+            aria-label="Close"
+            className="absolute right-4 top-4 flex h-10 w-10 items-center justify-center rounded-full border border-gold/40 text-gold hover:bg-gold hover:text-black"
+          >
+            <X size={20} />
+          </button>
+
+          {media.length > 1 && (
+            <>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setActiveMedia((activeMedia - 1 + media.length) % media.length);
+                }}
+                aria-label="Previous image"
+                className="absolute left-4 flex h-10 w-10 items-center justify-center rounded-full border border-gold/40 text-gold hover:bg-gold hover:text-black"
+              >
+                <ChevronLeft size={20} />
+              </button>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setActiveMedia((activeMedia + 1) % media.length);
+                }}
+                aria-label="Next image"
+                className="absolute right-4 flex h-10 w-10 items-center justify-center rounded-full border border-gold/40 text-gold hover:bg-gold hover:text-black"
+              >
+                <ChevronRight size={20} />
+              </button>
+            </>
+          )}
+
+          <img
+            src={active.url}
+            alt={active.alt_text ?? product.name}
+            onClick={(e) => e.stopPropagation()}
+            className="max-h-[90vh] max-w-[90vw] object-contain"
+          />
+        </div>
+      )}
 
       <script
         type="application/ld+json"

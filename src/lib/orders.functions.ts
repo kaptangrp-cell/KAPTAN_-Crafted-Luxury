@@ -46,7 +46,7 @@ export const createOrder = createServerFn({ method: "POST" })
 
     const { data: products, error: pErr } = await supabaseAdmin
       .from("products")
-      .select("id, name, price, stock_quantity, is_available")
+      .select("id, name, price, stock_quantity, sold_count, is_available")
       .in("id", productIds);
 
     if (pErr) throw new Error(pErr.message);
@@ -137,6 +137,39 @@ export const createOrder = createServerFn({ method: "POST" })
     if (iErr) {
       await supabaseAdmin.from("orders").delete().eq("id", order.id);
       throw new Error(iErr.message);
+    }
+
+    // Decrement stock and bump sold_count so Best Sellers / Related /
+    // Recommended (all sorted by sold_count) and low-stock badges reflect
+    // reality. Best-effort: an order already exists at this point, so a
+    // failure here shouldn't roll back the purchase — just log it.
+    try {
+      for (const item of data.items) {
+        const product = products?.find((p) => p.id === item.productId);
+        if (!product) continue;
+
+        await supabaseAdmin
+          .from("products")
+          .update({
+            stock_quantity: Math.max(0, Number(product.stock_quantity ?? 0) - item.quantity),
+            sold_count: Number(product.sold_count ?? 0) + item.quantity,
+          })
+          .eq("id", item.productId);
+
+        if (item.variantId) {
+          const variant = variantMap.get(item.variantId);
+          if (variant && variant.stock_quantity !== null) {
+            await supabaseAdmin
+              .from("product_variants")
+              .update({
+                stock_quantity: Math.max(0, Number(variant.stock_quantity) - item.quantity),
+              })
+              .eq("id", item.variantId);
+          }
+        }
+      }
+    } catch (stockErr) {
+      console.error("Failed to update stock/sold_count after order:", stockErr);
     }
 
     return {

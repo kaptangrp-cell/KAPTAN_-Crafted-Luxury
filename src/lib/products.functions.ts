@@ -186,3 +186,60 @@ export const getRecommendedProducts = createServerFn({ method: "POST" })
 
     return { products: products ?? [] };
   });
+
+/**
+ * Real "frequently bought together" + recent-sales signal for a product,
+ * both derived from actual order history (not fabricated). order_items has
+ * no public RLS read policy, so this runs through supabaseAdmin and only
+ * ever returns aggregate/product-level data — no customer info leaks out.
+ */
+export const getProductInsights = createServerFn({ method: "POST" })
+  .inputValidator((input: { productId: string }) => input)
+  .handler(async ({ data }) => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
+    const [coOrdersRes, recentSalesRes] = await Promise.all([
+      supabaseAdmin.from("order_items").select("order_id").eq("product_id", data.productId),
+      supabaseAdmin
+        .from("order_items")
+        .select("quantity, orders!inner(created_at, status)")
+        .eq("product_id", data.productId)
+        .gte("orders.created_at", thirtyDaysAgo.toISOString())
+        .neq("orders.status", "cancelled"),
+    ]);
+
+    const soldLast30Days = (recentSalesRes.data ?? []).reduce(
+      (s, r) => s + Number(r.quantity ?? 0),
+      0,
+    );
+
+    const orderIds = [...new Set((coOrdersRes.data ?? []).map((r) => r.order_id))];
+
+    let frequentlyBoughtWith: Awaited<ReturnType<typeof getProductsByIds>>["products"] = [];
+
+    if (orderIds.length) {
+      const { data: coItems } = await supabaseAdmin
+        .from("order_items")
+        .select("product_id")
+        .in("order_id", orderIds)
+        .neq("product_id", data.productId);
+
+      const freq = new Map<string, number>();
+      (coItems ?? []).forEach((i) => freq.set(i.product_id, (freq.get(i.product_id) ?? 0) + 1));
+
+      const topIds = [...freq.entries()]
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, 3)
+        .map(([id]) => id);
+
+      if (topIds.length) {
+        const result = await getProductsByIds({ data: { ids: topIds } });
+        frequentlyBoughtWith = result.products;
+      }
+    }
+
+    return { soldLast30Days, frequentlyBoughtWith };
+  });
