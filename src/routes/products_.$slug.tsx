@@ -14,12 +14,16 @@ import {
   Play,
   Star,
   Sparkles,
+  BadgeCheck,
+  PenLine,
 } from "lucide-react";
 import { toast } from "sonner";
 import { getProductBySlug, getRelatedProducts } from "@/lib/products.functions";
 import { toggleWishlist } from "@/lib/wishlist.functions";
+import { getProductReviews, submitProductReview } from "@/lib/reviews.functions";
 import { PageLayout } from "@/components/layout/PageLayout";
 import { ProductCard } from "@/components/product/ProductCard";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useCartStore } from "@/stores/cartStore";
 import { useAuthStore } from "@/stores/authStore";
 import { useUIStore } from "@/stores/uiStore";
@@ -43,6 +47,13 @@ function relatedProductsQueryOptions(categoryId: string | null | undefined, excl
     queryKey: ["related-products", categoryId, excludeId],
     queryFn: () => getRelatedProducts({ data: { categoryId, excludeProductId: excludeId, limit: 4 } }),
     enabled: Boolean(categoryId),
+  });
+}
+
+function reviewsQueryOptions(productId: string) {
+  return queryOptions({
+    queryKey: ["product-reviews", productId],
+    queryFn: () => getProductReviews({ data: { productId } }),
   });
 }
 
@@ -111,6 +122,63 @@ function ProductDetailPage() {
     relatedProductsQueryOptions(product.category_id, product.id),
   );
   const relatedProducts = relatedData?.products ?? [];
+
+  const { data: reviewsData } = useQuery(reviewsQueryOptions(product.id));
+  const reviews = reviewsData?.reviews ?? [];
+  const reviewSummary = reviewsData?.summary ?? {
+    count: product.review_count ?? 0,
+    average: product.average_rating ?? 0,
+    ratingCounts: [0, 0, 0, 0, 0],
+  };
+
+  const submitReviewFn = useServerFn(submitProductReview);
+  const [reviewDialogOpen, setReviewDialogOpen] = useState(false);
+  const [reviewRating, setReviewRating] = useState(0);
+  const [reviewTitle, setReviewTitle] = useState("");
+  const [reviewBody, setReviewBody] = useState("");
+  const [submittingReview, setSubmittingReview] = useState(false);
+
+  function openReviewDialog() {
+    if (!user) {
+      toast.error("Please sign in to write a review");
+      return;
+    }
+    setReviewDialogOpen(true);
+  }
+
+  async function handleSubmitReview(e: React.FormEvent) {
+    e.preventDefault();
+
+    if (reviewRating < 1) {
+      toast.error("Please select a star rating");
+      return;
+    }
+
+    try {
+      setSubmittingReview(true);
+      const result = await submitReviewFn({
+        data: {
+          productId: product.id,
+          rating: reviewRating,
+          title: reviewTitle || undefined,
+          body: reviewBody || undefined,
+        },
+      });
+      toast.success(
+        result.isVerified ? "Thanks! Your verified review is live." : "Thanks for your review!",
+      );
+      setReviewDialogOpen(false);
+      setReviewRating(0);
+      setReviewTitle("");
+      setReviewBody("");
+      qc.invalidateQueries({ queryKey: ["product-reviews", product.id] });
+      qc.invalidateQueries({ queryKey: ["product", slug] });
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Could not submit review");
+    } finally {
+      setSubmittingReview(false);
+    }
+  }
 
   const media = product.product_images?.length
     ? [...product.product_images].sort((a, b) => Number(a.sort_order ?? 0) - Number(b.sort_order ?? 0))
@@ -232,25 +300,24 @@ function ProductDetailPage() {
               {product.short_description}
             </p>
 
-            {(product.review_count ?? 0) > 0 && (
-              <div className="mt-3 flex items-center gap-2">
+            {reviewSummary.count > 0 && (
+              <a href="#reviews" className="mt-3 flex w-fit items-center gap-2 hover:opacity-80">
                 <div className="flex gap-0.5">
                   {Array.from({ length: 5 }).map((_, i) => (
                     <Star
                       key={i}
                       size={14}
                       className={
-                        i < Math.round(product.average_rating ?? 0)
-                          ? "fill-gold text-gold"
-                          : "text-gold/20"
+                        i < Math.round(reviewSummary.average) ? "fill-gold text-gold" : "text-gold/20"
                       }
                     />
                   ))}
                 </div>
-                <span className="text-xs text-white/50">
-                  {Number(product.average_rating ?? 0).toFixed(1)} ({product.review_count} reviews)
+                <span className="text-xs text-white/50 underline-offset-2 hover:underline">
+                  {reviewSummary.average.toFixed(1)} ({reviewSummary.count}{" "}
+                  {reviewSummary.count === 1 ? "review" : "reviews"})
                 </span>
-              </div>
+              </a>
             )}
 
             <div className="mt-5 flex items-baseline gap-3">
@@ -403,6 +470,108 @@ function ProductDetailPage() {
           </div>
         </div>
 
+        <div id="reviews" className="mt-16 scroll-mt-24 border-t border-gold/10 pt-12">
+          <div className="flex flex-col gap-8 md:flex-row md:gap-12">
+            <div className="md:w-72 md:flex-shrink-0">
+              <h2 className="font-serif text-2xl font-bold text-white">Customer Reviews</h2>
+
+              <div className="mt-4 flex items-end gap-3">
+                <span className="font-serif text-5xl font-bold text-gold">
+                  {reviewSummary.average.toFixed(1)}
+                </span>
+                <div className="pb-1">
+                  <div className="flex gap-0.5">
+                    {Array.from({ length: 5 }).map((_, i) => (
+                      <Star
+                        key={i}
+                        size={16}
+                        className={
+                          i < Math.round(reviewSummary.average) ? "fill-gold text-gold" : "text-gold/20"
+                        }
+                      />
+                    ))}
+                  </div>
+                  <p className="mt-1 text-xs text-white/50">
+                    Based on {reviewSummary.count} {reviewSummary.count === 1 ? "review" : "reviews"}
+                  </p>
+                </div>
+              </div>
+
+              <div className="mt-5 space-y-1.5">
+                {[5, 4, 3, 2, 1].map((star) => {
+                  const starCount = reviewSummary.ratingCounts[star - 1] ?? 0;
+                  const pct = reviewSummary.count ? (starCount / reviewSummary.count) * 100 : 0;
+                  return (
+                    <div key={star} className="flex items-center gap-2 text-xs text-white/60">
+                      <span className="w-8">{star} star</span>
+                      <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-white/10">
+                        <div className="h-full bg-gold" style={{ width: `${pct}%` }} />
+                      </div>
+                      <span className="w-6 text-right text-white/40">{starCount}</span>
+                    </div>
+                  );
+                })}
+              </div>
+
+              <button
+                onClick={openReviewDialog}
+                className="mt-6 flex w-full items-center justify-center gap-2 border border-gold px-4 py-2.5 text-sm font-semibold text-gold transition-colors hover:bg-gold hover:text-black"
+              >
+                <PenLine size={16} />
+                Write a Review
+              </button>
+            </div>
+
+            <div className="flex-1 space-y-6">
+              {reviews.length === 0 ? (
+                <div className="flex min-h-[200px] flex-col items-center justify-center border border-dashed border-gold/20 bg-[#1A1A1A] px-6 text-center">
+                  <p className="text-white/60">No reviews yet.</p>
+                  <p className="mt-1 text-sm text-white/40">Be the first to share your experience.</p>
+                </div>
+              ) : (
+                reviews.map((r) => (
+                  <div key={r.id} className="border-b border-gold/10 pb-6 last:border-0">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <div className="flex gap-0.5">
+                        {Array.from({ length: 5 }).map((_, i) => (
+                          <Star
+                            key={i}
+                            size={13}
+                            className={i < r.rating ? "fill-gold text-gold" : "text-gold/20"}
+                          />
+                        ))}
+                      </div>
+                      {r.isVerified && (
+                        <span className="flex items-center gap-1 text-[11px] font-semibold uppercase tracking-wider text-gold">
+                          <BadgeCheck size={13} />
+                          Verified Purchase
+                        </span>
+                      )}
+                    </div>
+
+                    {r.title && (
+                      <h4 className="mt-2 font-serif text-base font-semibold text-white">{r.title}</h4>
+                    )}
+
+                    {r.body && (
+                      <p className="mt-1.5 text-sm leading-relaxed text-white/70">{r.body}</p>
+                    )}
+
+                    <p className="mt-2 text-xs text-white/40">
+                      {r.reviewerName} ·{" "}
+                      {new Date(r.createdAt ?? "").toLocaleDateString("en-GB", {
+                        year: "numeric",
+                        month: "short",
+                        day: "numeric",
+                      })}
+                    </p>
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
+        </div>
+
         {relatedProducts.length > 0 && (
           <div className="mt-16">
             <div className="mb-8 text-center">
@@ -420,6 +589,76 @@ function ProductDetailPage() {
           </div>
         )}
       </section>
+
+      <Dialog open={reviewDialogOpen} onOpenChange={setReviewDialogOpen}>
+        <DialogContent className="border border-gold/20 bg-[#1A1A1A] text-white sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="font-serif text-xl text-white">Write a Review</DialogTitle>
+          </DialogHeader>
+
+          <form onSubmit={handleSubmitReview} className="space-y-4">
+            <div>
+              <span className="mb-2 block text-xs uppercase tracking-wider text-gold/70">
+                Your Rating
+              </span>
+              <div className="flex gap-1">
+                {Array.from({ length: 5 }).map((_, i) => {
+                  const value = i + 1;
+                  return (
+                    <button
+                      type="button"
+                      key={value}
+                      onClick={() => setReviewRating(value)}
+                      aria-label={`${value} star${value > 1 ? "s" : ""}`}
+                      className="p-1"
+                    >
+                      <Star
+                        size={26}
+                        className={value <= reviewRating ? "fill-gold text-gold" : "text-gold/20"}
+                      />
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            <label className="block">
+              <span className="mb-1 block text-xs uppercase tracking-wider text-gold/70">
+                Title (optional)
+              </span>
+              <input
+                value={reviewTitle}
+                onChange={(e) => setReviewTitle(e.target.value)}
+                maxLength={120}
+                placeholder="Sum up your experience"
+                className="w-full border border-gold/20 bg-black px-3 py-2 text-sm text-white outline-none focus:border-gold"
+              />
+            </label>
+
+            <label className="block">
+              <span className="mb-1 block text-xs uppercase tracking-wider text-gold/70">
+                Review (optional)
+              </span>
+              <textarea
+                value={reviewBody}
+                onChange={(e) => setReviewBody(e.target.value)}
+                maxLength={2000}
+                rows={4}
+                placeholder="What did you like or dislike? How did you use it?"
+                className="w-full border border-gold/20 bg-black p-3 text-sm text-white outline-none focus:border-gold"
+              />
+            </label>
+
+            <button
+              type="submit"
+              disabled={submittingReview}
+              className="w-full bg-gold py-3 text-sm font-bold uppercase tracking-wider text-black transition-colors hover:bg-gold-vivid disabled:opacity-50"
+            >
+              {submittingReview ? "Submitting..." : "Submit Review"}
+            </button>
+          </form>
+        </DialogContent>
+      </Dialog>
 
       <script
         type="application/ld+json"

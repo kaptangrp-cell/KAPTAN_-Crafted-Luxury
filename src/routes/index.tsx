@@ -1,11 +1,12 @@
 import { useEffect, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
+import { queryOptions, useSuspenseQuery, useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 import { ChevronDown, ShieldCheck, Hand, Truck, Leaf, Play } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { getFeaturedProducts, getCategories } from "@/lib/products.functions";
+import { getFeaturedReviews } from "@/lib/reviews.functions";
 import { subscribeNewsletter } from "@/lib/newsletter.functions";
 import { ProductCard } from "@/components/product/ProductCard";
 import { PageLayout } from "@/components/layout/PageLayout";
@@ -49,6 +50,11 @@ const categoriesQueryOptions = queryOptions({
   queryFn: () => getCategories(),
 });
 
+const featuredReviewsQueryOptions = queryOptions({
+  queryKey: ["featured-reviews"],
+  queryFn: () => getFeaturedReviews(),
+});
+
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
@@ -71,6 +77,7 @@ function HomePage() {
   const { t } = useTranslation();
   const { data: featuredData } = useSuspenseQuery(featuredQueryOptions);
   useSuspenseQuery(categoriesQueryOptions);
+  const { data: featuredReviewsData } = useQuery(featuredReviewsQueryOptions);
 
   const subscribeFn = useServerFn(subscribeNewsletter);
   const [newsletterEmail, setNewsletterEmail] = useState("");
@@ -80,6 +87,25 @@ function HomePage() {
   const [videoPlaying, setVideoPlaying] = useState(false);
 
   const featuredProducts = featuredData?.products ?? [];
+
+  const fallbackTestimonials = [
+    { quote: t("home.t1Quote"), name: "Omar H.", subtitle: `Dubai, UAE — ${t("home.t1Product")}`, rating: 5, verified: false },
+    { quote: t("home.t2Quote"), name: "Sarah M.", subtitle: `London, UK — ${t("home.t2Product")}`, rating: 5, verified: false },
+    { quote: t("home.t3Quote"), name: "Ali R.", subtitle: `Karachi, Pakistan — ${t("home.t3Product")}`, rating: 5, verified: false },
+  ];
+
+  const realTestimonials = (featuredReviewsData?.reviews ?? [])
+    .filter((r) => r.body)
+    .slice(0, 3)
+    .map((r) => ({
+      quote: r.body as string,
+      name: r.reviewerName,
+      subtitle: r.productName ?? "KAPTAN Customer",
+      rating: r.rating,
+      verified: r.isVerified,
+    }));
+
+  const testimonials = realTestimonials.length >= 3 ? realTestimonials : fallbackTestimonials;
 
   useEffect(() => {
     const prefersReducedMotion = window.matchMedia(
@@ -337,25 +363,26 @@ function HomePage() {
           </div>
 
           <div className="grid gap-6 md:grid-cols-3">
-            {[
-              { quote: t("home.t1Quote"), name: "Omar H.", location: "Dubai, UAE", product: t("home.t1Product") },
-              { quote: t("home.t2Quote"), name: "Sarah M.", location: "London, UK", product: t("home.t2Product") },
-              { quote: t("home.t3Quote"), name: "Ali R.", location: "Karachi, Pakistan", product: t("home.t3Product") },
-            ].map((tm, i) => (
+            {testimonials.map((tm, i) => (
               <div key={i} className="border border-gold/10 bg-[#1A1A1A] p-6">
-                <div className="mb-3 flex gap-0.5">
-                  {Array.from({ length: 5 }).map((_, j) => (
-                    <span key={j} className="text-gold">
-                      ★
+                <div className="mb-3 flex items-center gap-2">
+                  <div className="flex gap-0.5">
+                    {Array.from({ length: 5 }).map((_, j) => (
+                      <span key={j} className={j < tm.rating ? "text-gold" : "text-gold/20"}>
+                        ★
+                      </span>
+                    ))}
+                  </div>
+                  {tm.verified && (
+                    <span className="text-[10px] font-semibold uppercase tracking-wider text-gold/70">
+                      Verified Purchase
                     </span>
-                  ))}
+                  )}
                 </div>
                 <p className="font-serif italic leading-relaxed text-white/80">"{tm.quote}"</p>
                 <div className="mt-4 border-t border-gold/10 pt-4">
                   <p className="text-sm font-semibold text-white">{tm.name}</p>
-                  <p className="text-xs text-gold/60">
-                    {tm.location} — {tm.product}
-                  </p>
+                  <p className="text-xs text-gold/60">{tm.subtitle}</p>
                 </div>
               </div>
             ))}
