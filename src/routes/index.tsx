@@ -6,9 +6,15 @@ import { toast } from "sonner";
 import { motion } from "framer-motion";
 import { ChevronDown, ShieldCheck, Hand, Truck, Leaf, Play } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import { getFeaturedProducts, getCategories } from "@/lib/products.functions";
+import {
+  getFeaturedProducts,
+  getCategories,
+  getProductsByIds,
+  getRecommendedProducts,
+} from "@/lib/products.functions";
 import { getFeaturedReviews } from "@/lib/reviews.functions";
 import { subscribeNewsletter } from "@/lib/newsletter.functions";
+import { getRecentlyViewedIds } from "@/lib/recentlyViewed";
 import { ProductCard } from "@/components/product/ProductCard";
 import { PageLayout } from "@/components/layout/PageLayout";
 
@@ -55,6 +61,23 @@ const featuredReviewsQueryOptions = queryOptions({
   queryKey: ["featured-reviews"],
   queryFn: () => getFeaturedReviews(),
 });
+
+function recentlyViewedQueryOptions(ids: string[]) {
+  return queryOptions({
+    queryKey: ["home-recently-viewed", ids],
+    queryFn: () => getProductsByIds({ data: { ids } }),
+    enabled: ids.length > 0,
+  });
+}
+
+function recommendedQueryOptions(categoryIds: string[], excludeIds: string[]) {
+  return queryOptions({
+    queryKey: ["home-recommended", categoryIds, excludeIds],
+    queryFn: () =>
+      getRecommendedProducts({ data: { categoryIds, excludeIds, limit: 8 } }),
+    enabled: categoryIds.length > 0,
+  });
+}
 
 function Reveal({
   children,
@@ -110,6 +133,35 @@ function HomePage() {
   const [videoPlaying, setVideoPlaying] = useState(false);
 
   const featuredProducts = featuredData?.products ?? [];
+
+  const [recentIds, setRecentIds] = useState<string[]>([]);
+
+  useEffect(() => {
+    setRecentIds(getRecentlyViewedIds(undefined, 8));
+  }, []);
+
+  const { data: recentlyViewedData } = useQuery(recentlyViewedQueryOptions(recentIds));
+  const recentlyViewedProducts = recentlyViewedData?.products ?? [];
+
+  const recommendedCategoryIds = [
+    ...new Set(
+      recentlyViewedProducts
+        .map((p) => (p as { category_id?: string | null }).category_id)
+        .filter((id): id is string => Boolean(id)),
+    ),
+  ].slice(0, 3);
+
+  const recommendedExcludeIds = [
+    ...new Set([
+      ...recentlyViewedProducts.map((p) => p.id),
+      ...featuredProducts.map((p) => p.id),
+    ]),
+  ];
+
+  const { data: recommendedData } = useQuery(
+    recommendedQueryOptions(recommendedCategoryIds, recommendedExcludeIds),
+  );
+  const recommendedProducts = (recommendedData?.products ?? []).slice(0, 4);
 
   const fallbackTestimonials = [
     { quote: t("home.t1Quote"), name: "Omar H.", subtitle: `Dubai, UAE — ${t("home.t1Product")}`, rating: 5, verified: false },
@@ -326,6 +378,31 @@ function HomePage() {
         </Reveal>
       </section>
 
+      {recommendedProducts.length > 0 && (
+        <section className="bg-black px-4 py-20 md:px-6">
+          <div className="mx-auto max-w-7xl">
+            <Reveal className="mb-10 flex items-end justify-between">
+              <div>
+                <p className="text-xs font-bold uppercase tracking-[0.3em] text-gold/70">
+                  Just For You
+                </p>
+                <h2 className="mt-2 font-serif text-3xl font-bold text-white md:text-4xl">
+                  Recommended For You
+                </h2>
+              </div>
+            </Reveal>
+
+            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+              {recommendedProducts.map((p, i) => (
+                <Reveal key={p.id} delay={Math.min(i, 3) * 0.08}>
+                  <ProductCard product={p as never} />
+                </Reveal>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
       <section className="bg-[#0D0D0D] px-4 py-20 md:px-6">
         <div className="mx-auto max-w-7xl">
           <Reveal className="mb-10 text-center">
@@ -338,12 +415,33 @@ function HomePage() {
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
             {featuredProducts.map((p, i) => (
               <Reveal key={p.id} delay={Math.min(i, 3) * 0.08}>
-                <ProductCard product={p} />
+                <ProductCard product={p as never} />
               </Reveal>
             ))}
           </div>
         </div>
       </section>
+
+      {recentlyViewedProducts.length > 1 && (
+        <section className="bg-[#0D0D0D] px-4 py-20 md:px-6">
+          <div className="mx-auto max-w-7xl">
+            <Reveal className="mb-10 text-center">
+              <h2 className="font-serif text-3xl font-bold text-white md:text-4xl">
+                Recently Viewed
+              </h2>
+              <div className="mx-auto mt-3 h-0.5 w-12 bg-gold" />
+            </Reveal>
+
+            <div className="grid grid-cols-2 gap-6 sm:grid-cols-3 lg:grid-cols-4">
+              {recentlyViewedProducts.slice(0, 4).map((p, i) => (
+                <Reveal key={p.id} delay={Math.min(i, 3) * 0.08}>
+                  <ProductCard product={p as never} />
+                </Reveal>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
 
       <section className="bg-black px-4 py-24 md:px-6">
         <div className="mx-auto max-w-6xl">

@@ -138,3 +138,51 @@ export const getRelatedProducts = createServerFn({ method: "POST" })
     return { products: products ?? [] };
   });
 
+export const getProductsByIds = createServerFn({ method: "POST" })
+  .inputValidator((input: { ids: string[] }) => input)
+  .handler(async ({ data }) => {
+    if (!data.ids.length) return { products: [] };
+
+    const { data: products, error } = await supabase
+      .from("products")
+      .select("*, categories(name, slug), product_images(url, sort_order, media_type)")
+      .in("id", data.ids)
+      .eq("is_available", true);
+
+    if (error) throw new Error(error.message);
+
+    // Supabase doesn't preserve .in() input order, so re-sort to match the
+    // caller's order (most-recently-viewed-first for "Recently Viewed").
+    const order = new Map(data.ids.map((id, index) => [id, index]));
+    const sorted = [...(products ?? [])].sort(
+      (a, b) => (order.get(a.id) ?? 0) - (order.get(b.id) ?? 0),
+    );
+
+    return { products: sorted };
+  });
+
+export const getRecommendedProducts = createServerFn({ method: "POST" })
+  .inputValidator(
+    (input: { categoryIds: string[]; excludeIds?: string[]; limit?: number }) => input,
+  )
+  .handler(async ({ data }) => {
+    if (!data.categoryIds.length) return { products: [] };
+
+    let query = supabase
+      .from("products")
+      .select("*, categories(name, slug), product_images(url, sort_order, media_type)")
+      .in("category_id", data.categoryIds)
+      .eq("is_available", true)
+      .order("sold_count", { ascending: false })
+      .limit(data.limit ?? 8);
+
+    if (data.excludeIds?.length) {
+      query = query.not("id", "in", `(${data.excludeIds.join(",")})`);
+    }
+
+    const { data: products, error } = await query;
+
+    if (error) throw new Error(error.message);
+
+    return { products: products ?? [] };
+  });

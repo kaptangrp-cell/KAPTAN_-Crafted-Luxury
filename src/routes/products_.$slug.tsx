@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { createFileRoute, notFound, Link, useNavigate } from "@tanstack/react-router";
 import { queryOptions, useSuspenseQuery, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
@@ -18,9 +18,10 @@ import {
   PenLine,
 } from "lucide-react";
 import { toast } from "sonner";
-import { getProductBySlug, getRelatedProducts } from "@/lib/products.functions";
+import { getProductBySlug, getRelatedProducts, getProductsByIds } from "@/lib/products.functions";
 import { toggleWishlist } from "@/lib/wishlist.functions";
 import { getProductReviews, submitProductReview } from "@/lib/reviews.functions";
+import { trackProductView, getRecentlyViewedIds } from "@/lib/recentlyViewed";
 import { PageLayout } from "@/components/layout/PageLayout";
 import { ProductCard } from "@/components/product/ProductCard";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -47,6 +48,14 @@ function relatedProductsQueryOptions(categoryId: string | null | undefined, excl
     queryKey: ["related-products", categoryId, excludeId],
     queryFn: () => getRelatedProducts({ data: { categoryId, excludeProductId: excludeId, limit: 4 } }),
     enabled: Boolean(categoryId),
+  });
+}
+
+function recentlyViewedQueryOptions(ids: string[]) {
+  return queryOptions({
+    queryKey: ["recently-viewed", ids],
+    queryFn: () => getProductsByIds({ data: { ids } }),
+    enabled: ids.length > 0,
   });
 }
 
@@ -122,6 +131,16 @@ function ProductDetailPage() {
     relatedProductsQueryOptions(product.category_id, product.id),
   );
   const relatedProducts = relatedData?.products ?? [];
+
+  const [recentIds, setRecentIds] = useState<string[]>([]);
+
+  useEffect(() => {
+    trackProductView(product.id);
+    setRecentIds(getRecentlyViewedIds(product.id, 8));
+  }, [product.id]);
+
+  const { data: recentlyViewedData } = useQuery(recentlyViewedQueryOptions(recentIds));
+  const recentlyViewedProducts = recentlyViewedData?.products ?? [];
 
   const { data: reviewsData } = useQuery(reviewsQueryOptions(product.id));
   const reviews = reviewsData?.reviews ?? [];
@@ -583,6 +602,18 @@ function ProductDetailPage() {
 
             <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
               {relatedProducts.map((p) => (
+                <ProductCard key={p.id} product={p as never} />
+              ))}
+            </div>
+          </div>
+        )}
+
+        {recentlyViewedProducts.length > 0 && (
+          <div className="mt-16 border-t border-gold/10 pt-12">
+            <h2 className="mb-8 font-serif text-xl font-semibold text-white">Recently Viewed</h2>
+
+            <div className="grid grid-cols-2 gap-6 sm:grid-cols-3 lg:grid-cols-4">
+              {recentlyViewedProducts.map((p) => (
                 <ProductCard key={p.id} product={p as never} />
               ))}
             </div>
