@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
@@ -7,10 +7,162 @@ import { useCartStore } from "@/stores/cartStore";
 import { useAuthStore } from "@/stores/authStore";
 import { PageLayout } from "@/components/layout/PageLayout";
 import { createOrder } from "@/lib/orders.functions";
-import { createStripeCheckoutSession, createPaypalCheckoutOrder } from "@/lib/payments.functions";
+import {
+  createStripeCheckoutSession,
+  createPaypalCheckoutOrder,
+  createStripePaymentIntentForOrder,
+  confirmStripeOrderPayment,
+} from "@/lib/payments.functions";
+import { getStripeJs } from "@/lib/payments/stripe-client";
 
 const STRIPE_ENABLED = Boolean(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
 const PAYPAL_ENABLED = Boolean(import.meta.env.VITE_PAYPAL_CLIENT_ID);
+
+type ExpressCheckoutItem = { productId: string; variantId: string | null; quantity: number };
+
+/**
+ * Apple Pay / Google Pay "express checkout" button, rendered via Stripe's
+ * PaymentRequest API. Only appears when the browser/device actually
+ * supports a wallet (Stripe's canMakePayment() check) — there's no
+ * fallback fake button. The wallet sheet collects name/email/phone/
+ * shipping address itself, so a real order is created from that data,
+ * a PaymentIntent is confirmed client-side, and the server verifies the
+ * PaymentIntent before marking the order paid.
+ */
+function ExpressCheckout({
+  amount,
+  shippingAmount,
+  items,
+  onOrderPlaced,
+}: {
+  amount: number;
+  shippingAmount: number;
+  items: ExpressCheckoutItem[];
+  onOrderPlaced: (orderId: string) => void;
+}) {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [available, setAvailable] = useState(false);
+  const createOrderFn = useServerFn(createOrder);
+  const createIntentFn = useServerFn(createStripePaymentIntentForOrder);
+  const confirmPaymentFn = useServerFn(confirmStripeOrderPayment);
+
+  useEffect(() => {
+    if (!STRIPE_ENABLED || amount <= 0 || items.length === 0) return;
+
+    let cancelled = false;
+
+    (async () => {
+      const stripe = await getStripeJs();
+      if (!stripe || !containerRef.current || cancelled) return;
+
+      const paymentRequest = stripe.paymentRequest({
+        country: "DE",
+        currency: "eur",
+        total: { label: "KAPTAN", amount: Math.round(amount * 100) },
+        requestPayerName: true,
+        requestPayerEmail: true,
+        requestPayerPhone: true,
+        requestShipping: true,
+        shippingOptions: [
+          {
+            id: "standard",
+            label: shippingAmount === 0 ? "Free Shipping" : "Standard Shipping",
+            detail: "3–6 business days",
+            amount: Math.round(shippingAmount * 100),
+          },
+        ],
+      });
+
+      const canPay = await paymentRequest.canMakePayment();
+      if (!canPay || cancelled) return;
+
+      setAvailable(true);
+
+      const elements = stripe.elements();
+      const prButton = elements.create("paymentRequestButton", {
+        paymentRequest,
+        style: { paymentRequestButton: { theme: "dark", height: "48px" } },
+      });
+      prButton.mount(containerRef.current);
+
+      paymentRequest.on("paymentmethod", async (ev) => {
+        try {
+          const shippingAddr = ev.shippingAddress;
+
+          const { orderId } = await createOrderFn({
+            data: {
+              user_id: null,
+              customer_name: ev.payerName ?? "",
+              customer_email: ev.payerEmail ?? "",
+              customer_phone: ev.payerPhone ?? "",
+              shipping_address: {
+                full_name: ev.payerName ?? "",
+                phone: ev.payerPhone ?? "",
+                line1: shippingAddr?.addressLine?.[0] ?? "",
+                line2: shippingAddr?.addressLine?.[1] || null,
+                city: shippingAddr?.city ?? "",
+                state: shippingAddr?.region ?? null,
+                postal_code: shippingAddr?.postalCode ?? "",
+                country: shippingAddr?.country ?? "DE",
+              },
+              items,
+              payment_method: "card",
+              notes: null,
+            },
+          });
+
+          const { clientSecret, paymentIntentId } = await createIntentFn({ data: { orderId } });
+
+          const confirmResult = await stripe.confirmCardPayment(
+            clientSecret,
+            { payment_method: ev.paymentMethod.id },
+            { handleActions: false },
+          );
+
+          if (confirmResult.error) {
+            ev.complete("fail");
+            toast.error(confirmResult.error.message ?? "Payment failed");
+            return;
+          }
+
+          ev.complete("success");
+
+          if (confirmResult.paymentIntent?.status === "requires_action") {
+            const actionResult = await stripe.confirmCardPayment(clientSecret);
+            if (actionResult.error) {
+              toast.error(actionResult.error.message ?? "Payment could not be completed");
+              return;
+            }
+          }
+
+          await confirmPaymentFn({ data: { orderId, paymentIntentId } });
+          onOrderPlaced(orderId);
+        } catch (err) {
+          ev.complete("fail");
+          toast.error(err instanceof Error ? err.message : "Payment failed");
+        }
+      });
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [amount, shippingAmount, JSON.stringify(items)]);
+
+  if (!STRIPE_ENABLED || !available) return null;
+
+  return (
+    <div className="mb-6">
+      <div ref={containerRef} />
+      <div className="my-4 flex items-center gap-3 text-white/30">
+        <span className="h-px flex-1 bg-gold/10" />
+        <span className="text-[11px] uppercase tracking-wider">Or pay manually</span>
+        <span className="h-px flex-1 bg-gold/10" />
+      </div>
+    </div>
+  );
+}
 
 export const Route = createFileRoute("/checkout")({
   head: () => ({ meta: [{ title: "Checkout — KAPTAN" }] }),
@@ -134,7 +286,24 @@ function CheckoutPage() {
       <section className="mx-auto max-w-6xl px-4 py-12 md:px-6">
         <h1 className="font-serif text-4xl font-semibold text-white">Checkout</h1>
 
-        <form onSubmit={handleSubmit} className="mt-8 grid gap-8 md:grid-cols-[1fr_360px]">
+        <div className="mt-8">
+          <ExpressCheckout
+            amount={grandTotal}
+            shippingAmount={shipping}
+            items={items.map((i) => ({
+              productId: i.productId,
+              variantId: i.variantId,
+              quantity: i.quantity,
+            }))}
+            onOrderPlaced={(orderId) => {
+              clearCart();
+              toast.success("Order placed!");
+              navigate({ to: "/orders/$id", params: { id: orderId } });
+            }}
+          />
+        </div>
+
+        <form onSubmit={handleSubmit} className="grid gap-8 md:grid-cols-[1fr_360px]">
           <div className="space-y-8">
             <section>
               <h2 className="font-serif text-lg text-gold">Contact</h2>

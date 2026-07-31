@@ -175,3 +175,84 @@ export const capturePaypalCheckoutOrder = createServerFn({ method: "POST" })
     return { orderId: order.id, orderNumber: order.order_number };
   });
 
+
+const CreatePaymentIntentSchema = z.object({
+  orderId: z.string().uuid(),
+});
+
+/**
+ * Creates a Stripe PaymentIntent for an already-created order's total and
+ * returns its client secret. Used by the Express Checkout (Apple Pay /
+ * Google Pay) flow, which confirms the payment client-side via the
+ * PaymentRequest API instead of redirecting to hosted Stripe Checkout.
+ */
+export const createStripePaymentIntentForOrder = createServerFn({ method: "POST" })
+  .inputValidator((input: unknown) => CreatePaymentIntentSchema.parse(input))
+  .handler(async ({ data }) => {
+    const stripe = getStripeClient();
+
+    if (!stripe) {
+      throw new Error("Card payments are not configured yet. Please choose another payment method.");
+    }
+
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
+    const { data: order, error } = await supabaseAdmin
+      .from("orders")
+      .select("id, order_number, total, customer_email")
+      .eq("id", data.orderId)
+      .single();
+
+    if (error || !order) throw new Error("Order not found");
+
+    const intent = await stripe.paymentIntents.create({
+      amount: Math.round(Number(order.total) * 100),
+      currency: "eur",
+      receipt_email: order.customer_email ?? undefined,
+      metadata: { orderId: order.id, orderNumber: order.order_number },
+      automatic_payment_methods: { enabled: true },
+    });
+
+    if (!intent.client_secret) throw new Error("Could not start payment");
+
+    return { clientSecret: intent.client_secret, paymentIntentId: intent.id };
+  });
+
+const ConfirmStripeOrderPaymentSchema = z.object({
+  orderId: z.string().uuid(),
+  paymentIntentId: z.string().min(1),
+});
+
+/**
+ * Server-side verification step for the Express Checkout flow: confirms
+ * the PaymentIntent actually succeeded and belongs to this order before
+ * marking it paid, so a manipulated client can't fake a paid order.
+ */
+export const confirmStripeOrderPayment = createServerFn({ method: "POST" })
+  .inputValidator((input: unknown) => ConfirmStripeOrderPaymentSchema.parse(input))
+  .handler(async ({ data }) => {
+    const stripe = getStripeClient();
+
+    if (!stripe) {
+      throw new Error("Card payments are not configured yet.");
+    }
+
+    const intent = await stripe.paymentIntents.retrieve(data.paymentIntentId);
+
+    if (intent.status !== "succeeded" || intent.metadata.orderId !== data.orderId) {
+      throw new Error("Payment could not be verified");
+    }
+
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
+    const { data: order, error } = await supabaseAdmin
+      .from("orders")
+      .update({ payment_status: "paid" })
+      .eq("id", data.orderId)
+      .select("id, order_number")
+      .single();
+
+    if (error || !order) throw new Error("Could not update order after payment");
+
+    return { orderId: order.id, orderNumber: order.order_number };
+  });

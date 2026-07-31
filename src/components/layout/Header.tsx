@@ -120,6 +120,7 @@ export function Header() {
           {[
             { label: t("nav.home"), to: "/" },
             { label: t("nav.products"), to: "/products" },
+            { label: t("nav.journal"), to: "/journal" },
             { label: t("nav.about"), to: "/about" },
             { label: t("nav.contact"), to: "/contact" },
           ].map((item) => (
@@ -255,6 +256,7 @@ export function Header() {
             {[
               { label: t("nav.home"), to: "/" },
               { label: t("nav.products"), to: "/products" },
+              { label: t("nav.journal"), to: "/journal" },
               { label: t("nav.about"), to: "/about" },
               { label: t("nav.contact"), to: "/contact" },
             ].map((item) => (

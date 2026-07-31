@@ -3,7 +3,6 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { queryOptions, useSuspenseQuery, useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
-import { motion } from "framer-motion";
 import { ChevronDown, ShieldCheck, Hand, Truck, Leaf, Play } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import {
@@ -17,6 +16,7 @@ import { subscribeNewsletter } from "@/lib/newsletter.functions";
 import { getRecentlyViewedIds } from "@/lib/recentlyViewed";
 import { ProductCard } from "@/components/product/ProductCard";
 import { PageLayout } from "@/components/layout/PageLayout";
+import { Reveal } from "@/components/motion/Reveal";
 
 const heroSlides = [
   {
@@ -77,28 +77,6 @@ function recommendedQueryOptions(categoryIds: string[], excludeIds: string[]) {
       getRecommendedProducts({ data: { categoryIds, excludeIds, limit: 8 } }),
     enabled: categoryIds.length > 0,
   });
-}
-
-function Reveal({
-  children,
-  className,
-  delay = 0,
-}: {
-  children: React.ReactNode;
-  className?: string;
-  delay?: number;
-}) {
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 28 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: "-80px" }}
-      transition={{ duration: 0.7, ease: "easeOut", delay }}
-      className={className}
-    >
-      {children}
-    </motion.div>
-  );
 }
 
 export const Route = createFileRoute("/")({
