@@ -2,6 +2,7 @@ import "./lib/error-capture";
 
 import { consumeLastCapturedError } from "./lib/error-capture";
 import { renderErrorPage } from "./lib/error-page";
+import { handleStripeWebhook } from "./lib/payments/stripe-webhook.server";
 
 type ServerEntry = {
   fetch: (request: Request, env: unknown, ctx: unknown) => Promise<Response> | Response;
@@ -39,6 +40,19 @@ async function normalizeCatastrophicSsrResponse(response: Response): Promise<Res
 
 export default {
   async fetch(request: Request, env: unknown, ctx: unknown) {
+    // Intercepted ahead of the TanStack Start handler: Stripe calls this
+    // directly (not through our own app), and needs the raw, untouched
+    // request body for signature verification.
+    const url = new URL(request.url);
+    if (request.method === "POST" && url.pathname === "/webhooks/stripe") {
+      try {
+        return await handleStripeWebhook(request);
+      } catch (error) {
+        console.error("[stripe-webhook] Unhandled error:", error);
+        return new Response("Webhook handler error", { status: 500 });
+      }
+    }
+
     try {
       const handler = await getServerEntry();
       const response = await handler.fetch(request, env, ctx);

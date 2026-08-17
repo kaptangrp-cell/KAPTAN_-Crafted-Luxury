@@ -15,10 +15,11 @@ const CreateCheckoutSessionSchema = z.object({
  * Requires STRIPE_SECRET_KEY to be set — throws a friendly error otherwise
  * so the checkout UI can fall back to COD/Bank Transfer.
  *
- * NOTE: this only starts the payment. To mark orders as paid automatically
- * you still need a Stripe webhook (checkout.session.completed) that updates
- * `orders.payment_status` — see the TODO in stripe.server.ts / README before
- * going live.
+ * NOTE: this only starts the payment. The order is marked paid separately,
+ * once Stripe confirms the payment actually succeeded — see the
+ * checkout.session.completed handler wired in from src/server.ts
+ * (src/lib/payments/stripe-webhook.server.ts). Requires STRIPE_WEBHOOK_SECRET
+ * to be set from a webhook endpoint registered at POST /webhooks/stripe.
  */
 export const createStripeCheckoutSession = createServerFn({ method: "POST" })
   .inputValidator((input: unknown) => CreateCheckoutSessionSchema.parse(input))

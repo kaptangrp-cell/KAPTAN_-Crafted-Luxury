@@ -194,7 +194,7 @@ function CheckoutPage() {
     state: "",
     postal_code: "",
     country: "DE",
-    payment_method: "cod" as "cod" | "bank_transfer" | "card" | "paypal",
+    payment_method: "card" as "cod" | "bank_transfer" | "card" | "paypal",
     notes: "",
   });
 
@@ -347,13 +347,6 @@ function CheckoutPage() {
                       ? "Pay with your PayPal balance, card, or bank account."
                       : "Coming soon — pay with your PayPal account.",
                     disabled: !PAYPAL_ENABLED,
-                  },
-                  { v: "cod", label: "Cash on Delivery", desc: "Pay when your order arrives.", disabled: false },
-                  {
-                    v: "bank_transfer",
-                    label: "Bank Transfer",
-                    desc: "Manual transfer; we'll email instructions.",
-                    disabled: false,
                   },
                 ].map((opt) => (
                   <label

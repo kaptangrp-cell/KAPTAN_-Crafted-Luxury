@@ -106,7 +106,7 @@ export function CartDrawer() {
 
               <p className="mt-3 flex items-center justify-center gap-1.5 text-[11px] text-white/40">
                 <Lock size={12} className="text-gold" />
-                Secure checkout · Card, PayPal, COD & bank transfer
+                Secure checkout · Card & PayPal
               </p>
             </div>
           </>
