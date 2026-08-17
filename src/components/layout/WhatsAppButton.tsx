@@ -21,7 +21,7 @@ export function WhatsAppButton() {
       rel="noopener noreferrer"
       aria-label={t("whatsapp.label", "Chat with us on WhatsApp")}
       title={t("whatsapp.label", "Chat with us on WhatsApp")}
-      className="fixed bottom-5 right-5 z-40 flex h-14 w-14 items-center justify-center rounded-full bg-[#25D366] text-white shadow-lg shadow-black/40 transition-transform hover:scale-105 focus-visible:outline focus-visible:outline-2 focus-visible:outline-gold"
+      className="fixed bottom-5 right-5 z-40 flex h-14 w-14 items-center justify-center rounded-full bg-gold text-black shadow-lg shadow-black/40 transition-transform hover:scale-105 hover:bg-gold-vivid focus-visible:outline focus-visible:outline-2 focus-visible:outline-gold"
     >
       <WhatsAppIcon />
     </a>
