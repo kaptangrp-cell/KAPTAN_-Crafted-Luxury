@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { toast } from "sonner";
+import { useTranslation } from "react-i18next";
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable";
 import { PageLayout } from "@/components/layout/PageLayout";
@@ -11,6 +12,7 @@ export const Route = createFileRoute("/auth")({
 });
 
 function AuthPage() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [mode, setMode] = useState<"signin" | "signup" | "forgot">("signin");
   const [email, setEmail] = useState("");
@@ -37,7 +39,7 @@ function AuthPage() {
 
         if (error) throw error;
 
-        toast.success("Account created. Please check your email to confirm.");
+        toast.success(t("auth.accountCreatedToast"));
         setMode("signin");
       }
 
@@ -49,7 +51,7 @@ function AuthPage() {
 
         if (error) throw error;
 
-        toast.success("Welcome back!");
+        toast.success(t("auth.welcomeBackToast"));
         navigate({ to: "/" });
       }
 
@@ -60,10 +62,10 @@ function AuthPage() {
 
         if (error) throw error;
 
-        toast.success("Password reset link sent. Please check your email.");
+        toast.success(t("auth.resetLinkSentToast"));
       }
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Authentication failed");
+      toast.error(err instanceof Error ? err.message : t("auth.authFailedToast"));
     } finally {
       setLoading(false);
     }
@@ -77,7 +79,7 @@ function AuthPage() {
     });
 
     if (result.error) {
-      toast.error("Google sign-in failed");
+      toast.error(t("auth.googleSignInFailedToast"));
       setLoading(false);
       return;
     }
@@ -95,26 +97,26 @@ function AuthPage() {
         </Link>
 
         <h1 className="mt-6 font-serif text-3xl font-semibold text-white">
-          {mode === "signin" && "Welcome Back"}
-          {mode === "signup" && "Create Account"}
-          {mode === "forgot" && "Recover Account"}
+          {mode === "signin" && t("auth.welcomeBack")}
+          {mode === "signup" && t("auth.createAccount")}
+          {mode === "forgot" && t("auth.recoverAccount")}
         </h1>
 
         <p className="mt-2 text-sm text-white/60">
-          {mode === "signin" && "Sign in to continue your journey."}
-          {mode === "signup" && "Join the KAPTAN family."}
-          {mode === "forgot" && "Enter your email to reset your password."}
+          {mode === "signin" && t("auth.signinSubtitle")}
+          {mode === "signup" && t("auth.signupSubtitle")}
+          {mode === "forgot" && t("auth.forgotSubtitle")}
         </p>
 
         <form onSubmit={handleSubmit} className="mt-8 w-full space-y-4">
           {mode === "signup" && (
-            <Field label="Full Name" value={fullName} onChange={setFullName} required />
+            <Field label={t("auth.fullNameLabel")} value={fullName} onChange={setFullName} required />
           )}
 
-          <Field label="Email" type="email" value={email} onChange={setEmail} required />
+          <Field label={t("auth.emailLabel")} type="email" value={email} onChange={setEmail} required />
 
           {mode !== "forgot" && (
-            <Field label="Password" type="password" value={password} onChange={setPassword} required />
+            <Field label={t("auth.passwordLabel")} type="password" value={password} onChange={setPassword} required />
           )}
 
           <button
@@ -122,10 +124,10 @@ function AuthPage() {
             disabled={loading}
             className="w-full bg-gold py-3 text-sm font-bold uppercase tracking-wider text-black transition-colors hover:bg-gold-vivid disabled:opacity-50"
           >
-            {loading && "Please wait..."}
-            {!loading && mode === "signin" && "Sign In"}
-            {!loading && mode === "signup" && "Create Account"}
-            {!loading && mode === "forgot" && "Send Reset Link"}
+            {loading && t("auth.pleaseWait")}
+            {!loading && mode === "signin" && t("auth.signIn")}
+            {!loading && mode === "signup" && t("auth.createAccount")}
+            {!loading && mode === "forgot" && t("auth.sendResetLink")}
           </button>
         </form>
 
@@ -133,7 +135,7 @@ function AuthPage() {
           <>
             <div className="my-6 flex w-full items-center gap-3">
               <div className="h-px flex-1 bg-gold/20" />
-              <span className="text-xs text-gold/50">OR</span>
+              <span className="text-xs text-gold/50">{t("auth.or")}</span>
               <div className="h-px flex-1 bg-gold/20" />
             </div>
 
@@ -142,7 +144,7 @@ function AuthPage() {
               disabled={loading}
               className="flex w-full items-center justify-center gap-3 border border-gold/30 bg-black py-3 text-sm font-semibold text-white transition-colors hover:bg-gold/10 disabled:opacity-50"
             >
-              Continue with Google
+              {t("auth.continueWithGoogle")}
             </button>
           </>
         )}
@@ -150,24 +152,24 @@ function AuthPage() {
         {mode === "signin" && (
           <>
             <button onClick={() => setMode("forgot")} className="mt-5 text-sm text-gold/70 hover:text-gold">
-              Forgot password?
+              {t("auth.forgotPassword")}
             </button>
 
             <button onClick={() => setMode("signup")} className="mt-4 text-sm text-gold/70 hover:text-gold">
-              Need an account? Sign up
+              {t("auth.needAccountSignUp")}
             </button>
           </>
         )}
 
         {mode === "signup" && (
           <button onClick={() => setMode("signin")} className="mt-6 text-sm text-gold/70 hover:text-gold">
-            Already have an account? Sign in
+            {t("auth.alreadyHaveAccountSignIn")}
           </button>
         )}
 
         {mode === "forgot" && (
           <button onClick={() => setMode("signin")} className="mt-6 text-sm text-gold/70 hover:text-gold">
-            Back to sign in
+            {t("auth.backToSignIn")}
           </button>
         )}
       </div>

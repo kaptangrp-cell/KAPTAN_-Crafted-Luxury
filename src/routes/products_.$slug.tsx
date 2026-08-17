@@ -23,6 +23,7 @@ import {
   Flame,
 } from "lucide-react";
 import { toast } from "sonner";
+import { useTranslation } from "react-i18next";
 import {
   getProductBySlug,
   getRelatedProducts,
@@ -39,13 +40,6 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { useCartStore } from "@/stores/cartStore";
 import { useAuthStore } from "@/stores/authStore";
 import { useUIStore } from "@/stores/uiStore";
-
-const CARE_INSTRUCTIONS = [
-  "Wipe clean with a soft, dry cloth after each use to remove dust and surface residue.",
-  "Keep away from direct sunlight, heat sources, and prolonged moisture exposure.",
-  "Apply a quality leather conditioner every 2–3 months to preserve suppleness.",
-  "Store in the provided dust bag when not in use to prevent scratches and dryness.",
-];
 
 function productQueryOptions(slug: string) {
   return queryOptions({
@@ -99,6 +93,7 @@ export const Route = createFileRoute("/products_/$slug")({
 });
 
 function ProductDetailPage() {
+  const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const { slug } = Route.useParams();
   const { data } = useSuspenseQuery(productQueryOptions(slug));
@@ -193,9 +188,11 @@ function ProductDetailPage() {
       added += 1;
     }
 
-    toast.success(`${added} item${added > 1 ? "s" : ""} added to cart`);
+    toast.success(t("pdp.bundleAddedToast", { count: added }));
     openCart();
   }
+
+  const careInstructions = t("pdp.careInstructions", { returnObjects: true }) as string[];
 
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [zoomActive, setZoomActive] = useState(false);
@@ -225,7 +222,7 @@ function ProductDetailPage() {
 
   function openReviewDialog() {
     if (!user) {
-      toast.error("Please sign in to write a review");
+      toast.error(t("pdp.signInToReviewToast"));
       return;
     }
     setReviewDialogOpen(true);
@@ -235,7 +232,7 @@ function ProductDetailPage() {
     e.preventDefault();
 
     if (reviewRating < 1) {
-      toast.error("Please select a star rating");
+      toast.error(t("pdp.selectStarRatingToast"));
       return;
     }
 
@@ -250,7 +247,7 @@ function ProductDetailPage() {
         },
       });
       toast.success(
-        result.isVerified ? "Thanks! Your verified review is live." : "Thanks for your review!",
+        result.isVerified ? t("pdp.reviewVerifiedToast") : t("pdp.reviewThanksToast"),
       );
       setReviewDialogOpen(false);
       setReviewRating(0);
@@ -259,7 +256,7 @@ function ProductDetailPage() {
       qc.invalidateQueries({ queryKey: ["product-reviews", product.id] });
       qc.invalidateQueries({ queryKey: ["product", slug] });
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Could not submit review");
+      toast.error(err instanceof Error ? err.message : t("pdp.reviewSubmitFailedToast"));
     } finally {
       setSubmittingReview(false);
     }
@@ -287,13 +284,13 @@ function ProductDetailPage() {
 
   function handleAdd() {
     addItem(product as never, variant as never, qty, firstImage.url);
-    toast.success(`${product.name} added to cart`);
+    toast.success(t("products.addedToCartToast", { name: product.name }));
     openCart();
   }
 
   async function handleWishlistToggle() {
     if (!user) {
-      toast.error("Please sign in to save wishlist items");
+      toast.error(t("products.signInToWishlistToast"));
       return;
     }
 
@@ -301,10 +298,10 @@ function ProductDetailPage() {
       setWishlistLoading(true);
       const result = await toggleWishlistFn({ data: { productId: product.id } });
       setWishlisted(result.saved);
-      toast.success(result.saved ? "Added to wishlist" : "Removed from wishlist");
+      toast.success(result.saved ? t("products.addedToWishlistToast") : t("products.removedFromWishlistToast"));
       qc.invalidateQueries({ queryKey: ["wishlist"] });
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Wishlist failed");
+      toast.error(err instanceof Error ? err.message : t("products.wishlistFailedToast"));
     } finally {
       setWishlistLoading(false);
     }
@@ -312,7 +309,7 @@ function ProductDetailPage() {
 
   function handleBuyNow() {
     addItem(product as never, variant as never, qty, firstImage.url);
-    toast.success(`${product.name} added to cart`);
+    toast.success(t("products.addedToCartToast", { name: product.name }));
     navigate({ to: "/checkout" });
   }
 
@@ -320,8 +317,8 @@ function ProductDetailPage() {
     <PageLayout>
       <section className="mx-auto max-w-7xl px-4 py-10 md:px-6">
         <nav className="mb-6 text-xs text-white/50">
-          <Link to="/" className="hover:text-gold">Home</Link> /{" "}
-          <Link to="/products" className="hover:text-gold">Shop</Link>
+          <Link to="/" className="hover:text-gold">{t("pdp.breadcrumbHome")}</Link> /{" "}
+          <Link to="/products" className="hover:text-gold">{t("pdp.breadcrumbShop")}</Link>
           {product.categories && (
             <> / <span className="text-gold/70">{product.categories.name}</span></>
           )}
@@ -391,7 +388,7 @@ function ProductDetailPage() {
 
           <div>
             <p className="text-xs uppercase tracking-[0.2em] text-gold/70">
-              {product.categories?.name ?? "KAPTAN Product"}
+              {product.categories?.name ?? t("pdp.defaultCategory")}
             </p>
 
             <h1 className="mt-2 font-serif text-3xl font-semibold text-white md:text-4xl">
@@ -416,8 +413,7 @@ function ProductDetailPage() {
                   ))}
                 </div>
                 <span className="text-xs text-white/50 underline-offset-2 hover:underline">
-                  {reviewSummary.average.toFixed(1)} ({reviewSummary.count}{" "}
-                  {reviewSummary.count === 1 ? "review" : "reviews"})
+                  {reviewSummary.average.toFixed(1)} ({t("pdp.reviewsCount", { count: reviewSummary.count })})
                 </span>
               </a>
             )}
@@ -435,10 +431,12 @@ function ProductDetailPage() {
 
             <p className="mt-2 text-sm">
               {outOfStock ? (
-                <span className="text-red-400">Out of stock</span>
+                <span className="text-red-400">{t("pdp.outOfStock")}</span>
               ) : (
                 <span className="text-green-400">
-                  In stock {product.stock_quantity !== null ? `(${product.stock_quantity} available)` : ""}
+                  {product.stock_quantity !== null
+                    ? t("pdp.inStockWithCount", { count: product.stock_quantity })
+                    : t("pdp.inStock")}
                 </span>
               )}
             </p>
@@ -446,7 +444,7 @@ function ProductDetailPage() {
             {soldLast30Days > 0 && (
               <p className="mt-1.5 flex items-center gap-1.5 text-xs text-gold/80">
                 <Flame size={13} />
-                {soldLast30Days} sold in the last 30 days
+                {t("pdp.soldRecently", { count: soldLast30Days })}
               </p>
             )}
 
@@ -477,7 +475,7 @@ function ProductDetailPage() {
 
             <div className="mt-6">
               <h3 className="mb-2 text-xs uppercase tracking-wider text-gold/70">
-                Number of units
+                {t("pdp.numberOfUnits")}
               </h3>
 
               <div className="flex w-fit items-center border border-gold/30">
@@ -500,7 +498,7 @@ function ProductDetailPage() {
                 </button>
               </div>
               {qty >= maxQty && maxQty > 0 && (
-                <p className="mt-1 text-xs text-gold-dark/70">Maximum available stock reached.</p>
+                <p className="mt-1 text-xs text-gold-dark/70">{t("pdp.maxStockReached")}</p>
               )}
             </div>
 
@@ -511,7 +509,7 @@ function ProductDetailPage() {
                 className="flex items-center justify-center gap-2 border border-gold bg-transparent py-3 text-sm font-bold uppercase tracking-wider text-gold transition-colors hover:bg-gold hover:text-black disabled:opacity-50"
               >
                 <ShoppingBag size={16} />
-                Add to Cart
+                {t("products.addToCart")}
               </button>
 
               <button
@@ -520,7 +518,7 @@ function ProductDetailPage() {
                 className="flex items-center justify-center gap-2 bg-gold py-3 text-sm font-bold uppercase tracking-wider text-black transition-colors hover:bg-gold-vivid disabled:opacity-50"
               >
                 <CreditCard size={16} />
-                Buy Now / Checkout
+                {t("pdp.buyNow")}
               </button>
             </div>
 
@@ -530,24 +528,24 @@ function ProductDetailPage() {
               className="mt-3 flex items-center gap-2 text-sm text-gold/80 hover:text-gold disabled:opacity-50"
             >
               <Heart size={16} className={wishlisted ? "fill-gold text-gold" : ""} />
-              {wishlisted ? "Saved to wishlist" : "Save for later"}
+              {wishlisted ? t("pdp.savedToWishlist") : t("pdp.saveForLater")}
             </button>
 
             <div className="mt-8 grid grid-cols-3 gap-3 border-y border-gold/10 py-4 text-xs">
               <div className="flex flex-col items-center gap-1 text-center text-white/70">
-                <ShieldCheck size={20} className="text-gold" />Authentic
+                <ShieldCheck size={20} className="text-gold" />{t("pdp.authentic")}
               </div>
               <div className="flex flex-col items-center gap-1 text-center text-white/70">
-                <Truck size={20} className="text-gold" />Fast Shipping
+                <Truck size={20} className="text-gold" />{t("pdp.fastShipping")}
               </div>
               <div className="flex flex-col items-center gap-1 text-center text-white/70">
-                <Leaf size={20} className="text-gold" />Handcrafted
+                <Leaf size={20} className="text-gold" />{t("pdp.handcrafted")}
               </div>
             </div>
 
             {product.full_description && (
               <div className="mt-8">
-                <h3 className="mb-2 font-serif text-lg text-white">Description & Details</h3>
+                <h3 className="mb-2 font-serif text-lg text-white">{t("pdp.descriptionDetails")}</h3>
                 <p className="whitespace-pre-line text-sm leading-relaxed text-white/70">
                   {product.full_description}
                 </p>
@@ -557,10 +555,10 @@ function ProductDetailPage() {
             <div className="mt-8 border border-gold/15 bg-[#1A1A1A] p-4">
               <h3 className="flex items-center gap-2 font-serif text-lg text-white">
                 <Sparkles size={16} className="text-gold" />
-                Care Instructions
+                {t("pdp.careInstructionsTitle")}
               </h3>
               <ul className="mt-3 space-y-2 text-sm leading-relaxed text-white/60">
-                {CARE_INSTRUCTIONS.map((line) => (
+                {careInstructions.map((line) => (
                   <li key={line} className="flex gap-2">
                     <span className="text-gold">•</span>
                     <span>{line}</span>
@@ -570,9 +568,9 @@ function ProductDetailPage() {
             </div>
 
             <div className="mt-8 border border-gold/15 bg-[#1A1A1A] p-4">
-              <h3 className="font-serif text-lg text-white">Payment Methods</h3>
+              <h3 className="font-serif text-lg text-white">{t("pdp.paymentMethodsTitle")}</h3>
               <p className="mt-2 text-sm text-white/60">
-                Cash on Delivery, Bank Transfer, Card, and PayPal are available at checkout.
+                {t("pdp.paymentMethodsBody")}
               </p>
             </div>
           </div>
@@ -581,7 +579,7 @@ function ProductDetailPage() {
         {frequentlyBoughtWith.length > 0 && (
           <div className="mt-16 border-t border-gold/10 pt-12">
             <h2 className="mb-6 font-serif text-2xl font-bold text-white">
-              Frequently Bought Together
+              {t("pdp.frequentlyBoughtTogether")}
             </h2>
 
             <div className="flex flex-col gap-6 md:flex-row md:items-center">
@@ -590,7 +588,7 @@ function ProductDetailPage() {
                   <div className="h-20 w-20 overflow-hidden border border-gold/30 bg-[#1A1A1A]">
                     <img src={firstImage.url} alt={product.name} className="h-full w-full object-cover" />
                   </div>
-                  <p className="max-w-[90px] text-center text-xs text-white/70">This item</p>
+                  <p className="max-w-[90px] text-center text-xs text-white/70">{t("pdp.thisItem")}</p>
                 </div>
 
                 {frequentlyBoughtWith.map((companion) => {
@@ -632,7 +630,7 @@ function ProductDetailPage() {
               </div>
 
               <div className="border-t border-gold/10 pt-4 md:w-56 md:border-l md:border-t-0 md:pl-6 md:pt-0">
-                <p className="text-xs uppercase tracking-wider text-gold/70">Bundle Total</p>
+                <p className="text-xs uppercase tracking-wider text-gold/70">{t("pdp.bundleTotal")}</p>
                 <Price
                   amount={
                     finalPrice +
@@ -646,7 +644,7 @@ function ProductDetailPage() {
                   onClick={handleAddBundleToCart}
                   className="mt-3 w-full bg-gold py-2.5 text-sm font-bold uppercase tracking-wider text-black transition-colors hover:bg-gold-vivid"
                 >
-                  Add Bundle to Cart
+                  {t("pdp.addBundleToCart")}
                 </button>
               </div>
             </div>
@@ -656,7 +654,7 @@ function ProductDetailPage() {
         <div id="reviews" className="mt-16 scroll-mt-24 border-t border-gold/10 pt-12">
           <div className="flex flex-col gap-8 md:flex-row md:gap-12">
             <div className="md:w-72 md:flex-shrink-0">
-              <h2 className="font-serif text-2xl font-bold text-white">Customer Reviews</h2>
+              <h2 className="font-serif text-2xl font-bold text-white">{t("pdp.customerReviews")}</h2>
 
               <div className="mt-4 flex items-end gap-3">
                 <span className="font-serif text-5xl font-bold text-gold">
@@ -675,7 +673,7 @@ function ProductDetailPage() {
                     ))}
                   </div>
                   <p className="mt-1 text-xs text-white/50">
-                    Based on {reviewSummary.count} {reviewSummary.count === 1 ? "review" : "reviews"}
+                    {t("pdp.basedOnReviews", { count: reviewSummary.count })}
                   </p>
                 </div>
               </div>
@@ -686,7 +684,7 @@ function ProductDetailPage() {
                   const pct = reviewSummary.count ? (starCount / reviewSummary.count) * 100 : 0;
                   return (
                     <div key={star} className="flex items-center gap-2 text-xs text-white/60">
-                      <span className="w-8">{star} star</span>
+                      <span className="w-8">{t("pdp.starLabel", { count: star })}</span>
                       <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-white/10">
                         <div className="h-full bg-gold" style={{ width: `${pct}%` }} />
                       </div>
@@ -701,15 +699,15 @@ function ProductDetailPage() {
                 className="mt-6 flex w-full items-center justify-center gap-2 border border-gold px-4 py-2.5 text-sm font-semibold text-gold transition-colors hover:bg-gold hover:text-black"
               >
                 <PenLine size={16} />
-                Write a Review
+                {t("pdp.writeAReview")}
               </button>
             </div>
 
             <div className="flex-1 space-y-6">
               {reviews.length === 0 ? (
                 <div className="flex min-h-[200px] flex-col items-center justify-center border border-dashed border-gold/20 bg-[#1A1A1A] px-6 text-center">
-                  <p className="text-white/60">No reviews yet.</p>
-                  <p className="mt-1 text-sm text-white/40">Be the first to share your experience.</p>
+                  <p className="text-white/60">{t("pdp.noReviewsYet")}</p>
+                  <p className="mt-1 text-sm text-white/40">{t("pdp.beFirstReview")}</p>
                 </div>
               ) : (
                 reviews.map((r) => (
@@ -727,7 +725,7 @@ function ProductDetailPage() {
                       {r.isVerified && (
                         <span className="flex items-center gap-1 text-[11px] font-semibold uppercase tracking-wider text-gold">
                           <BadgeCheck size={13} />
-                          Verified Purchase
+                          {t("pdp.verifiedPurchase")}
                         </span>
                       )}
                     </div>
@@ -742,11 +740,10 @@ function ProductDetailPage() {
 
                     <p className="mt-2 text-xs text-white/40">
                       {r.reviewerName} ·{" "}
-                      {new Date(r.createdAt ?? "").toLocaleDateString("en-GB", {
-                        year: "numeric",
-                        month: "short",
-                        day: "numeric",
-                      })}
+                      {new Date(r.createdAt ?? "").toLocaleDateString(
+                        i18n.language === "de" ? "de-DE" : "en-GB",
+                        { year: "numeric", month: "short", day: "numeric" },
+                      )}
                     </p>
                   </div>
                 ))
@@ -759,7 +756,7 @@ function ProductDetailPage() {
           <div className="mt-16">
             <div className="mb-8 text-center">
               <h2 className="font-serif text-2xl font-bold text-white md:text-3xl">
-                You May Also Like
+                {t("pdp.youMayAlsoLike")}
               </h2>
               <div className="mx-auto mt-3 h-0.5 w-12 bg-gold" />
             </div>
@@ -774,7 +771,7 @@ function ProductDetailPage() {
 
         {recentlyViewedProducts.length > 0 && (
           <div className="mt-16 border-t border-gold/10 pt-12">
-            <h2 className="mb-8 font-serif text-xl font-semibold text-white">Recently Viewed</h2>
+            <h2 className="mb-8 font-serif text-xl font-semibold text-white">{t("pdp.recentlyViewed")}</h2>
 
             <div className="grid grid-cols-2 gap-6 sm:grid-cols-3 lg:grid-cols-4">
               {recentlyViewedProducts.map((p) => (
@@ -788,13 +785,13 @@ function ProductDetailPage() {
       <Dialog open={reviewDialogOpen} onOpenChange={setReviewDialogOpen}>
         <DialogContent className="border border-gold/20 bg-[#1A1A1A] text-white sm:max-w-md">
           <DialogHeader>
-            <DialogTitle className="font-serif text-xl text-white">Write a Review</DialogTitle>
+            <DialogTitle className="font-serif text-xl text-white">{t("pdp.writeAReview")}</DialogTitle>
           </DialogHeader>
 
           <form onSubmit={handleSubmitReview} className="space-y-4">
             <div>
               <span className="mb-2 block text-xs uppercase tracking-wider text-gold/70">
-                Your Rating
+                {t("pdp.yourRating")}
               </span>
               <div className="flex gap-1">
                 {Array.from({ length: 5 }).map((_, i) => {
@@ -804,7 +801,7 @@ function ProductDetailPage() {
                       type="button"
                       key={value}
                       onClick={() => setReviewRating(value)}
-                      aria-label={`${value} star${value > 1 ? "s" : ""}`}
+                      aria-label={t("pdp.starLabel", { count: value })}
                       className="p-1"
                     >
                       <Star
@@ -819,27 +816,27 @@ function ProductDetailPage() {
 
             <label className="block">
               <span className="mb-1 block text-xs uppercase tracking-wider text-gold/70">
-                Title (optional)
+                {t("pdp.titleOptional")}
               </span>
               <input
                 value={reviewTitle}
                 onChange={(e) => setReviewTitle(e.target.value)}
                 maxLength={120}
-                placeholder="Sum up your experience"
+                placeholder={t("pdp.titlePlaceholder")}
                 className="w-full border border-gold/20 bg-black px-3 py-2 text-sm text-white outline-none focus:border-gold"
               />
             </label>
 
             <label className="block">
               <span className="mb-1 block text-xs uppercase tracking-wider text-gold/70">
-                Review (optional)
+                {t("pdp.reviewOptional")}
               </span>
               <textarea
                 value={reviewBody}
                 onChange={(e) => setReviewBody(e.target.value)}
                 maxLength={2000}
                 rows={4}
-                placeholder="What did you like or dislike? How did you use it?"
+                placeholder={t("pdp.reviewPlaceholder")}
                 className="w-full border border-gold/20 bg-black p-3 text-sm text-white outline-none focus:border-gold"
               />
             </label>
@@ -849,7 +846,7 @@ function ProductDetailPage() {
               disabled={submittingReview}
               className="w-full bg-gold py-3 text-sm font-bold uppercase tracking-wider text-black transition-colors hover:bg-gold-vivid disabled:opacity-50"
             >
-              {submittingReview ? "Submitting..." : "Submit Review"}
+              {submittingReview ? t("pdp.submitting") : t("pdp.submitReview")}
             </button>
           </form>
         </DialogContent>
@@ -862,7 +859,7 @@ function ProductDetailPage() {
         >
           <button
             onClick={() => setLightboxOpen(false)}
-            aria-label="Close"
+            aria-label={t("pdp.closeAriaLabel")}
             className="absolute right-4 top-4 flex h-10 w-10 items-center justify-center rounded-full border border-gold/40 text-gold hover:bg-gold hover:text-black"
           >
             <X size={20} />
@@ -875,7 +872,7 @@ function ProductDetailPage() {
                   e.stopPropagation();
                   setActiveMedia((activeMedia - 1 + media.length) % media.length);
                 }}
-                aria-label="Previous image"
+                aria-label={t("pdp.previousImageAriaLabel")}
                 className="absolute left-4 flex h-10 w-10 items-center justify-center rounded-full border border-gold/40 text-gold hover:bg-gold hover:text-black"
               >
                 <ChevronLeft size={20} />
@@ -885,7 +882,7 @@ function ProductDetailPage() {
                   e.stopPropagation();
                   setActiveMedia((activeMedia + 1) % media.length);
                 }}
-                aria-label="Next image"
+                aria-label={t("pdp.nextImageAriaLabel")}
                 className="absolute right-4 flex h-10 w-10 items-center justify-center rounded-full border border-gold/40 text-gold hover:bg-gold hover:text-black"
               >
                 <ChevronRight size={20} />

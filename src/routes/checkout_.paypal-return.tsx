@@ -3,6 +3,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { CheckCircle2, XCircle, Loader2 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { PageLayout } from "@/components/layout/PageLayout";
 import { capturePaypalCheckoutOrder } from "@/lib/payments.functions";
 
@@ -23,6 +24,7 @@ export const Route = createFileRoute("/checkout_/paypal-return")({
 // self-contained confirmation instead of redirecting into the account-only
 // /orders/$id page.
 function PaypalReturnPage() {
+  const { t } = useTranslation();
   const { orderId, token } = Route.useSearch();
   const captureFn = useServerFn(capturePaypalCheckoutOrder);
   const attempted = useRef(false);
@@ -38,7 +40,7 @@ function PaypalReturnPage() {
     attempted.current = true;
 
     if (!token) {
-      setState({ status: "error", message: "Missing PayPal confirmation token." });
+      setState({ status: "error", message: t("paypalReturn.missingToken") });
       return;
     }
 
@@ -47,10 +49,10 @@ function PaypalReturnPage() {
       .catch((err) =>
         setState({
           status: "error",
-          message: err instanceof Error ? err.message : "Could not confirm your PayPal payment.",
+          message: err instanceof Error ? err.message : t("paypalReturn.confirmFailed"),
         }),
       );
-  }, [orderId, token, captureFn]);
+  }, [orderId, token, captureFn, t]);
 
   return (
     <PageLayout>
@@ -58,9 +60,9 @@ function PaypalReturnPage() {
         {state.status === "confirming" && (
           <>
             <Loader2 size={40} className="animate-spin text-gold" />
-            <h1 className="mt-6 font-serif text-2xl text-white">Confirming your payment…</h1>
+            <h1 className="mt-6 font-serif text-2xl text-white">{t("paypalReturn.confirmingTitle")}</h1>
             <p className="mt-2 text-sm text-white/60">
-              Please don't close this page while we confirm with PayPal.
+              {t("paypalReturn.confirmingBody")}
             </p>
           </>
         )}
@@ -68,23 +70,24 @@ function PaypalReturnPage() {
         {state.status === "success" && (
           <>
             <CheckCircle2 size={48} className="text-gold" />
-            <h1 className="mt-6 font-serif text-3xl text-white">Payment Successful</h1>
+            <h1 className="mt-6 font-serif text-3xl text-white">{t("paypalReturn.successTitle")}</h1>
             <p className="mt-2 text-sm text-white/60">
-              Your order <span className="text-gold">{state.orderNumber}</span> has been placed and
-              paid via PayPal. A confirmation has been sent to your email.
+              {t("paypalReturn.successBodyPrefix")}{" "}
+              <span className="text-gold">{state.orderNumber}</span>{" "}
+              {t("paypalReturn.successBodySuffix")}
             </p>
             <div className="mt-8 flex flex-wrap justify-center gap-3">
               <Link
                 to="/products"
                 className="border border-gold px-5 py-2.5 text-sm font-semibold text-gold hover:bg-gold hover:text-black"
               >
-                Continue Shopping
+                {t("cart.continueShopping")}
               </Link>
               <Link
                 to="/orders"
                 className="bg-gold px-5 py-2.5 text-sm font-bold text-black hover:bg-gold-vivid"
               >
-                View My Orders
+                {t("paypalReturn.viewMyOrders")}
               </Link>
             </div>
           </>
@@ -93,23 +96,23 @@ function PaypalReturnPage() {
         {state.status === "error" && (
           <>
             <XCircle size={48} className="text-red-400" />
-            <h1 className="mt-6 font-serif text-2xl text-white">Payment Not Confirmed</h1>
+            <h1 className="mt-6 font-serif text-2xl text-white">{t("paypalReturn.errorTitle")}</h1>
             <p className="mt-2 text-sm text-white/60">{state.message}</p>
             <p className="mt-1 text-xs text-white/40">
-              If PayPal charged you, contact us with your order reference and we'll sort it out.
+              {t("paypalReturn.errorHint")}
             </p>
             <div className="mt-8 flex flex-wrap justify-center gap-3">
               <Link
                 to="/checkout"
                 className="border border-gold px-5 py-2.5 text-sm font-semibold text-gold hover:bg-gold hover:text-black"
               >
-                Back to Checkout
+                {t("paypalReturn.backToCheckout")}
               </Link>
               <Link
                 to="/contact"
                 className="bg-gold px-5 py-2.5 text-sm font-bold text-black hover:bg-gold-vivid"
               >
-                Contact Support
+                {t("paypalReturn.contactSupport")}
               </Link>
             </div>
           </>

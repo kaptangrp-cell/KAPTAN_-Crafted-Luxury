@@ -28,6 +28,8 @@ import {
   Cell,
   CartesianGrid,
 } from "recharts";
+import { useTranslation } from "react-i18next";
+import type { TFunction } from "i18next";
 import { getAdminStats, adminGetAnalytics } from "@/lib/admin.functions";
 
 export const Route = createFileRoute("/_authenticated/admin/")({
@@ -35,25 +37,26 @@ export const Route = createFileRoute("/_authenticated/admin/")({
 });
 
 const STATUS_BREAKDOWN = [
-  { key: "ordered", label: "Ordered" },
-  { key: "packaging", label: "Packaging" },
-  { key: "out_for_delivery", label: "Out for Delivery" },
-  { key: "delivered", label: "Delivered" },
-  { key: "cancelled", label: "Cancelled" },
+  { key: "ordered", labelKey: "account.statusOrdered" },
+  { key: "packaging", labelKey: "account.statusPackaging" },
+  { key: "out_for_delivery", labelKey: "account.statusOutForDelivery" },
+  { key: "delivered", labelKey: "account.statusDelivered" },
+  { key: "cancelled", labelKey: "account.statusCancelled" },
 ];
 
 const PERIODS = [
-  { value: "7d", label: "Last 7 Days" },
-  { value: "30d", label: "Last 30 Days" },
-  { value: "90d", label: "Last 90 Days" },
-  { value: "this_month", label: "This Month" },
-  { value: "last_month", label: "Last Month" },
-  { value: "all", label: "All Time" },
+  { value: "7d", labelKey: "admin.periodLast7" },
+  { value: "30d", labelKey: "admin.periodLast30" },
+  { value: "90d", labelKey: "admin.periodLast90" },
+  { value: "this_month", labelKey: "admin.periodThisMonth" },
+  { value: "last_month", labelKey: "admin.periodLastMonth" },
+  { value: "all", labelKey: "admin.periodAllTime" },
 ];
 
 const CHART_COLORS = ["#FFEB00", "#38BDF8", "#22C55E", "#F97316", "#EF4444"];
 
 function AdminDashboard() {
+  const { t } = useTranslation();
   const statsFn = useServerFn(getAdminStats);
   const analyticsFn = useServerFn(adminGetAnalytics);
 
@@ -78,37 +81,37 @@ function AdminDashboard() {
       }),
   });
 
-  if (isLoading) return <p className="text-white/60">Loading...</p>;
+  if (isLoading) return <p className="text-white/60">{t("admin.loading")}</p>;
   if (!data) return null;
 
   const stats = [
-    { label: "Revenue", value: `€${data.revenue.toFixed(2)}`, icon: TrendingUp },
-    { label: "Orders", value: data.orderCount, icon: ShoppingCart },
-    { label: "Products", value: data.productCount, icon: Package },
-    { label: "Customers", value: data.customerCount, icon: Users },
+    { label: t("admin.revenue"), value: `€${data.revenue.toFixed(2)}`, icon: TrendingUp },
+    { label: t("admin.statOrders"), value: data.orderCount, icon: ShoppingCart },
+    { label: t("admin.statProducts"), value: data.productCount, icon: Package },
+    { label: t("admin.statCustomers"), value: data.customerCount, icon: Users },
   ];
 
   const todayStats = [
-    { label: "Today's Sales", value: `€${data.todaysSales.toFixed(2)}`, icon: TrendingUp, alert: false },
-    { label: "Orders", value: data.todaysOrderCount, icon: ShoppingCart, alert: false },
-    { label: "Customers", value: data.todaysNewCustomers, icon: Users, alert: false },
-    { label: "Products Sold", value: data.todaysProductsSold, icon: Boxes, alert: false },
-    { label: "Low Stock", value: data.lowStockCount, icon: AlertTriangle, alert: data.lowStockCount > 0 },
-    { label: "Pending Orders", value: data.pendingOrdersCount, icon: Clock, alert: data.pendingOrdersCount > 0 },
+    { label: t("admin.todaysSales"), value: `€${data.todaysSales.toFixed(2)}`, icon: TrendingUp, alert: false },
+    { label: t("admin.statOrders"), value: data.todaysOrderCount, icon: ShoppingCart, alert: false },
+    { label: t("admin.statCustomers"), value: data.todaysNewCustomers, icon: Users, alert: false },
+    { label: t("admin.productsSold"), value: data.todaysProductsSold, icon: Boxes, alert: false },
+    { label: t("products.lowStock"), value: data.lowStockCount, icon: AlertTriangle, alert: data.lowStockCount > 0 },
+    { label: t("admin.pendingOrders"), value: data.pendingOrdersCount, icon: Clock, alert: data.pendingOrdersCount > 0 },
   ];
 
   const statusChartData = STATUS_BREAKDOWN.map((s) => ({
-    name: s.label,
+    name: t(s.labelKey),
     value: data.statusCounts[s.key] ?? 0,
   })).filter((s) => s.value > 0);
 
   return (
     <div className="space-y-6">
-      <h1 className="font-serif text-3xl text-white">Dashboard</h1>
+      <h1 className="font-serif text-3xl text-white">{t("admin.dashboardTitle")}</h1>
 
       <div>
         <h2 className="mb-3 text-xs font-semibold uppercase tracking-wider text-white/50">
-          Today
+          {t("admin.today")}
         </h2>
         <div className="grid gap-4 sm:grid-cols-3 lg:grid-cols-6">
           {todayStats.map((s) => (
@@ -143,24 +146,24 @@ function AdminDashboard() {
       </div>
 
       <div className="border border-gold/15 bg-[#1A1A1A] p-4">
-        <h2 className="font-serif text-lg text-white">Analytics Filters</h2>
+        <h2 className="font-serif text-lg text-white">{t("admin.analyticsFiltersTitle")}</h2>
 
         <div className="mt-4 grid gap-3 md:grid-cols-3">
-          <Select label="Time Period" value={period} onChange={setPeriod}>
+          <Select label={t("admin.timePeriod")} value={period} onChange={setPeriod}>
             {PERIODS.map((p) => (
-              <option key={p.value} value={p.value}>{p.label}</option>
+              <option key={p.value} value={p.value}>{t(p.labelKey)}</option>
             ))}
           </Select>
 
-          <Select label="Order Status" value={status} onChange={setStatus}>
-            <option value="all">All Statuses</option>
+          <Select label={t("admin.orderStatus")} value={status} onChange={setStatus}>
+            <option value="all">{t("admin.allStatuses")}</option>
             {STATUS_BREAKDOWN.map((s) => (
-              <option key={s.key} value={s.key}>{s.label}</option>
+              <option key={s.key} value={s.key}>{t(s.labelKey)}</option>
             ))}
           </Select>
 
-          <Select label="Product" value={productName} onChange={setProductName}>
-            <option value="all">All Products</option>
+          <Select label={t("admin.product")} value={productName} onChange={setProductName}>
+            <option value="all">{t("products.allProducts")}</option>
             {(analytics?.productNames ?? []).map((p) => (
               <option key={p} value={p}>{p}</option>
             ))}
@@ -168,39 +171,39 @@ function AdminDashboard() {
         </div>
 
         <div className="mt-5 grid gap-4 md:grid-cols-3">
-          <MiniStat label="Filtered Revenue" value={`€${Number(analytics?.totalRevenue ?? 0).toFixed(2)}`} icon={TrendingUp} />
-          <MiniStat label="Filtered Orders" value={String(analytics?.totalOrders ?? 0)} icon={ShoppingCart} />
-          <MiniStat label="Average Order Value" value={`€${Number(analytics?.averageOrderValue ?? 0).toFixed(2)}`} icon={Wallet} />
+          <MiniStat label={t("admin.filteredRevenue")} value={`€${Number(analytics?.totalRevenue ?? 0).toFixed(2)}`} icon={TrendingUp} />
+          <MiniStat label={t("admin.filteredOrders")} value={String(analytics?.totalOrders ?? 0)} icon={ShoppingCart} />
+          <MiniStat label={t("admin.averageOrderValue")} value={`€${Number(analytics?.averageOrderValue ?? 0).toFixed(2)}`} icon={Wallet} />
         </div>
 
         <div className="mt-4 grid gap-4 md:grid-cols-3">
           <MiniStat
-            label="Conversion Rate"
+            label={t("admin.conversionRate")}
             value={
               analytics && analytics.totalVisits > 0
                 ? `${(Number(analytics.conversionRate ?? 0) * 100).toFixed(2)}%`
-                : "No visit data yet"
+                : t("admin.noVisitData")
             }
-            hint={analytics && analytics.totalVisits > 0 ? `${analytics.totalVisits} visits tracked` : undefined}
+            hint={analytics && analytics.totalVisits > 0 ? t("admin.visitsTracked", { count: analytics.totalVisits }) : undefined}
             icon={MousePointerClick}
           />
           <MiniStat
-            label="Returning Customers"
+            label={t("admin.returningCustomers")}
             value={
               analytics
                 ? `${analytics.returningCustomers} (${(Number(analytics.returningCustomerRate ?? 0) * 100).toFixed(0)}%)`
                 : "—"
             }
-            hint={analytics ? `of ${analytics.totalCustomers} customers` : undefined}
+            hint={analytics ? t("admin.ofCustomers", { count: analytics.totalCustomers }) : undefined}
             icon={Repeat}
           />
           <MiniStat
-            label="Profit"
+            label={t("admin.profit")}
             value={analytics ? `€${Number(analytics.profit ?? 0).toFixed(2)}` : "—"}
             hint={
               analytics && analytics.itemsMissingCost > 0
-                ? `${analytics.itemsMissingCost} line items missing cost price`
-                : "Based on product cost price"
+                ? t("admin.missingCostPrice", { count: analytics.itemsMissingCost })
+                : t("admin.basedOnCostPrice")
             }
             icon={Wallet}
           />
@@ -210,16 +213,16 @@ function AdminDashboard() {
       <div className="grid gap-6 lg:grid-cols-[1fr_320px]">
         <div className="border border-gold/15 bg-[#1A1A1A]">
           <div className="border-b border-gold/10 p-4">
-            <h2 className="font-serif text-lg text-white">Recent Orders</h2>
+            <h2 className="font-serif text-lg text-white">{t("admin.recentOrders")}</h2>
           </div>
 
           <table className="w-full text-sm">
             <thead className="text-left text-xs uppercase tracking-wider text-white/50">
               <tr>
-                <th className="p-3">Order</th>
-                <th className="p-3">Customer</th>
-                <th className="p-3">Status</th>
-                <th className="p-3 text-right">Total</th>
+                <th className="p-3">{t("admin.orderCol")}</th>
+                <th className="p-3">{t("admin.customerCol")}</th>
+                <th className="p-3">{t("admin.statusCol")}</th>
+                <th className="p-3 text-right">{t("admin.totalCol")}</th>
               </tr>
             </thead>
 
@@ -232,7 +235,7 @@ function AdminDashboard() {
                     </Link>
                   </td>
                   <td className="p-3 text-white/80">{o.customer_name}</td>
-                  <td className="p-3 text-xs text-white/60">{statusLabel(o.status)}</td>
+                  <td className="p-3 text-xs text-white/60">{statusLabel(o.status, t)}</td>
                   <td className="p-3 text-right font-mono text-white">€{Number(o.total).toFixed(2)}</td>
                 </tr>
               ))}
@@ -240,7 +243,7 @@ function AdminDashboard() {
               {!data.recentOrders.length && (
                 <tr>
                   <td colSpan={4} className="p-6 text-center text-white/50">
-                    No orders yet.
+                    {t("admin.noOrdersYet")}
                   </td>
                 </tr>
               )}
@@ -249,12 +252,12 @@ function AdminDashboard() {
         </div>
 
         <div className="border border-gold/15 bg-[#1A1A1A] p-4">
-          <h2 className="font-serif text-lg text-white">Status Breakdown</h2>
+          <h2 className="font-serif text-lg text-white">{t("admin.statusBreakdown")}</h2>
 
           <ul className="mt-4 space-y-2 text-sm">
             {STATUS_BREAKDOWN.map((s) => (
               <li key={s.key} className="flex justify-between text-white/70">
-                <span>{s.label}</span>
+                <span>{t(s.labelKey)}</span>
                 <span className="font-mono text-gold">{data.statusCounts[s.key] ?? 0}</span>
               </li>
             ))}
@@ -279,16 +282,16 @@ function AdminDashboard() {
                 </PieChart>
               </ResponsiveContainer>
             ) : (
-              <p className="text-center text-sm text-white/50">No status data yet.</p>
+              <p className="text-center text-sm text-white/50">{t("admin.noStatusData")}</p>
             )}
           </div>
         </div>
       </div>
 
       <div className="grid gap-6 lg:grid-cols-2">
-        <ChartBox title="Sales by Day">
+        <ChartBox title={t("admin.salesByDay")}>
           {analyticsLoading ? (
-            <p className="text-white/50">Loading chart...</p>
+            <p className="text-white/50">{t("admin.loadingChart")}</p>
           ) : analytics?.salesByDay?.length ? (
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={analytics.salesByDay}>
@@ -302,18 +305,18 @@ function AdminDashboard() {
                     color: "#fff",
                   }}
                 />
-                <Line type="monotone" dataKey="revenue" stroke="#FFEB00" strokeWidth={3} name="Revenue €" />
-                <Line type="monotone" dataKey="orders" stroke="#38BDF8" strokeWidth={2} name="Orders" />
+                <Line type="monotone" dataKey="revenue" stroke="#FFEB00" strokeWidth={3} name={t("admin.revenueEurLegend")} />
+                <Line type="monotone" dataKey="orders" stroke="#38BDF8" strokeWidth={2} name={t("admin.ordersLegend")} />
               </LineChart>
             </ResponsiveContainer>
           ) : (
-            <p className="text-white/50">No sales data for this filter.</p>
+            <p className="text-white/50">{t("admin.noSalesData")}</p>
           )}
         </ChartBox>
 
-        <ChartBox title="Best Selling Products">
+        <ChartBox title={t("admin.bestSellingProducts")}>
           {analyticsLoading ? (
-            <p className="text-white/50">Loading chart...</p>
+            <p className="text-white/50">{t("admin.loadingChart")}</p>
           ) : analytics?.bestProducts?.length ? (
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={analytics.bestProducts}>
@@ -327,24 +330,24 @@ function AdminDashboard() {
                     color: "#fff",
                   }}
                 />
-                <Bar dataKey="quantity" fill="#FFEB00" name="Units Sold" />
-                <Bar dataKey="revenue" fill="#38BDF8" name="Revenue €" />
+                <Bar dataKey="quantity" fill="#FFEB00" name={t("admin.unitsSoldLegend")} />
+                <Bar dataKey="revenue" fill="#38BDF8" name={t("admin.revenueEurLegend")} />
               </BarChart>
             </ResponsiveContainer>
           ) : (
-            <p className="text-white/50">No product sales for this filter.</p>
+            <p className="text-white/50">{t("admin.noProductSales")}</p>
           )}
         </ChartBox>
       </div>
 
-      <ChartBox title="Revenue by Delivery Status">
+      <ChartBox title={t("admin.revenueByDeliveryStatus")}>
         {analyticsLoading ? (
-          <p className="text-white/50">Loading chart...</p>
+          <p className="text-white/50">{t("admin.loadingChart")}</p>
         ) : analytics?.revenueByStatus?.length ? (
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={analytics.revenueByStatus}>
               <CartesianGrid stroke="rgba(255,255,255,0.08)" />
-              <XAxis dataKey="status" stroke="#CFCFCF" fontSize={11} tickFormatter={statusLabel} />
+              <XAxis dataKey="status" stroke="#CFCFCF" fontSize={11} tickFormatter={(s: string) => statusLabel(s, t)} />
               <YAxis stroke="#CFCFCF" fontSize={11} />
               <Tooltip
                 contentStyle={{
@@ -352,14 +355,14 @@ function AdminDashboard() {
                   border: "1px solid rgba(255,235,0,0.3)",
                   color: "#fff",
                 }}
-                labelFormatter={statusLabel}
+                labelFormatter={(s: string) => statusLabel(s, t)}
               />
-              <Bar dataKey="revenue" fill="#22C55E" name="Revenue €" />
-              <Bar dataKey="orders" fill="#F97316" name="Orders" />
+              <Bar dataKey="revenue" fill="#22C55E" name={t("admin.revenueEurLegend")} />
+              <Bar dataKey="orders" fill="#F97316" name={t("admin.ordersLegend")} />
             </BarChart>
           </ResponsiveContainer>
         ) : (
-          <p className="text-white/50">No revenue data for this filter.</p>
+          <p className="text-white/50">{t("admin.noRevenueData")}</p>
         )}
       </ChartBox>
     </div>
@@ -423,25 +426,25 @@ function ChartBox({ title, children }: { title: string; children: React.ReactNod
   );
 }
 
-function statusLabel(status: string | null) {
+function statusLabel(status: string | null, t: TFunction) {
   switch (status) {
     case "ordered":
-      return "Ordered";
+      return t("account.statusOrdered");
     case "packaging":
-      return "Packaging";
+      return t("account.statusPackaging");
     case "out_for_delivery":
-      return "Out for Delivery";
+      return t("account.statusOutForDelivery");
     case "delivered":
-      return "Delivered";
+      return t("account.statusDelivered");
     case "cancelled":
-      return "Cancelled";
+      return t("account.statusCancelled");
     case "pending":
-      return "Ordered";
+      return t("account.statusOrdered");
     case "processing":
-      return "Packaging";
+      return t("account.statusPackaging");
     case "shipped":
-      return "Out for Delivery";
+      return t("account.statusOutForDelivery");
     default:
-      return "Ordered";
+      return t("account.statusOrdered");
   }
 }

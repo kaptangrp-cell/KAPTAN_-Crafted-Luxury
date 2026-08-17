@@ -3,6 +3,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Trash2 } from "lucide-react";
 import { toast } from "sonner";
+import { useTranslation } from "react-i18next";
 import { getMyWishlist, removeFromWishlist } from "@/lib/wishlist.functions";
 import { PageLayout } from "@/components/layout/PageLayout";
 import { Price } from "@/components/common/Price";
@@ -13,6 +14,7 @@ export const Route = createFileRoute("/_authenticated/wishlist")({
 });
 
 function WishlistPage() {
+  const { t } = useTranslation();
   const qc = useQueryClient();
   const fetchFn = useServerFn(getMyWishlist);
   const removeFn = useServerFn(removeFromWishlist);
@@ -21,7 +23,7 @@ function WishlistPage() {
   const removeMutation = useMutation({
     mutationFn: (productId: string) => removeFn({ data: { productId } }),
     onSuccess: () => {
-      toast.success("Removed from wishlist");
+      toast.success(t("wishlist.removedToast"));
       qc.invalidateQueries({ queryKey: ["wishlist"] });
     },
   });
@@ -29,20 +31,20 @@ function WishlistPage() {
   return (
     <PageLayout>
       <section className="mx-auto max-w-6xl px-4 py-12 md:px-6">
-        <h1 className="font-serif text-4xl font-semibold text-white">My Wishlist</h1>
+        <h1 className="font-serif text-4xl font-semibold text-white">{t("wishlist.title")}</h1>
         <div className="mt-6 flex flex-wrap gap-4 border-b border-gold/10 pb-4 text-sm">
-          <Link to="/profile" className="text-white/60 hover:text-gold">Profile</Link>
-          <Link to="/orders" className="text-white/60 hover:text-gold">Orders</Link>
-          <Link to="/wishlist" className="text-gold">Wishlist</Link>
+          <Link to="/profile" className="text-white/60 hover:text-gold">{t("account.navProfile")}</Link>
+          <Link to="/orders" className="text-white/60 hover:text-gold">{t("account.navOrders")}</Link>
+          <Link to="/wishlist" className="text-gold">{t("account.navWishlist")}</Link>
         </div>
 
         {isLoading ? (
-          <p className="mt-10 text-white/60">Loading…</p>
+          <p className="mt-10 text-white/60">{t("account.loading")}</p>
         ) : !data?.items.length ? (
           <div className="mt-12 flex flex-col items-center gap-4 border border-dashed border-gold/20 py-16 text-center">
-            <p className="text-white/60">No saved items yet.</p>
+            <p className="text-white/60">{t("wishlist.empty")}</p>
             <Link to="/products" className="border border-gold px-4 py-2 text-sm text-gold hover:bg-gold hover:text-black">
-              Browse Products
+              {t("wishlist.browseProducts")}
             </Link>
           </div>
         ) : (
@@ -65,7 +67,7 @@ function WishlistPage() {
                     <button
                       onClick={() => removeMutation.mutate(p.id)}
                       className="text-white/40 hover:text-red-400"
-                      aria-label="Remove"
+                      aria-label={t("wishlist.removeAriaLabel")}
                     >
                       <Trash2 size={16} />
                     </button>

@@ -4,6 +4,8 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import * as XLSX from "xlsx";
 import { Download } from "lucide-react";
+import { useTranslation } from "react-i18next";
+import type { TFunction } from "i18next";
 import {
   adminListOrders,
   adminUpdateOrderStatus,
@@ -15,14 +17,15 @@ export const Route = createFileRoute("/_authenticated/admin/orders")({
 });
 
 const STATUSES = [
-  { value: "ordered", label: "Ordered" },
-  { value: "packaging", label: "Packaging" },
-  { value: "out_for_delivery", label: "Out for Delivery" },
-  { value: "delivered", label: "Delivered" },
-  { value: "cancelled", label: "Cancelled" },
+  { value: "ordered", labelKey: "account.statusOrdered" },
+  { value: "packaging", labelKey: "account.statusPackaging" },
+  { value: "out_for_delivery", labelKey: "account.statusOutForDelivery" },
+  { value: "delivered", labelKey: "account.statusDelivered" },
+  { value: "cancelled", labelKey: "account.statusCancelled" },
 ] as const;
 
 function AdminOrdersPage() {
+  const { t, i18n } = useTranslation();
   const qc = useQueryClient();
   const listFn = useServerFn(adminListOrders);
   const updateFn = useServerFn(adminUpdateOrderStatus);
@@ -37,7 +40,7 @@ function AdminOrdersPage() {
     mutationFn: ({ id, status }: { id: string; status: string }) =>
       updateFn({ data: { id, status } }),
     onSuccess: () => {
-      toast.success("Delivery status updated");
+      toast.success(t("adminOrders.statusUpdatedToast"));
       qc.invalidateQueries({ queryKey: ["admin-orders"] });
       qc.invalidateQueries({ queryKey: ["admin-stats"] });
       qc.invalidateQueries({ queryKey: ["admin-analytics"] });
@@ -59,7 +62,7 @@ function AdminOrdersPage() {
         customer_name: o.customer_name,
         customer_email: o.customer_email,
         customer_phone: o.customer_phone,
-        status: statusLabel(o.status),
+        status: statusLabel(o.status, t),
         payment_status: o.payment_status,
         payment_method: o.payment_method,
         subtotal: Number(o.subtotal ?? 0),
@@ -82,7 +85,7 @@ function AdminOrdersPage() {
       const rows = await getExportRows();
 
       if (!rows.length) {
-        toast.error("No orders to export");
+        toast.error(t("adminOrders.noOrdersToExportToast"));
         return;
       }
 
@@ -92,9 +95,9 @@ function AdminOrdersPage() {
       XLSX.utils.book_append_sheet(wb, ws, "Orders");
       XLSX.writeFile(wb, `kaptan-orders-${new Date().toISOString().slice(0, 10)}.xlsx`);
 
-      toast.success("Excel exported");
+      toast.success(t("adminOrders.excelExportedToast"));
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Export failed");
+      toast.error(err instanceof Error ? err.message : t("adminOrders.exportFailedToast"));
     }
   }
 
@@ -103,7 +106,7 @@ function AdminOrdersPage() {
       const rows = await getExportRows();
 
       if (!rows.length) {
-        toast.error("No orders to export");
+        toast.error(t("adminOrders.noOrdersToExportToast"));
         return;
       }
 
@@ -118,16 +121,16 @@ function AdminOrdersPage() {
       a.click();
 
       URL.revokeObjectURL(url);
-      toast.success("CSV exported");
+      toast.success(t("adminOrders.csvExportedToast"));
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Export failed");
+      toast.error(err instanceof Error ? err.message : t("adminOrders.exportFailedToast"));
     }
   }
 
   return (
     <div className="space-y-6">
       <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-        <h1 className="font-serif text-3xl text-white">Orders</h1>
+        <h1 className="font-serif text-3xl text-white">{t("adminOrders.title")}</h1>
 
         <div className="flex flex-wrap gap-2">
           <button
@@ -135,7 +138,7 @@ function AdminOrdersPage() {
             className="flex items-center gap-2 bg-gold px-4 py-2 text-sm font-bold text-black hover:bg-gold-vivid"
           >
             <Download size={16} />
-            Export Excel
+            {t("adminOrders.exportExcel")}
           </button>
 
           <button
@@ -143,7 +146,7 @@ function AdminOrdersPage() {
             className="flex items-center gap-2 border border-gold px-4 py-2 text-sm font-bold text-gold hover:bg-gold hover:text-black"
           >
             <Download size={16} />
-            Export CSV
+            {t("adminOrders.exportCsv")}
           </button>
         </div>
       </div>
@@ -152,12 +155,12 @@ function AdminOrdersPage() {
         <table className="w-full text-sm">
           <thead className="text-left text-xs uppercase tracking-wider text-white/50">
             <tr>
-              <th className="p-3">Order #</th>
-              <th className="p-3">Customer</th>
-              <th className="p-3">Date</th>
-              <th className="p-3">Total</th>
-              <th className="p-3">Payment</th>
-              <th className="p-3">Delivery Status</th>
+              <th className="p-3">{t("adminOrders.colOrderNumber")}</th>
+              <th className="p-3">{t("adminOrders.colCustomer")}</th>
+              <th className="p-3">{t("adminOrders.colDate")}</th>
+              <th className="p-3">{t("adminOrders.colTotal")}</th>
+              <th className="p-3">{t("adminOrders.colPayment")}</th>
+              <th className="p-3">{t("adminOrders.colDeliveryStatus")}</th>
             </tr>
           </thead>
 
@@ -165,7 +168,7 @@ function AdminOrdersPage() {
             {isLoading && (
               <tr>
                 <td colSpan={6} className="p-6 text-center text-white/50">
-                  Loading...
+                  {t("adminProducts.loading")}
                 </td>
               </tr>
             )}
@@ -188,7 +191,7 @@ function AdminOrdersPage() {
                 </td>
 
                 <td className="p-3 text-white/60">
-                  {new Date(o.created_at!).toLocaleDateString()}
+                  {new Date(o.created_at!).toLocaleDateString(i18n.language === "de" ? "de-DE" : "en-GB")}
                 </td>
 
                 <td className="p-3 font-mono text-white">
@@ -212,7 +215,7 @@ function AdminOrdersPage() {
                   >
                     {STATUSES.map((s) => (
                       <option key={s.value} value={s.value}>
-                        {s.label}
+                        {t(s.labelKey)}
                       </option>
                     ))}
                   </select>
@@ -223,7 +226,7 @@ function AdminOrdersPage() {
             {!isLoading && !data?.orders.length && (
               <tr>
                 <td colSpan={6} className="p-6 text-center text-white/50">
-                  No orders yet.
+                  {t("admin.noOrdersYet")}
                 </td>
               </tr>
             )}
@@ -234,25 +237,25 @@ function AdminOrdersPage() {
   );
 }
 
-function statusLabel(status: string | null) {
+function statusLabel(status: string | null, t: TFunction) {
   switch (status) {
     case "ordered":
-      return "Ordered";
+      return t("account.statusOrdered");
     case "packaging":
-      return "Packaging";
+      return t("account.statusPackaging");
     case "out_for_delivery":
-      return "Out for Delivery";
+      return t("account.statusOutForDelivery");
     case "delivered":
-      return "Delivered";
+      return t("account.statusDelivered");
     case "cancelled":
-      return "Cancelled";
+      return t("account.statusCancelled");
     case "pending":
-      return "Ordered";
+      return t("account.statusOrdered");
     case "processing":
-      return "Packaging";
+      return t("account.statusPackaging");
     case "shipped":
-      return "Out for Delivery";
+      return t("account.statusOutForDelivery");
     default:
-      return "Ordered";
+      return t("account.statusOrdered");
   }
 }

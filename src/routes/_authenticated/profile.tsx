@@ -3,6 +3,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
+import { useTranslation } from "react-i18next";
 import { getMyProfile, updateMyProfile } from "@/lib/profile.functions";
 import { useAuthStore } from "@/stores/authStore";
 import { PageLayout } from "@/components/layout/PageLayout";
@@ -13,6 +14,7 @@ export const Route = createFileRoute("/_authenticated/profile")({
 });
 
 function ProfilePage() {
+  const { t } = useTranslation();
   const { user } = useAuthStore();
   const fetchProfile = useServerFn(getMyProfile);
   const updateFn = useServerFn(updateMyProfile);
@@ -47,10 +49,10 @@ function ProfilePage() {
           email_marketing: form.email_marketing,
         },
       });
-      toast.success("Profile updated");
+      toast.success(t("profile.updatedToast"));
       refetch();
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Save failed");
+      toast.error(err instanceof Error ? err.message : t("profile.saveFailedToast"));
     } finally {
       setSaving(false);
     }
@@ -59,25 +61,25 @@ function ProfilePage() {
   return (
     <PageLayout>
       <section className="mx-auto max-w-5xl px-4 py-12 md:px-6">
-        <h1 className="font-serif text-4xl font-semibold text-white">My Account</h1>
+        <h1 className="font-serif text-4xl font-semibold text-white">{t("profile.title")}</h1>
 
         <div className="mt-6 flex flex-wrap gap-4 border-b border-gold/10 pb-4 text-sm">
-          <Link to="/profile" className="text-gold">Profile</Link>
-          <Link to="/orders" className="text-white/60 hover:text-gold">Orders</Link>
-          <Link to="/wishlist" className="text-white/60 hover:text-gold">Wishlist</Link>
+          <Link to="/profile" className="text-gold">{t("account.navProfile")}</Link>
+          <Link to="/orders" className="text-white/60 hover:text-gold">{t("account.navOrders")}</Link>
+          <Link to="/wishlist" className="text-white/60 hover:text-gold">{t("account.navWishlist")}</Link>
         </div>
 
         {isLoading ? (
-          <p className="mt-10 text-white/60">Loading…</p>
+          <p className="mt-10 text-white/60">{t("account.loading")}</p>
         ) : (
           <form onSubmit={save} className="mt-8 max-w-xl space-y-4">
             <div>
-              <span className="text-xs uppercase tracking-wider text-gold/70">Email</span>
+              <span className="text-xs uppercase tracking-wider text-gold/70">{t("profile.emailLabel")}</span>
               <p className="font-mono text-sm text-white/80">{user?.email}</p>
             </div>
-            <Field label="Full Name" value={form.full_name} onChange={(v) => setForm((f) => ({ ...f, full_name: v }))} />
-            <Field label="Phone" value={form.phone} onChange={(v) => setForm((f) => ({ ...f, phone: v }))} />
-            <Field label="Date of Birth" type="date" value={form.date_of_birth} onChange={(v) => setForm((f) => ({ ...f, date_of_birth: v }))} />
+            <Field label={t("profile.fullNameLabel")} value={form.full_name} onChange={(v) => setForm((f) => ({ ...f, full_name: v }))} />
+            <Field label={t("profile.phoneLabel")} value={form.phone} onChange={(v) => setForm((f) => ({ ...f, phone: v }))} />
+            <Field label={t("profile.dobLabel")} type="date" value={form.date_of_birth} onChange={(v) => setForm((f) => ({ ...f, date_of_birth: v }))} />
 
             <label className="flex items-center gap-2 text-sm text-white/80">
               <input
@@ -86,7 +88,7 @@ function ProfilePage() {
                 onChange={(e) => setForm((f) => ({ ...f, email_marketing: e.target.checked }))}
                 className="accent-gold"
               />
-              Send me updates and offers via email
+              {t("profile.marketingLabel")}
             </label>
 
             <button
@@ -94,7 +96,7 @@ function ProfilePage() {
               disabled={saving}
               className="bg-gold px-6 py-2 text-sm font-bold uppercase tracking-wider text-black hover:bg-gold-vivid disabled:opacity-50"
             >
-              {saving ? "Saving..." : "Save Changes"}
+              {saving ? t("profile.saving") : t("profile.saveChanges")}
             </button>
           </form>
         )}

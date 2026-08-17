@@ -1,6 +1,7 @@
 import { createFileRoute, notFound, Link } from "@tanstack/react-router";
 import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
 import { ArrowLeft } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { getJournalPostBySlug } from "@/lib/journal.functions";
 import { PageLayout } from "@/components/layout/PageLayout";
 
@@ -22,9 +23,9 @@ export const Route = createFileRoute("/journal_/$slug")({
   component: JournalPostPage,
 });
 
-function formatDate(value: string | null) {
+function formatDate(value: string | null, language: string) {
   if (!value) return "";
-  return new Date(value).toLocaleDateString("en-GB", {
+  return new Date(value).toLocaleDateString(language === "de" ? "de-DE" : "en-GB", {
     year: "numeric",
     month: "long",
     day: "numeric",
@@ -32,6 +33,7 @@ function formatDate(value: string | null) {
 }
 
 function JournalPostPage() {
+  const { t, i18n } = useTranslation();
   const { slug } = Route.useParams();
   const { data } = useSuspenseQuery(postQueryOptions(slug));
   const post = data.post!;
@@ -46,7 +48,7 @@ function JournalPostPage() {
           className="inline-flex items-center gap-2 text-xs uppercase tracking-wider text-gold/70 hover:text-gold"
         >
           <ArrowLeft size={14} />
-          Back to Journal
+          {t("journal.backToJournal")}
         </Link>
 
         {post.category && (
@@ -56,7 +58,7 @@ function JournalPostPage() {
           {post.title}
         </h1>
         <p className="mt-4 text-sm text-white/40">
-          {post.author_name} · {formatDate(post.published_at)}
+          {post.author_name} · {formatDate(post.published_at, i18n.language)}
         </p>
 
         {post.cover_image_url && (
@@ -82,7 +84,7 @@ function JournalPostPage() {
             to="/journal"
             className="inline-block border border-gold px-5 py-2.5 text-xs uppercase tracking-wider text-gold transition-colors hover:bg-gold hover:text-black"
           >
-            More from the Journal
+            {t("journal.moreFromJournal")}
           </Link>
         </div>
       </article>

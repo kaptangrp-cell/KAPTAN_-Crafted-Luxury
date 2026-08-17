@@ -15,6 +15,7 @@ import {
   Upload,
   Download,
 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { supabase } from "@/integrations/supabase/client";
 import {
   adminListProducts,
@@ -87,6 +88,7 @@ const empty = {
 };
 
 function AdminProductsPage() {
+  const { t } = useTranslation();
   const qc = useQueryClient();
   const listFn = useServerFn(adminListProducts);
   const catsFn = useServerFn(adminListCategories);
@@ -130,7 +132,7 @@ function AdminProductsPage() {
         },
       }),
     onSuccess: () => {
-      toast.success("Product saved");
+      toast.success(t("adminProducts.productSavedToast"));
       setEditing(null);
       qc.invalidateQueries({ queryKey: ["admin-products"] });
     },
@@ -143,7 +145,7 @@ function AdminProductsPage() {
         data: { products },
       }),
     onSuccess: (result) => {
-      toast.success(`${result.created} products imported`);
+      toast.success(t("adminProducts.importedToast", { count: result.created }));
       qc.invalidateQueries({ queryKey: ["admin-products"] });
     },
     onError: (e: Error) => toast.error(e.message),
@@ -152,7 +154,7 @@ function AdminProductsPage() {
   const del = useMutation({
     mutationFn: (id: string) => deleteFn({ data: { id } }),
     onSuccess: () => {
-      toast.success("Deleted");
+      toast.success(t("adminProducts.deletedToast"));
       qc.invalidateQueries({ queryKey: ["admin-products"] });
     },
     onError: (e: Error) => toast.error(e.message),
@@ -239,7 +241,7 @@ function AdminProductsPage() {
       const firstSheetName = workbook.SheetNames[0];
 
       if (!firstSheetName) {
-        toast.error("Excel file has no sheets");
+        toast.error(t("adminProducts.excelNoSheetsToast"));
         return;
       }
 
@@ -249,7 +251,7 @@ function AdminProductsPage() {
       });
 
       if (rows.length === 0) {
-        toast.error("Excel file has no product rows");
+        toast.error(t("adminProducts.excelNoRowsToast"));
         return;
       }
 
@@ -298,7 +300,7 @@ function AdminProductsPage() {
 
       bulkCreate.mutate(products);
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Invalid Excel file");
+      toast.error(err instanceof Error ? err.message : t("adminProducts.invalidExcelToast"));
     }
   }
 
@@ -330,14 +332,14 @@ function AdminProductsPage() {
   return (
     <div className="space-y-6">
       <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-        <h1 className="font-serif text-3xl text-white">Products</h1>
+        <h1 className="font-serif text-3xl text-white">{t("adminProducts.title")}</h1>
 
         <div className="flex flex-wrap gap-2">
           <button
             onClick={() => setEditing(empty)}
             className="flex items-center gap-2 bg-gold px-4 py-2 text-sm font-bold text-black hover:bg-gold-vivid"
           >
-            <Plus size={16} /> New Product
+            <Plus size={16} /> {t("adminProducts.newProduct")}
           </button>
 
           <button
@@ -346,7 +348,7 @@ function AdminProductsPage() {
             disabled={bulkCreate.isPending}
             className="flex items-center gap-2 border border-gold px-4 py-2 text-sm font-bold text-gold hover:bg-gold hover:text-black disabled:opacity-50"
           >
-            <Upload size={16} /> {bulkCreate.isPending ? "Importing..." : "Upload Excel"}
+            <Upload size={16} /> {bulkCreate.isPending ? t("adminProducts.importing") : t("adminProducts.uploadExcel")}
           </button>
 
           <button
@@ -354,7 +356,7 @@ function AdminProductsPage() {
             onClick={downloadTemplate}
             className="flex items-center gap-2 border border-gold/40 px-4 py-2 text-sm font-bold text-gold hover:bg-gold hover:text-black"
           >
-            <Download size={16} /> Template
+            <Download size={16} /> {t("adminProducts.template")}
           </button>
 
           <input
@@ -368,20 +370,20 @@ function AdminProductsPage() {
       </div>
 
       <div className="border border-gold/20 bg-[#1A1A1A] p-4 text-sm text-white/60">
-        Excel upload is for text data only. Product images and videos can be uploaded manually after the products are created.
-        Required Excel columns: <span className="text-gold">name, slug, category_slug, price, stock_quantity</span>.
+        {t("adminProducts.excelUploadHint")}
+        {" "}{t("adminProducts.excelRequiredCols")} <span className="text-gold">name, slug, category_slug, price, stock_quantity</span>.
       </div>
 
       <div className="border border-gold/15 bg-[#1A1A1A]">
         <table className="w-full text-sm">
           <thead className="text-left text-xs uppercase tracking-wider text-white/50">
             <tr>
-              <th className="p-3">Product</th>
-              <th className="p-3">Category</th>
-              <th className="p-3">Media</th>
-              <th className="p-3">Price</th>
-              <th className="p-3">Stock</th>
-              <th className="p-3">Status</th>
+              <th className="p-3">{t("adminProducts.colProduct")}</th>
+              <th className="p-3">{t("adminProducts.colCategory")}</th>
+              <th className="p-3">{t("adminProducts.colMedia")}</th>
+              <th className="p-3">{t("adminProducts.colPrice")}</th>
+              <th className="p-3">{t("adminProducts.colStock")}</th>
+              <th className="p-3">{t("adminProducts.colStatus")}</th>
               <th className="p-3"></th>
             </tr>
           </thead>
@@ -390,7 +392,7 @@ function AdminProductsPage() {
             {isLoading && (
               <tr>
                 <td colSpan={7} className="p-6 text-center text-white/50">
-                  Loading...
+                  {t("adminProducts.loading")}
                 </td>
               </tr>
             )}
@@ -427,12 +429,12 @@ function AdminProductsPage() {
                           : "bg-red-500/20 text-red-300"
                       }`}
                     >
-                      {p.is_available ? "Active" : "Hidden"}
+                      {p.is_available ? t("adminProducts.active") : t("adminProducts.hidden")}
                     </span>
 
                     {p.is_featured && (
                       <span className="ml-1 rounded-full bg-gold/20 px-2 py-0.5 text-gold">
-                        Featured
+                        {t("adminProducts.featured")}
                       </span>
                     )}
                   </td>
@@ -444,7 +446,7 @@ function AdminProductsPage() {
                       </button>
 
                       <button
-                        onClick={() => confirm(`Delete ${p.name}?`) && del.mutate(p.id)}
+                        onClick={() => confirm(t("adminProducts.deleteConfirm", { name: p.name })) && del.mutate(p.id)}
                         className="text-white/40 hover:text-red-400"
                       >
                         <Trash2 size={14} />
@@ -458,7 +460,7 @@ function AdminProductsPage() {
             {!isLoading && !products.length && (
               <tr>
                 <td colSpan={7} className="p-6 text-center text-white/50">
-                  No products yet.
+                  {t("adminProducts.noProductsYet")}
                 </td>
               </tr>
             )}
@@ -467,7 +469,7 @@ function AdminProductsPage() {
       </div>
 
       {editing && (
-        <Modal onClose={() => setEditing(null)} title={editing.id ? "Edit Product" : "New Product"}>
+        <Modal onClose={() => setEditing(null)} title={editing.id ? t("adminProducts.editProduct") : t("adminProducts.newProduct")}>
           <form
             onSubmit={(e) => {
               e.preventDefault();
@@ -476,7 +478,7 @@ function AdminProductsPage() {
             className="grid gap-3 md:grid-cols-2"
           >
             <F
-              label="Name"
+              label={t("adminProducts.nameLabel")}
               value={editing.name}
               onChange={(v) =>
                 setEditing({
@@ -489,7 +491,7 @@ function AdminProductsPage() {
             />
 
             <F
-              label="Slug"
+              label={t("adminProducts.slugLabel")}
               value={editing.slug}
               onChange={(v) => setEditing({ ...editing, slug: v })}
               required
@@ -497,7 +499,7 @@ function AdminProductsPage() {
 
             <label className="block">
               <span className="mb-1 block text-xs uppercase tracking-wider text-gold/70">
-                Category
+                {t("adminProducts.categoryLabel")}
               </span>
 
               <select
@@ -520,7 +522,7 @@ function AdminProductsPage() {
             </label>
 
             <F
-              label="Price (€)"
+              label={t("adminProducts.priceLabel")}
               type="number"
               value={String(editing.price)}
               onChange={(v) => setEditing({ ...editing, price: Number(v) })}
@@ -528,7 +530,7 @@ function AdminProductsPage() {
             />
 
             <F
-              label="Compare At Price (€)"
+              label={t("adminProducts.compareAtPriceLabel")}
               type="number"
               value={editing.compare_at_price?.toString() ?? ""}
               onChange={(v) =>
@@ -540,7 +542,7 @@ function AdminProductsPage() {
             />
 
             <F
-              label="Cost Price (€) — for profit reports"
+              label={t("adminProducts.costPriceLabel")}
               type="number"
               value={editing.cost_price?.toString() ?? ""}
               onChange={(v) =>
@@ -552,7 +554,7 @@ function AdminProductsPage() {
             />
 
             <F
-              label="Stock"
+              label={t("adminProducts.stockLabel")}
               type="number"
               value={String(editing.stock_quantity)}
               onChange={(v) =>
@@ -566,7 +568,7 @@ function AdminProductsPage() {
 
             <label className="block md:col-span-2">
               <span className="mb-1 block text-xs uppercase tracking-wider text-gold/70">
-                Short Description
+                {t("adminProducts.shortDescLabel")}
               </span>
               <input
                 value={editing.short_description}
@@ -582,7 +584,7 @@ function AdminProductsPage() {
 
             <label className="block md:col-span-2">
               <span className="mb-1 block text-xs uppercase tracking-wider text-gold/70">
-                Full Description
+                {t("adminProducts.fullDescLabel")}
               </span>
               <textarea
                 rows={4}
@@ -600,7 +602,7 @@ function AdminProductsPage() {
             <div className="md:col-span-2">
               <div className="mb-3 flex items-center justify-between">
                 <span className="text-xs uppercase tracking-wider text-gold/70">
-                  Product Photos & Videos
+                  {t("adminProducts.photosVideosLabel")}
                 </span>
 
                 <div className="flex gap-2">
@@ -609,7 +611,7 @@ function AdminProductsPage() {
                     onClick={() => addMedia("image")}
                     className="flex items-center gap-1 border border-gold/30 px-3 py-1 text-xs text-gold hover:bg-gold hover:text-black"
                   >
-                    <ImageIcon size={14} /> Add Image
+                    <ImageIcon size={14} /> {t("adminProducts.addImage")}
                   </button>
 
                   <button
@@ -617,7 +619,7 @@ function AdminProductsPage() {
                     onClick={() => addMedia("video")}
                     className="flex items-center gap-1 border border-gold/30 px-3 py-1 text-xs text-gold hover:bg-gold hover:text-black"
                   >
-                    <Video size={14} /> Add Video
+                    <Video size={14} /> {t("adminProducts.addVideo")}
                   </button>
                 </div>
               </div>
@@ -625,7 +627,7 @@ function AdminProductsPage() {
               <div className="space-y-4">
                 {editing.media_items.length === 0 && (
                   <p className="border border-dashed border-gold/20 p-4 text-center text-sm text-white/50">
-                    No media added yet. Add at least one product image.
+                    {t("adminProducts.noMediaYet")}
                   </p>
                 )}
 
@@ -653,7 +655,7 @@ function AdminProductsPage() {
                 }
                 className="accent-gold"
               />
-              Available
+              {t("adminProducts.availableLabel")}
             </label>
 
             <label className="flex items-center gap-2 text-sm text-white/80">
@@ -668,7 +670,7 @@ function AdminProductsPage() {
                 }
                 className="accent-gold"
               />
-              Featured
+              {t("adminProducts.featured")}
             </label>
 
             <div className="flex justify-end gap-2 md:col-span-2">
@@ -677,7 +679,7 @@ function AdminProductsPage() {
                 onClick={() => setEditing(null)}
                 className="border border-white/20 px-4 py-2 text-sm text-white/70"
               >
-                Cancel
+                {t("adminProducts.cancel")}
               </button>
 
               <button
@@ -685,7 +687,7 @@ function AdminProductsPage() {
                 disabled={upsert.isPending}
                 className="bg-gold px-4 py-2 text-sm font-bold text-black hover:bg-gold-vivid disabled:opacity-50"
               >
-                {upsert.isPending ? "Saving..." : "Save"}
+                {upsert.isPending ? t("adminProducts.saving") : t("adminProducts.save")}
               </button>
             </div>
           </form>
@@ -739,6 +741,7 @@ function MediaUpload({
   onChange: (patch: Partial<MediaItem>) => void;
   onRemove: () => void;
 }) {
+  const { t } = useTranslation();
   const [uploading, setUploading] = useState(false);
 
   async function handleFile(file: File) {
@@ -758,9 +761,9 @@ function MediaUpload({
       const { data } = supabase.storage.from("product-images").getPublicUrl(fileName);
 
       onChange({ url: data.publicUrl });
-      toast.success(item.media_type === "video" ? "Video uploaded" : "Image uploaded");
+      toast.success(item.media_type === "video" ? t("adminProducts.videoUploadedToast") : t("adminProducts.imageUploadedToast"));
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Upload failed");
+      toast.error(err instanceof Error ? err.message : t("adminProducts.uploadFailedToast"));
     } finally {
       setUploading(false);
     }
@@ -770,7 +773,7 @@ function MediaUpload({
     <div className="border border-gold/15 bg-[#0D0D0D] p-3">
       <div className="mb-2 flex items-center justify-between">
         <p className="text-xs uppercase tracking-wider text-white/50">
-          {item.media_type === "video" ? "Video" : "Image"} #{index + 1}
+          {item.media_type === "video" ? t("adminProducts.videoLabelHash") : t("adminProducts.imageLabelHash")} #{index + 1}
         </p>
 
         <button type="button" onClick={onRemove} className="text-white/40 hover:text-red-400">
@@ -793,11 +796,11 @@ function MediaUpload({
         type="url"
         value={item.url}
         onChange={(e) => onChange({ url: e.target.value })}
-        placeholder={item.media_type === "video" ? "Video URL" : "Image URL"}
+        placeholder={item.media_type === "video" ? t("adminProducts.videoUrlPlaceholder") : t("adminProducts.imageUrlPlaceholder")}
         className="mt-2 w-full border border-gold/20 bg-black px-3 py-2 text-sm text-white outline-none focus:border-gold"
       />
 
-      {uploading && <p className="mt-1 text-xs text-gold">Uploading...</p>}
+      {uploading && <p className="mt-1 text-xs text-gold">{t("adminProducts.uploading")}</p>}
 
       {item.url && item.media_type === "video" && (
         <video src={item.url} controls className="mt-3 h-32 w-full border border-gold/20 object-cover" />

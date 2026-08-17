@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Minus, Plus, Trash2 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { useCartStore } from "@/stores/cartStore";
 import { PageLayout } from "@/components/layout/PageLayout";
 import { Price } from "@/components/common/Price";
@@ -10,6 +11,7 @@ export const Route = createFileRoute("/cart")({
 });
 
 function CartPage() {
+  const { t } = useTranslation();
   const { items, updateQuantity, removeItem, subtotal, clearCart } = useCartStore();
   const total = subtotal();
   const shipping = total > 50 ? 0 : 5.99;
@@ -17,13 +19,13 @@ function CartPage() {
   return (
     <PageLayout>
       <section className="mx-auto max-w-6xl px-4 py-12 md:px-6">
-        <h1 className="font-serif text-4xl font-semibold text-white">Your Cart</h1>
+        <h1 className="font-serif text-4xl font-semibold text-white">{t("cart.title")}</h1>
 
         {items.length === 0 ? (
           <div className="mt-12 flex flex-col items-center gap-4 border border-dashed border-gold/20 py-20 text-center">
-            <p className="text-white/60">Your cart is empty.</p>
+            <p className="text-white/60">{t("cart.empty")}</p>
             <Link to="/products" className="border border-gold px-4 py-2 text-sm font-semibold text-gold hover:bg-gold hover:text-black">
-              Continue Shopping
+              {t("cart.continueShopping")}
             </Link>
           </div>
         ) : (
@@ -51,21 +53,21 @@ function CartPage() {
                   </div>
                 </div>
               ))}
-              <button onClick={clearCart} className="text-xs text-white/40 hover:text-red-400">Clear cart</button>
+              <button onClick={clearCart} className="text-xs text-white/40 hover:text-red-400">{t("cart.clearCart")}</button>
             </div>
 
             <aside className="h-fit border border-gold/20 bg-[#1A1A1A] p-6">
-              <h2 className="font-serif text-lg text-white">Order Summary</h2>
+              <h2 className="font-serif text-lg text-white">{t("cart.orderSummary")}</h2>
               <dl className="mt-4 space-y-2 text-sm">
-                <div className="flex justify-between text-white/70"><dt>Subtotal</dt><dd className="font-mono"><Price amount={total} /></dd></div>
-                <div className="flex justify-between text-white/70"><dt>Shipping</dt><dd className="font-mono">{shipping === 0 ? "Free" : <Price amount={shipping} />}</dd></div>
-                <div className="mt-3 flex justify-between border-t border-gold/10 pt-3 text-base text-white"><dt>Total</dt><dd className="font-mono text-gold"><Price amount={total + shipping} /></dd></div>
+                <div className="flex justify-between text-white/70"><dt>{t("cart.subtotal")}</dt><dd className="font-mono"><Price amount={total} /></dd></div>
+                <div className="flex justify-between text-white/70"><dt>{t("cart.shipping")}</dt><dd className="font-mono">{shipping === 0 ? t("cart.free") : <Price amount={shipping} />}</dd></div>
+                <div className="mt-3 flex justify-between border-t border-gold/10 pt-3 text-base text-white"><dt>{t("cart.total")}</dt><dd className="font-mono text-gold"><Price amount={total + shipping} /></dd></div>
               </dl>
               <Link
                 to="/checkout"
                 className="mt-6 block w-full bg-gold py-3 text-center text-sm font-bold uppercase tracking-wider text-black transition-colors hover:bg-gold-vivid"
               >
-                Proceed to Checkout
+                {t("cart.proceedToCheckout")}
               </Link>
             </aside>
           </div>

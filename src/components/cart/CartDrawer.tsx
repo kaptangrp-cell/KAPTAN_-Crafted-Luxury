@@ -1,11 +1,13 @@
 import { Link } from "@tanstack/react-router";
 import { X, Minus, Plus, Trash2, Lock } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { useUIStore } from "@/stores/uiStore";
 import { useCartStore } from "@/stores/cartStore";
 import { Price } from "@/components/common/Price";
 
 export function CartDrawer() {
+  const { t } = useTranslation();
   const { isCartOpen, closeCart } = useUIStore();
   const { items, removeItem, updateQuantity, subtotal, clearCart } = useCartStore();
 
@@ -14,7 +16,7 @@ export function CartDrawer() {
       <SheetContent className="flex w-full flex-col border-l border-gold/20 bg-[#0D0D0D] sm:max-w-md">
         <SheetHeader className="border-b border-gold/10 pb-4">
           <SheetTitle className="font-serif text-lg text-white">
-            Your Cart ({items.reduce((s, i) => s + i.quantity, 0)} items)
+            {t("cart.titleWithCount", { count: items.reduce((s, i) => s + i.quantity, 0) })}
           </SheetTitle>
         </SheetHeader>
 
@@ -23,12 +25,12 @@ export function CartDrawer() {
             <div className="flex h-16 w-16 items-center justify-center rounded-full border border-gold/20">
               <span className="text-2xl text-gold">🛍</span>
             </div>
-            <p className="text-white/70">Your cart is empty.</p>
+            <p className="text-white/70">{t("cart.empty")}</p>
             <button
               onClick={closeCart}
               className="border border-gold px-4 py-2 text-sm font-semibold text-gold transition-colors hover:bg-gold hover:text-black"
             >
-              Shop Now
+              {t("cart.shopNow")}
             </button>
           </div>
         ) : (
@@ -74,7 +76,7 @@ export function CartDrawer() {
                         <button
                           onClick={() => removeItem(item.id)}
                           className="text-white/40 transition-colors hover:text-red-400"
-                          aria-label="Remove item"
+                          aria-label={t("cart.removeItem")}
                         >
                           <Trash2 size={16} />
                         </button>
@@ -87,7 +89,7 @@ export function CartDrawer() {
 
             <div className="border-t border-gold/10 pt-4">
               <div className="mb-4 flex justify-between font-mono text-white">
-                <span>Subtotal</span>
+                <span>{t("cart.subtotal")}</span>
                 <span className="text-gold"><Price amount={subtotal()} /></span>
               </div>
               <Link
@@ -95,18 +97,18 @@ export function CartDrawer() {
                 onClick={closeCart}
                 className="block w-full bg-gold py-3 text-center text-sm font-bold text-black transition-colors hover:bg-gold-vivid"
               >
-                Proceed to Checkout
+                {t("cart.proceedToCheckout")}
               </Link>
               <button
                 onClick={closeCart}
                 className="mt-2 block w-full py-2 text-center text-xs text-gold/70 hover:text-gold"
               >
-                Continue Shopping
+                {t("cart.continueShopping")}
               </button>
 
               <p className="mt-3 flex items-center justify-center gap-1.5 text-[11px] text-white/40">
                 <Lock size={12} className="text-gold" />
-                Secure checkout · Card & PayPal
+                {t("cart.secureCheckoutBadge")}
               </p>
             </div>
           </>

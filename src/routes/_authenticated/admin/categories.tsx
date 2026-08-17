@@ -4,6 +4,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { Plus, Pencil, Trash2 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { supabase } from "@/integrations/supabase/client";
 import {
   adminListCategories,
@@ -25,6 +26,7 @@ const empty = {
 };
 
 function AdminCategoriesPage() {
+  const { t } = useTranslation();
   const qc = useQueryClient();
   const listFn = useServerFn(adminListCategories);
   const upsertFn = useServerFn(adminUpsertCategory);
@@ -45,7 +47,7 @@ function AdminCategoriesPage() {
         },
       }),
     onSuccess: () => {
-      toast.success("Saved");
+      toast.success(t("adminCategories.savedToast"));
       setEditing(null);
       qc.invalidateQueries({ queryKey: ["admin-cats"] });
     },
@@ -55,7 +57,7 @@ function AdminCategoriesPage() {
   const del = useMutation({
     mutationFn: (id: string) => delFn({ data: { id } }),
     onSuccess: () => {
-      toast.success("Deleted");
+      toast.success(t("adminProducts.deletedToast"));
       qc.invalidateQueries({ queryKey: ["admin-cats"] });
     },
     onError: (e: Error) => toast.error(e.message),
@@ -64,12 +66,12 @@ function AdminCategoriesPage() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="font-serif text-3xl text-white">Categories</h1>
+        <h1 className="font-serif text-3xl text-white">{t("adminCategories.title")}</h1>
         <button
           onClick={() => setEditing(empty)}
           className="flex items-center gap-2 bg-gold px-4 py-2 text-sm font-bold text-black"
         >
-          <Plus size={16} /> New Category
+          <Plus size={16} /> {t("adminCategories.newCategory")}
         </button>
       </div>
 
@@ -77,9 +79,9 @@ function AdminCategoriesPage() {
         <table className="w-full text-sm">
           <thead className="text-left text-xs uppercase tracking-wider text-white/50">
             <tr>
-              <th className="p-3">Name</th>
-              <th className="p-3">Slug</th>
-              <th className="p-3">Order</th>
+              <th className="p-3">{t("adminCategories.colName")}</th>
+              <th className="p-3">{t("adminCategories.colSlug")}</th>
+              <th className="p-3">{t("adminCategories.colOrder")}</th>
               <th className="p-3"></th>
             </tr>
           </thead>
@@ -87,7 +89,7 @@ function AdminCategoriesPage() {
             {isLoading && (
               <tr>
                 <td colSpan={4} className="p-6 text-center text-white/50">
-                  Loading...
+                  {t("adminProducts.loading")}
                 </td>
               </tr>
             )}
@@ -116,7 +118,7 @@ function AdminCategoriesPage() {
                     </button>
 
                     <button
-                      onClick={() => confirm(`Delete ${c.name}?`) && del.mutate(c.id)}
+                      onClick={() => confirm(t("adminProducts.deleteConfirm", { name: c.name })) && del.mutate(c.id)}
                       className="text-white/40 hover:text-red-400"
                     >
                       <Trash2 size={14} />
@@ -139,11 +141,11 @@ function AdminCategoriesPage() {
             className="w-full max-w-lg space-y-3 border border-gold/30 bg-[#1A1A1A] p-6"
           >
             <h2 className="font-serif text-lg text-white">
-              {editing.id ? "Edit" : "New"} Category
+              {editing.id ? t("adminCategories.editCategory") : t("adminCategories.newCategory")}
             </h2>
 
             <Field
-              label="Name"
+              label={t("adminCategories.nameLabel")}
               value={editing.name}
               onChange={(v) =>
                 setEditing({
@@ -156,27 +158,27 @@ function AdminCategoriesPage() {
             />
 
             <Field
-              label="Slug"
+              label={t("adminCategories.slugLabel")}
               value={editing.slug}
               onChange={(v) => setEditing({ ...editing, slug: v })}
               required
             />
 
             <Field
-              label="Description"
+              label={t("adminCategories.descriptionLabel")}
               value={editing.description}
               onChange={(v) => setEditing({ ...editing, description: v })}
             />
 
             <ImageUpload
-              label="Category Image"
+              label={t("adminCategories.categoryImageLabel")}
               value={editing.image_url}
               folder="categories"
               onUploaded={(url) => setEditing({ ...editing, image_url: url })}
             />
 
             <Field
-              label="Sort Order"
+              label={t("adminCategories.sortOrderLabel")}
               type="number"
               value={String(editing.sort_order)}
               onChange={(v) => setEditing({ ...editing, sort_order: Number(v) })}
@@ -188,7 +190,7 @@ function AdminCategoriesPage() {
                 onClick={() => setEditing(null)}
                 className="border border-white/20 px-4 py-2 text-sm text-white/70"
               >
-                Cancel
+                {t("adminProducts.cancel")}
               </button>
 
               <button
@@ -196,7 +198,7 @@ function AdminCategoriesPage() {
                 disabled={upsert.isPending}
                 className="bg-gold px-4 py-2 text-sm font-bold text-black disabled:opacity-50"
               >
-                {upsert.isPending ? "Saving..." : "Save"}
+                {upsert.isPending ? t("adminProducts.saving") : t("adminProducts.save")}
               </button>
             </div>
           </form>
@@ -250,6 +252,7 @@ function ImageUpload({
   folder: string;
   onUploaded: (url: string) => void;
 }) {
+  const { t } = useTranslation();
   const [uploading, setUploading] = useState(false);
 
   async function handleFile(file: File) {
@@ -273,9 +276,9 @@ function ImageUpload({
       const { data } = supabase.storage.from("product-images").getPublicUrl(fileName);
 
       onUploaded(data.publicUrl);
-      toast.success("Image uploaded");
+      toast.success(t("adminProducts.imageUploadedToast"));
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Image upload failed");
+      toast.error(err instanceof Error ? err.message : t("adminCategories.imageUploadFailedToast"));
     } finally {
       setUploading(false);
     }
@@ -298,7 +301,7 @@ function ImageUpload({
         className="w-full border border-gold/20 bg-[#0D0D0D] px-3 py-2 text-sm text-white"
       />
 
-      {uploading && <p className="mt-1 text-xs text-gold">Uploading...</p>}
+      {uploading && <p className="mt-1 text-xs text-gold">{t("adminProducts.uploading")}</p>}
 
       {value && (
         <img

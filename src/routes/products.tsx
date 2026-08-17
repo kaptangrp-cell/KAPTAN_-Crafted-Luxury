@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
 import { z } from "zod";
+import { useTranslation } from "react-i18next";
 import { getProducts, getCategories } from "@/lib/products.functions";
 import { PageLayout } from "@/components/layout/PageLayout";
 import { ProductCard } from "@/components/product/ProductCard";
@@ -56,14 +57,15 @@ export const Route = createFileRoute("/products")({
   component: ProductsPage,
 });
 
-const SORT_OPTIONS: { value: NonNullable<ProductsSearch["sort"]>; label: string }[] = [
-  { value: "newest", label: "Newest" },
-  { value: "popular", label: "Most Popular" },
-  { value: "price_asc", label: "Price: Low to High" },
-  { value: "price_desc", label: "Price: High to Low" },
+const SORT_OPTIONS: { value: NonNullable<ProductsSearch["sort"]>; labelKey: string }[] = [
+  { value: "newest", labelKey: "products.sortNewest" },
+  { value: "popular", labelKey: "products.sortMostPopular" },
+  { value: "price_asc", labelKey: "products.sortPriceLowHigh" },
+  { value: "price_desc", labelKey: "products.sortPriceHighLow" },
 ];
 
 function ProductsPage() {
+  const { t } = useTranslation();
   const search = Route.useSearch();
   const navigate = Route.useNavigate();
 
@@ -112,12 +114,12 @@ function ProductsPage() {
   }
 
   const emptyTitle = search.category
-    ? `${activeCategory?.name ?? "This category"} is coming soon`
-    : "No products available";
+    ? t("products.emptyTitleCategory", { category: activeCategory?.name ?? t("products.thisCategory") })
+    : t("products.emptyTitleDefault");
 
   const emptyDescription = search.category
-    ? "We are preparing products for this category. Please check again soon."
-    : "Products will be added soon.";
+    ? t("products.emptyDescCategory")
+    : t("products.emptyDescDefault");
 
   return (
     <PageLayout>
@@ -125,10 +127,10 @@ function ProductsPage() {
         <div className="mb-8 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
           <div>
             <h1 className="font-serif text-4xl font-semibold text-white md:text-5xl">
-              Shop
+              {t("products.title")}
             </h1>
             <p className="mt-2 text-sm text-white/60">
-              {products.length} {products.length === 1 ? "product" : "products"} found
+              {t("products.productsFound", { count: products.length })}
             </p>
           </div>
 
@@ -136,7 +138,7 @@ function ProductsPage() {
             <input
               type="search"
               defaultValue={search.q ?? ""}
-              placeholder="Search products..."
+              placeholder={t("products.searchPlaceholder")}
               onKeyDown={(e) => {
                 if (e.key === "Enter") {
                   navigate({
@@ -154,11 +156,11 @@ function ProductsPage() {
               value={search.sort ?? "newest"}
               onChange={(e) => updateFilter({ sort: e.target.value as ProductsSearch["sort"] })}
               className="w-full border border-gold/30 bg-black px-3 py-2 text-sm text-white outline-none focus:border-gold sm:w-48"
-              aria-label="Sort products"
+              aria-label={t("products.sortAriaLabel")}
             >
               {SORT_OPTIONS.map((opt) => (
                 <option key={opt.value} value={opt.value} className="bg-black">
-                  {opt.label}
+                  {t(opt.labelKey)}
                 </option>
               ))}
             </select>
@@ -173,18 +175,18 @@ function ProductsPage() {
                 !search.category ? "text-gold" : "text-white/70 hover:text-gold"
               }`}
             >
-              All Products
+              {t("products.allProducts")}
             </button>
 
             <CategoryGroup
-              title="Leather Products"
+              title={t("products.leatherProducts")}
               categories={leatherCategories}
               activeCategory={search.category}
               onSelect={selectCategory}
             />
 
             <CategoryGroup
-              title="Salt Lamps"
+              title={t("products.saltLamps")}
               categories={saltCategories}
               activeCategory={search.category}
               onSelect={selectCategory}
@@ -192,7 +194,7 @@ function ProductsPage() {
 
             {otherCategories.length > 0 && (
               <CategoryGroup
-                title="Other"
+                title={t("products.other")}
                 categories={otherCategories}
                 activeCategory={search.category}
                 onSelect={selectCategory}
@@ -201,13 +203,13 @@ function ProductsPage() {
 
             <div className="mb-8">
               <h2 className="mb-3 font-serif text-sm uppercase tracking-wider text-gold">
-                Price Range (€)
+                {t("products.priceRange")}
               </h2>
               <div className="flex items-center gap-2">
                 <input
                   type="number"
                   min={0}
-                  placeholder="Min"
+                  placeholder={t("products.min")}
                   defaultValue={search.minPrice ?? ""}
                   onBlur={(e) =>
                     updateFilter({ minPrice: e.target.value ? Number(e.target.value) : undefined })
@@ -218,7 +220,7 @@ function ProductsPage() {
                 <input
                   type="number"
                   min={0}
-                  placeholder="Max"
+                  placeholder={t("products.max")}
                   defaultValue={search.maxPrice ?? ""}
                   onBlur={(e) =>
                     updateFilter({ maxPrice: e.target.value ? Number(e.target.value) : undefined })
@@ -235,7 +237,7 @@ function ProductsPage() {
                 onChange={(e) => updateFilter({ inStock: e.target.checked || undefined })}
                 className="accent-gold"
               />
-              In stock only
+              {t("products.inStockOnly")}
             </label>
 
             {hasActiveFilters && (
@@ -243,7 +245,7 @@ function ProductsPage() {
                 onClick={clearFilters}
                 className="mb-8 text-xs font-semibold uppercase tracking-wider text-gold/70 hover:text-gold"
               >
-                Clear Filters
+                {t("products.clearFilters")}
               </button>
             )}
           </aside>
@@ -258,7 +260,7 @@ function ProductsPage() {
                 onClick={() => selectCategory(undefined)}
                 className="mt-6 border border-gold px-4 py-2 text-sm font-semibold text-gold hover:bg-gold hover:text-black"
               >
-                View All Products
+                {t("products.viewAllProducts")}
               </button>
             </div>
           ) : (

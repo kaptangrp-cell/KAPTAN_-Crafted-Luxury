@@ -3,6 +3,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { useQueryClient } from "@tanstack/react-query";
 import { Heart, ShoppingBag } from "lucide-react";
 import { toast } from "sonner";
+import { useTranslation } from "react-i18next";
 import { useCartStore } from "@/stores/cartStore";
 import { useAuthStore } from "@/stores/authStore";
 import { toggleWishlist } from "@/lib/wishlist.functions";
@@ -17,6 +18,7 @@ interface ProductCardProps {
 }
 
 export function ProductCard({ product }: ProductCardProps) {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const qc = useQueryClient();
   const addItem = useCartStore((s) => s.addItem);
@@ -27,7 +29,7 @@ export function ProductCard({ product }: ProductCardProps) {
     product.product_images?.[0]?.url ??
     "https://images.unsplash.com/photo-1602028915047-37269d1a73f7?w=400&q=80";
 
-  const categoryName = product.categories?.name ?? "Product";
+  const categoryName = product.categories?.name ?? t("products.defaultCategory");
 
   function openProduct() {
     navigate({
@@ -39,14 +41,14 @@ export function ProductCard({ product }: ProductCardProps) {
   function handleAddToCart(e: React.MouseEvent) {
     e.stopPropagation();
     addItem(product, null, 1, imageUrl);
-    toast.success(`${product.name} added to cart`);
+    toast.success(t("products.addedToCartToast", { name: product.name }));
   }
 
   async function handleWishlist(e: React.MouseEvent) {
     e.stopPropagation();
 
     if (!user) {
-      toast.error("Please sign in to save wishlist items");
+      toast.error(t("products.signInToWishlistToast"));
       return;
     }
 
@@ -55,10 +57,12 @@ export function ProductCard({ product }: ProductCardProps) {
         data: { productId: product.id },
       });
 
-      toast.success(result.saved ? "Added to wishlist" : "Removed from wishlist");
+      toast.success(
+        result.saved ? t("products.addedToWishlistToast") : t("products.removedFromWishlistToast"),
+      );
       qc.invalidateQueries({ queryKey: ["wishlist"] });
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Wishlist failed");
+      toast.error(err instanceof Error ? err.message : t("products.wishlistFailedToast"));
     }
   }
 
@@ -82,7 +86,7 @@ export function ProductCard({ product }: ProductCardProps) {
         <button
           onClick={handleWishlist}
           className="absolute right-2 top-2 flex h-9 w-9 items-center justify-center rounded-full border border-gold/40 bg-black/80 text-gold transition-colors hover:bg-gold hover:text-black"
-          aria-label="Add to wishlist"
+          aria-label={t("products.wishlistAriaLabel")}
         >
           <Heart size={17} />
         </button>
@@ -101,11 +105,11 @@ export function ProductCard({ product }: ProductCardProps) {
           <Price amount={product.price} className="font-mono text-lg font-bold text-gold" />
 
           {(product.stock_quantity ?? 0) <= 5 && (product.stock_quantity ?? 0) > 0 && (
-            <span className="text-xs text-amber-400">Low Stock</span>
+            <span className="text-xs text-amber-400">{t("products.lowStock")}</span>
           )}
 
           {(product.stock_quantity ?? 0) === 0 && (
-            <span className="text-xs text-red-400">Out of Stock</span>
+            <span className="text-xs text-red-400">{t("products.outOfStock")}</span>
           )}
         </div>
 
@@ -115,7 +119,7 @@ export function ProductCard({ product }: ProductCardProps) {
           className="mt-4 flex w-full items-center justify-center gap-2 bg-gold py-2.5 text-sm font-bold text-black transition-colors hover:bg-gold-vivid disabled:opacity-50"
         >
           <ShoppingBag size={16} />
-          {product.stock_quantity === 0 ? "Out of Stock" : "Add to Cart"}
+          {product.stock_quantity === 0 ? t("products.outOfStock") : t("products.addToCart")}
         </button>
       </div>
     </div>

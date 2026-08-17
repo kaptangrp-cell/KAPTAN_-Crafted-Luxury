@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Coins } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { useCurrencyStore } from "@/stores/currencyStore";
 import { SUPPORTED_CURRENCIES } from "@/lib/currency";
 
@@ -9,6 +10,7 @@ import { SUPPORTED_CURRENCIES } from "@/lib/currency";
  * of what's selected here (see the disclaimer on the checkout page).
  */
 export function CurrencySwitcher({ className }: { className?: string }) {
+  const { t } = useTranslation();
   const [open, setOpen] = useState(false);
   const currency = useCurrencyStore((s) => s.effectiveCurrency());
   const setCurrency = useCurrencyStore((s) => s.setCurrency);
@@ -19,8 +21,8 @@ export function CurrencySwitcher({ className }: { className?: string }) {
         onClick={() => setOpen((o) => !o)}
         onBlur={() => setTimeout(() => setOpen(false), 150)}
         className="flex items-center gap-1 p-1 text-xs font-semibold uppercase text-gold/80 transition-colors hover:text-gold"
-        aria-label="Change display currency"
-        title="Change display currency"
+        aria-label={t("header.changeCurrency")}
+        title={t("header.changeCurrency")}
       >
         <Coins size={16} />
         <span>{currency}</span>

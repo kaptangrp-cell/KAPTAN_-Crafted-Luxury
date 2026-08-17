@@ -2,6 +2,8 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery } from "@tanstack/react-query";
 import { PackageCheck, Package, Truck, CheckCircle } from "lucide-react";
+import { useTranslation } from "react-i18next";
+import type { TFunction } from "i18next";
 import { getMyOrders } from "@/lib/orders.functions";
 import { PageLayout } from "@/components/layout/PageLayout";
 
@@ -11,6 +13,7 @@ export const Route = createFileRoute("/_authenticated/orders")({
 });
 
 function OrdersPage() {
+  const { t, i18n } = useTranslation();
   const fetchOrders = useServerFn(getMyOrders);
 
   const { data, isLoading } = useQuery({
@@ -21,30 +24,30 @@ function OrdersPage() {
   return (
     <PageLayout>
       <section className="mx-auto max-w-5xl px-4 py-12 md:px-6">
-        <h1 className="font-serif text-4xl font-semibold text-white">My Orders</h1>
+        <h1 className="font-serif text-4xl font-semibold text-white">{t("orders.title")}</h1>
 
         <div className="mt-6 flex flex-wrap gap-4 border-b border-gold/10 pb-4 text-sm">
           <Link to="/profile" className="text-white/60 hover:text-gold">
-            Profile
+            {t("account.navProfile")}
           </Link>
           <Link to="/orders" className="text-gold">
-            Orders
+            {t("account.navOrders")}
           </Link>
           <Link to="/wishlist" className="text-white/60 hover:text-gold">
-            Wishlist
+            {t("account.navWishlist")}
           </Link>
         </div>
 
         {isLoading ? (
-          <p className="mt-10 text-white/60">Loading orders…</p>
+          <p className="mt-10 text-white/60">{t("orders.loadingOrders")}</p>
         ) : !data?.orders.length ? (
           <div className="mt-12 flex flex-col items-center gap-4 border border-dashed border-gold/20 py-16 text-center">
-            <p className="text-white/60">You have no orders yet.</p>
+            <p className="text-white/60">{t("orders.empty")}</p>
             <Link
               to="/products"
               className="border border-gold px-4 py-2 text-sm text-gold hover:bg-gold hover:text-black"
             >
-              Start Shopping
+              {t("orders.startShopping")}
             </Link>
           </div>
         ) : (
@@ -60,13 +63,13 @@ function OrdersPage() {
                   <div>
                     <p className="font-mono text-sm text-gold">{o.order_number}</p>
                     <p className="text-xs text-white/50">
-                      {new Date(o.created_at!).toLocaleDateString()}
+                      {new Date(o.created_at!).toLocaleDateString(i18n.language === "de" ? "de-DE" : "en-GB")}
                     </p>
                   </div>
 
                   <div className="flex items-center gap-4">
                     <span className={`rounded-full px-3 py-1 text-[10px] uppercase tracking-wider ${badgeClass(o.status)}`}>
-                      {statusLabel(o.status)}
+                      {statusLabel(o.status, t)}
                     </span>
                     <span className="font-mono text-sm text-white">
                       €{Number(o.total).toFixed(2)}
@@ -74,7 +77,7 @@ function OrdersPage() {
                   </div>
                 </div>
 
-                <MiniTracker status={o.status} />
+                <MiniTracker status={o.status} t={t} />
               </Link>
             ))}
           </div>
@@ -84,18 +87,18 @@ function OrdersPage() {
   );
 }
 
-function MiniTracker({ status }: { status: string | null }) {
+function MiniTracker({ status, t }: { status: string | null; t: TFunction }) {
   const steps = [
-    { key: "ordered", label: "Ordered", icon: PackageCheck },
-    { key: "packaging", label: "Packaging", icon: Package },
-    { key: "out_for_delivery", label: "Delivery", icon: Truck },
-    { key: "delivered", label: "Delivered", icon: CheckCircle },
+    { key: "ordered", label: t("account.statusOrdered"), icon: PackageCheck },
+    { key: "packaging", label: t("account.statusPackaging"), icon: Package },
+    { key: "out_for_delivery", label: t("orders.trackerDeliveryShort"), icon: Truck },
+    { key: "delivered", label: t("account.statusDelivered"), icon: CheckCircle },
   ];
 
   const activeIndex = status === "cancelled" ? -1 : steps.findIndex((s) => s.key === (status ?? "ordered"));
 
   if (status === "cancelled") {
-    return <p className="mt-4 text-xs text-red-300">This order has been cancelled.</p>;
+    return <p className="mt-4 text-xs text-red-300">{t("orders.orderCancelled")}</p>;
   }
 
   return (
@@ -121,20 +124,20 @@ function MiniTracker({ status }: { status: string | null }) {
   );
 }
 
-function statusLabel(s: string | null) {
+function statusLabel(s: string | null, t: TFunction) {
   switch (s) {
     case "ordered":
-      return "Ordered";
+      return t("account.statusOrdered");
     case "packaging":
-      return "Packaging";
+      return t("account.statusPackaging");
     case "out_for_delivery":
-      return "Out for Delivery";
+      return t("account.statusOutForDelivery");
     case "delivered":
-      return "Delivered";
+      return t("account.statusDelivered");
     case "cancelled":
-      return "Cancelled";
+      return t("account.statusCancelled");
     default:
-      return "Ordered";
+      return t("account.statusOrdered");
   }
 }
 

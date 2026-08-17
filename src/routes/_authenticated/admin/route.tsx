@@ -1,6 +1,7 @@
 import { createFileRoute, Outlet, Link, redirect, useRouterState } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { LayoutDashboard, Package, FolderTree, ShoppingCart, Users, Newspaper } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { supabase } from "@/integrations/supabase/client";
 import { PageLayout } from "@/components/layout/PageLayout";
 import { useAuthStore } from "@/stores/authStore";
@@ -22,16 +23,17 @@ export const Route = createFileRoute("/_authenticated/admin")({
   component: AdminLayout,
 });
 
-const nav: { to: string; label: string; icon: typeof LayoutDashboard; exact?: boolean }[] = [
-  { to: "/admin", label: "Dashboard", icon: LayoutDashboard, exact: true },
-  { to: "/admin/products", label: "Products", icon: Package },
-  { to: "/admin/categories", label: "Categories", icon: FolderTree },
-  { to: "/admin/journal", label: "Journal", icon: Newspaper },
-  { to: "/admin/orders", label: "Orders", icon: ShoppingCart },
-  { to: "/admin/customers", label: "Customers", icon: Users },
+const nav: { to: string; labelKey: string; icon: typeof LayoutDashboard; exact?: boolean }[] = [
+  { to: "/admin", labelKey: "admin.navDashboard", icon: LayoutDashboard, exact: true },
+  { to: "/admin/products", labelKey: "admin.navProducts", icon: Package },
+  { to: "/admin/categories", labelKey: "admin.navCategories", icon: FolderTree },
+  { to: "/admin/journal", labelKey: "admin.navJournal", icon: Newspaper },
+  { to: "/admin/orders", labelKey: "admin.navOrders", icon: ShoppingCart },
+  { to: "/admin/customers", labelKey: "admin.navCustomers", icon: Users },
 ];
 
 function AdminLayout() {
+  const { t } = useTranslation();
   const { isAdmin } = useAuthStore();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   // SSR-safe hydration check
@@ -42,7 +44,7 @@ function AdminLayout() {
     <PageLayout>
       <div className="mx-auto grid max-w-7xl gap-6 px-4 py-8 md:grid-cols-[220px_1fr] md:px-6">
         <aside className="h-fit border border-gold/20 bg-[#0D0D0D] p-4">
-          <p className="mb-4 font-serif text-xs uppercase tracking-[0.2em] text-gold">Admin</p>
+          <p className="mb-4 font-serif text-xs uppercase tracking-[0.2em] text-gold">{t("admin.navSectionLabel")}</p>
           <nav className="flex flex-col gap-1">
             {nav.map((item) => {
               const active = item.exact ? pathname === item.to : pathname.startsWith(item.to);
@@ -55,7 +57,7 @@ function AdminLayout() {
                   }`}
                 >
                   <item.icon size={16} />
-                  {item.label}
+                  {t(item.labelKey)}
                 </Link>
               );
             })}
@@ -63,7 +65,7 @@ function AdminLayout() {
         </aside>
         <section>
           {ready && !isAdmin ? (
-            <p className="text-white/60">You are not an admin.</p>
+            <p className="text-white/60">{t("admin.notAdmin")}</p>
           ) : (
             <Outlet />
           )}

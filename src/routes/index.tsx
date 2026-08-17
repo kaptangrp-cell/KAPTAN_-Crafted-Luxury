@@ -22,26 +22,26 @@ const heroSlides = [
   {
     image: "/banners/leather-bags.jpg",
     imageWebp: "/banners/leather-bags.webp",
-    title: "Premium Leather Bags",
-    subtitle: "New arrivals crafted for daily elegance.",
+    titleKey: "home.heroSlide1Title",
+    subtitleKey: "home.heroSlide1Subtitle",
   },
   {
     image: "/banners/leather-belts.jpg",
     imageWebp: "/banners/leather-belts.webp",
-    title: "Luxury Leather Belts",
-    subtitle: "Strong details. Timeless finish.",
+    titleKey: "home.heroSlide2Title",
+    subtitleKey: "home.heroSlide2Subtitle",
   },
   {
     image: "/banners/leather-footwear.jpg",
     imageWebp: "/banners/leather-footwear.webp",
-    title: "Leather Footwear",
-    subtitle: "Built to last with premium comfort.",
+    titleKey: "home.heroSlide3Title",
+    subtitleKey: "home.heroSlide3Subtitle",
   },
   {
     image: "/banners/leather-jackets.jpg",
     imageWebp: "/banners/leather-jackets.webp",
-    title: "Leather Jackets",
-    subtitle: "Bold style for every season.",
+    titleKey: "home.heroSlide4Title",
+    subtitleKey: "home.heroSlide4Subtitle",
   },
 ];
 
@@ -183,7 +183,7 @@ function HomePage() {
       toast.success(result.message);
       setNewsletterEmail("");
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Subscription failed");
+      toast.error(err instanceof Error ? err.message : t("home.subscriptionFailedToast"));
     } finally {
       setSubscribing(false);
     }
@@ -206,7 +206,7 @@ function HomePage() {
               <source srcSet={s.imageWebp} type="image/webp" />
               <img
                 src={s.image}
-                alt={s.title}
+                alt={t(s.titleKey)}
                 width={2200}
                 height={1467}
                 fetchPriority={index === 0 ? "high" : "low"}
@@ -229,11 +229,11 @@ function HomePage() {
             </p>
 
             <h1 className="font-serif text-4xl font-bold leading-tight text-white md:text-6xl lg:text-7xl">
-              {slide.title}
+              {t(slide.titleKey)}
             </h1>
 
             <p className="mx-auto mt-6 max-w-xl text-base leading-relaxed text-gold-dark md:text-lg">
-              {slide.subtitle}
+              {t(slide.subtitleKey)}
             </p>
 
             <div className="mx-auto mt-6 h-px w-24 bg-gold/40" />
@@ -243,14 +243,14 @@ function HomePage() {
                 to="/products"
                 className="bg-gold px-8 py-3 font-semibold text-black transition-colors hover:bg-gold-vivid"
               >
-                Shop Now
+                {t("home.heroShopNow")}
               </Link>
               <Link
                 to="/products"
                 search={{ category: "salt-lamp-natural" }}
                 className="border border-gold px-8 py-3 font-semibold text-gold transition-colors hover:bg-gold hover:text-black"
               >
-                Discover Salt Lamps
+                {t("home.discoverSaltLamps")}
               </Link>
             </div>
 
@@ -262,7 +262,7 @@ function HomePage() {
                   className={`h-2 rounded-full transition-all ${
                     index === activeSlide ? "w-8 bg-gold" : "w-2 bg-white/40"
                   }`}
-                  aria-label={`Go to slide ${index + 1}`}
+                  aria-label={t("home.goToSlideAriaLabel", { number: index + 1 })}
                 />
               ))}
             </div>
@@ -323,7 +323,7 @@ function HomePage() {
             <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-black/10" />
             <div className="relative z-10 text-center">
               <p className="text-xs font-bold uppercase tracking-[0.3em] text-gold/70">
-                Full-Grain Leather
+                {t("home.fullGrainLeather")}
               </p>
               <h3 className="mt-3 font-serif text-3xl font-bold text-white md:text-4xl">
                 {t("home.leatherProducts")}
@@ -343,7 +343,7 @@ function HomePage() {
             <div className="absolute inset-0 bg-gradient-to-t from-black via-black/30 to-transparent" />
             <div className="relative z-10 text-center">
               <p className="text-xs font-bold uppercase tracking-[0.3em] text-gold/70">
-                Hand-Carved · Khewra Salt
+                {t("home.handCarvedKhewraSalt")}
               </p>
               <h3 className="mt-3 font-serif text-3xl font-bold text-white md:text-4xl">
                 {t("home.himalayanSaltLamps")}
@@ -362,10 +362,10 @@ function HomePage() {
             <Reveal className="mb-10 flex items-end justify-between">
               <div>
                 <p className="text-xs font-bold uppercase tracking-[0.3em] text-gold/70">
-                  Just For You
+                  {t("home.justForYou")}
                 </p>
                 <h2 className="mt-2 font-serif text-3xl font-bold text-white md:text-4xl">
-                  Recommended For You
+                  {t("home.recommendedForYou")}
                 </h2>
               </div>
             </Reveal>
@@ -405,7 +405,7 @@ function HomePage() {
           <div className="mx-auto max-w-7xl">
             <Reveal className="mb-10 text-center">
               <h2 className="font-serif text-3xl font-bold text-white md:text-4xl">
-                Recently Viewed
+                {t("pdp.recentlyViewed")}
               </h2>
               <div className="mx-auto mt-3 h-0.5 w-12 bg-gold" />
             </Reveal>
@@ -437,7 +437,7 @@ function HomePage() {
               <iframe
                 className="h-full w-full"
                 src={`https://www.youtube.com/embed/${YOUTUBE_ID}?rel=0&modestbranding=1&autoplay=1`}
-                title="KAPTAN leather craft demo video"
+                title={t("home.videoTitle")}
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                 allowFullScreen
               />
@@ -446,11 +446,11 @@ function HomePage() {
                 type="button"
                 onClick={() => setVideoPlaying(true)}
                 className="group relative h-full w-full"
-                aria-label="Play KAPTAN leather craft demo video"
+                aria-label={t("home.playVideoAriaLabel")}
               >
                 <img
                   src={`https://img.youtube.com/vi/${YOUTUBE_ID}/hqdefault.jpg`}
-                  alt="KAPTAN leather craft demo video thumbnail"
+                  alt={t("home.videoThumbnailAlt")}
                   loading="lazy"
                   decoding="async"
                   className="h-full w-full object-cover opacity-70 transition-opacity group-hover:opacity-90"
@@ -518,7 +518,7 @@ function HomePage() {
                   </div>
                   {tm.verified && (
                     <span className="text-[10px] font-semibold uppercase tracking-wider text-gold/70">
-                      Verified Purchase
+                      {t("pdp.verifiedPurchase")}
                     </span>
                   )}
                 </div>
@@ -555,7 +555,7 @@ function HomePage() {
               disabled={subscribing}
               className="bg-gold px-6 py-3 text-sm font-bold text-black transition-colors hover:bg-gold-vivid disabled:opacity-50"
             >
-              {subscribing ? "Subscribing..." : t("home.subscribe")}
+              {subscribing ? t("home.subscribing") : t("home.subscribe")}
             </button>
           </form>
         </Reveal>

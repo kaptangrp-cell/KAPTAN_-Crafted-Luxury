@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
 import { getJournalPosts } from "@/lib/journal.functions";
 import { PageLayout } from "@/components/layout/PageLayout";
 import { Reveal } from "@/components/motion/Reveal";
@@ -25,9 +26,9 @@ export const Route = createFileRoute("/journal")({
   component: JournalIndexPage,
 });
 
-function formatDate(value: string | null) {
+function formatDate(value: string | null, language: string) {
   if (!value) return "";
-  return new Date(value).toLocaleDateString("en-GB", {
+  return new Date(value).toLocaleDateString(language === "de" ? "de-DE" : "en-GB", {
     year: "numeric",
     month: "short",
     day: "numeric",
@@ -35,6 +36,7 @@ function formatDate(value: string | null) {
 }
 
 function JournalIndexPage() {
+  const { t, i18n } = useTranslation();
   const { data } = useSuspenseQuery(journalListQueryOptions);
   const posts = data?.posts ?? [];
 
@@ -42,19 +44,19 @@ function JournalIndexPage() {
     <PageLayout>
       <section className="border-b border-gold/10 bg-black py-20">
         <div className="mx-auto max-w-4xl px-4 text-center md:px-6">
-          <p className="text-xs uppercase tracking-[0.3em] text-gold">The Atelier</p>
+          <p className="text-xs uppercase tracking-[0.3em] text-gold">{t("journal.eyebrow")}</p>
           <h1 className="mt-4 font-serif text-5xl font-semibold text-white md:text-6xl">
-            The <span className="text-gold">Journal</span>
+            {t("journal.titlePrefix")} <span className="text-gold">{t("journal.titleHighlight")}</span>
           </h1>
           <p className="mx-auto mt-6 max-w-xl text-base leading-relaxed text-white/70">
-            Notes on craftsmanship, origin, and care — from the people who make what you carry.
+            {t("journal.subtitle")}
           </p>
         </div>
       </section>
 
       {posts.length === 0 ? (
         <section className="mx-auto max-w-2xl px-4 py-24 text-center md:px-6">
-          <p className="text-white/60">New stories are on their way. Check back soon.</p>
+          <p className="text-white/60">{t("journal.empty")}</p>
         </section>
       ) : (
         <section className="mx-auto max-w-6xl px-4 py-16 md:px-6">
@@ -94,7 +96,7 @@ function JournalIndexPage() {
                     </p>
                   )}
                   <p className="mt-3 text-xs text-white/40">
-                    {post.author_name} · {formatDate(post.published_at)}
+                    {post.author_name} · {formatDate(post.published_at, i18n.language)}
                   </p>
                 </Link>
               </Reveal>
