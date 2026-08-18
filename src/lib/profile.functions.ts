@@ -14,11 +14,32 @@ export const getMyProfile = createServerFn({ method: "GET" })
   .handler(async ({ context }) => {
     const { data, error } = await context.supabase
       .from("profiles")
-      .select("id, role, full_name, phone, avatar_url, date_of_birth, email_marketing")
+      .select("id, role, full_name, phone, avatar_url, date_of_birth, email_marketing, last_payment_method")
       .eq("id", context.userId)
       .single();
     if (error) throw new Error(error.message);
     return { profile: data };
+  });
+
+const PaymentMethodSchema = z.object({
+  payment_method: z.enum(["cod", "bank_transfer", "card", "paypal"]),
+});
+
+/**
+ * Records the payment method a customer just used at checkout, so it can be
+ * pre-selected next time. Fire-and-forget from the client — never blocks or
+ * fails an order if it errors.
+ */
+export const rememberPaymentMethod = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) => PaymentMethodSchema.parse(input))
+  .handler(async ({ data, context }) => {
+    const { error } = await context.supabase
+      .from("profiles")
+      .update({ last_payment_method: data.payment_method })
+      .eq("id", context.userId);
+    if (error) throw new Error(error.message);
+    return { ok: true };
   });
 
 export const updateMyProfile = createServerFn({ method: "POST" })

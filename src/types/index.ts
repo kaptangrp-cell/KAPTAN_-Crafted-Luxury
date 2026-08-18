@@ -73,6 +73,7 @@ export interface Profile {
   avatar_url: string | null;
   date_of_birth: string | null;
   email_marketing: boolean | null;
+  last_payment_method: string | null;
   created_at?: string | null;
   updated_at?: string | null;
 }

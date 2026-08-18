@@ -1,9 +1,10 @@
 import { useEffect, useRef, useState } from "react";
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
+import { useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
-import { ShieldCheck, Lock, Truck } from "lucide-react";
+import { ShieldCheck, Lock, Truck, Minus, Plus, X, Pencil } from "lucide-react";
 import { useCartStore } from "@/stores/cartStore";
 import { useAuthStore } from "@/stores/authStore";
 import { PageLayout } from "@/components/layout/PageLayout";
@@ -14,8 +15,10 @@ import {
   createStripePaymentIntentForOrder,
   confirmStripeOrderPayment,
 } from "@/lib/payments.functions";
+import { getMyAddresses, saveAddress, rememberPaymentMethod } from "@/lib/profile.functions";
 import { getStripeJs } from "@/lib/payments/stripe-client";
 import { useDisplayPrice } from "@/hooks/useCurrency";
+import { COUNTRIES } from "@/lib/countries";
 
 const STRIPE_ENABLED = Boolean(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
 const PAYPAL_ENABLED = Boolean(import.meta.env.VITE_PAYPAL_CLIENT_ID);
@@ -172,20 +175,42 @@ export const Route = createFileRoute("/checkout")({
   component: CheckoutPage,
 });
 
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const PAYMENT_METHODS = ["cod", "bank_transfer", "card", "paypal"] as const;
+
 function CheckoutPage() {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const { items, subtotal, clearCart } = useCartStore();
+  const { items, subtotal, removeItem, updateQuantity, clearCart } = useCartStore();
   const { user, profile } = useAuthStore();
   const createOrderFn = useServerFn(createOrder);
   const createStripeSessionFn = useServerFn(createStripeCheckoutSession);
   const createPaypalOrderFn = useServerFn(createPaypalCheckoutOrder);
+  const getAddressesFn = useServerFn(getMyAddresses);
+  const saveAddressFn = useServerFn(saveAddress);
+  const rememberPaymentMethodFn = useServerFn(rememberPaymentMethod);
   const [submitting, setSubmitting] = useState(false);
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
   const total = subtotal();
   const shipping = total > 50 ? 0 : 5.99;
   const grandTotal = total + shipping;
   const grandTotalEstimate = useDisplayPrice(grandTotal);
+
+  const { data: addressesData } = useQuery({
+    queryKey: ["my-addresses"],
+    queryFn: () => getAddressesFn(),
+    enabled: Boolean(user),
+  });
+  const addresses = addressesData?.addresses ?? [];
+
+  const [selectedAddressId, setSelectedAddressId] = useState<string>("new");
+  const [saveThisAddress, setSaveThisAddress] = useState(false);
+  const prefilledDefault = useRef(false);
+
+  const savedPaymentMethod = profile?.last_payment_method;
+  const initialPaymentMethod =
+    savedPaymentMethod === "card" || savedPaymentMethod === "paypal" ? savedPaymentMethod : "card";
 
   const [form, setForm] = useState({
     customer_name: profile?.full_name ?? "",
@@ -197,12 +222,82 @@ function CheckoutPage() {
     state: "",
     postal_code: "",
     country: "DE",
-    payment_method: "card" as "cod" | "bank_transfer" | "card" | "paypal",
+    payment_method: initialPaymentMethod as (typeof PAYMENT_METHODS)[number],
     notes: "",
   });
 
   function set<K extends keyof typeof form>(k: K, v: (typeof form)[K]) {
     setForm((f) => ({ ...f, [k]: v }));
+    setErrors((e) => {
+      if (!e[k as string]) return e;
+      const next = { ...e };
+      delete next[k as string];
+      return next;
+    });
+  }
+
+  // Prefill from the customer's default saved address the first time their
+  // address book loads, but only if they haven't already typed anything.
+  useEffect(() => {
+    if (prefilledDefault.current || addresses.length === 0) return;
+    prefilledDefault.current = true;
+
+    const def = addresses.find((a) => a.is_default) ?? addresses[0];
+    if (!def) return;
+
+    setSelectedAddressId(def.id);
+    setForm((f) => ({
+      ...f,
+      customer_name: f.customer_name || def.full_name,
+      customer_phone: f.customer_phone || def.phone || "",
+      line1: def.line1,
+      line2: def.line2 ?? "",
+      city: def.city,
+      state: def.state ?? "",
+      postal_code: def.postal_code,
+      country: def.country,
+    }));
+  }, [addresses]);
+
+  function selectAddress(id: string) {
+    setSelectedAddressId(id);
+
+    if (id === "new") {
+      setForm((f) => ({ ...f, line1: "", line2: "", city: "", state: "", postal_code: "" }));
+      return;
+    }
+
+    const addr = addresses.find((a) => a.id === id);
+    if (!addr) return;
+
+    setForm((f) => ({
+      ...f,
+      customer_name: addr.full_name,
+      customer_phone: addr.phone || f.customer_phone,
+      line1: addr.line1,
+      line2: addr.line2 ?? "",
+      city: addr.city,
+      state: addr.state ?? "",
+      postal_code: addr.postal_code,
+      country: addr.country,
+    }));
+    setErrors({});
+  }
+
+  function validate() {
+    const next: Record<string, string> = {};
+
+    if (!form.customer_name.trim()) next.customer_name = t("checkout.errorRequired");
+    if (!form.customer_email.trim()) next.customer_email = t("checkout.errorRequired");
+    else if (!EMAIL_RE.test(form.customer_email.trim())) next.customer_email = t("checkout.errorInvalidEmail");
+    if (!form.customer_phone.trim()) next.customer_phone = t("checkout.errorRequired");
+    if (!form.line1.trim()) next.line1 = t("checkout.errorRequired");
+    if (!form.city.trim()) next.city = t("checkout.errorRequired");
+    if (!form.postal_code.trim()) next.postal_code = t("checkout.errorRequired");
+    if (!form.country.trim()) next.country = t("checkout.errorRequired");
+
+    setErrors(next);
+    return Object.keys(next).length === 0;
   }
 
   async function handleSubmit(e: React.FormEvent) {
@@ -210,6 +305,11 @@ function CheckoutPage() {
 
     if (items.length === 0) {
       toast.error(t("checkout.emptyCartError"));
+      return;
+    }
+
+    if (!validate()) {
+      toast.error(t("checkout.errorFixFields"));
       return;
     }
 
@@ -241,6 +341,27 @@ function CheckoutPage() {
           notes: form.notes || null,
         },
       });
+
+      // Fire-and-forget account conveniences — never block the order on these.
+      if (user) {
+        rememberPaymentMethodFn({ data: { payment_method: form.payment_method } }).catch(() => {});
+
+        if (saveThisAddress && selectedAddressId === "new") {
+          saveAddressFn({
+            data: {
+              full_name: form.customer_name,
+              phone: form.customer_phone,
+              line1: form.line1,
+              line2: form.line2 || null,
+              city: form.city,
+              state: form.state || null,
+              postal_code: form.postal_code,
+              country: form.country,
+              is_default: addresses.length === 0,
+            },
+          }).catch(() => {});
+        }
+      }
 
       if (form.payment_method === "card") {
         const { url } = await createStripeSessionFn({
@@ -309,26 +430,138 @@ function CheckoutPage() {
         </div>
 
         <form onSubmit={handleSubmit} className="grid gap-8 md:grid-cols-[1fr_360px]">
-          <div className="space-y-8">
+          <div className="order-2 space-y-8 md:order-none">
             <section>
               <h2 className="font-serif text-lg text-gold">{t("checkout.contactSection")}</h2>
               <div className="mt-3 grid gap-3 md:grid-cols-2">
-                <Field label={t("checkout.fullName")} value={form.customer_name} onChange={(v) => set("customer_name", v)} required />
-                <Field label={t("checkout.email")} type="email" value={form.customer_email} onChange={(v) => set("customer_email", v)} required />
-                <Field label={t("checkout.phone")} value={form.customer_phone} onChange={(v) => set("customer_phone", v)} required />
+                <Field
+                  label={t("checkout.fullName")}
+                  value={form.customer_name}
+                  onChange={(v) => set("customer_name", v)}
+                  autoComplete="name"
+                  error={errors.customer_name}
+                  required
+                />
+                <Field
+                  label={t("checkout.email")}
+                  type="email"
+                  value={form.customer_email}
+                  onChange={(v) => set("customer_email", v)}
+                  autoComplete="email"
+                  error={errors.customer_email}
+                  required
+                />
+                <Field
+                  label={t("checkout.phone")}
+                  type="tel"
+                  value={form.customer_phone}
+                  onChange={(v) => set("customer_phone", v)}
+                  autoComplete="tel"
+                  error={errors.customer_phone}
+                  required
+                />
               </div>
             </section>
 
             <section>
               <h2 className="font-serif text-lg text-gold">{t("checkout.shippingAddressSection")}</h2>
+
+              {user && addresses.length > 0 && (
+                <label className="mt-3 block">
+                  <span className="mb-1 block text-xs uppercase tracking-wider text-gold/70">
+                    {t("checkout.shipToLabel")}
+                  </span>
+                  <select
+                    value={selectedAddressId}
+                    onChange={(e) => selectAddress(e.target.value)}
+                    className="w-full border border-gold/20 bg-[#1A1A1A] px-3 py-2 text-sm text-white outline-none focus:border-gold"
+                  >
+                    {addresses.map((a) => (
+                      <option key={a.id} value={a.id} className="bg-[#1A1A1A]">
+                        {(a.label || t("checkout.savedAddressFallbackLabel"))}
+                        {" — "}
+                        {a.line1}, {a.city}
+                      </option>
+                    ))}
+                    <option value="new" className="bg-[#1A1A1A]">
+                      {t("checkout.newAddressOption")}
+                    </option>
+                  </select>
+                </label>
+              )}
+
               <div className="mt-3 grid gap-3 md:grid-cols-2">
-                <Field className="md:col-span-2" label={t("checkout.addressLine1")} value={form.line1} onChange={(v) => set("line1", v)} required />
-                <Field className="md:col-span-2" label={t("checkout.addressLine2")} value={form.line2} onChange={(v) => set("line2", v)} />
-                <Field label={t("checkout.city")} value={form.city} onChange={(v) => set("city", v)} required />
-                <Field label={t("checkout.stateRegion")} value={form.state} onChange={(v) => set("state", v)} />
-                <Field label={t("checkout.postalCode")} value={form.postal_code} onChange={(v) => set("postal_code", v)} required />
-                <Field label={t("checkout.country")} value={form.country} onChange={(v) => set("country", v)} required />
+                <Field
+                  className="md:col-span-2"
+                  label={t("checkout.addressLine1")}
+                  value={form.line1}
+                  onChange={(v) => set("line1", v)}
+                  autoComplete="address-line1"
+                  error={errors.line1}
+                  required
+                />
+                <Field
+                  className="md:col-span-2"
+                  label={t("checkout.addressLine2")}
+                  value={form.line2}
+                  onChange={(v) => set("line2", v)}
+                  autoComplete="address-line2"
+                />
+                <Field
+                  label={t("checkout.city")}
+                  value={form.city}
+                  onChange={(v) => set("city", v)}
+                  autoComplete="address-level2"
+                  error={errors.city}
+                  required
+                />
+                <Field
+                  label={t("checkout.stateRegion")}
+                  value={form.state}
+                  onChange={(v) => set("state", v)}
+                  autoComplete="address-level1"
+                />
+                <Field
+                  label={t("checkout.postalCode")}
+                  value={form.postal_code}
+                  onChange={(v) => set("postal_code", v)}
+                  autoComplete="postal-code"
+                  error={errors.postal_code}
+                  required
+                />
+                <label className="block">
+                  <span className="mb-1 block text-xs uppercase tracking-wider text-gold/70">
+                    {t("checkout.country")}
+                  </span>
+                  <select
+                    value={form.country}
+                    onChange={(e) => set("country", e.target.value)}
+                    autoComplete="country"
+                    className={`w-full border bg-[#1A1A1A] px-3 py-2 text-sm text-white outline-none focus:border-gold ${
+                      errors.country ? "border-red-500" : "border-gold/20"
+                    }`}
+                  >
+                    {COUNTRIES.map((c) => (
+                      <option key={c.code} value={c.code} className="bg-[#1A1A1A]">
+                        {c.name}
+                      </option>
+                    ))}
+                  </select>
+                  {errors.country && <p className="mt-1 text-xs text-red-400">{errors.country}</p>}
+                </label>
               </div>
+
+              {user && selectedAddressId === "new" && (
+                <label className="mt-3 flex items-center gap-2 text-sm text-white/70">
+                  <input
+                    type="checkbox"
+                    checked={saveThisAddress}
+                    onChange={(e) => setSaveThisAddress(e.target.checked)}
+                    className="accent-gold"
+                  />
+                  {t("checkout.saveAddressLabel")}
+                </label>
+              )}
             </section>
 
             <section>
@@ -368,8 +601,22 @@ function CheckoutPage() {
                       }
                       className="mt-1 accent-gold"
                     />
-                    <div>
-                      <p className="text-sm text-white">{opt.label}</p>
+                    <div className="flex-1">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <p className="text-sm text-white">{opt.label}</p>
+                        {opt.v === "card" && (
+                          <div className="flex gap-1">
+                            {["VISA", "Mastercard", "AMEX"].map((brand) => (
+                              <span
+                                key={brand}
+                                className="rounded border border-white/15 px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wider text-white/50"
+                              >
+                                {brand}
+                              </span>
+                            ))}
+                          </div>
+                        )}
+                      </div>
                       <p className="text-xs text-white/50">{opt.desc}</p>
                     </div>
                   </label>
@@ -388,16 +635,52 @@ function CheckoutPage() {
             </section>
           </div>
 
-          <aside className="h-fit border border-gold/20 bg-[#1A1A1A] p-6">
-            <h2 className="font-serif text-lg text-white">{t("cart.orderSummary")}</h2>
+          <aside className="order-1 h-fit border border-gold/20 bg-[#1A1A1A] p-6 md:order-none md:sticky md:top-24 md:self-start">
+            <div className="flex items-center justify-between">
+              <h2 className="font-serif text-lg text-white">{t("cart.orderSummary")}</h2>
+              <Link to="/cart" className="flex items-center gap-1 text-xs text-gold/70 hover:text-gold">
+                <Pencil size={11} />
+                {t("checkout.editCart")}
+              </Link>
+            </div>
+
             <ul className="mt-4 space-y-3 border-b border-gold/10 pb-4">
               {items.map((i) => (
-                <li key={i.id} className="flex justify-between gap-2 text-xs">
-                  <span className="text-white/80">
-                    {i.name} × {i.quantity}
-                    {i.variantLabel && <span className="block text-gold-dark">{i.variantLabel}</span>}
-                  </span>
-                  <span className="font-mono text-gold">€{(i.price * i.quantity).toFixed(2)}</span>
+                <li key={i.id} className="flex items-start justify-between gap-2 text-xs">
+                  <div className="flex-1">
+                    <span className="text-white/80">
+                      {i.name}
+                      {i.variantLabel && <span className="block text-gold-dark">{i.variantLabel}</span>}
+                    </span>
+
+                    <div className="mt-1.5 flex items-center gap-1.5">
+                      <button
+                        type="button"
+                        onClick={() => updateQuantity(i.id, i.quantity - 1)}
+                        aria-label={t("cart.removeItem")}
+                        className="flex h-5 w-5 items-center justify-center border border-gold/20 text-gold/70 hover:border-gold hover:text-gold"
+                      >
+                        <Minus size={10} />
+                      </button>
+                      <span className="min-w-[1.5ch] text-center text-white/60">{i.quantity}</span>
+                      <button
+                        type="button"
+                        onClick={() => updateQuantity(i.id, i.quantity + 1)}
+                        className="flex h-5 w-5 items-center justify-center border border-gold/20 text-gold/70 hover:border-gold hover:text-gold"
+                      >
+                        <Plus size={10} />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => removeItem(i.id)}
+                        aria-label={t("cart.removeItem")}
+                        className="ml-1 flex h-5 w-5 items-center justify-center text-white/30 hover:text-red-400"
+                      >
+                        <X size={12} />
+                      </button>
+                    </div>
+                  </div>
+                  <span className="whitespace-nowrap font-mono text-gold">€{(i.price * i.quantity).toFixed(2)}</span>
                 </li>
               ))}
             </ul>
@@ -464,6 +747,8 @@ function Field({
   type = "text",
   required,
   className,
+  autoComplete,
+  error,
 }: {
   label: string;
   value: string;
@@ -471,6 +756,8 @@ function Field({
   type?: string;
   required?: boolean;
   className?: string;
+  autoComplete?: string;
+  error?: string;
 }) {
   return (
     <label className={`block ${className ?? ""}`}>
@@ -479,9 +766,13 @@ function Field({
         type={type}
         value={value}
         required={required}
+        autoComplete={autoComplete}
         onChange={(e) => onChange(e.target.value)}
-        className="w-full border border-gold/20 bg-[#1A1A1A] px-3 py-2 text-sm text-white outline-none focus:border-gold"
+        className={`w-full border bg-[#1A1A1A] px-3 py-2 text-sm text-white outline-none focus:border-gold ${
+          error ? "border-red-500" : "border-gold/20"
+        }`}
       />
+      {error && <p className="mt-1 text-xs text-red-400">{error}</p>}
     </label>
   );
 }

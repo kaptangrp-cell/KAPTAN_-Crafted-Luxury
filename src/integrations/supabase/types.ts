@@ -598,6 +598,7 @@ export type Database = {
           email_marketing: boolean | null
           full_name: string | null
           id: string
+          last_payment_method: string | null
           phone: string | null
           role: string
           updated_at: string | null
@@ -609,6 +610,7 @@ export type Database = {
           email_marketing?: boolean | null
           full_name?: string | null
           id: string
+          last_payment_method?: string | null
           phone?: string | null
           role?: string
           updated_at?: string | null
@@ -620,6 +622,7 @@ export type Database = {
           email_marketing?: boolean | null
           full_name?: string | null
           id?: string
+          last_payment_method?: string | null
           phone?: string | null
           role?: string
           updated_at?: string | null

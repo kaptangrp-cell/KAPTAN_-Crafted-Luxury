@@ -233,7 +233,15 @@
     "paymentCouldNotComplete": "Payment could not be completed",
     "freeShippingLabel": "Free Shipping",
     "standardShippingLabel": "Standard Shipping",
-    "standardShippingDetail": "3–6 business days"
+    "standardShippingDetail": "3–6 business days",
+    "errorRequired": "This field is required",
+    "errorInvalidEmail": "Enter a valid email address",
+    "errorFixFields": "Please fix the highlighted fields",
+    "shipToLabel": "Ship to",
+    "savedAddressFallbackLabel": "Address",
+    "newAddressOption": "+ Add a new address",
+    "saveAddressLabel": "Save this address for next time",
+    "editCart": "Edit cart"
   },
   "paypalReturn": {
     "missingToken": "Missing PayPal confirmation token.",

@@ -233,7 +233,15 @@
     "paymentCouldNotComplete": "Zahlung konnte nicht abgeschlossen werden",
     "freeShippingLabel": "Kostenloser Versand",
     "standardShippingLabel": "Standardversand",
-    "standardShippingDetail": "3–6 Werktage"
+    "standardShippingDetail": "3–6 Werktage",
+    "errorRequired": "Dieses Feld ist erforderlich",
+    "errorInvalidEmail": "Gib eine gültige E-Mail-Adresse ein",
+    "errorFixFields": "Bitte korrigiere die markierten Felder",
+    "shipToLabel": "Versand an",
+    "savedAddressFallbackLabel": "Adresse",
+    "newAddressOption": "+ Neue Adresse hinzufügen",
+    "saveAddressLabel": "Diese Adresse für nächstes Mal speichern",
+    "editCart": "Warenkorb bearbeiten"
   },
   "paypalReturn": {
     "missingToken": "PayPal-Bestätigungstoken fehlt.",
