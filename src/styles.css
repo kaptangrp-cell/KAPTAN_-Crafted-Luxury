@@ -110,22 +110,24 @@
 .light .text-white\/30:not(.media-hero, .media-hero *) { color: rgba(20, 18, 16, 0.6) !important; }
 .light .text-white\/20:not(.media-hero, .media-hero *) { color: rgba(20, 18, 16, 0.55) !important; }
 
-/* Gold text is darkened just enough to clear AA contrast on the
-   off-white background while still reading as gold, not black —
-   keeps the black/white/gold balance instead of collapsing gold
-   into another shade of ink. */
-.light .text-gold:not(.media-hero, .media-hero *),
-.light .text-gold-dark:not(.media-hero, .media-hero *) {
-  color: #8A6A15 !important;
+/* Gold stays the exact same brand gold in light mode as in dark mode
+   (#C9A227 / #A8841F) — no darkening. These rules just neutralize the
+   old darkened override; Tailwind's own text-gold / text-gold-dark
+   utilities already paint the correct, theme-invariant color. */
+.light .text-gold:not(.media-hero, .media-hero *) {
+  color: #C9A227 !important;
 }
-.light .text-gold\/90:not(.media-hero, .media-hero *) { color: rgba(138, 106, 21, 0.92) !important; }
-.light .text-gold\/80:not(.media-hero, .media-hero *) { color: rgba(138, 106, 21, 0.88) !important; }
-.light .text-gold\/70:not(.media-hero, .media-hero *) { color: rgba(138, 106, 21, 0.85) !important; }
-.light .text-gold\/60:not(.media-hero, .media-hero *) { color: rgba(138, 106, 21, 0.82) !important; }
-.light .text-gold\/50:not(.media-hero, .media-hero *) { color: rgba(138, 106, 21, 0.78) !important; }
-.light .text-gold\/40:not(.media-hero, .media-hero *) { color: rgba(138, 106, 21, 0.75) !important; }
-.light .text-gold\/30:not(.media-hero, .media-hero *) { color: rgba(138, 106, 21, 0.72) !important; }
-.light .text-gold\/20:not(.media-hero, .media-hero *) { color: rgba(138, 106, 21, 0.68) !important; }
+.light .text-gold-dark:not(.media-hero, .media-hero *) {
+  color: #A8841F !important;
+}
+.light .text-gold\/90:not(.media-hero, .media-hero *) { color: rgba(201, 162, 39, 0.9) !important; }
+.light .text-gold\/80:not(.media-hero, .media-hero *) { color: rgba(201, 162, 39, 0.8) !important; }
+.light .text-gold\/70:not(.media-hero, .media-hero *) { color: rgba(201, 162, 39, 0.7) !important; }
+.light .text-gold\/60:not(.media-hero, .media-hero *) { color: rgba(201, 162, 39, 0.6) !important; }
+.light .text-gold\/50:not(.media-hero, .media-hero *) { color: rgba(201, 162, 39, 0.5) !important; }
+.light .text-gold\/40:not(.media-hero, .media-hero *) { color: rgba(201, 162, 39, 0.4) !important; }
+.light .text-gold\/30:not(.media-hero, .media-hero *) { color: rgba(201, 162, 39, 0.3) !important; }
+.light .text-gold\/20:not(.media-hero, .media-hero *) { color: rgba(201, 162, 39, 0.2) !important; }
 
 .light .bg-gold {
   background-color: #C9A227 !important;
@@ -145,7 +147,7 @@
 
 /* Header search input + newsletter form placeholders */
 .light .placeholder\:text-gold\/40::placeholder {
-  color: rgba(138, 106, 21, 0.65) !important;
+  color: rgba(201, 162, 39, 0.4) !important;
 }
 .light .placeholder\:text-white\/30::placeholder {
   color: rgba(20, 18, 16, 0.45) !important;
