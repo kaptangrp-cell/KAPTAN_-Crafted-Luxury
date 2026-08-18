@@ -110,32 +110,28 @@
 .light .text-white\/30:not(.media-hero, .media-hero *) { color: rgba(20, 18, 16, 0.6) !important; }
 .light .text-white\/20:not(.media-hero, .media-hero *) { color: rgba(20, 18, 16, 0.55) !important; }
 
-/* Gold stays the exact same brand gold in light mode as in dark mode
-   (#C9A227 / #A8841F) — no darkening. These rules just neutralize the
-   old darkened override; Tailwind's own text-gold / text-gold-dark
-   utilities already paint the correct, theme-invariant color. */
-.light .text-gold:not(.media-hero, .media-hero *) {
-  color: #C9A227 !important;
-}
+/* Light-mode gold: #D4A325, used consistently for text-gold,
+   text-gold-dark, bg-gold and border-gold. */
+.light .text-gold:not(.media-hero, .media-hero *),
 .light .text-gold-dark:not(.media-hero, .media-hero *) {
-  color: #A8841F !important;
+  color: #D4A325 !important;
 }
-.light .text-gold\/90:not(.media-hero, .media-hero *) { color: rgba(201, 162, 39, 0.9) !important; }
-.light .text-gold\/80:not(.media-hero, .media-hero *) { color: rgba(201, 162, 39, 0.8) !important; }
-.light .text-gold\/70:not(.media-hero, .media-hero *) { color: rgba(201, 162, 39, 0.7) !important; }
-.light .text-gold\/60:not(.media-hero, .media-hero *) { color: rgba(201, 162, 39, 0.6) !important; }
-.light .text-gold\/50:not(.media-hero, .media-hero *) { color: rgba(201, 162, 39, 0.5) !important; }
-.light .text-gold\/40:not(.media-hero, .media-hero *) { color: rgba(201, 162, 39, 0.4) !important; }
-.light .text-gold\/30:not(.media-hero, .media-hero *) { color: rgba(201, 162, 39, 0.3) !important; }
-.light .text-gold\/20:not(.media-hero, .media-hero *) { color: rgba(201, 162, 39, 0.2) !important; }
+.light .text-gold\/90:not(.media-hero, .media-hero *) { color: rgba(212, 163, 37, 0.9) !important; }
+.light .text-gold\/80:not(.media-hero, .media-hero *) { color: rgba(212, 163, 37, 0.8) !important; }
+.light .text-gold\/70:not(.media-hero, .media-hero *) { color: rgba(212, 163, 37, 0.7) !important; }
+.light .text-gold\/60:not(.media-hero, .media-hero *) { color: rgba(212, 163, 37, 0.6) !important; }
+.light .text-gold\/50:not(.media-hero, .media-hero *) { color: rgba(212, 163, 37, 0.5) !important; }
+.light .text-gold\/40:not(.media-hero, .media-hero *) { color: rgba(212, 163, 37, 0.4) !important; }
+.light .text-gold\/30:not(.media-hero, .media-hero *) { color: rgba(212, 163, 37, 0.3) !important; }
+.light .text-gold\/20:not(.media-hero, .media-hero *) { color: rgba(212, 163, 37, 0.2) !important; }
 
 .light .bg-gold {
-  background-color: #C9A227 !important;
+  background-color: #D4A325 !important;
   color: #000000 !important;
 }
 
 .light .border-gold {
-  border-color: #C9A227 !important;
+  border-color: #D4A325 !important;
 }
 
 /* Semantic status colors (stock badges, delete/remove icons, success
