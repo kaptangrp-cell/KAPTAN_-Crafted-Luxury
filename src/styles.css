@@ -35,8 +35,10 @@
 }
 
 .light {
-  --background: #ffffff;
-  --foreground: #0a0a0a;
+  /* Warm off-white instead of pure white — keeps the luxury feel and
+     stops the page from reading as a flat, glaring white surface. */
+  --background: #F7F4EC;
+  --foreground: #141210;
 }
 
 @layer base {
@@ -69,35 +71,61 @@
   box-shadow: 0 0 24px rgba(201, 162, 39, 0.35);
 }
 
-/* Light mode fixes */
-.light .bg-black {
+/* ============================================
+   Light mode fixes
+
+   Most of the site is written dark-first (text-white / text-gold on
+   bg-black surfaces). The rules below re-map those literal classes to
+   readable light-mode colors.
+
+   Sections with a photograph behind them (hero, image tiles, video
+   thumbnail) use a permanent dark scrim regardless of theme — the
+   image itself doesn't change with the toggle, so their white/gold
+   text must stay as-is. Those sections are wrapped in `.media-hero`
+   and excluded from every rule below via :not(.media-hero, .media-hero *).
+   ============================================ */
+
+.light .bg-black:not(.media-hero, .media-hero *) {
+  background-color: #F7F4EC !important;
+}
+
+.light .bg-\[\#1A1A1A\]:not(.media-hero, .media-hero *) {
   background-color: #ffffff !important;
 }
 
-.light .bg-\[\#1A1A1A\] {
-  background-color: #ffffff !important;
+.light .bg-\[\#0D0D0D\]:not(.media-hero, .media-hero *) {
+  background-color: #FAFAF6 !important;
 }
 
-.light .bg-\[\#0D0D0D\] {
-  background-color: #fafafa !important;
+.light .text-white:not(.media-hero, .media-hero *) {
+  color: #141210 !important;
 }
 
-.light .text-white {
-  color: #0a0a0a !important;
-}
+.light .text-white\/90:not(.media-hero, .media-hero *) { color: rgba(20, 18, 16, 0.9) !important; }
+.light .text-white\/80:not(.media-hero, .media-hero *) { color: rgba(20, 18, 16, 0.82) !important; }
+.light .text-white\/70:not(.media-hero, .media-hero *) { color: rgba(20, 18, 16, 0.78) !important; }
+.light .text-white\/60:not(.media-hero, .media-hero *) { color: rgba(20, 18, 16, 0.74) !important; }
+.light .text-white\/50:not(.media-hero, .media-hero *) { color: rgba(20, 18, 16, 0.7) !important; }
+.light .text-white\/40:not(.media-hero, .media-hero *) { color: rgba(20, 18, 16, 0.65) !important; }
+.light .text-white\/30:not(.media-hero, .media-hero *) { color: rgba(20, 18, 16, 0.6) !important; }
+.light .text-white\/20:not(.media-hero, .media-hero *) { color: rgba(20, 18, 16, 0.55) !important; }
 
-.light .text-white\/80,
-.light .text-white\/70,
-.light .text-white\/60 {
-  color: rgba(10, 10, 10, 0.7) !important;
+/* Gold text is darkened just enough to clear AA contrast on the
+   off-white background while still reading as gold, not black —
+   keeps the black/white/gold balance instead of collapsing gold
+   into another shade of ink. */
+.light .text-gold:not(.media-hero, .media-hero *),
+.light .text-gold-dark:not(.media-hero, .media-hero *) {
+  color: #8A6A15 !important;
 }
-
-.light .text-gold,
-.light .text-gold\/80,
-.light .text-gold\/70,
-.light .text-gold-dark {
-  color: #1a1a1a !important;
-}
+.light .text-gold\/90:not(.media-hero, .media-hero *) { color: rgba(138, 106, 21, 0.92) !important; }
+.light .text-gold\/80:not(.media-hero, .media-hero *) { color: rgba(138, 106, 21, 0.88) !important; }
+.light .text-gold\/70:not(.media-hero, .media-hero *) { color: rgba(138, 106, 21, 0.85) !important; }
+.light .text-gold\/60:not(.media-hero, .media-hero *) { color: rgba(138, 106, 21, 0.82) !important; }
+.light .text-gold\/50:not(.media-hero, .media-hero *) { color: rgba(138, 106, 21, 0.78) !important; }
+.light .text-gold\/40:not(.media-hero, .media-hero *) { color: rgba(138, 106, 21, 0.75) !important; }
+.light .text-gold\/30:not(.media-hero, .media-hero *) { color: rgba(138, 106, 21, 0.72) !important; }
+.light .text-gold\/20:not(.media-hero, .media-hero *) { color: rgba(138, 106, 21, 0.68) !important; }
 
 .light .bg-gold {
   background-color: #C9A227 !important;
@@ -106,4 +134,19 @@
 
 .light .border-gold {
   border-color: #C9A227 !important;
+}
+
+/* Semantic status colors (stock badges, delete/remove icons, success
+   states) — the -400 shades read fine on black but wash out on the
+   off-white background, so darken them for AA contrast. */
+.light .text-red-400 { color: #B91C1C !important; }
+.light .text-amber-400 { color: #A16207 !important; }
+.light .text-green-400 { color: #15803D !important; }
+
+/* Header search input + newsletter form placeholders */
+.light .placeholder\:text-gold\/40::placeholder {
+  color: rgba(138, 106, 21, 0.65) !important;
+}
+.light .placeholder\:text-white\/30::placeholder {
+  color: rgba(20, 18, 16, 0.45) !important;
 }

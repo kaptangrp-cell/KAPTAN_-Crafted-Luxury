@@ -71,7 +71,7 @@ export function ProductCard({ product }: ProductCardProps) {
       onClick={openProduct}
       className="group relative flex cursor-pointer flex-col overflow-hidden border border-gold/10 bg-[#1A1A1A] transition-all duration-300 hover:border-gold/30 hover:gold-glow"
     >
-      <div className="relative block aspect-[4/3] overflow-hidden bg-black">
+      <div className="media-hero relative block aspect-[4/3] overflow-hidden bg-black">
         <img
           src={imageUrl}
           alt={product.name}

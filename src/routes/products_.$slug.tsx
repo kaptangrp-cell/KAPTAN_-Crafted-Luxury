@@ -354,7 +354,7 @@ function ProductDetailPage() {
               )}
 
               {active.media_type !== "video" && (
-                <span className="pointer-events-none absolute right-3 top-3 flex h-9 w-9 items-center justify-center rounded-full border border-gold/40 bg-black/70 text-gold opacity-0 transition-opacity group-hover:opacity-100">
+                <span className="media-hero pointer-events-none absolute right-3 top-3 flex h-9 w-9 items-center justify-center rounded-full border border-gold/40 bg-black/70 text-gold opacity-0 transition-opacity group-hover:opacity-100">
                   <ZoomIn size={16} />
                 </span>
               )}
@@ -373,7 +373,7 @@ function ProductDetailPage() {
                     {item.media_type === "video" ? (
                       <>
                         <video src={item.url} className="h-full w-full object-cover" muted />
-                        <span className="absolute inset-0 flex items-center justify-center bg-black/40 text-gold">
+                        <span className="media-hero absolute inset-0 flex items-center justify-center bg-black/40 text-gold">
                           <Play size={18} />
                         </span>
                       </>

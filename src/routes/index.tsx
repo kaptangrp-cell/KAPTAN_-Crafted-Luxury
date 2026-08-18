@@ -194,7 +194,7 @@ function HomePage() {
   return (
     <PageLayout>
       <section
-        className="relative min-h-[80vh] overflow-hidden bg-black"
+        className="media-hero relative min-h-[80vh] overflow-hidden bg-black"
         onMouseEnter={() => setHeroPaused(true)}
         onMouseLeave={() => setHeroPaused(false)}
         onFocus={() => setHeroPaused(true)}
@@ -308,7 +308,7 @@ function HomePage() {
           <Link
             to="/products"
             search={{ category: "leather-wallets" }}
-            className="group relative flex h-[420px] items-center justify-center overflow-hidden md:h-[560px]"
+            className="media-hero group relative flex h-[420px] items-center justify-center overflow-hidden md:h-[560px]"
           >
             <picture>
               <source srcSet="/banners/leather-bags.webp" type="image/webp" />
@@ -337,7 +337,7 @@ function HomePage() {
           <Link
             to="/products"
             search={{ category: "salt-lamp-natural" }}
-            className="group relative flex h-[420px] items-center justify-center overflow-hidden bg-[#1A1A1A] md:h-[560px]"
+            className="media-hero group relative flex h-[420px] items-center justify-center overflow-hidden bg-[#1A1A1A] md:h-[560px]"
           >
             <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,oklch(0.7_0.15_70/0.25),transparent_70%)] transition-opacity duration-700 group-hover:opacity-80" />
             <div className="absolute inset-0 bg-gradient-to-t from-black via-black/30 to-transparent" />
@@ -432,7 +432,7 @@ function HomePage() {
             </h2>
           </Reveal>
 
-          <Reveal delay={0.1} className="relative mx-auto mt-10 aspect-video max-w-4xl overflow-hidden border border-gold/20 bg-[#1A1A1A] shadow-2xl">
+          <Reveal delay={0.1} className="media-hero relative mx-auto mt-10 aspect-video max-w-4xl overflow-hidden border border-gold/20 bg-[#1A1A1A] shadow-2xl">
             {videoPlaying ? (
               <iframe
                 className="h-full w-full"
