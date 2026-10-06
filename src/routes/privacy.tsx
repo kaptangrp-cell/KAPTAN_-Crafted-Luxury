@@ -3,7 +3,15 @@ import { useTranslation } from "react-i18next";
 import { PageLayout } from "@/components/layout/PageLayout";
 
 export const Route = createFileRoute("/privacy")({
-  head: () => ({ meta: [{ title: "Privacy Policy — KAPTAN" }, { name: "description", content: "How KAPTAN collects, uses, and protects your personal data." }] }),
+  head: () => ({
+    meta: [
+      { title: "Privacy Policy — KAPTAN" },
+      {
+        name: "description",
+        content: "How KAPTAN collects, uses, and protects your personal data.",
+      },
+    ],
+  }),
   component: PrivacyPage,
 });
 

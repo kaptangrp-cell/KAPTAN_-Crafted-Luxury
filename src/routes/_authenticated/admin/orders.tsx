@@ -6,11 +6,7 @@ import * as XLSX from "xlsx";
 import { Download } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import type { TFunction } from "i18next";
-import {
-  adminListOrders,
-  adminUpdateOrderStatus,
-  adminExportOrders,
-} from "@/lib/admin.functions";
+import { adminListOrders, adminUpdateOrderStatus, adminExportOrders } from "@/lib/admin.functions";
 
 export const Route = createFileRoute("/_authenticated/admin/orders")({
   component: AdminOrdersPage,
@@ -51,10 +47,15 @@ function AdminOrdersPage() {
   async function getExportRows() {
     const result = await exportFn();
 
-    return (result.orders ?? []).map((o: any) => {
-      const address = o.shipping_address ?? {};
+    return (result.orders ?? []).map((o) => {
+      const address =
+        typeof o.shipping_address === "object" &&
+        o.shipping_address !== null &&
+        !Array.isArray(o.shipping_address)
+          ? o.shipping_address
+          : {};
       const items = (o.order_items ?? [])
-        .map((item: any) => `${item.product_name} x ${item.quantity}`)
+        .map((item) => `${item.product_name} x ${item.quantity}`)
         .join(", ");
 
       return {
@@ -191,16 +192,14 @@ function AdminOrdersPage() {
                 </td>
 
                 <td className="p-3 text-white/60">
-                  {new Date(o.created_at!).toLocaleDateString(i18n.language === "de" ? "de-DE" : "en-GB")}
+                  {new Date(o.created_at!).toLocaleDateString(
+                    i18n.language === "de" ? "de-DE" : "en-GB",
+                  )}
                 </td>
 
-                <td className="p-3 font-mono text-white">
-                  €{Number(o.total).toFixed(2)}
-                </td>
+                <td className="p-3 font-mono text-white">€{Number(o.total).toFixed(2)}</td>
 
-                <td className="p-3 text-xs capitalize text-white/70">
-                  {o.payment_status}
-                </td>
+                <td className="p-3 text-xs capitalize text-white/70">{o.payment_status}</td>
 
                 <td className="p-3">
                   <select

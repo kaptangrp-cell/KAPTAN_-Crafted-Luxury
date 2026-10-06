@@ -3,7 +3,15 @@ import { useTranslation } from "react-i18next";
 import { PageLayout } from "@/components/layout/PageLayout";
 
 export const Route = createFileRoute("/shipping")({
-  head: () => ({ meta: [{ title: "Shipping — KAPTAN" }, { name: "description", content: "Shipping rates, transit times, and tracking for KAPTAN orders worldwide." }] }),
+  head: () => ({
+    meta: [
+      { title: "Shipping — KAPTAN" },
+      {
+        name: "description",
+        content: "Shipping rates, transit times, and tracking for KAPTAN orders worldwide.",
+      },
+    ],
+  }),
   component: ShippingPage,
 });
 

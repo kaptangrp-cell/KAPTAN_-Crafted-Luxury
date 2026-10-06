@@ -1,3 +1,4 @@
+import { useSyncExternalStore } from "react";
 import { queryOptions, useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { getExchangeRates } from "@/lib/currency.functions";
@@ -32,7 +33,7 @@ export function useDisplayPrice(amountEur: number): {
   currency: string;
   isConverted: boolean;
 } {
-  const currency = useCurrencyStore((s) => s.effectiveCurrency());
+  const currency = useShopCurrency();
   const { data } = useExchangeRates();
 
   if (currency === "EUR") {
@@ -41,4 +42,12 @@ export function useDisplayPrice(amountEur: number): {
 
   const { formatted, converted } = convertAndFormat(amountEur, currency, data?.rates);
   return { formatted, currency: converted ? currency : "EUR", isConverted: converted };
+}
+
+export function useShopCurrency() {
+  return useSyncExternalStore(
+    useCurrencyStore.subscribe,
+    () => useCurrencyStore.getState().effectiveCurrency(),
+    () => "EUR",
+  );
 }

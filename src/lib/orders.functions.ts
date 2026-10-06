@@ -20,161 +20,72 @@ const CartItemSchema = z.object({
 });
 
 const CreateOrderSchema = z.object({
-  user_id: z.string().uuid().nullable().optional(),
+  requestKey: z.string().uuid(),
+  expectedTotal: z.number().finite().min(0),
   customer_name: z.string().min(1).max(120),
   customer_email: z.string().email(),
   customer_phone: z.string().min(3).max(40),
   shipping_address: AddressSchema,
   items: z.array(CartItemSchema).min(1).max(50),
-  payment_method: z.enum(["cod", "bank_transfer", "card", "paypal"]).default("cod"),
+  payment_method: z.enum(["card", "paypal"]),
   notes: z.string().max(1000).optional().nullable(),
 });
-
-function generateOrderNumber() {
-  const ts = Date.now().toString(36).toUpperCase();
-  const rand = Math.random().toString(36).slice(2, 6).toUpperCase();
-  return `KPT-${ts}-${rand}`;
-}
 
 export const createOrder = createServerFn({ method: "POST" })
   .inputValidator((input: unknown) => CreateOrderSchema.parse(input))
   .handler(async ({ data }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-
-    const productIds = data.items.map((i) => i.productId);
-    const variantIds = data.items.map((i) => i.variantId).filter(Boolean) as string[];
-
-    const { data: products, error: pErr } = await supabaseAdmin
-      .from("products")
-      .select("id, name, price, stock_quantity, sold_count, is_available")
-      .in("id", productIds);
-
-    if (pErr) throw new Error(pErr.message);
-
-    const variantMap = new Map<
-      string,
-      {
-        id: string;
-        product_id: string;
-        variant_type: string;
-        variant_value: string;
-        price_modifier: number | null;
-        stock_quantity: number | null;
-      }
-    >();
-
-    if (variantIds.length) {
-      const { data: variants, error: vErr } = await supabaseAdmin
-        .from("product_variants")
-        .select("id, product_id, variant_type, variant_value, price_modifier, stock_quantity")
-        .in("id", variantIds);
-
-      if (vErr) throw new Error(vErr.message);
-      variants?.forEach((v) => variantMap.set(v.id, v));
+    const { authenticatedUserId, checkoutOwner, checkoutOrigin, digest } =
+      await import("@/lib/payments/checkout.server");
+    const { isPaypalConfigured } = await import("@/lib/payments/paypal.server");
+    const { getStripeClient } = await import("@/lib/payments/stripe.server");
+    checkoutOrigin();
+    if (
+      data.payment_method === "card"
+        ? !getStripeClient() || !process.env.STRIPE_WEBHOOK_SECRET
+        : !isPaypalConfigured()
+    ) {
+      throw new Error(
+        "This payment method is currently unavailable. Please choose another method.",
+      );
     }
-
-    let subtotal = 0;
-
-    const orderItems = data.items.map((item) => {
-      const product = products?.find((p) => p.id === item.productId);
-
-      if (!product || product.is_available === false) {
-        throw new Error(`Product unavailable: ${item.productId}`);
-      }
-
-      if (product.stock_quantity !== null && product.stock_quantity < item.quantity) {
-        throw new Error(`Insufficient stock for ${product.name}`);
-      }
-
-      const variant = item.variantId ? variantMap.get(item.variantId) : null;
-      const unitPrice = Number(product.price) + Number(variant?.price_modifier ?? 0);
-      const lineTotal = unitPrice * item.quantity;
-
-      subtotal += lineTotal;
-
-      return {
-        product_id: product.id,
-        variant_id: variant?.id ?? null,
-        product_name: product.name,
-        variant_info: variant ? `${variant.variant_type}: ${variant.variant_value}` : null,
-        quantity: item.quantity,
-        unit_price: unitPrice,
-        line_total: lineTotal,
-      };
+    const allowed = process.env.SHIPPING_COUNTRIES?.split(",")
+      .map((s) => s.trim().toUpperCase())
+      .filter(Boolean);
+    if (allowed?.length && !allowed.includes(data.shipping_address.country.toUpperCase()))
+      throw new Error("We cannot ship to that country. Please contact support.");
+    const userId = await authenticatedUserId();
+    const { requestKey, ...payload } = data;
+    const { data: result, error } = await supabaseAdmin.rpc("create_checkout_order", {
+      p_request_key: requestKey,
+      p_owner_hash: checkoutOwner(true),
+      p_request_hash: digest(JSON.stringify({ ...payload, userId })),
+      p_user_id: userId,
+      p_order: payload,
     });
+    if (error)
+      throw new Error(
+        error.message.includes("stock") ||
+          error.message.includes("option") ||
+          error.message.includes("expired") ||
+          error.message.includes("Prices changed") ||
+          error.message.includes("pending checkouts")
+          ? error.message
+          : "Checkout could not be created. Please retry or contact support.",
+      );
+    return z.object({ orderId: z.string().uuid(), orderNumber: z.string() }).parse(result);
+  });
 
-    const shipping_cost = subtotal > 50 ? 0 : 5.99;
-    const total = subtotal + shipping_cost;
-    const order_number = generateOrderNumber();
-
-    const { data: order, error: oErr } = await supabaseAdmin
-      .from("orders")
-      .insert({
-        order_number,
-        user_id: data.user_id ?? null,
-        customer_name: data.customer_name,
-        customer_email: data.customer_email.toLowerCase(),
-        customer_phone: data.customer_phone,
-        shipping_address: data.shipping_address,
-        payment_method: data.payment_method,
-        payment_status: "pending",
-        status: "ordered",
-        subtotal,
-        shipping_cost,
-        discount: 0,
-        total,
-        admin_notes: data.notes ?? null,
-      })
-      .select("id, order_number")
-      .single();
-
-    if (oErr) throw new Error(oErr.message);
-
-    const { error: iErr } = await supabaseAdmin
-      .from("order_items")
-      .insert(orderItems.map((item) => ({ ...item, order_id: order.id })));
-
-    if (iErr) {
-      await supabaseAdmin.from("orders").delete().eq("id", order.id);
-      throw new Error(iErr.message);
-    }
-
-    // Decrement stock and bump sold_count so Best Sellers / Related /
-    // Recommended (all sorted by sold_count) and low-stock badges reflect
-    // reality. Best-effort: an order already exists at this point, so a
-    // failure here shouldn't roll back the purchase — just log it.
-    try {
-      for (const item of data.items) {
-        const product = products?.find((p) => p.id === item.productId);
-        if (!product) continue;
-
-        await supabaseAdmin
-          .from("products")
-          .update({
-            stock_quantity: Math.max(0, Number(product.stock_quantity ?? 0) - item.quantity),
-            sold_count: Number(product.sold_count ?? 0) + item.quantity,
-          })
-          .eq("id", item.productId);
-
-        if (item.variantId) {
-          const variant = variantMap.get(item.variantId);
-          if (variant && variant.stock_quantity !== null) {
-            await supabaseAdmin
-              .from("product_variants")
-              .update({
-                stock_quantity: Math.max(0, Number(variant.stock_quantity) - item.quantity),
-              })
-              .eq("id", item.variantId);
-          }
-        }
-      }
-    } catch (stockErr) {
-      console.error("Failed to update stock/sold_count after order:", stockErr);
-    }
-
+export const getCheckoutReceipt = createServerFn({ method: "POST" })
+  .inputValidator((input: unknown) => z.object({ orderId: z.string().uuid() }).parse(input))
+  .handler(async ({ data }) => {
+    const { getCheckout } = await import("@/lib/payments/checkout.server");
+    const { order } = await getCheckout(data.orderId);
     return {
       orderId: order.id,
       orderNumber: order.order_number,
+      paymentStatus: order.payment_status,
+      total: order.total,
     };
   });
 
@@ -192,7 +103,9 @@ export const getMyOrders = createServerFn({ method: "GET" })
 
     let query = supabaseAdmin
       .from("orders")
-      .select("id, order_number, status, payment_status, total, created_at, customer_email, order_items(quantity, product_name)")
+      .select(
+        "id, order_number, status, payment_status, total, created_at, customer_email, order_items(quantity, product_name)",
+      )
       .order("created_at", { ascending: false });
 
     if (email) {
@@ -210,17 +123,12 @@ export const getMyOrders = createServerFn({ method: "GET" })
 
 export const getOrderById = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: { id: string }) =>
-    z.object({ id: z.string().uuid() }).parse(input),
-  )
+  .inputValidator((input: { id: string }) => z.object({ id: z.string().uuid() }).parse(input))
   .handler(async ({ data, context }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const email = await getAuthEmail(context.userId);
 
-    let query = supabaseAdmin
-      .from("orders")
-      .select("*, order_items(*)")
-      .eq("id", data.id);
+    let query = supabaseAdmin.from("orders").select("*, order_items(*)").eq("id", data.id);
 
     if (email) {
       query = query.or(`user_id.eq.${context.userId},customer_email.eq.${email}`);

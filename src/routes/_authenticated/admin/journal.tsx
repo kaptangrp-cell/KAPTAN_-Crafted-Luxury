@@ -145,7 +145,10 @@ function AdminJournalPage() {
                     </button>
 
                     <button
-                      onClick={() => confirm(t("adminJournal.deleteConfirm", { title: p.title })) && del.mutate(p.id)}
+                      onClick={() =>
+                        confirm(t("adminJournal.deleteConfirm", { title: p.title })) &&
+                        del.mutate(p.id)
+                      }
                       className="text-white/40 hover:text-red-400"
                     >
                       <Trash2 size={14} />
@@ -233,7 +236,9 @@ function AdminJournalPage() {
                 onChange={(e) => setEditing({ ...editing, is_published: e.target.checked })}
                 className="accent-gold"
               />
-              <span className="text-sm text-white/80">{t("adminJournal.publishedCheckboxLabel")}</span>
+              <span className="text-sm text-white/80">
+                {t("adminJournal.publishedCheckboxLabel")}
+              </span>
             </label>
 
             <div className="flex justify-end gap-2 pt-2">
@@ -261,7 +266,11 @@ function AdminJournalPage() {
 }
 
 function slugify(s: string) {
-  return s.toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
+  return s
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
 }
 
 function Field({
@@ -279,9 +288,7 @@ function Field({
 }) {
   return (
     <label className="block">
-      <span className="mb-1 block text-xs uppercase tracking-wider text-gold/70">
-        {label}
-      </span>
+      <span className="mb-1 block text-xs uppercase tracking-wider text-gold/70">{label}</span>
       <input
         type={type}
         required={required}
@@ -308,9 +315,7 @@ function TextArea({
 }) {
   return (
     <label className="block">
-      <span className="mb-1 block text-xs uppercase tracking-wider text-gold/70">
-        {label}
-      </span>
+      <span className="mb-1 block text-xs uppercase tracking-wider text-gold/70">{label}</span>
       <textarea
         required={required}
         value={value}
@@ -341,16 +346,12 @@ function ImageUpload({
       setUploading(true);
 
       const ext = file.name.split(".").pop() || "png";
-      const fileName = `${folder}/${Date.now()}-${Math.random()
-        .toString(36)
-        .slice(2)}.${ext}`;
+      const fileName = `${folder}/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
 
-      const { error } = await supabase.storage
-        .from("product-images")
-        .upload(fileName, file, {
-          cacheControl: "3600",
-          upsert: true,
-        });
+      const { error } = await supabase.storage.from("product-images").upload(fileName, file, {
+        cacheControl: "3600",
+        upsert: true,
+      });
 
       if (error) throw error;
 
@@ -367,9 +368,7 @@ function ImageUpload({
 
   return (
     <label className="block">
-      <span className="mb-1 block text-xs uppercase tracking-wider text-gold/70">
-        {label}
-      </span>
+      <span className="mb-1 block text-xs uppercase tracking-wider text-gold/70">{label}</span>
 
       <input
         type="file"
@@ -399,11 +398,7 @@ function ImageUpload({
       />
 
       {value && (
-        <img
-          src={value}
-          alt=""
-          className="mt-3 h-24 w-24 border border-gold/20 object-cover"
-        />
+        <img src={value} alt="" className="mt-3 h-24 w-24 border border-gold/20 object-cover" />
       )}
     </label>
   );

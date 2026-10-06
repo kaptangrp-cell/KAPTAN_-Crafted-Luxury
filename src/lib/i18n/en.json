@@ -106,7 +106,9 @@
     "playVideoAriaLabel": "Play KAPTAN leather craft demo video",
     "videoThumbnailAlt": "KAPTAN leather craft demo video thumbnail",
     "subscribing": "Subscribing...",
-    "subscriptionFailedToast": "Subscription failed"
+    "subscriptionFailedToast": "Subscription failed",
+    "availableCollection": "Discover the pieces currently available in our collection.",
+    "exploreCollection": "Discover KAPTAN"
   },
   "faq": {
     "title": "Frequently Asked Questions",
@@ -193,7 +195,12 @@
     "free": "Free",
     "total": "Total",
     "proceedToCheckout": "Proceed to Checkout",
-    "secureCheckoutBadge": "Secure checkout · Card & PayPal"
+    "secureCheckoutBadge": "Secure checkout · Card & PayPal",
+    "drawerDescription": "Review your items and continue to secure checkout.",
+    "decreaseQuantity": "Decrease quantity",
+    "increaseQuantity": "Increase quantity",
+    "titleWithCount_one": "Your Cart ({{count}} item)",
+    "titleWithCount_other": "Your Cart ({{count}} items)"
   },
   "checkout": {
     "title": "Checkout",
@@ -241,7 +248,15 @@
     "savedAddressFallbackLabel": "Address",
     "newAddressOption": "+ Add a new address",
     "saveAddressLabel": "Save this address for next time",
-    "editCart": "Edit cart"
+    "editCart": "Edit cart",
+    "paymentUnavailable": "Online payment is temporarily unavailable. Your cart is saved; please contact us for help.",
+    "cancelledPayment": "Payment cancelled. Your items are still in your cart.",
+    "cancellingPayment": "Checking your cancelled payment…",
+    "confirmedTitle": "Thank you for your order",
+    "confirmedBody": "Your payment is confirmed. Keep your order number for reference.",
+    "confirmingTitle": "Checking your payment",
+    "confirmingBody": "We are verifying payment with the provider. Please do not place another order. If this takes longer, check again or contact us.",
+    "checkPayment": "Check payment status"
   },
   "paypalReturn": {
     "missingToken": "Missing PayPal confirmation token.",
@@ -300,7 +315,15 @@
     "wishlistAriaLabel": "Add to wishlist",
     "lowStock": "Low Stock",
     "outOfStock": "Out of Stock",
-    "addToCart": "Add to Cart"
+    "addToCart": "Add to Cart",
+    "chooseOptions": "Choose options",
+    "filters": "Filters",
+    "searchAction": "Search",
+    "minPriceLabel": "Minimum price in EUR",
+    "maxPriceLabel": "Maximum price in EUR",
+    "pagination": "Product pages",
+    "previous": "Previous",
+    "next": "Next"
   },
   "pdp": {
     "breadcrumbHome": "Home",

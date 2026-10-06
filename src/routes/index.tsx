@@ -18,33 +18,6 @@ import { ProductCard } from "@/components/product/ProductCard";
 import { PageLayout } from "@/components/layout/PageLayout";
 import { Reveal } from "@/components/motion/Reveal";
 
-const heroSlides = [
-  {
-    image: "/banners/leather-bags.jpg",
-    imageWebp: "/banners/leather-bags.webp",
-    titleKey: "home.heroSlide1Title",
-    subtitleKey: "home.heroSlide1Subtitle",
-  },
-  {
-    image: "/banners/leather-belts.jpg",
-    imageWebp: "/banners/leather-belts.webp",
-    titleKey: "home.heroSlide2Title",
-    subtitleKey: "home.heroSlide2Subtitle",
-  },
-  {
-    image: "/banners/leather-footwear.jpg",
-    imageWebp: "/banners/leather-footwear.webp",
-    titleKey: "home.heroSlide3Title",
-    subtitleKey: "home.heroSlide3Subtitle",
-  },
-  {
-    image: "/banners/leather-jackets.jpg",
-    imageWebp: "/banners/leather-jackets.webp",
-    titleKey: "home.heroSlide4Title",
-    subtitleKey: "home.heroSlide4Subtitle",
-  },
-];
-
 const YOUTUBE_ID = "E_rwyu6cdmc";
 
 const featuredQueryOptions = queryOptions({
@@ -73,8 +46,7 @@ function recentlyViewedQueryOptions(ids: string[]) {
 function recommendedQueryOptions(categoryIds: string[], excludeIds: string[]) {
   return queryOptions({
     queryKey: ["home-recommended", categoryIds, excludeIds],
-    queryFn: () =>
-      getRecommendedProducts({ data: { categoryIds, excludeIds, limit: 8 } }),
+    queryFn: () => getRecommendedProducts({ data: { categoryIds, excludeIds, limit: 8 } }),
     enabled: categoryIds.length > 0,
   });
 }
@@ -111,6 +83,24 @@ function HomePage() {
   const [videoPlaying, setVideoPlaying] = useState(false);
 
   const featuredProducts = featuredData?.products ?? [];
+  const availableHeroProducts = featuredProducts
+    .filter((p) => p.is_available && (p.stock_quantity ?? 0) > 0 && p.product_images?.length)
+    .slice(0, 4);
+  const heroSlides = availableHeroProducts.length
+    ? availableHeroProducts.map((p) => ({
+        image:
+          p.product_images?.find((i) => i.media_type !== "video")?.url ??
+          "/banners/leather-bags.jpg",
+        title: p.name,
+        subtitle: t("home.availableCollection"),
+      }))
+    : [
+        {
+          image: "/banners/leather-bags.jpg",
+          title: t("home.exploreCollection"),
+          subtitle: t("footer.tagline"),
+        },
+      ];
 
   const [recentIds, setRecentIds] = useState<string[]>([]);
 
@@ -130,22 +120,13 @@ function HomePage() {
   ].slice(0, 3);
 
   const recommendedExcludeIds = [
-    ...new Set([
-      ...recentlyViewedProducts.map((p) => p.id),
-      ...featuredProducts.map((p) => p.id),
-    ]),
+    ...new Set([...recentlyViewedProducts.map((p) => p.id), ...featuredProducts.map((p) => p.id)]),
   ];
 
   const { data: recommendedData } = useQuery(
     recommendedQueryOptions(recommendedCategoryIds, recommendedExcludeIds),
   );
   const recommendedProducts = (recommendedData?.products ?? []).slice(0, 4);
-
-  const fallbackTestimonials = [
-    { quote: t("home.t1Quote"), name: "Omar H.", subtitle: `Dubai, UAE — ${t("home.t1Product")}`, rating: 5, verified: false },
-    { quote: t("home.t2Quote"), name: "Sarah M.", subtitle: `London, UK — ${t("home.t2Product")}`, rating: 5, verified: false },
-    { quote: t("home.t3Quote"), name: "Ali R.", subtitle: `Karachi, Pakistan — ${t("home.t3Product")}`, rating: 5, verified: false },
-  ];
 
   const realTestimonials = (featuredReviewsData?.reviews ?? [])
     .filter((r) => r.body)
@@ -158,12 +139,10 @@ function HomePage() {
       verified: r.isVerified,
     }));
 
-  const testimonials = realTestimonials.length >= 3 ? realTestimonials : fallbackTestimonials;
+  const testimonials = realTestimonials;
 
   useEffect(() => {
-    const prefersReducedMotion = window.matchMedia(
-      "(prefers-reduced-motion: reduce)",
-    ).matches;
+    const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
     if (prefersReducedMotion || heroPaused) return;
 
@@ -172,7 +151,7 @@ function HomePage() {
     }, 4000);
 
     return () => window.clearInterval(timer);
-  }, [heroPaused]);
+  }, [heroPaused, heroSlides.length]);
 
   async function handleNewsletterSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -189,7 +168,7 @@ function HomePage() {
     }
   }
 
-  const slide = heroSlides[activeSlide];
+  const slide = heroSlides[activeSlide % heroSlides.length];
 
   return (
     <PageLayout>
@@ -203,10 +182,9 @@ function HomePage() {
         <Link to="/products" className="absolute inset-0 block">
           {heroSlides.map((s, index) => (
             <picture key={s.image}>
-              <source srcSet={s.imageWebp} type="image/webp" />
               <img
                 src={s.image}
-                alt={t(s.titleKey)}
+                alt={s.title}
                 width={2200}
                 height={1467}
                 fetchPriority={index === 0 ? "high" : "low"}
@@ -224,16 +202,14 @@ function HomePage() {
 
         <div className="relative z-10 flex min-h-[80vh] items-center justify-center px-4 text-center">
           <div className="max-w-4xl">
-            <p className="mb-4 text-sm font-bold uppercase tracking-[0.4em] text-gold">
-              KAPTAN
-            </p>
+            <p className="mb-4 text-sm font-bold uppercase tracking-[0.4em] text-gold">KAPTAN</p>
 
             <h1 className="font-serif text-4xl font-bold leading-tight text-white md:text-6xl lg:text-7xl">
-              {t(slide.titleKey)}
+              {slide.title}
             </h1>
 
-            <p className="mx-auto mt-6 max-w-xl text-base leading-relaxed text-gold-dark md:text-lg">
-              {t(slide.subtitleKey)}
+            <p className="mx-auto mt-6 max-w-xl text-base leading-relaxed text-white/90 md:text-lg">
+              {slide.subtitle}
             </p>
 
             <div className="mx-auto mt-6 h-px w-24 bg-gold/40" />
@@ -247,10 +223,9 @@ function HomePage() {
               </Link>
               <Link
                 to="/products"
-                search={{ category: "salt-lamp-natural" }}
                 className="border border-gold px-8 py-3 font-semibold text-gold transition-colors hover:bg-gold hover:text-black"
               >
-                {t("home.discoverSaltLamps")}
+                {t("products.viewAllProducts")}
               </Link>
             </div>
 
@@ -289,7 +264,11 @@ function HomePage() {
       <section className="border-y border-gold/10 bg-[#1A1A1A]">
         <div className="mx-auto grid max-w-7xl grid-cols-2 gap-6 px-4 py-8 md:grid-cols-4 md:divide-x md:divide-gold/10 md:px-6">
           {[
-            { icon: ShieldCheck, label: t("home.secureCheckout"), desc: t("home.secureCheckoutDesc") },
+            {
+              icon: ShieldCheck,
+              label: t("home.secureCheckout"),
+              desc: t("home.secureCheckoutDesc"),
+            },
             { icon: Hand, label: t("home.handcrafted"), desc: t("home.handcraftedDesc") },
             { icon: Truck, label: t("home.fastDelivery"), desc: t("home.fastDeliveryDesc") },
             { icon: Leaf, label: t("home.sustainable"), desc: t("home.sustainableDesc") },
@@ -307,7 +286,6 @@ function HomePage() {
         <Reveal className="grid md:grid-cols-2">
           <Link
             to="/products"
-            search={{ category: "leather-wallets" }}
             className="media-hero group relative flex h-[420px] items-center justify-center overflow-hidden md:h-[560px]"
           >
             <picture>
@@ -432,7 +410,10 @@ function HomePage() {
             </h2>
           </Reveal>
 
-          <Reveal delay={0.1} className="media-hero relative mx-auto mt-10 aspect-video max-w-4xl overflow-hidden border border-gold/20 bg-[#1A1A1A] shadow-2xl">
+          <Reveal
+            delay={0.1}
+            className="media-hero relative mx-auto mt-10 aspect-video max-w-4xl overflow-hidden border border-gold/20 bg-[#1A1A1A] shadow-2xl"
+          >
             {videoPlaying ? (
               <iframe
                 className="h-full w-full"
@@ -473,12 +454,8 @@ function HomePage() {
             ].map((step, i) => (
               <Reveal key={step.label} delay={0.15 + i * 0.1}>
                 <div className="border-t border-gold/20 pt-6 md:border-t-0 md:border-l md:pl-8">
-                  <span className="font-serif text-4xl font-bold text-gold/30">
-                    0{i + 1}
-                  </span>
-                  <h3 className="mt-2 font-serif text-lg font-semibold text-white">
-                    {step.label}
-                  </h3>
+                  <span className="font-serif text-4xl font-bold text-gold/30">0{i + 1}</span>
+                  <h3 className="mt-2 font-serif text-lg font-semibold text-white">{step.label}</h3>
                   <p className="mt-3 text-sm leading-relaxed text-white/60">{step.copy}</p>
                 </div>
               </Reveal>
@@ -496,48 +473,48 @@ function HomePage() {
         </div>
       </section>
 
-      <section className="bg-[#0D0D0D] px-4 py-20 md:px-6">
-        <div className="mx-auto max-w-7xl">
-          <Reveal className="mb-10 text-center">
-            <h2 className="font-serif text-3xl font-bold text-white md:text-4xl">
-              {t("home.testimonialsTitle")}
-            </h2>
-            <div className="mx-auto mt-3 h-0.5 w-12 bg-gold" />
-          </Reveal>
+      {testimonials.length > 0 && (
+        <section className="bg-[#0D0D0D] px-4 py-20 md:px-6">
+          <div className="mx-auto max-w-7xl">
+            <Reveal className="mb-10 text-center">
+              <h2 className="font-serif text-3xl font-bold text-white md:text-4xl">
+                {t("home.testimonialsTitle")}
+              </h2>
+              <div className="mx-auto mt-3 h-0.5 w-12 bg-gold" />
+            </Reveal>
 
-          <div className="grid gap-6 md:grid-cols-3">
-            {testimonials.map((tm, i) => (
-              <Reveal key={i} delay={i * 0.1} className="border border-gold/10 bg-[#1A1A1A] p-6">
-                <div className="mb-3 flex items-center gap-2">
-                  <div className="flex gap-0.5">
-                    {Array.from({ length: 5 }).map((_, j) => (
-                      <span key={j} className={j < tm.rating ? "text-gold" : "text-gold/20"}>
-                        ★
+            <div className="grid gap-6 md:grid-cols-3">
+              {testimonials.map((tm, i) => (
+                <Reveal key={i} delay={i * 0.1} className="border border-gold/10 bg-[#1A1A1A] p-6">
+                  <div className="mb-3 flex items-center gap-2">
+                    <div className="flex gap-0.5">
+                      {Array.from({ length: 5 }).map((_, j) => (
+                        <span key={j} className={j < tm.rating ? "text-gold" : "text-gold/20"}>
+                          ★
+                        </span>
+                      ))}
+                    </div>
+                    {tm.verified && (
+                      <span className="text-[10px] font-semibold uppercase tracking-wider text-gold/70">
+                        {t("pdp.verifiedPurchase")}
                       </span>
-                    ))}
+                    )}
                   </div>
-                  {tm.verified && (
-                    <span className="text-[10px] font-semibold uppercase tracking-wider text-gold/70">
-                      {t("pdp.verifiedPurchase")}
-                    </span>
-                  )}
-                </div>
-                <p className="font-serif italic leading-relaxed text-white/80">"{tm.quote}"</p>
-                <div className="mt-4 border-t border-gold/10 pt-4">
-                  <p className="text-sm font-semibold text-white">{tm.name}</p>
-                  <p className="text-xs text-gold/60">{tm.subtitle}</p>
-                </div>
-              </Reveal>
-            ))}
+                  <p className="font-serif italic leading-relaxed text-white/80">"{tm.quote}"</p>
+                  <div className="mt-4 border-t border-gold/10 pt-4">
+                    <p className="text-sm font-semibold text-white">{tm.name}</p>
+                    <p className="text-xs text-gold/60">{tm.subtitle}</p>
+                  </div>
+                </Reveal>
+              ))}
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       <section className="border-y border-gold/20 bg-black px-4 py-20 md:px-6">
         <Reveal className="mx-auto max-w-xl text-center">
-          <h2 className="font-serif text-3xl font-bold text-white">
-            {t("home.newsletterTitle")}
-          </h2>
+          <h2 className="font-serif text-3xl font-bold text-white">{t("home.newsletterTitle")}</h2>
           <p className="mt-3 text-white/60">{t("home.newsletterSubtitle")}</p>
 
           <form onSubmit={handleNewsletterSubmit} className="mt-6 flex flex-col gap-3 sm:flex-row">

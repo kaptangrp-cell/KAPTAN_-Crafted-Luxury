@@ -14,7 +14,9 @@ export function useAuth() {
     async function loadProfile(userId: string) {
       const { data: profile } = await supabase
         .from("profiles")
-        .select("id, role, full_name, phone, avatar_url, date_of_birth, email_marketing")
+        .select(
+          "id, role, full_name, phone, avatar_url, date_of_birth, email_marketing, last_payment_method",
+        )
         .eq("id", userId)
         .single();
 
@@ -26,7 +28,9 @@ export function useAuth() {
     async function getInitialSession() {
       setLoading(true);
 
-      const { data: { session } } = await supabase.auth.getSession();
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
 
       if (!mounted) return;
 

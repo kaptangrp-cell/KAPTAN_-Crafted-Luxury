@@ -92,12 +92,32 @@ function AdminDashboard() {
   ];
 
   const todayStats = [
-    { label: t("admin.todaysSales"), value: `€${data.todaysSales.toFixed(2)}`, icon: TrendingUp, alert: false },
-    { label: t("admin.statOrders"), value: data.todaysOrderCount, icon: ShoppingCart, alert: false },
+    {
+      label: t("admin.todaysSales"),
+      value: `€${data.todaysSales.toFixed(2)}`,
+      icon: TrendingUp,
+      alert: false,
+    },
+    {
+      label: t("admin.statOrders"),
+      value: data.todaysOrderCount,
+      icon: ShoppingCart,
+      alert: false,
+    },
     { label: t("admin.statCustomers"), value: data.todaysNewCustomers, icon: Users, alert: false },
     { label: t("admin.productsSold"), value: data.todaysProductsSold, icon: Boxes, alert: false },
-    { label: t("products.lowStock"), value: data.lowStockCount, icon: AlertTriangle, alert: data.lowStockCount > 0 },
-    { label: t("admin.pendingOrders"), value: data.pendingOrdersCount, icon: Clock, alert: data.pendingOrdersCount > 0 },
+    {
+      label: t("products.lowStock"),
+      value: data.lowStockCount,
+      icon: AlertTriangle,
+      alert: data.lowStockCount > 0,
+    },
+    {
+      label: t("admin.pendingOrders"),
+      value: data.pendingOrdersCount,
+      icon: Clock,
+      alert: data.pendingOrdersCount > 0,
+    },
   ];
 
   const statusChartData = STATUS_BREAKDOWN.map((s) => ({
@@ -151,29 +171,47 @@ function AdminDashboard() {
         <div className="mt-4 grid gap-3 md:grid-cols-3">
           <Select label={t("admin.timePeriod")} value={period} onChange={setPeriod}>
             {PERIODS.map((p) => (
-              <option key={p.value} value={p.value}>{t(p.labelKey)}</option>
+              <option key={p.value} value={p.value}>
+                {t(p.labelKey)}
+              </option>
             ))}
           </Select>
 
           <Select label={t("admin.orderStatus")} value={status} onChange={setStatus}>
             <option value="all">{t("admin.allStatuses")}</option>
             {STATUS_BREAKDOWN.map((s) => (
-              <option key={s.key} value={s.key}>{t(s.labelKey)}</option>
+              <option key={s.key} value={s.key}>
+                {t(s.labelKey)}
+              </option>
             ))}
           </Select>
 
           <Select label={t("admin.product")} value={productName} onChange={setProductName}>
             <option value="all">{t("products.allProducts")}</option>
             {(analytics?.productNames ?? []).map((p) => (
-              <option key={p} value={p}>{p}</option>
+              <option key={p} value={p}>
+                {p}
+              </option>
             ))}
           </Select>
         </div>
 
         <div className="mt-5 grid gap-4 md:grid-cols-3">
-          <MiniStat label={t("admin.filteredRevenue")} value={`€${Number(analytics?.totalRevenue ?? 0).toFixed(2)}`} icon={TrendingUp} />
-          <MiniStat label={t("admin.filteredOrders")} value={String(analytics?.totalOrders ?? 0)} icon={ShoppingCart} />
-          <MiniStat label={t("admin.averageOrderValue")} value={`€${Number(analytics?.averageOrderValue ?? 0).toFixed(2)}`} icon={Wallet} />
+          <MiniStat
+            label={t("admin.filteredRevenue")}
+            value={`€${Number(analytics?.totalRevenue ?? 0).toFixed(2)}`}
+            icon={TrendingUp}
+          />
+          <MiniStat
+            label={t("admin.filteredOrders")}
+            value={String(analytics?.totalOrders ?? 0)}
+            icon={ShoppingCart}
+          />
+          <MiniStat
+            label={t("admin.averageOrderValue")}
+            value={`€${Number(analytics?.averageOrderValue ?? 0).toFixed(2)}`}
+            icon={Wallet}
+          />
         </div>
 
         <div className="mt-4 grid gap-4 md:grid-cols-3">
@@ -184,7 +222,11 @@ function AdminDashboard() {
                 ? `${(Number(analytics.conversionRate ?? 0) * 100).toFixed(2)}%`
                 : t("admin.noVisitData")
             }
-            hint={analytics && analytics.totalVisits > 0 ? t("admin.visitsTracked", { count: analytics.totalVisits }) : undefined}
+            hint={
+              analytics && analytics.totalVisits > 0
+                ? t("admin.visitsTracked", { count: analytics.totalVisits })
+                : undefined
+            }
             icon={MousePointerClick}
           />
           <MiniStat
@@ -194,7 +236,9 @@ function AdminDashboard() {
                 ? `${analytics.returningCustomers} (${(Number(analytics.returningCustomerRate ?? 0) * 100).toFixed(0)}%)`
                 : "—"
             }
-            hint={analytics ? t("admin.ofCustomers", { count: analytics.totalCustomers }) : undefined}
+            hint={
+              analytics ? t("admin.ofCustomers", { count: analytics.totalCustomers }) : undefined
+            }
             icon={Repeat}
           />
           <MiniStat
@@ -236,7 +280,9 @@ function AdminDashboard() {
                   </td>
                   <td className="p-3 text-white/80">{o.customer_name}</td>
                   <td className="p-3 text-xs text-white/60">{statusLabel(o.status, t)}</td>
-                  <td className="p-3 text-right font-mono text-white">€{Number(o.total).toFixed(2)}</td>
+                  <td className="p-3 text-right font-mono text-white">
+                    €{Number(o.total).toFixed(2)}
+                  </td>
                 </tr>
               ))}
 
@@ -305,8 +351,20 @@ function AdminDashboard() {
                     color: "#fff",
                   }}
                 />
-                <Line type="monotone" dataKey="revenue" stroke="#FFEB00" strokeWidth={3} name={t("admin.revenueEurLegend")} />
-                <Line type="monotone" dataKey="orders" stroke="#38BDF8" strokeWidth={2} name={t("admin.ordersLegend")} />
+                <Line
+                  type="monotone"
+                  dataKey="revenue"
+                  stroke="#FFEB00"
+                  strokeWidth={3}
+                  name={t("admin.revenueEurLegend")}
+                />
+                <Line
+                  type="monotone"
+                  dataKey="orders"
+                  stroke="#38BDF8"
+                  strokeWidth={2}
+                  name={t("admin.ordersLegend")}
+                />
               </LineChart>
             </ResponsiveContainer>
           ) : (
@@ -347,7 +405,12 @@ function AdminDashboard() {
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={analytics.revenueByStatus}>
               <CartesianGrid stroke="rgba(255,255,255,0.08)" />
-              <XAxis dataKey="status" stroke="#CFCFCF" fontSize={11} tickFormatter={(s: string) => statusLabel(s, t)} />
+              <XAxis
+                dataKey="status"
+                stroke="#CFCFCF"
+                fontSize={11}
+                tickFormatter={(s: string) => statusLabel(s, t)}
+              />
               <YAxis stroke="#CFCFCF" fontSize={11} />
               <Tooltip
                 contentStyle={{

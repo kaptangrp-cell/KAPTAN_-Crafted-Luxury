@@ -1,3 +1,4 @@
+import { useRouterState } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
 
 function WhatsAppIcon({ size = 26 }: { size?: number }) {
@@ -12,7 +13,11 @@ const WHATSAPP_NUMBER = "491757134333";
 
 export function WhatsAppButton() {
   const { t } = useTranslation();
-  const message = encodeURIComponent(t("whatsapp.prefill", "Hi KAPTAN, I have a question about your products."));
+  const path = useRouterState({ select: (s) => s.location.pathname });
+  if (path === "/cart" || path.startsWith("/checkout")) return null;
+  const message = encodeURIComponent(
+    t("whatsapp.prefill", "Hi KAPTAN, I have a question about your products."),
+  );
 
   return (
     <a

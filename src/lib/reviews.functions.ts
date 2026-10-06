@@ -69,9 +69,7 @@ export const getProductReviews = createServerFn({ method: "POST" })
     }
 
     const count = reviews?.length ?? 0;
-    const average = count
-      ? (reviews ?? []).reduce((s, r) => s + r.rating, 0) / count
-      : 0;
+    const average = count ? (reviews ?? []).reduce((s, r) => s + r.rating, 0) / count : 0;
 
     return {
       reviews: withNames,

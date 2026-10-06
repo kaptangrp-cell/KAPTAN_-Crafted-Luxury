@@ -84,11 +84,16 @@ function OrderDetailPage() {
               {t("orderDetail.orderHeading", { orderNumber: order.order_number })}
             </h1>
             <p className="text-sm text-white/50">
-              {t("orderDetail.placedPrefix")} {new Date(order.created_at).toLocaleString(i18n.language === "de" ? "de-DE" : "en-GB")}
+              {t("orderDetail.placedPrefix")}{" "}
+              {new Date(order.created_at).toLocaleString(
+                i18n.language === "de" ? "de-DE" : "en-GB",
+              )}
             </p>
           </div>
 
-          <span className={`rounded-full px-3 py-1 text-xs uppercase tracking-wider ${badgeClass(order.status)}`}>
+          <span
+            className={`rounded-full px-3 py-1 text-xs uppercase tracking-wider ${badgeClass(order.status)}`}
+          >
             {statusLabel(order.status, t)}
           </span>
         </div>
@@ -97,14 +102,18 @@ function OrderDetailPage() {
 
         <div className="mt-8 grid gap-6 md:grid-cols-3">
           <div className="border border-gold/10 bg-[#1A1A1A] p-4">
-            <h3 className="text-xs uppercase tracking-wider text-gold/70">{t("orderDetail.contactTitle")}</h3>
+            <h3 className="text-xs uppercase tracking-wider text-gold/70">
+              {t("orderDetail.contactTitle")}
+            </h3>
             <p className="mt-2 text-sm text-white">{order.customer_name}</p>
             <p className="text-xs text-white/60">{order.customer_email}</p>
             <p className="text-xs text-white/60">{order.customer_phone}</p>
           </div>
 
           <div className="border border-gold/10 bg-[#1A1A1A] p-4">
-            <h3 className="text-xs uppercase tracking-wider text-gold/70">{t("orderDetail.shippingTitle")}</h3>
+            <h3 className="text-xs uppercase tracking-wider text-gold/70">
+              {t("orderDetail.shippingTitle")}
+            </h3>
             <p className="mt-2 text-sm text-white">{order.shipping_address.line1}</p>
             {order.shipping_address.line2 && (
               <p className="text-sm text-white">{order.shipping_address.line2}</p>
@@ -118,7 +127,9 @@ function OrderDetailPage() {
           </div>
 
           <div className="border border-gold/10 bg-[#1A1A1A] p-4">
-            <h3 className="text-xs uppercase tracking-wider text-gold/70">{t("orderDetail.paymentTitle")}</h3>
+            <h3 className="text-xs uppercase tracking-wider text-gold/70">
+              {t("orderDetail.paymentTitle")}
+            </h3>
             <p className="mt-2 text-sm capitalize text-white">
               {order.payment_method.replace("_", " ")}
             </p>
@@ -145,9 +156,7 @@ function OrderDetailPage() {
                   <td className="p-3 text-white">
                     {item.product_name}
                     {item.variant_info && (
-                      <span className="block text-xs text-gold-dark">
-                        {item.variant_info}
-                      </span>
+                      <span className="block text-xs text-gold-dark">{item.variant_info}</span>
                     )}
                   </td>
                   <td className="p-3 text-center text-white/70">{item.quantity}</td>
@@ -190,7 +199,8 @@ function DeliveryTracker({ status, t }: { status: string | null; t: TFunction })
     { key: "delivered", label: t("account.statusDelivered"), icon: CheckCircle },
   ];
 
-  const activeIndex = status === "cancelled" ? -1 : steps.findIndex((s) => s.key === (status ?? "ordered"));
+  const activeIndex =
+    status === "cancelled" ? -1 : steps.findIndex((s) => s.key === (status ?? "ordered"));
 
   if (status === "cancelled") {
     return (
@@ -211,13 +221,19 @@ function DeliveryTracker({ status, t }: { status: string | null; t: TFunction })
 
           return (
             <div key={step.key} className="flex flex-col items-center text-center">
-              <div className={`flex h-12 w-12 items-center justify-center rounded-full border ${
-                active ? "border-gold bg-gold text-black" : "border-white/20 text-white/40"
-              }`}>
+              <div
+                className={`flex h-12 w-12 items-center justify-center rounded-full border ${
+                  active ? "border-gold bg-gold text-black" : "border-white/20 text-white/40"
+                }`}
+              >
                 <Icon size={22} />
               </div>
 
-              <p className={active ? "mt-2 text-sm font-semibold text-gold" : "mt-2 text-sm text-white/40"}>
+              <p
+                className={
+                  active ? "mt-2 text-sm font-semibold text-gold" : "mt-2 text-sm text-white/40"
+                }
+              >
                 {step.label}
               </p>
             </div>

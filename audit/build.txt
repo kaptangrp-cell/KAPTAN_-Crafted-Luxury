@@ -1,0 +1,544 @@
+
+> build
+> vite build
+
+[nitro:vercel] ℹ Using nodejs24.x runtime.
+[nitro:vercel] ℹ Using web entry format.
+vite v7.3.5 building client environment for production...
+transforming...
+[plugin tanstack-start-core::server-fn:client] src/lib/analytics.functions.ts: /Users/zoraizfazal/Downloads/KAPTAN_ Crafted Luxury/src/lib/analytics.functions.ts:17:25 createServerFn().inputValidator() is deprecated. Use createServerFn().validator() instead.
+[plugin tanstack-start-core::server-fn:client] src/lib/products.functions.ts: /Users/zoraizfazal/Downloads/KAPTAN_ Crafted Luxury/src/lib/products.functions.ts:15:28 createServerFn().inputValidator() is deprecated. Use createServerFn().validator() instead.
+[plugin tanstack-start-core::server-fn:client] src/lib/products.functions.ts: /Users/zoraizfazal/Downloads/KAPTAN_ Crafted Luxury/src/lib/products.functions.ts:92:33 createServerFn().inputValidator() is deprecated. Use createServerFn().validator() instead.
+[plugin tanstack-start-core::server-fn:client] src/lib/products.functions.ts: /Users/zoraizfazal/Downloads/KAPTAN_ Crafted Luxury/src/lib/products.functions.ts:120:35 createServerFn().inputValidator() is deprecated. Use createServerFn().validator() instead.
+[plugin tanstack-start-core::server-fn:client] src/lib/products.functions.ts: /Users/zoraizfazal/Downloads/KAPTAN_ Crafted Luxury/src/lib/products.functions.ts:141:33 createServerFn().inputValidator() is deprecated. Use createServerFn().validator() instead.
+[plugin tanstack-start-core::server-fn:client] src/lib/products.functions.ts: /Users/zoraizfazal/Downloads/KAPTAN_ Crafted Luxury/src/lib/products.functions.ts:164:39 createServerFn().inputValidator() is deprecated. Use createServerFn().validator() instead.
+[plugin tanstack-start-core::server-fn:client] src/lib/products.functions.ts: /Users/zoraizfazal/Downloads/KAPTAN_ Crafted Luxury/src/lib/products.functions.ts:196:35 createServerFn().inputValidator() is deprecated. Use createServerFn().validator() instead.
+[plugin tanstack-start-core::server-fn:client] src/lib/admin.functions.ts: /Users/zoraizfazal/Downloads/KAPTAN_ Crafted Luxury/src/lib/admin.functions.ts:133:34 createServerFn().inputValidator() is deprecated. Use createServerFn().validator() instead.
+[plugin tanstack-start-core::server-fn:client] src/lib/admin.functions.ts: /Users/zoraizfazal/Downloads/KAPTAN_ Crafted Luxury/src/lib/admin.functions.ts:329:35 createServerFn().inputValidator() is deprecated. Use createServerFn().validator() instead.
+[plugin tanstack-start-core::server-fn:client] src/lib/admin.functions.ts: /Users/zoraizfazal/Downloads/KAPTAN_ Crafted Luxury/src/lib/admin.functions.ts:387:40 createServerFn().inputValidator() is deprecated. Use createServerFn().validator() instead.
+[plugin tanstack-start-core::server-fn:client] src/lib/admin.functions.ts: /Users/zoraizfazal/Downloads/KAPTAN_ Crafted Luxury/src/lib/admin.functions.ts:444:35 createServerFn().inputValidator() is deprecated. Use createServerFn().validator() instead.
+[plugin tanstack-start-core::server-fn:client] src/lib/admin.functions.ts: /Users/zoraizfazal/Downloads/KAPTAN_ Crafted Luxury/src/lib/admin.functions.ts:478:36 createServerFn().inputValidator() is deprecated. Use createServerFn().validator() instead.
+[plugin tanstack-start-core::server-fn:client] src/lib/admin.functions.ts: /Users/zoraizfazal/Downloads/KAPTAN_ Crafted Luxury/src/lib/admin.functions.ts:499:36 createServerFn().inputValidator() is deprecated. Use createServerFn().validator() instead.
+[plugin tanstack-start-core::server-fn:client] src/lib/admin.functions.ts: /Users/zoraizfazal/Downloads/KAPTAN_ Crafted Luxury/src/lib/admin.functions.ts:529:39 createServerFn().inputValidator() is deprecated. Use createServerFn().validator() instead.
+[plugin tanstack-start-core::server-fn:client] src/lib/wishlist.functions.ts: /Users/zoraizfazal/Downloads/KAPTAN_ Crafted Luxury/src/lib/wishlist.functions.ts:41:31 createServerFn().inputValidator() is deprecated. Use createServerFn().validator() instead.
+[plugin tanstack-start-core::server-fn:client] src/lib/wishlist.functions.ts: /Users/zoraizfazal/Downloads/KAPTAN_ Crafted Luxury/src/lib/wishlist.functions.ts:75:35 createServerFn().inputValidator() is deprecated. Use createServerFn().validator() instead.
+[plugin tanstack-start-core::server-fn:client] src/lib/reviews.functions.ts: /Users/zoraizfazal/Downloads/KAPTAN_ Crafted Luxury/src/lib/reviews.functions.ts:52:34 createServerFn().inputValidator() is deprecated. Use createServerFn().validator() instead.
+[plugin tanstack-start-core::server-fn:client] src/lib/reviews.functions.ts: /Users/zoraizfazal/Downloads/KAPTAN_ Crafted Luxury/src/lib/reviews.functions.ts:99:36 createServerFn().inputValidator() is deprecated. Use createServerFn().validator() instead.
+[plugin tanstack-start-core::server-fn:client] src/lib/payments.functions.ts: /Users/zoraizfazal/Downloads/KAPTAN_ Crafted Luxury/src/lib/payments.functions.ts:24:44 createServerFn().inputValidator() is deprecated. Use createServerFn().validator() instead.
+[plugin tanstack-start-core::server-fn:client] src/lib/payments.functions.ts: /Users/zoraizfazal/Downloads/KAPTAN_ Crafted Luxury/src/lib/payments.functions.ts:91:42 createServerFn().inputValidator() is deprecated. Use createServerFn().validator() instead.
+[plugin tanstack-start-core::server-fn:client] src/lib/payments.functions.ts: /Users/zoraizfazal/Downloads/KAPTAN_ Crafted Luxury/src/lib/payments.functions.ts:152:43 createServerFn().inputValidator() is deprecated. Use createServerFn().validator() instead.
+[plugin tanstack-start-core::server-fn:client] src/lib/payments.functions.ts: /Users/zoraizfazal/Downloads/KAPTAN_ Crafted Luxury/src/lib/payments.functions.ts:190:50 createServerFn().inputValidator() is deprecated. Use createServerFn().validator() instead.
+[plugin tanstack-start-core::server-fn:client] src/lib/payments.functions.ts: /Users/zoraizfazal/Downloads/KAPTAN_ Crafted Luxury/src/lib/payments.functions.ts:232:42 createServerFn().inputValidator() is deprecated. Use createServerFn().validator() instead.
+[plugin tanstack-start-core::server-fn:client] src/lib/journal.functions.ts: /Users/zoraizfazal/Downloads/KAPTAN_ Crafted Luxury/src/lib/journal.functions.ts:18:32 createServerFn().inputValidator() is deprecated. Use createServerFn().validator() instead.
+[plugin tanstack-start-core::server-fn:client] src/lib/journal.functions.ts: /Users/zoraizfazal/Downloads/KAPTAN_ Crafted Luxury/src/lib/journal.functions.ts:41:37 createServerFn().inputValidator() is deprecated. Use createServerFn().validator() instead.
+[plugin tanstack-start-core::server-fn:client] src/lib/journal.functions.ts: /Users/zoraizfazal/Downloads/KAPTAN_ Crafted Luxury/src/lib/journal.functions.ts:95:39 createServerFn().inputValidator() is deprecated. Use createServerFn().validator() instead.
+[plugin tanstack-start-core::server-fn:client] src/lib/journal.functions.ts: /Users/zoraizfazal/Downloads/KAPTAN_ Crafted Luxury/src/lib/journal.functions.ts:138:39 createServerFn().inputValidator() is deprecated. Use createServerFn().validator() instead.
+[plugin tanstack-start-core::server-fn:client] src/lib/profile.functions.ts: /Users/zoraizfazal/Downloads/KAPTAN_ Crafted Luxury/src/lib/profile.functions.ts:33:38 createServerFn().inputValidator() is deprecated. Use createServerFn().validator() instead.
+[plugin tanstack-start-core::server-fn:client] src/lib/profile.functions.ts: /Users/zoraizfazal/Downloads/KAPTAN_ Crafted Luxury/src/lib/profile.functions.ts:45:32 createServerFn().inputValidator() is deprecated. Use createServerFn().validator() instead.
+[plugin tanstack-start-core::server-fn:client] src/lib/profile.functions.ts: /Users/zoraizfazal/Downloads/KAPTAN_ Crafted Luxury/src/lib/profile.functions.ts:81:28 createServerFn().inputValidator() is deprecated. Use createServerFn().validator() instead.
+[plugin tanstack-start-core::server-fn:client] src/lib/orders.functions.ts: /Users/zoraizfazal/Downloads/KAPTAN_ Crafted Luxury/src/lib/orders.functions.ts:39:28 createServerFn().inputValidator() is deprecated. Use createServerFn().validator() instead.
+[plugin tanstack-start-core::server-fn:client] src/lib/orders.functions.ts: /Users/zoraizfazal/Downloads/KAPTAN_ Crafted Luxury/src/lib/orders.functions.ts:211:29 createServerFn().inputValidator() is deprecated. Use createServerFn().validator() instead.
+[plugin tanstack-start-core::server-fn:client] src/lib/newsletter.functions.ts: /Users/zoraizfazal/Downloads/KAPTAN_ Crafted Luxury/src/lib/newsletter.functions.ts:9:36 createServerFn().inputValidator() is deprecated. Use createServerFn().validator() instead.
+✓ 3167 modules transformed.
+rendering chunks...
+computing gzip size...
+.vercel/output/static/assets/styles-B3iaKp21.css                   83.30 kB │ gzip:  14.36 kB
+.vercel/output/static/assets/route-DS-cJkBT.js                      0.10 kB │ gzip:   0.11 kB
+.vercel/output/static/assets/x-QxrQLqlb.js                          0.17 kB │ gzip:   0.16 kB
+.vercel/output/static/assets/useSuspenseQuery-BNtyOmV9.js           0.17 kB │ gzip:   0.16 kB
+.vercel/output/static/assets/pencil-0HTmAtdT.js                     0.29 kB │ gzip:   0.23 kB
+.vercel/output/static/assets/shield-check-B0VPxwdA.js               0.33 kB │ gzip:   0.26 kB
+.vercel/output/static/assets/clsx-B-dksMZM.js                       0.37 kB │ gzip:   0.24 kB
+.vercel/output/static/assets/package-DNZf7YNG.js                    0.38 kB │ gzip:   0.26 kB
+.vercel/output/static/assets/truck-BpAklU9t.js                      0.41 kB │ gzip:   0.28 kB
+.vercel/output/static/assets/orders.functions-DpldJTU0.js           0.42 kB │ gzip:   0.29 kB
+.vercel/output/static/assets/wishlist.functions-Dklc8Ud7.js         0.44 kB │ gzip:   0.29 kB
+.vercel/output/static/assets/trash-2-CMJgnPMo.js                    0.45 kB │ gzip:   0.27 kB
+.vercel/output/static/assets/users-2497ukpS.js                      0.56 kB │ gzip:   0.34 kB
+.vercel/output/static/assets/package-check-G2l1hrvk.js              0.58 kB │ gzip:   0.37 kB
+.vercel/output/static/assets/payments.functions-B1uWa9GH.js         0.60 kB │ gzip:   0.35 kB
+.vercel/output/static/assets/profile.functions-CcLt1fKz.js          0.68 kB │ gzip:   0.38 kB
+.vercel/output/static/assets/returns-C8j1eodu.js                    0.79 kB │ gzip:   0.43 kB
+.vercel/output/static/assets/privacy-BqLTeLMw.js                    0.79 kB │ gzip:   0.43 kB
+.vercel/output/static/assets/shipping-BslSiRYn.js                   0.80 kB │ gzip:   0.43 kB
+.vercel/output/static/assets/faq-CC5i8dIC.js                        0.92 kB │ gzip:   0.49 kB
+.vercel/output/static/assets/createLucideIcon-B8G8lBwa.js           1.20 kB │ gzip:   0.69 kB
+.vercel/output/static/assets/recentlyViewed-D4qKOeFD.js             1.26 kB │ gzip:   0.77 kB
+.vercel/output/static/assets/admin.functions-ByFkjTp0.js            1.65 kB │ gzip:   0.73 kB
+.vercel/output/static/assets/customers-C-mH2JCs.js                  1.65 kB │ gzip:   0.69 kB
+.vercel/output/static/assets/about-CGDxjJQ4.js                      1.91 kB │ gzip:   0.74 kB
+.vercel/output/static/assets/useMutation-DnfpLwT8.js                2.21 kB │ gzip:   0.91 kB
+.vercel/output/static/assets/journal_._slug-D55fCM8m.js             2.33 kB │ gzip:   1.19 kB
+.vercel/output/static/assets/journal-Bm1ShT5Y.js                    2.53 kB │ gzip:   1.12 kB
+.vercel/output/static/assets/wishlist-CFH17Kl-.js                   2.73 kB │ gzip:   1.15 kB
+.vercel/output/static/assets/ProductCard-Bx0nkkTp.js                2.89 kB │ gzip:   1.31 kB
+.vercel/output/static/assets/route-D8_aVa7D.js                      2.98 kB │ gzip:   1.40 kB
+.vercel/output/static/assets/checkout_.paypal-return-DuFqgIU8.js    3.20 kB │ gzip:   1.16 kB
+.vercel/output/static/assets/reset-password-DEKCwpb3.js             3.21 kB │ gzip:   1.25 kB
+.vercel/output/static/assets/profile-Dydrv__x.js                    3.22 kB │ gzip:   1.31 kB
+.vercel/output/static/assets/cart-Ddayz-9O.js                       3.37 kB │ gzip:   1.16 kB
+.vercel/output/static/assets/orders-CNlNNTlL.js                     4.00 kB │ gzip:   1.49 kB
+.vercel/output/static/assets/contact-C6hKBJHp.js                    4.29 kB │ gzip:   1.52 kB
+.vercel/output/static/assets/products-B88EPBHU.js                   5.81 kB │ gzip:   1.91 kB
+.vercel/output/static/assets/orders-M8NmP05E.js                     5.85 kB │ gzip:   2.01 kB
+.vercel/output/static/assets/categories-ByR5W2Aq.js                 5.93 kB │ gzip:   2.06 kB
+.vercel/output/static/assets/orders._id-Bc7drYHd.js                 6.95 kB │ gzip:   2.01 kB
+.vercel/output/static/assets/auth-Z4Sd5Q6t.js                       7.65 kB │ gzip:   3.04 kB
+.vercel/output/static/assets/journal-BEGKNhYe.js                    7.72 kB │ gzip:   2.43 kB
+.vercel/output/static/assets/useQuery-Cl_EqZAW.js                   8.90 kB │ gzip:   3.24 kB
+.vercel/output/static/assets/index-0D6-HXsW.js                     15.64 kB │ gzip:   4.56 kB
+.vercel/output/static/assets/products-Br1CEAVn.js                  16.83 kB │ gzip:   4.69 kB
+.vercel/output/static/assets/checkout-Cd5eTWFK.js                  21.46 kB │ gzip:   6.57 kB
+.vercel/output/static/assets/products_._slug-jLIL5gOh.js           24.58 kB │ gzip:   7.38 kB
+.vercel/output/static/assets/PageLayout-DL7LCqLp.js                82.97 kB │ gzip:  26.90 kB
+.vercel/output/static/assets/Reveal-DngiqB4t.js                   122.83 kB │ gzip:  40.12 kB
+.vercel/output/static/assets/xlsx-CGgH3Qv_.js                     424.63 kB │ gzip: 141.75 kB
+.vercel/output/static/assets/index-D_cTQUWt.js                    434.15 kB │ gzip: 116.89 kB
+.vercel/output/static/assets/index-CLdf2egj.js                    773.64 kB │ gzip: 230.34 kB
+
+(!) Some chunks are larger than 500 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rollupOptions.output.manualChunks to improve chunking: https://rollupjs.org/configuration-options/#output-manualchunks
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+✓ built in 5.69s
+vite v7.3.5 building ssr environment for production...
+transforming...
+[plugin tanstack-start-core::server-fn:ssr] src/lib/admin.functions.ts?tss-serverfn-split: /Users/zoraizfazal/Downloads/KAPTAN_ Crafted Luxury/src/lib/admin.functions.ts?tss-serverfn-split:133:34 createServerFn().inputValidator() is deprecated. Use createServerFn().validator() instead.
+[plugin tanstack-start-core::server-fn:ssr] src/lib/admin.functions.ts?tss-serverfn-split: /Users/zoraizfazal/Downloads/KAPTAN_ Crafted Luxury/src/lib/admin.functions.ts?tss-serverfn-split:329:35 createServerFn().inputValidator() is deprecated. Use createServerFn().validator() instead.
+[plugin tanstack-start-core::server-fn:ssr] src/lib/admin.functions.ts?tss-serverfn-split: /Users/zoraizfazal/Downloads/KAPTAN_ Crafted Luxury/src/lib/admin.functions.ts?tss-serverfn-split:387:40 createServerFn().inputValidator() is deprecated. Use createServerFn().validator() instead.
+[plugin tanstack-start-core::server-fn:ssr] src/lib/admin.functions.ts?tss-serverfn-split: /Users/zoraizfazal/Downloads/KAPTAN_ Crafted Luxury/src/lib/admin.functions.ts?tss-serverfn-split:444:35 createServerFn().inputValidator() is deprecated. Use createServerFn().validator() instead.
+[plugin tanstack-start-core::server-fn:ssr] src/lib/admin.functions.ts?tss-serverfn-split: /Users/zoraizfazal/Downloads/KAPTAN_ Crafted Luxury/src/lib/admin.functions.ts?tss-serverfn-split:478:36 createServerFn().inputValidator() is deprecated. Use createServerFn().validator() instead.
+[plugin tanstack-start-core::server-fn:ssr] src/lib/admin.functions.ts?tss-serverfn-split: /Users/zoraizfazal/Downloads/KAPTAN_ Crafted Luxury/src/lib/admin.functions.ts?tss-serverfn-split:499:36 createServerFn().inputValidator() is deprecated. Use createServerFn().validator() instead.
+[plugin tanstack-start-core::server-fn:ssr] src/lib/admin.functions.ts?tss-serverfn-split: /Users/zoraizfazal/Downloads/KAPTAN_ Crafted Luxury/src/lib/admin.functions.ts?tss-serverfn-split:529:39 createServerFn().inputValidator() is deprecated. Use createServerFn().validator() instead.
+[plugin tanstack-start-core::server-fn:ssr] src/lib/payments.functions.ts?tss-serverfn-split: /Users/zoraizfazal/Downloads/KAPTAN_ Crafted Luxury/src/lib/payments.functions.ts?tss-serverfn-split:24:44 createServerFn().inputValidator() is deprecated. Use createServerFn().validator() instead.
+[plugin tanstack-start-core::server-fn:ssr] src/lib/payments.functions.ts?tss-serverfn-split: /Users/zoraizfazal/Downloads/KAPTAN_ Crafted Luxury/src/lib/payments.functions.ts?tss-serverfn-split:91:42 createServerFn().inputValidator() is deprecated. Use createServerFn().validator() instead.
+[plugin tanstack-start-core::server-fn:ssr] src/lib/payments.functions.ts?tss-serverfn-split: /Users/zoraizfazal/Downloads/KAPTAN_ Crafted Luxury/src/lib/payments.functions.ts?tss-serverfn-split:152:43 createServerFn().inputValidator() is deprecated. Use createServerFn().validator() instead.
+[plugin tanstack-start-core::server-fn:ssr] src/lib/payments.functions.ts?tss-serverfn-split: /Users/zoraizfazal/Downloads/KAPTAN_ Crafted Luxury/src/lib/payments.functions.ts?tss-serverfn-split:190:50 createServerFn().inputValidator() is deprecated. Use createServerFn().validator() instead.
+[plugin tanstack-start-core::server-fn:ssr] src/lib/payments.functions.ts?tss-serverfn-split: /Users/zoraizfazal/Downloads/KAPTAN_ Crafted Luxury/src/lib/payments.functions.ts?tss-serverfn-split:232:42 createServerFn().inputValidator() is deprecated. Use createServerFn().validator() instead.
+[plugin tanstack-start-core::server-fn:ssr] src/lib/reviews.functions.ts?tss-serverfn-split: /Users/zoraizfazal/Downloads/KAPTAN_ Crafted Luxury/src/lib/reviews.functions.ts?tss-serverfn-split:52:34 createServerFn().inputValidator() is deprecated. Use createServerFn().validator() instead.
+[plugin tanstack-start-core::server-fn:ssr] src/lib/reviews.functions.ts?tss-serverfn-split: /Users/zoraizfazal/Downloads/KAPTAN_ Crafted Luxury/src/lib/reviews.functions.ts?tss-serverfn-split:99:36 createServerFn().inputValidator() is deprecated. Use createServerFn().validator() instead.
+[plugin tanstack-start-core::server-fn:ssr] src/lib/analytics.functions.ts?tss-serverfn-split: /Users/zoraizfazal/Downloads/KAPTAN_ Crafted Luxury/src/lib/analytics.functions.ts?tss-serverfn-split:17:25 createServerFn().inputValidator() is deprecated. Use createServerFn().validator() instead.
+[plugin tanstack-start-core::server-fn:ssr] src/lib/products.functions.ts?tss-serverfn-split: /Users/zoraizfazal/Downloads/KAPTAN_ Crafted Luxury/src/lib/products.functions.ts?tss-serverfn-split:15:28 createServerFn().inputValidator() is deprecated. Use createServerFn().validator() instead.
+[plugin tanstack-start-core::server-fn:ssr] src/lib/products.functions.ts?tss-serverfn-split: /Users/zoraizfazal/Downloads/KAPTAN_ Crafted Luxury/src/lib/products.functions.ts?tss-serverfn-split:92:33 createServerFn().inputValidator() is deprecated. Use createServerFn().validator() instead.
+[plugin tanstack-start-core::server-fn:ssr] src/lib/products.functions.ts?tss-serverfn-split: /Users/zoraizfazal/Downloads/KAPTAN_ Crafted Luxury/src/lib/products.functions.ts?tss-serverfn-split:120:35 createServerFn().inputValidator() is deprecated. Use createServerFn().validator() instead.
+[plugin tanstack-start-core::server-fn:ssr] src/lib/products.functions.ts?tss-serverfn-split: /Users/zoraizfazal/Downloads/KAPTAN_ Crafted Luxury/src/lib/products.functions.ts?tss-serverfn-split:141:33 createServerFn().inputValidator() is deprecated. Use createServerFn().validator() instead.
+[plugin tanstack-start-core::server-fn:ssr] src/lib/products.functions.ts?tss-serverfn-split: /Users/zoraizfazal/Downloads/KAPTAN_ Crafted Luxury/src/lib/products.functions.ts?tss-serverfn-split:164:39 createServerFn().inputValidator() is deprecated. Use createServerFn().validator() instead.
+[plugin tanstack-start-core::server-fn:ssr] src/lib/products.functions.ts?tss-serverfn-split: /Users/zoraizfazal/Downloads/KAPTAN_ Crafted Luxury/src/lib/products.functions.ts?tss-serverfn-split:196:35 createServerFn().inputValidator() is deprecated. Use createServerFn().validator() instead.
+[plugin tanstack-start-core::server-fn:ssr] src/lib/journal.functions.ts?tss-serverfn-split: /Users/zoraizfazal/Downloads/KAPTAN_ Crafted Luxury/src/lib/journal.functions.ts?tss-serverfn-split:18:32 createServerFn().inputValidator() is deprecated. Use createServerFn().validator() instead.
+[plugin tanstack-start-core::server-fn:ssr] src/lib/journal.functions.ts?tss-serverfn-split: /Users/zoraizfazal/Downloads/KAPTAN_ Crafted Luxury/src/lib/journal.functions.ts?tss-serverfn-split:41:37 createServerFn().inputValidator() is deprecated. Use createServerFn().validator() instead.
+[plugin tanstack-start-core::server-fn:ssr] src/lib/journal.functions.ts?tss-serverfn-split: /Users/zoraizfazal/Downloads/KAPTAN_ Crafted Luxury/src/lib/journal.functions.ts?tss-serverfn-split:95:39 createServerFn().inputValidator() is deprecated. Use createServerFn().validator() instead.
+[plugin tanstack-start-core::server-fn:ssr] src/lib/journal.functions.ts?tss-serverfn-split: /Users/zoraizfazal/Downloads/KAPTAN_ Crafted Luxury/src/lib/journal.functions.ts?tss-serverfn-split:138:39 createServerFn().inputValidator() is deprecated. Use createServerFn().validator() instead.
+[plugin tanstack-start-core::server-fn:ssr] src/lib/orders.functions.ts?tss-serverfn-split: /Users/zoraizfazal/Downloads/KAPTAN_ Crafted Luxury/src/lib/orders.functions.ts?tss-serverfn-split:39:28 createServerFn().inputValidator() is deprecated. Use createServerFn().validator() instead.
+[plugin tanstack-start-core::server-fn:ssr] src/lib/orders.functions.ts?tss-serverfn-split: /Users/zoraizfazal/Downloads/KAPTAN_ Crafted Luxury/src/lib/orders.functions.ts?tss-serverfn-split:211:29 createServerFn().inputValidator() is deprecated. Use createServerFn().validator() instead.
+[plugin tanstack-start-core::server-fn:ssr] src/lib/wishlist.functions.ts?tss-serverfn-split: /Users/zoraizfazal/Downloads/KAPTAN_ Crafted Luxury/src/lib/wishlist.functions.ts?tss-serverfn-split:41:31 createServerFn().inputValidator() is deprecated. Use createServerFn().validator() instead.
+[plugin tanstack-start-core::server-fn:ssr] src/lib/wishlist.functions.ts?tss-serverfn-split: /Users/zoraizfazal/Downloads/KAPTAN_ Crafted Luxury/src/lib/wishlist.functions.ts?tss-serverfn-split:75:35 createServerFn().inputValidator() is deprecated. Use createServerFn().validator() instead.
+[plugin tanstack-start-core::server-fn:ssr] src/lib/newsletter.functions.ts?tss-serverfn-split: /Users/zoraizfazal/Downloads/KAPTAN_ Crafted Luxury/src/lib/newsletter.functions.ts?tss-serverfn-split:9:36 createServerFn().inputValidator() is deprecated. Use createServerFn().validator() instead.
+[plugin tanstack-start-core::server-fn:ssr] src/lib/profile.functions.ts?tss-serverfn-split: /Users/zoraizfazal/Downloads/KAPTAN_ Crafted Luxury/src/lib/profile.functions.ts?tss-serverfn-split:33:38 createServerFn().inputValidator() is deprecated. Use createServerFn().validator() instead.
+[plugin tanstack-start-core::server-fn:ssr] src/lib/profile.functions.ts?tss-serverfn-split: /Users/zoraizfazal/Downloads/KAPTAN_ Crafted Luxury/src/lib/profile.functions.ts?tss-serverfn-split:45:32 createServerFn().inputValidator() is deprecated. Use createServerFn().validator() instead.
+[plugin tanstack-start-core::server-fn:ssr] src/lib/profile.functions.ts?tss-serverfn-split: /Users/zoraizfazal/Downloads/KAPTAN_ Crafted Luxury/src/lib/profile.functions.ts?tss-serverfn-split:81:28 createServerFn().inputValidator() is deprecated. Use createServerFn().validator() instead.
+[plugin tanstack-start-core::server-fn:ssr] src/lib/analytics.functions.ts: /Users/zoraizfazal/Downloads/KAPTAN_ Crafted Luxury/src/lib/analytics.functions.ts:17:25 createServerFn().inputValidator() is deprecated. Use createServerFn().validator() instead.
+[plugin tanstack-start-core::server-fn:ssr] src/lib/products.functions.ts: /Users/zoraizfazal/Downloads/KAPTAN_ Crafted Luxury/src/lib/products.functions.ts:15:28 createServerFn().inputValidator() is deprecated. Use createServerFn().validator() instead.
+[plugin tanstack-start-core::server-fn:ssr] src/lib/products.functions.ts: /Users/zoraizfazal/Downloads/KAPTAN_ Crafted Luxury/src/lib/products.functions.ts:92:33 createServerFn().inputValidator() is deprecated. Use createServerFn().validator() instead.
+[plugin tanstack-start-core::server-fn:ssr] src/lib/products.functions.ts: /Users/zoraizfazal/Downloads/KAPTAN_ Crafted Luxury/src/lib/products.functions.ts:120:35 createServerFn().inputValidator() is deprecated. Use createServerFn().validator() instead.
+[plugin tanstack-start-core::server-fn:ssr] src/lib/products.functions.ts: /Users/zoraizfazal/Downloads/KAPTAN_ Crafted Luxury/src/lib/products.functions.ts:141:33 createServerFn().inputValidator() is deprecated. Use createServerFn().validator() instead.
+[plugin tanstack-start-core::server-fn:ssr] src/lib/products.functions.ts: /Users/zoraizfazal/Downloads/KAPTAN_ Crafted Luxury/src/lib/products.functions.ts:164:39 createServerFn().inputValidator() is deprecated. Use createServerFn().validator() instead.
+[plugin tanstack-start-core::server-fn:ssr] src/lib/products.functions.ts: /Users/zoraizfazal/Downloads/KAPTAN_ Crafted Luxury/src/lib/products.functions.ts:196:35 createServerFn().inputValidator() is deprecated. Use createServerFn().validator() instead.
+[plugin tanstack-start-core::server-fn:ssr] src/lib/journal.functions.ts: /Users/zoraizfazal/Downloads/KAPTAN_ Crafted Luxury/src/lib/journal.functions.ts:18:32 createServerFn().inputValidator() is deprecated. Use createServerFn().validator() instead.
+[plugin tanstack-start-core::server-fn:ssr] src/lib/journal.functions.ts: /Users/zoraizfazal/Downloads/KAPTAN_ Crafted Luxury/src/lib/journal.functions.ts:41:37 createServerFn().inputValidator() is deprecated. Use createServerFn().validator() instead.
+[plugin tanstack-start-core::server-fn:ssr] src/lib/journal.functions.ts: /Users/zoraizfazal/Downloads/KAPTAN_ Crafted Luxury/src/lib/journal.functions.ts:95:39 createServerFn().inputValidator() is deprecated. Use createServerFn().validator() instead.
+[plugin tanstack-start-core::server-fn:ssr] src/lib/journal.functions.ts: /Users/zoraizfazal/Downloads/KAPTAN_ Crafted Luxury/src/lib/journal.functions.ts:138:39 createServerFn().inputValidator() is deprecated. Use createServerFn().validator() instead.
+[plugin tanstack-start-core::server-fn:ssr] src/lib/reviews.functions.ts: /Users/zoraizfazal/Downloads/KAPTAN_ Crafted Luxury/src/lib/reviews.functions.ts:52:34 createServerFn().inputValidator() is deprecated. Use createServerFn().validator() instead.
+[plugin tanstack-start-core::server-fn:ssr] src/lib/reviews.functions.ts: /Users/zoraizfazal/Downloads/KAPTAN_ Crafted Luxury/src/lib/reviews.functions.ts:99:36 createServerFn().inputValidator() is deprecated. Use createServerFn().validator() instead.
+[plugin tanstack-start-core::server-fn:ssr] src/lib/wishlist.functions.ts: /Users/zoraizfazal/Downloads/KAPTAN_ Crafted Luxury/src/lib/wishlist.functions.ts:41:31 createServerFn().inputValidator() is deprecated. Use createServerFn().validator() instead.
+[plugin tanstack-start-core::server-fn:ssr] src/lib/wishlist.functions.ts: /Users/zoraizfazal/Downloads/KAPTAN_ Crafted Luxury/src/lib/wishlist.functions.ts:75:35 createServerFn().inputValidator() is deprecated. Use createServerFn().validator() instead.
+[plugin tanstack-start-core::server-fn:ssr] src/lib/payments.functions.ts: /Users/zoraizfazal/Downloads/KAPTAN_ Crafted Luxury/src/lib/payments.functions.ts:24:44 createServerFn().inputValidator() is deprecated. Use createServerFn().validator() instead.
+[plugin tanstack-start-core::server-fn:ssr] src/lib/payments.functions.ts: /Users/zoraizfazal/Downloads/KAPTAN_ Crafted Luxury/src/lib/payments.functions.ts:91:42 createServerFn().inputValidator() is deprecated. Use createServerFn().validator() instead.
+[plugin tanstack-start-core::server-fn:ssr] src/lib/payments.functions.ts: /Users/zoraizfazal/Downloads/KAPTAN_ Crafted Luxury/src/lib/payments.functions.ts:152:43 createServerFn().inputValidator() is deprecated. Use createServerFn().validator() instead.
+[plugin tanstack-start-core::server-fn:ssr] src/lib/payments.functions.ts: /Users/zoraizfazal/Downloads/KAPTAN_ Crafted Luxury/src/lib/payments.functions.ts:190:50 createServerFn().inputValidator() is deprecated. Use createServerFn().validator() instead.
+[plugin tanstack-start-core::server-fn:ssr] src/lib/payments.functions.ts: /Users/zoraizfazal/Downloads/KAPTAN_ Crafted Luxury/src/lib/payments.functions.ts:232:42 createServerFn().inputValidator() is deprecated. Use createServerFn().validator() instead.
+[plugin tanstack-start-core::server-fn:ssr] src/lib/profile.functions.ts: /Users/zoraizfazal/Downloads/KAPTAN_ Crafted Luxury/src/lib/profile.functions.ts:33:38 createServerFn().inputValidator() is deprecated. Use createServerFn().validator() instead.
+[plugin tanstack-start-core::server-fn:ssr] src/lib/profile.functions.ts: /Users/zoraizfazal/Downloads/KAPTAN_ Crafted Luxury/src/lib/profile.functions.ts:45:32 createServerFn().inputValidator() is deprecated. Use createServerFn().validator() instead.
+[plugin tanstack-start-core::server-fn:ssr] src/lib/profile.functions.ts: /Users/zoraizfazal/Downloads/KAPTAN_ Crafted Luxury/src/lib/profile.functions.ts:81:28 createServerFn().inputValidator() is deprecated. Use createServerFn().validator() instead.
+[plugin tanstack-start-core::server-fn:ssr] src/lib/newsletter.functions.ts: /Users/zoraizfazal/Downloads/KAPTAN_ Crafted Luxury/src/lib/newsletter.functions.ts:9:36 createServerFn().inputValidator() is deprecated. Use createServerFn().validator() instead.
+[plugin tanstack-start-core::server-fn:ssr] src/lib/orders.functions.ts: /Users/zoraizfazal/Downloads/KAPTAN_ Crafted Luxury/src/lib/orders.functions.ts:39:28 createServerFn().inputValidator() is deprecated. Use createServerFn().validator() instead.
+[plugin tanstack-start-core::server-fn:ssr] src/lib/orders.functions.ts: /Users/zoraizfazal/Downloads/KAPTAN_ Crafted Luxury/src/lib/orders.functions.ts:211:29 createServerFn().inputValidator() is deprecated. Use createServerFn().validator() instead.
+[plugin tanstack-start-core::server-fn:ssr] src/lib/admin.functions.ts: /Users/zoraizfazal/Downloads/KAPTAN_ Crafted Luxury/src/lib/admin.functions.ts:133:34 createServerFn().inputValidator() is deprecated. Use createServerFn().validator() instead.
+[plugin tanstack-start-core::server-fn:ssr] src/lib/admin.functions.ts: /Users/zoraizfazal/Downloads/KAPTAN_ Crafted Luxury/src/lib/admin.functions.ts:329:35 createServerFn().inputValidator() is deprecated. Use createServerFn().validator() instead.
+[plugin tanstack-start-core::server-fn:ssr] src/lib/admin.functions.ts: /Users/zoraizfazal/Downloads/KAPTAN_ Crafted Luxury/src/lib/admin.functions.ts:387:40 createServerFn().inputValidator() is deprecated. Use createServerFn().validator() instead.
+[plugin tanstack-start-core::server-fn:ssr] src/lib/admin.functions.ts: /Users/zoraizfazal/Downloads/KAPTAN_ Crafted Luxury/src/lib/admin.functions.ts:444:35 createServerFn().inputValidator() is deprecated. Use createServerFn().validator() instead.
+[plugin tanstack-start-core::server-fn:ssr] src/lib/admin.functions.ts: /Users/zoraizfazal/Downloads/KAPTAN_ Crafted Luxury/src/lib/admin.functions.ts:478:36 createServerFn().inputValidator() is deprecated. Use createServerFn().validator() instead.
+[plugin tanstack-start-core::server-fn:ssr] src/lib/admin.functions.ts: /Users/zoraizfazal/Downloads/KAPTAN_ Crafted Luxury/src/lib/admin.functions.ts:499:36 createServerFn().inputValidator() is deprecated. Use createServerFn().validator() instead.
+[plugin tanstack-start-core::server-fn:ssr] src/lib/admin.functions.ts: /Users/zoraizfazal/Downloads/KAPTAN_ Crafted Luxury/src/lib/admin.functions.ts:529:39 createServerFn().inputValidator() is deprecated. Use createServerFn().validator() instead.
+"createRequestHandler", "defineHandlerCallback", "transformPipeableStreamWithRouter" and "transformReadableStreamWithRouter" are imported from external module "@tanstack/router-core/ssr/server" but never used in "node_modules/@tanstack/start-server-core/dist/esm/index.js".
+"RawStream" is imported from external module "@tanstack/router-core" but never used in "node_modules/@tanstack/start-client-core/dist/esm/index.js".
+"hydrate" and "json" are imported from external module "@tanstack/router-core/ssr/client" but never used in "node_modules/@tanstack/start-client-core/dist/esm/index.js".
+✓ 177 modules transformed.
+rendering chunks...
+node_modules/.nitro/vite/services/ssr/assets/styles-B3iaKp21.css                     83.30 kB
+node_modules/.nitro/vite/services/ssr/assets/empty-plugin-adapters-BFgPZ6_d.js        0.13 kB
+node_modules/.nitro/vite/services/ssr/assets/route-BFsOu0JM.js                        0.19 kB
+node_modules/.nitro/vite/services/ssr/assets/createServerRpc-CPL6ytbN.js              0.31 kB
+node_modules/.nitro/vite/services/ssr/assets/Reveal-De2-JQUy.js                       0.45 kB
+node_modules/.nitro/vite/services/ssr/assets/client-CQqhnoVV.js                       0.84 kB
+node_modules/.nitro/vite/services/ssr/assets/wishlist.functions-C0VJe4rN.js           1.04 kB
+node_modules/.nitro/vite/services/ssr/assets/client.server-D5ro3rAQ.js                1.04 kB
+node_modules/.nitro/vite/services/ssr/assets/analytics.functions-CC9c-QKH.js          1.47 kB
+node_modules/.nitro/vite/services/ssr/assets/newsletter.functions-5nRbaQVf.js         1.57 kB
+node_modules/.nitro/vite/services/ssr/assets/returns-C0FNfAm6.js                      1.78 kB
+node_modules/.nitro/vite/services/ssr/assets/privacy-BvPjYgDi.js                      1.78 kB
+node_modules/.nitro/vite/services/ssr/assets/shipping-PPOzszFm.js                     1.79 kB
+node_modules/.nitro/vite/services/ssr/assets/orders.functions-Dbpyq14K.js             1.91 kB
+node_modules/.nitro/vite/services/ssr/assets/faq-CDGNy3r_.js                          1.94 kB
+node_modules/.nitro/vite/services/ssr/assets/payments.functions-DX-rqWQY.js           2.02 kB
+node_modules/.nitro/vite/services/ssr/assets/recentlyViewed-PbTBu1Tc.js               2.10 kB
+node_modules/.nitro/vite/services/ssr/assets/auth-middleware-568ex_pb.js              2.11 kB
+node_modules/.nitro/vite/services/ssr/assets/start-Ba6cJDXD.js                        2.16 kB
+node_modules/.nitro/vite/services/ssr/assets/profile.functions-DaKFVPIH.js            2.25 kB
+node_modules/.nitro/vite/services/ssr/assets/currency.functions-QXDpIlGP.js           2.43 kB
+node_modules/.nitro/vite/services/ssr/assets/customers-ZSyhsrax.js                    3.11 kB
+node_modules/.nitro/vite/services/ssr/assets/route-D5xgUg6x.js                        3.13 kB
+node_modules/.nitro/vite/services/ssr/assets/about-oQ6ywuPa.js                        3.29 kB
+node_modules/.nitro/vite/services/ssr/assets/wishlist.functions-DfVDutug.js           3.65 kB
+node_modules/.nitro/vite/services/ssr/assets/journal_._slug-CBMC1qYx.js               3.89 kB
+node_modules/.nitro/vite/services/ssr/assets/journal-kehz6JoE.js                      4.20 kB
+node_modules/.nitro/vite/services/ssr/assets/wishlist-D-QUeY8l.js                     4.65 kB
+node_modules/.nitro/vite/services/ssr/assets/ProductCard-ChmLscae.js                  4.83 kB
+node_modules/.nitro/vite/services/ssr/assets/checkout_.paypal-return-BwzWqqSz.js      4.86 kB
+node_modules/.nitro/vite/services/ssr/assets/profile.functions-Cn_9ZcqF.js            5.13 kB
+node_modules/.nitro/vite/services/ssr/assets/admin.functions-Dguh1t-4.js              5.50 kB
+node_modules/.nitro/vite/services/ssr/assets/profile-C1aQv1wV.js                      5.54 kB
+node_modules/.nitro/vite/services/ssr/assets/reset-password-A4ygV3nR.js               5.65 kB
+node_modules/.nitro/vite/services/ssr/index.js                                        5.68 kB
+node_modules/.nitro/vite/services/ssr/assets/cart-CfmzkXFW.js                         5.78 kB
+node_modules/.nitro/vite/services/ssr/assets/contact-BUFsB3xs.js                      6.10 kB
+node_modules/.nitro/vite/services/ssr/assets/orders-Bd_hqDyE.js                       6.22 kB
+node_modules/.nitro/vite/services/ssr/assets/reviews.functions-CC2I40u0.js            6.28 kB
+node_modules/.nitro/vite/services/ssr/assets/journal.functions-BlB5QBac.js            6.53 kB
+node_modules/.nitro/vite/services/ssr/assets/auth-CPa4Ooh5.js                         7.78 kB
+node_modules/.nitro/vite/services/ssr/assets/orders.functions-BSIbNkj3.js             8.36 kB
+node_modules/.nitro/vite/services/ssr/assets/products-B-ISLM1J.js                     9.45 kB
+node_modules/.nitro/vite/services/ssr/assets/orders-BxX_0x4-.js                       9.48 kB
+node_modules/.nitro/vite/services/ssr/assets/products.functions-CgnO6yHI.js           9.72 kB
+node_modules/.nitro/vite/services/ssr/assets/categories-CWOAsDsZ.js                   9.76 kB
+node_modules/.nitro/vite/services/ssr/assets/orders._id-CU0POKyP.js                  10.69 kB
+node_modules/.nitro/vite/services/ssr/assets/_tanstack-start-manifest_v-eVVNvZFw.js  11.55 kB
+node_modules/.nitro/vite/services/ssr/assets/journal-hIiSJphz.js                     12.30 kB
+node_modules/.nitro/vite/services/ssr/assets/payments.functions-DG9Mvk1I.js          12.40 kB
+node_modules/.nitro/vite/services/ssr/assets/index-Db2uQhRq.js                       18.36 kB
+node_modules/.nitro/vite/services/ssr/assets/index-Cr8SEj-v.js                       22.96 kB
+node_modules/.nitro/vite/services/ssr/assets/products-CiYgbDcN.js                    25.59 kB
+node_modules/.nitro/vite/services/ssr/assets/admin.functions-CHNQ-kRd.js             31.70 kB
+node_modules/.nitro/vite/services/ssr/assets/checkout-D2rrsbos.js                    32.78 kB
+node_modules/.nitro/vite/services/ssr/assets/PageLayout-DOGs_610.js                  34.20 kB
+node_modules/.nitro/vite/services/ssr/assets/products_._slug-CI584DP6.js             37.04 kB
+node_modules/.nitro/vite/services/ssr/assets/server-B9wJ5HhB.js                      75.16 kB
+node_modules/.nitro/vite/services/ssr/assets/router-BIY0kDrH.js                      89.69 kB
+✓ built in 1.34s
+
+[nitro] ◐ Building [Nitro] (preset: vercel, compatibility: 2026-10-04)
+[nitro] ✔ Generated public .vercel/output/static
+vite v7.3.5 building nitro environment for production...
+transforming...
+node_modules/@tanstack/react-router/dist/esm/index.js (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@tanstack/react-router/dist/esm/index.js" was ignored.
+node_modules/sonner/dist/index.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/sonner/dist/index.mjs" was ignored.
+node_modules/@tanstack/react-router/dist/esm/ClientOnly.js (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@tanstack/react-router/dist/esm/ClientOnly.js" was ignored.
+node_modules/@tanstack/react-router/dist/esm/utils.js (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@tanstack/react-router/dist/esm/utils.js" was ignored.
+node_modules/@tanstack/react-router/dist/esm/useNavigate.js (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@tanstack/react-router/dist/esm/useNavigate.js" was ignored.
+node_modules/@tanstack/react-router/dist/esm/RouterProvider.js (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@tanstack/react-router/dist/esm/RouterProvider.js" was ignored.
+node_modules/@tanstack/react-router/dist/esm/useBlocker.js (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@tanstack/react-router/dist/esm/useBlocker.js" was ignored.
+node_modules/@tanstack/react-router/dist/esm/useRouterState.js (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@tanstack/react-router/dist/esm/useRouterState.js" was ignored.
+node_modules/@tanstack/react-router/dist/esm/useLocation.js (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@tanstack/react-router/dist/esm/useLocation.js" was ignored.
+node_modules/@tanstack/react-router/dist/esm/HeadContent.js (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@tanstack/react-router/dist/esm/HeadContent.js" was ignored.
+node_modules/@vercel/analytics/dist/react/index.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@vercel/analytics/dist/react/index.mjs" was ignored.
+node_modules/@vercel/speed-insights/dist/react/index.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@vercel/speed-insights/dist/react/index.mjs" was ignored.
+node_modules/@tanstack/react-router/dist/esm/CatchBoundary.js (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@tanstack/react-router/dist/esm/CatchBoundary.js" was ignored.
+node_modules/@tanstack/react-router/dist/esm/useRouter.js (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@tanstack/react-router/dist/esm/useRouter.js" was ignored.
+node_modules/@tanstack/react-router/dist/esm/useMatch.js (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@tanstack/react-router/dist/esm/useMatch.js" was ignored.
+node_modules/@tanstack/react-router/dist/esm/link.js (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@tanstack/react-router/dist/esm/link.js" was ignored.
+node_modules/@tanstack/react-router/dist/esm/Match.js (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@tanstack/react-router/dist/esm/Match.js" was ignored.
+node_modules/@tanstack/react-router/dist/esm/Matches.js (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@tanstack/react-router/dist/esm/Matches.js" was ignored.
+node_modules/@tanstack/react-router/dist/esm/Asset.js (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@tanstack/react-router/dist/esm/Asset.js" was ignored.
+node_modules/@radix-ui/react-dialog/dist/index.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@radix-ui/react-dialog/dist/index.mjs" was ignored.
+node_modules/@tanstack/react-query/build/modern/useQueries.js (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@tanstack/react-query/build/modern/useQueries.js" was ignored.
+node_modules/@tanstack/react-query/build/modern/useQuery.js (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@tanstack/react-query/build/modern/useQuery.js" was ignored.
+node_modules/@tanstack/react-query/build/modern/QueryClientProvider.js (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@tanstack/react-query/build/modern/QueryClientProvider.js" was ignored.
+node_modules/@tanstack/react-query/build/modern/QueryErrorResetBoundary.js (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@tanstack/react-query/build/modern/QueryErrorResetBoundary.js" was ignored.
+node_modules/@tanstack/react-query/build/modern/HydrationBoundary.js (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@tanstack/react-query/build/modern/HydrationBoundary.js" was ignored.
+node_modules/@tanstack/react-query/build/modern/useIsFetching.js (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@tanstack/react-query/build/modern/useIsFetching.js" was ignored.
+node_modules/@tanstack/react-query/build/modern/useMutationState.js (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@tanstack/react-query/build/modern/useMutationState.js" was ignored.
+node_modules/@tanstack/react-query/build/modern/useMutation.js (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@tanstack/react-query/build/modern/useMutation.js" was ignored.
+node_modules/@tanstack/react-query/build/modern/useInfiniteQuery.js (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@tanstack/react-query/build/modern/useInfiniteQuery.js" was ignored.
+node_modules/@tanstack/react-query/build/modern/IsRestoringProvider.js (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@tanstack/react-query/build/modern/IsRestoringProvider.js" was ignored.
+node_modules/@tanstack/react-router/dist/esm/routerContext.js (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@tanstack/react-router/dist/esm/routerContext.js" was ignored.
+node_modules/@tanstack/react-query/build/modern/useSuspenseQuery.js (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@tanstack/react-query/build/modern/useSuspenseQuery.js" was ignored.
+node_modules/@tanstack/react-query/build/modern/useSuspenseInfiniteQuery.js (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@tanstack/react-query/build/modern/useSuspenseInfiniteQuery.js" was ignored.
+node_modules/@tanstack/react-query/build/modern/useSuspenseQueries.js (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@tanstack/react-query/build/modern/useSuspenseQueries.js" was ignored.
+node_modules/@tanstack/react-router/dist/esm/matchContext.js (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@tanstack/react-router/dist/esm/matchContext.js" was ignored.
+node_modules/@tanstack/react-router/dist/esm/Transitioner.js (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@tanstack/react-router/dist/esm/Transitioner.js" was ignored.
+node_modules/@radix-ui/react-dismissable-layer/dist/index.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@radix-ui/react-dismissable-layer/dist/index.mjs" was ignored.
+node_modules/@radix-ui/react-focus-scope/dist/index.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@radix-ui/react-focus-scope/dist/index.mjs" was ignored.
+node_modules/@radix-ui/react-portal/dist/index.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@radix-ui/react-portal/dist/index.mjs" was ignored.
+node_modules/@radix-ui/react-focus-guards/dist/index.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@radix-ui/react-focus-guards/dist/index.mjs" was ignored.
+node_modules/@radix-ui/react-presence/dist/index.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@radix-ui/react-presence/dist/index.mjs" was ignored.
+node_modules/framer-motion/dist/es/components/AnimatePresence/PopChild.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/framer-motion/dist/es/components/AnimatePresence/PopChild.mjs" was ignored.
+node_modules/framer-motion/dist/es/components/LayoutGroup/index.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/framer-motion/dist/es/components/LayoutGroup/index.mjs" was ignored.
+node_modules/framer-motion/dist/es/components/MotionConfig/index.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/framer-motion/dist/es/components/MotionConfig/index.mjs" was ignored.
+node_modules/framer-motion/dist/es/components/LazyMotion/index.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/framer-motion/dist/es/components/LazyMotion/index.mjs" was ignored.
+node_modules/framer-motion/dist/es/components/AnimatePresence/PresenceChild.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/framer-motion/dist/es/components/AnimatePresence/PresenceChild.mjs" was ignored.
+node_modules/framer-motion/dist/es/motion/utils/use-visual-state.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/framer-motion/dist/es/motion/utils/use-visual-state.mjs" was ignored.
+node_modules/framer-motion/dist/es/utils/use-isomorphic-effect.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/framer-motion/dist/es/utils/use-isomorphic-effect.mjs" was ignored.
+node_modules/framer-motion/dist/es/utils/use-force-update.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/framer-motion/dist/es/utils/use-force-update.mjs" was ignored.
+node_modules/framer-motion/dist/es/render/dom/features-animation.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/framer-motion/dist/es/render/dom/features-animation.mjs" was ignored.
+node_modules/framer-motion/dist/es/utils/use-unmount-effect.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/framer-motion/dist/es/utils/use-unmount-effect.mjs" was ignored.
+node_modules/framer-motion/dist/es/render/dom/features-min.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/framer-motion/dist/es/render/dom/features-min.mjs" was ignored.
+node_modules/framer-motion/dist/es/render/dom/features-max.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/framer-motion/dist/es/render/dom/features-max.mjs" was ignored.
+node_modules/framer-motion/dist/es/utils/use-motion-value-event.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/framer-motion/dist/es/utils/use-motion-value-event.mjs" was ignored.
+node_modules/framer-motion/dist/es/value/use-motion-template.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/framer-motion/dist/es/value/use-motion-template.mjs" was ignored.
+node_modules/framer-motion/dist/es/value/use-motion-value.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/framer-motion/dist/es/value/use-motion-value.mjs" was ignored.
+node_modules/framer-motion/dist/es/value/use-follow-value.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/framer-motion/dist/es/value/use-follow-value.mjs" was ignored.
+node_modules/framer-motion/dist/es/value/use-scroll.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/framer-motion/dist/es/value/use-scroll.mjs" was ignored.
+node_modules/framer-motion/dist/es/value/use-spring.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/framer-motion/dist/es/value/use-spring.mjs" was ignored.
+node_modules/framer-motion/dist/es/value/use-time.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/framer-motion/dist/es/value/use-time.mjs" was ignored.
+node_modules/framer-motion/dist/es/value/use-velocity.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/framer-motion/dist/es/value/use-velocity.mjs" was ignored.
+node_modules/framer-motion/dist/es/value/use-transform.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/framer-motion/dist/es/value/use-transform.mjs" was ignored.
+node_modules/framer-motion/dist/es/value/use-will-change/index.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/framer-motion/dist/es/value/use-will-change/index.mjs" was ignored.
+node_modules/framer-motion/dist/es/utils/reduced-motion/use-reduced-motion-config.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/framer-motion/dist/es/utils/reduced-motion/use-reduced-motion-config.mjs" was ignored.
+node_modules/framer-motion/dist/es/animation/hooks/use-animate.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/framer-motion/dist/es/animation/hooks/use-animate.mjs" was ignored.
+node_modules/framer-motion/dist/es/animation/hooks/use-animate-style.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/framer-motion/dist/es/animation/hooks/use-animate-style.mjs" was ignored.
+node_modules/framer-motion/dist/es/animation/hooks/use-animation.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/framer-motion/dist/es/animation/hooks/use-animation.mjs" was ignored.
+node_modules/framer-motion/dist/es/components/AnimatePresence/use-presence.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/framer-motion/dist/es/components/AnimatePresence/use-presence.mjs" was ignored.
+node_modules/framer-motion/dist/es/components/AnimatePresence/use-presence-data.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/framer-motion/dist/es/components/AnimatePresence/use-presence-data.mjs" was ignored.
+node_modules/framer-motion/dist/es/events/use-dom-event.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/framer-motion/dist/es/events/use-dom-event.mjs" was ignored.
+node_modules/framer-motion/dist/es/utils/use-cycle.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/framer-motion/dist/es/utils/use-cycle.mjs" was ignored.
+node_modules/framer-motion/dist/es/utils/use-animation-frame.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/framer-motion/dist/es/utils/use-animation-frame.mjs" was ignored.
+node_modules/framer-motion/dist/es/utils/use-in-view.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/framer-motion/dist/es/utils/use-in-view.mjs" was ignored.
+node_modules/framer-motion/dist/es/utils/use-page-in-view.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/framer-motion/dist/es/utils/use-page-in-view.mjs" was ignored.
+node_modules/framer-motion/dist/es/utils/use-instant-transition.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/framer-motion/dist/es/utils/use-instant-transition.mjs" was ignored.
+node_modules/framer-motion/dist/es/context/LayoutGroupContext.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/framer-motion/dist/es/context/LayoutGroupContext.mjs" was ignored.
+node_modules/framer-motion/dist/es/context/MotionContext/index.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/framer-motion/dist/es/context/MotionContext/index.mjs" was ignored.
+node_modules/framer-motion/dist/es/context/PresenceContext.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/framer-motion/dist/es/context/PresenceContext.mjs" was ignored.
+node_modules/framer-motion/dist/es/context/MotionConfigContext.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/framer-motion/dist/es/context/MotionConfigContext.mjs" was ignored.
+node_modules/framer-motion/dist/es/context/SwitchLayoutGroupContext.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/framer-motion/dist/es/context/SwitchLayoutGroupContext.mjs" was ignored.
+node_modules/framer-motion/dist/es/animation/hooks/use-animated-state.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/framer-motion/dist/es/animation/hooks/use-animated-state.mjs" was ignored.
+node_modules/framer-motion/dist/es/context/DeprecatedLayoutGroupContext.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/framer-motion/dist/es/context/DeprecatedLayoutGroupContext.mjs" was ignored.
+node_modules/framer-motion/dist/es/components/AnimateSharedLayout.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/framer-motion/dist/es/components/AnimateSharedLayout.mjs" was ignored.
+node_modules/framer-motion/dist/es/value/use-inverted-scale.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/framer-motion/dist/es/value/use-inverted-scale.mjs" was ignored.
+node_modules/framer-motion/dist/es/components/AnimatePresence/index.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/framer-motion/dist/es/components/AnimatePresence/index.mjs" was ignored.
+node_modules/framer-motion/dist/es/utils/reduced-motion/use-reduced-motion.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/framer-motion/dist/es/utils/reduced-motion/use-reduced-motion.mjs" was ignored.
+node_modules/@tanstack/react-query/build/modern/errorBoundaryUtils.js (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@tanstack/react-query/build/modern/errorBoundaryUtils.js" was ignored.
+node_modules/framer-motion/dist/es/utils/use-constant.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/framer-motion/dist/es/utils/use-constant.mjs" was ignored.
+node_modules/framer-motion/dist/es/context/LazyContext.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/framer-motion/dist/es/context/LazyContext.mjs" was ignored.
+node_modules/framer-motion/dist/es/utils/use-is-mounted.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/framer-motion/dist/es/utils/use-is-mounted.mjs" was ignored.
+node_modules/framer-motion/dist/es/value/use-combine-values.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/framer-motion/dist/es/value/use-combine-values.mjs" was ignored.
+node_modules/framer-motion/dist/es/value/use-computed.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/framer-motion/dist/es/value/use-computed.mjs" was ignored.
+node_modules/framer-motion/dist/es/components/Reorder/Item.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/framer-motion/dist/es/components/Reorder/Item.mjs" was ignored.
+node_modules/framer-motion/dist/es/components/Reorder/Group.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/framer-motion/dist/es/components/Reorder/Group.mjs" was ignored.
+node_modules/@tanstack/react-query/build/modern/useBaseQuery.js (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@tanstack/react-query/build/modern/useBaseQuery.js" was ignored.
+node_modules/framer-motion/dist/es/context/ReorderContext.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/framer-motion/dist/es/context/ReorderContext.mjs" was ignored.
+node_modules/framer-motion/dist/es/motion/features/layout/MeasureLayout.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/framer-motion/dist/es/motion/features/layout/MeasureLayout.mjs" was ignored.
+node_modules/framer-motion/dist/es/motion/index.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/framer-motion/dist/es/motion/index.mjs" was ignored.
+node_modules/framer-motion/dist/es/render/html/use-html-visual-state.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/framer-motion/dist/es/render/html/use-html-visual-state.mjs" was ignored.
+node_modules/framer-motion/dist/es/context/MotionContext/create.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/framer-motion/dist/es/context/MotionContext/create.mjs" was ignored.
+node_modules/framer-motion/dist/es/render/dom/use-render.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/framer-motion/dist/es/render/dom/use-render.mjs" was ignored.
+node_modules/framer-motion/dist/es/render/svg/use-svg-visual-state.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/framer-motion/dist/es/render/svg/use-svg-visual-state.mjs" was ignored.
+node_modules/framer-motion/dist/es/motion/utils/use-motion-ref.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/framer-motion/dist/es/motion/utils/use-motion-ref.mjs" was ignored.
+node_modules/framer-motion/dist/es/motion/utils/use-visual-element.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/framer-motion/dist/es/motion/utils/use-visual-element.mjs" was ignored.
+node_modules/framer-motion/dist/es/render/html/use-props.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/framer-motion/dist/es/render/html/use-props.mjs" was ignored.
+node_modules/framer-motion/dist/es/render/svg/use-props.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/framer-motion/dist/es/render/svg/use-props.mjs" was ignored.
+✓ 3354 modules transformed.
+ℹ Tracing dependencies:
+- tslib (2.8.1)
+✔ Traced 1 dependencies (4 files) in 30ms.
+ℹ Ensure your production environment matches the builder OS and architecture (darwin-arm64) to avoid native module issues.
+rendering chunks...
+.vercel/output/functions/__server.func/_libs/hookable.mjs                                        0.00 kB
+.vercel/output/functions/__server.func/_libs/ufo.mjs                                             0.00 kB
+.vercel/output/functions/__server.func/_libs/ohash.mjs                                           0.00 kB
+.vercel/output/functions/__server.func/_libs/ocache.mjs                                          0.00 kB
+.vercel/output/functions/__server.func/_libs/unstorage.mjs                                       0.00 kB
+.vercel/output/functions/__server.func/_libs/tanstack__store.mjs                                 0.00 kB
+.vercel/output/functions/__server.func/_libs/void-elements.mjs                                   0.00 kB
+.vercel/output/functions/__server.func/_libs/html-parse-stringify.mjs                            0.00 kB
+.vercel/output/functions/__server.func/_libs/detect-node-es.mjs                                  0.00 kB
+.vercel/output/functions/__server.func/_libs/babel__runtime.mjs                                  0.00 kB
+.vercel/output/functions/__server.func/_libs/dom-helpers.mjs                                     0.00 kB
+.vercel/output/functions/__server.func/_libs/tslib.mjs                                           0.00 kB
+.vercel/output/functions/__server.func/_libs/tanstack__react-store.mjs                           0.02 kB
+.vercel/output/functions/__server.func/_libs/@radix-ui/react-use-effect-event+[...].mjs          0.02 kB
+.vercel/output/functions/__server.func/_libs/react-transition-group.mjs                          0.05 kB
+.vercel/output/functions/__server.func/_ssr/empty-plugin-adapters-BFgPZ6_d.mjs                   0.13 kB
+.vercel/output/functions/__server.func/_libs/tiny-invariant.mjs                                  0.14 kB
+.vercel/output/functions/__server.func/_chunks/render_resend_false.mjs                           0.16 kB
+.vercel/output/functions/__server.func/_libs/get-nonce.mjs                                       0.16 kB
+.vercel/output/functions/__server.func/_libs/@radix-ui/react-use-layout-effect+[...].mjs         0.17 kB
+.vercel/output/functions/__server.func/_libs/rou3.mjs                                            0.21 kB
+.vercel/output/functions/__server.func/_libs/es-object-atoms.mjs                                 0.26 kB
+.vercel/output/functions/__server.func/_ssr/createServerRpc-CPL6ytbN.mjs                         0.31 kB
+.vercel/output/functions/__server.func/_libs/@radix-ui/react-use-callback-ref+[...].mjs          0.34 kB
+.vercel/output/functions/__server.func/_libs/radix-ui__primitive.mjs                             0.35 kB
+.vercel/output/functions/__server.func/_libs/hasown.mjs                                          0.40 kB
+.vercel/output/functions/__server.func/_libs/es-define-property.mjs                              0.49 kB
+.vercel/output/functions/__server.func/_libs/gopd.mjs                                            0.50 kB
+.vercel/output/functions/__server.func/_ssr/Reveal-De2-JQUy.mjs                                  0.51 kB
+.vercel/output/functions/__server.func/_libs/clsx.mjs                                            0.51 kB
+.vercel/output/functions/__server.func/_chunks/ssr-renderer.mjs                                  0.51 kB
+.vercel/output/functions/__server.func/_libs/radix-ui__react-id.mjs                              0.51 kB
+.vercel/output/functions/__server.func/_ssr/route-BFsOu0JM.mjs                                   0.65 kB
+.vercel/output/functions/__server.func/_libs/@radix-ui/react-use-escape-keydown+[...].mjs        0.69 kB
+.vercel/output/functions/__server.func/_libs/radix-ui__react-portal.mjs                          0.85 kB
+.vercel/output/functions/__server.func/_ssr/client-CQqhnoVV.mjs                                  0.86 kB
+.vercel/output/functions/__server.func/_libs/radix-ui__react-compose-refs.mjs                    0.94 kB
+.vercel/output/functions/__server.func/_libs/call-bound.mjs                                      0.94 kB
+.vercel/output/functions/__server.func/_libs/radix-ui__react-focus-guards.mjs                    1.08 kB
+.vercel/output/functions/__server.func/_ssr/wishlist.functions-C0VJe4rN.mjs                      1.09 kB
+.vercel/output/functions/__server.func/_libs/radix-ui__react-primitive.mjs                       1.12 kB
+.vercel/output/functions/__server.func/_libs/dunder-proto.mjs                                    1.14 kB
+.vercel/output/functions/__server.func/_libs/internmap.mjs                                       1.17 kB
+.vercel/output/functions/__server.func/_libs/victory-vendor.mjs                                  1.37 kB
+.vercel/output/functions/__server.func/_ssr/client.server-D5ro3rAQ.mjs                           1.37 kB
+.vercel/output/functions/__server.func/_libs/cookie-es.mjs                                       1.46 kB
+.vercel/output/functions/__server.func/_libs/seroval-plugins.mjs                                 1.47 kB
+.vercel/output/functions/__server.func/_libs/math-intrinsics.mjs                                 1.58 kB
+.vercel/output/functions/__server.func/_libs/get-proto.mjs                                       1.66 kB
+.vercel/output/functions/__server.func/_libs/es-errors.mjs                                       1.66 kB
+.vercel/output/functions/__server.func/_libs/react-style-singleton.mjs                           1.67 kB
+.vercel/output/functions/__server.func/_libs/side-channel.mjs                                    1.72 kB
+.vercel/output/functions/__server.func/_libs/use-callback-ref.mjs                                1.75 kB
+.vercel/output/functions/__server.func/_libs/side-channel-map.mjs                                1.94 kB
+.vercel/output/functions/__server.func/_libs/call-bind-apply-helpers.mjs                         1.99 kB
+.vercel/output/functions/__server.func/_ssr/orders.functions-Dbpyq14K.mjs                        2.06 kB
+.vercel/output/functions/__server.func/_ssr/payments.functions-DX-rqWQY.mjs                      2.09 kB
+.vercel/output/functions/__server.func/_ssr/analytics.functions-CC9c-QKH.mjs                     2.12 kB
+.vercel/output/functions/__server.func/_ssr/auth-middleware-568ex_pb.mjs                         2.13 kB
+.vercel/output/functions/__server.func/_libs/class-variance-authority.mjs                        2.14 kB
+.vercel/output/functions/__server.func/_ssr/recentlyViewed-PbTBu1Tc.mjs                          2.17 kB
+.vercel/output/functions/__server.func/_ssr/newsletter.functions-5nRbaQVf.mjs                    2.21 kB
+.vercel/output/functions/__server.func/_libs/has-symbols.mjs                                     2.27 kB
+.vercel/output/functions/__server.func/_libs/@radix-ui/react-use-controllable-state+[...].mjs    2.29 kB
+.vercel/output/functions/__server.func/_ssr/profile.functions-DaKFVPIH.mjs                       2.36 kB
+.vercel/output/functions/__server.func/_libs/use-sync-external-store.mjs                         2.43 kB
+.vercel/output/functions/__server.func/_libs/function-bind.mjs                                   2.47 kB
+.vercel/output/functions/__server.func/_libs/side-channel-list.mjs                               2.53 kB
+.vercel/output/functions/__server.func/_libs/prop-types.mjs                                      2.53 kB
+.vercel/output/functions/__server.func/_libs/use-sidecar.mjs                                     2.65 kB
+.vercel/output/functions/__server.func/_ssr/currency.functions-QXDpIlGP.mjs                      2.70 kB
+.vercel/output/functions/__server.func/_libs/isbot.mjs                                           2.78 kB
+.vercel/output/functions/__server.func/_libs/side-channel-weakmap.mjs                            2.88 kB
+.vercel/output/functions/__server.func/_libs/stripe__stripe-js.mjs                               3.14 kB
+.vercel/output/functions/__server.func/_libs/d3-path.mjs                                         3.36 kB
+.vercel/output/functions/__server.func/_libs/radix-ui__react-context.mjs                         3.47 kB
+.vercel/output/functions/__server.func/_ssr/start-Ba6cJDXD.mjs                                   3.49 kB
+.vercel/output/functions/__server.func/_ssr/returns-C0FNfAm6.mjs                                 3.85 kB
+.vercel/output/functions/__server.func/_ssr/privacy-BvPjYgDi.mjs                                 3.85 kB
+.vercel/output/functions/__server.func/_ssr/shipping-PPOzszFm.mjs                                3.85 kB
+.vercel/output/functions/__server.func/_libs/react-remove-scroll-bar.mjs                         3.96 kB
+.vercel/output/functions/__server.func/_ssr/faq-CDGNy3r_.mjs                                     4.00 kB
+.vercel/output/functions/__server.func/_libs/aria-hidden.mjs                                     4.06 kB
+.vercel/output/functions/__server.func/_libs/react-is.mjs                                        4.11 kB
+.vercel/output/functions/__server.func/_ssr/customers-ZSyhsrax.mjs                               4.22 kB
+.vercel/output/functions/__server.func/_libs/vercel__speed-insights.mjs                          4.27 kB
+.vercel/output/functions/__server.func/_ssr/wishlist.functions-DfVDutug.mjs                      4.29 kB
+.vercel/output/functions/__server.func/_libs/d3-interpolate.mjs                                  4.34 kB
+.vercel/output/functions/__server.func/_libs/vercel__analytics.mjs                               4.67 kB
+.vercel/output/functions/__server.func/_libs/motion-utils.mjs                                    5.08 kB
+.vercel/output/functions/__server.func/_ssr/ProductCard-ChmLscae.mjs                             5.21 kB
+.vercel/output/functions/__server.func/_ssr/route-D5xgUg6x.mjs                                   5.27 kB
+.vercel/output/functions/__server.func/_libs/radix-ui__react-slot.mjs                            5.27 kB
+.vercel/output/functions/__server.func/_libs/standardwebhooks.mjs                                5.34 kB
+.vercel/output/functions/__server.func/_ssr/about-oQ6ywuPa.mjs                                   5.53 kB
+.vercel/output/functions/__server.func/_ssr/admin.functions-Dguh1t-4.mjs                         5.71 kB
+.vercel/output/functions/__server.func/_libs/radix-ui__react-presence.mjs                        5.71 kB
+.vercel/output/functions/__server.func/_ssr/profile.functions-Cn_9ZcqF.mjs                       5.84 kB
+.vercel/output/functions/__server.func/_libs/tanstack__history.mjs                               5.99 kB
+.vercel/output/functions/__server.func/_ssr/journal_._slug-CBMC1qYx.mjs                          6.06 kB
+.vercel/output/functions/__server.func/_libs/lovable.dev__cloud-auth-js.mjs                      6.42 kB
+.vercel/output/functions/__server.func/_ssr/index.mjs                                            6.49 kB
+.vercel/output/functions/__server.func/_libs/eventemitter3.mjs                                   6.53 kB
+.vercel/output/functions/__server.func/_ssr/journal-kehz6JoE.mjs                                 6.57 kB
+.vercel/output/functions/__server.func/_ssr/reviews.functions-CC2I40u0.mjs                       6.95 kB
+.vercel/output/functions/__server.func/_ssr/wishlist-D-QUeY8l.mjs                                6.98 kB
+.vercel/output/functions/__server.func/_libs/d3-array.mjs                                        7.16 kB
+.vercel/output/functions/__server.func/_ssr/journal.functions-BlB5QBac.mjs                       7.21 kB
+.vercel/output/functions/__server.func/_libs/zustand.mjs                                         7.22 kB
+.vercel/output/functions/__server.func/_ssr/checkout_.paypal-return-BwzWqqSz.mjs                 7.26 kB
+.vercel/output/functions/__server.func/index.mjs                                                 7.34 kB
+.vercel/output/functions/__server.func/_libs/tanstack__react-query.mjs                           7.43 kB
+.vercel/output/functions/__server.func/_libs/stablelib__base64.mjs                               7.56 kB
+.vercel/output/functions/__server.func/_ssr/profile-C1aQv1wV.mjs                                 7.87 kB
+.vercel/output/functions/__server.func/_ssr/reset-password-A4ygV3nR.mjs                          7.94 kB
+.vercel/output/functions/__server.func/_libs/radix-ui__react-focus-scope.mjs                     8.07 kB
+.vercel/output/functions/__server.func/_ssr/cart-CfmzkXFW.mjs                                    8.46 kB
+.vercel/output/functions/__server.func/_ssr/contact-BUFsB3xs.mjs                                 8.59 kB
+.vercel/output/functions/__server.func/_ssr/orders-Bd_hqDyE.mjs                                  8.64 kB
+.vercel/output/functions/__server.func/_libs/srvx.mjs                                            8.77 kB
+.vercel/output/functions/__server.func/_libs/@radix-ui/react-dismissable-layer+[...].mjs         9.07 kB
+.vercel/output/functions/__server.func/_ssr/orders.functions-BSIbNkj3.mjs                        9.09 kB
+.vercel/output/functions/__server.func/_libs/d3-format.mjs                                       9.81 kB
+.vercel/output/functions/__server.func/_libs/react-i18next.mjs                                   9.98 kB
+.vercel/output/functions/__server.func/_libs/h3-v2.mjs                                           9.98 kB
+.vercel/output/functions/__server.func/_ssr/auth-CPa4Ooh5.mjs                                   10.24 kB
+.vercel/output/functions/__server.func/_ssr/products.functions-CgnO6yHI.mjs                     10.31 kB
+.vercel/output/functions/__server.func/_libs/d3-color.mjs                                       10.63 kB
+.vercel/output/functions/__server.func/_libs/d3-time.mjs                                        10.78 kB
+.vercel/output/functions/__server.func/_ssr/orders-BxX_0x4-.mjs                                 10.93 kB
+.vercel/output/functions/__server.func/_ssr/categories-CWOAsDsZ.mjs                             11.41 kB
+.vercel/output/functions/__server.func/_tanstack-start-manifest_v-eVVNvZFw.mjs                  11.55 kB
+.vercel/output/functions/__server.func/_libs/supabase__functions-js.mjs                         11.91 kB
+.vercel/output/functions/__server.func/_ssr/products-B-ISLM1J.mjs                               12.08 kB
+.vercel/output/functions/__server.func/_libs/recharts-scale.mjs                                 12.43 kB
+.vercel/output/functions/__server.func/_libs/fast-sha256.mjs                                    13.31 kB
+.vercel/output/functions/__server.func/_libs/react-remove-scroll.mjs                            13.37 kB
+.vercel/output/functions/__server.func/_ssr/payments.functions-DG9Mvk1I.mjs                     13.49 kB
+.vercel/output/functions/__server.func/_libs/radix-ui__react-dialog.mjs                         13.50 kB
+.vercel/output/functions/__server.func/_libs/fast-equals.mjs                                    13.70 kB
+.vercel/output/functions/__server.func/_ssr/orders._id-CU0POKyP.mjs                             13.75 kB
+.vercel/output/functions/__server.func/_ssr/journal-hIiSJphz.mjs                                14.18 kB
+.vercel/output/functions/__server.func/_libs/h3.mjs                                             14.32 kB
+.vercel/output/functions/__server.func/_libs/get-intrinsic.mjs                                  15.68 kB
+.vercel/output/functions/__server.func/_libs/iceberg-js.mjs                                     15.70 kB
+.vercel/output/functions/__server.func/_libs/object-inspect.mjs                                 18.46 kB
+.vercel/output/functions/__server.func/_libs/d3-time-format.mjs                                 18.50 kB
+.vercel/output/functions/__server.func/_libs/react.mjs                                          19.82 kB
+.vercel/output/functions/__server.func/_libs/lucide-react.mjs                                   22.05 kB
+.vercel/output/functions/__server.func/_ssr/index-Db2uQhRq.mjs                                  22.10 kB
+.vercel/output/functions/__server.func/_libs/d3-shape.mjs                                       24.56 kB
+.vercel/output/functions/__server.func/_libs/decimal.js-light.mjs                               26.70 kB
+.vercel/output/functions/__server.func/_ssr/index-Cr8SEj-v.mjs                                  27.26 kB
+.vercel/output/functions/__server.func/_ssr/products-CiYgbDcN.mjs                               28.35 kB
+.vercel/output/functions/__server.func/_libs/d3-scale.mjs                                       29.02 kB
+.vercel/output/functions/__server.func/_libs/supabase__supabase-js.mjs                          31.47 kB
+.vercel/output/functions/__server.func/_ssr/admin.functions-CHNQ-kRd.mjs                        32.68 kB
+.vercel/output/functions/__server.func/_libs/qs.mjs                                             36.48 kB
+.vercel/output/functions/__server.func/_ssr/checkout-D2rrsbos.mjs                               36.68 kB
+.vercel/output/functions/__server.func/_ssr/PageLayout-DOGs_610.mjs                             37.38 kB
+.vercel/output/functions/__server.func/_libs/react-smooth.mjs                                   38.16 kB
+.vercel/output/functions/__server.func/_libs/resend.mjs                                         38.47 kB
+.vercel/output/functions/__server.func/_ssr/products_._slug-CI584DP6.mjs                        42.37 kB
+.vercel/output/functions/__server.func/_libs/tanstack__react-router.mjs                         42.53 kB
+.vercel/output/functions/__server.func/_libs/seroval.mjs                                        48.40 kB
+.vercel/output/functions/__server.func/_libs/supabase__phoenix.mjs                              53.95 kB
+.vercel/output/functions/__server.func/_libs/sonner.mjs                                         56.10 kB
+.vercel/output/functions/__server.func/_libs/framer-motion.mjs                                  62.51 kB
+.vercel/output/functions/__server.func/_libs/supabase__realtime-js.mjs                          73.92 kB
+.vercel/output/functions/__server.func/_ssr/server-B9wJ5HhB.mjs                                 74.82 kB
+.vercel/output/functions/__server.func/_libs/tanstack__query-core.mjs                           75.11 kB
+.vercel/output/functions/__server.func/_libs/i18next.mjs                                        81.37 kB
+.vercel/output/functions/__server.func/_ssr/router-BIY0kDrH.mjs                                 91.59 kB
+.vercel/output/functions/__server.func/_libs/supabase__storage-js.mjs                           97.77 kB
+.vercel/output/functions/__server.func/_libs/postal-mime.mjs                                    98.81 kB
+.vercel/output/functions/__server.func/_libs/tailwind-merge.mjs                                 99.21 kB
+.vercel/output/functions/__server.func/_libs/zod.mjs                                           106.42 kB
+.vercel/output/functions/__server.func/_libs/lodash.mjs                                        114.31 kB
+.vercel/output/functions/__server.func/_libs/supabase__postgrest-js.mjs                        137.95 kB
+.vercel/output/functions/__server.func/_libs/stripe.mjs                                        155.67 kB
+.vercel/output/functions/__server.func/_libs/tanstack__router-core.mjs                         171.70 kB
+.vercel/output/functions/__server.func/_libs/motion-dom.mjs                                    207.05 kB
+.vercel/output/functions/__server.func/_libs/supabase__auth-js.mjs                             301.06 kB
+.vercel/output/functions/__server.func/_libs/react-dom.mjs                                     509.22 kB
+.vercel/output/functions/__server.func/_libs/recharts.mjs                                      559.13 kB
+.vercel/output/functions/__server.func/_libs/xlsx.mjs                                          857.08 kB
+✓ built in 7.33s
+ℹ Generated .vercel/output/nitro.json
+
+[nitro] ✔ You can preview this build using npx vite preview
+[nitro] ✔ You can deploy this build using npx nitro deploy --prebuilt

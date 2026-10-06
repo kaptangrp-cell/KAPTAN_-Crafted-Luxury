@@ -1,3 +1,4 @@
+import { useShopCurrency } from "@/hooks/useCurrency";
 import { useState } from "react";
 import { Coins } from "lucide-react";
 import { useTranslation } from "react-i18next";
@@ -12,7 +13,7 @@ import { SUPPORTED_CURRENCIES } from "@/lib/currency";
 export function CurrencySwitcher({ className }: { className?: string }) {
   const { t } = useTranslation();
   const [open, setOpen] = useState(false);
-  const currency = useCurrencyStore((s) => s.effectiveCurrency());
+  const currency = useShopCurrency();
   const setCurrency = useCurrencyStore((s) => s.setCurrency);
 
   return (

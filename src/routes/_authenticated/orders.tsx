@@ -63,12 +63,16 @@ function OrdersPage() {
                   <div>
                     <p className="font-mono text-sm text-gold">{o.order_number}</p>
                     <p className="text-xs text-white/50">
-                      {new Date(o.created_at!).toLocaleDateString(i18n.language === "de" ? "de-DE" : "en-GB")}
+                      {new Date(o.created_at!).toLocaleDateString(
+                        i18n.language === "de" ? "de-DE" : "en-GB",
+                      )}
                     </p>
                   </div>
 
                   <div className="flex items-center gap-4">
-                    <span className={`rounded-full px-3 py-1 text-[10px] uppercase tracking-wider ${badgeClass(o.status)}`}>
+                    <span
+                      className={`rounded-full px-3 py-1 text-[10px] uppercase tracking-wider ${badgeClass(o.status)}`}
+                    >
                       {statusLabel(o.status, t)}
                     </span>
                     <span className="font-mono text-sm text-white">
@@ -95,7 +99,8 @@ function MiniTracker({ status, t }: { status: string | null; t: TFunction }) {
     { key: "delivered", label: t("account.statusDelivered"), icon: CheckCircle },
   ];
 
-  const activeIndex = status === "cancelled" ? -1 : steps.findIndex((s) => s.key === (status ?? "ordered"));
+  const activeIndex =
+    status === "cancelled" ? -1 : steps.findIndex((s) => s.key === (status ?? "ordered"));
 
   if (status === "cancelled") {
     return <p className="mt-4 text-xs text-red-300">{t("orders.orderCancelled")}</p>;
@@ -109,9 +114,11 @@ function MiniTracker({ status, t }: { status: string | null; t: TFunction }) {
 
         return (
           <div key={step.key} className="flex items-center gap-2">
-            <span className={`flex h-7 w-7 items-center justify-center rounded-full border ${
-              active ? "border-gold bg-gold text-black" : "border-white/20 text-white/40"
-            }`}>
+            <span
+              className={`flex h-7 w-7 items-center justify-center rounded-full border ${
+                active ? "border-gold bg-gold text-black" : "border-white/20 text-white/40"
+              }`}
+            >
               <Icon size={14} />
             </span>
             <span className={active ? "text-xs text-gold" : "text-xs text-white/40"}>

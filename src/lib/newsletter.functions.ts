@@ -11,9 +11,7 @@ export const subscribeNewsletter = createServerFn({ method: "POST" })
   .handler(async ({ data }) => {
     const email = data.email.trim().toLowerCase();
 
-    const { error } = await supabase
-      .from("newsletter_subscribers")
-      .insert({ email });
+    const { error } = await supabase.from("newsletter_subscribers").insert({ email });
 
     if (error) {
       if (error.code === "23505") {

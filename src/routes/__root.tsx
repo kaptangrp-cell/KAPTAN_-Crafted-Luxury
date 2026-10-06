@@ -1,3 +1,4 @@
+import { useCartStore } from "@/stores/cartStore";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import {
   Outlet,
@@ -28,8 +29,7 @@ const organizationJsonLd = {
   name: "KAPTAN",
   url: "https://kaptangrp.com",
   logo: "https://kaptangrp.com/kaptan-logo.png",
-  description:
-    "Premium handcrafted leather products and authentic Himalayan salt lamps.",
+  description: "Premium handcrafted leather products and authentic Himalayan salt lamps.",
   email: "contact@kaptangrp.com",
   telephone: "+491757134333",
   address: {
@@ -38,10 +38,10 @@ const organizationJsonLd = {
     addressCountry: "DE",
   },
   sameAs: [
-    "https://instagram.com",
-    "https://facebook.com",
-    "https://www.tiktok.com/@kaptan",
-  ],
+    import.meta.env.VITE_INSTAGRAM_URL,
+    import.meta.env.VITE_FACEBOOK_URL,
+    import.meta.env.VITE_TIKTOK_URL,
+  ].filter(Boolean),
 };
 import { reportLovableError } from "../lib/lovable-error-reporting";
 
@@ -168,6 +168,7 @@ function RootComponent() {
   const logVisitFn = useServerFn(logVisit);
 
   useEffect(() => {
+    void useCartStore.persist.rehydrate();
     usePreferencesStore.persist.rehydrate()?.then(() => {
       const { theme, language } = usePreferencesStore.getState();
       document.documentElement.classList.toggle("light", theme === "light");

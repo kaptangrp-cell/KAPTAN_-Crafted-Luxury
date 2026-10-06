@@ -1,4 +1,4 @@
-import { useNavigate } from "@tanstack/react-router";
+import { Link, useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useQueryClient } from "@tanstack/react-query";
 import { Heart, ShoppingBag } from "lucide-react";
@@ -13,7 +13,8 @@ import type { Product } from "@/types";
 interface ProductCardProps {
   product: Product & {
     categories?: { name: string; slug: string } | null;
-    product_images?: { url: string }[] | null;
+    product_images?: { url: string; media_type?: string; sort_order?: number | null }[] | null;
+    product_variants?: { id: string }[] | null;
   };
 }
 
@@ -26,7 +27,9 @@ export function ProductCard({ product }: ProductCardProps) {
   const toggleWishlistFn = useServerFn(toggleWishlist);
 
   const imageUrl =
-    product.product_images?.[0]?.url ??
+    product.product_images
+      ?.filter((image) => image.media_type !== "video")
+      .sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0))[0]?.url ??
     "https://images.unsplash.com/photo-1602028915047-37269d1a73f7?w=400&q=80";
 
   const categoryName = product.categories?.name ?? t("products.defaultCategory");
@@ -40,6 +43,10 @@ export function ProductCard({ product }: ProductCardProps) {
 
   function handleAddToCart(e: React.MouseEvent) {
     e.stopPropagation();
+    if (product.product_variants?.length) {
+      openProduct();
+      return;
+    }
     addItem(product, null, 1, imageUrl);
     toast.success(t("products.addedToCartToast", { name: product.name }));
   }
@@ -67,17 +74,16 @@ export function ProductCard({ product }: ProductCardProps) {
   }
 
   return (
-    <div
-      onClick={openProduct}
-      className="group relative flex cursor-pointer flex-col overflow-hidden border border-gold/10 bg-[#1A1A1A] transition-all duration-300 hover:border-gold/30 hover:gold-glow"
-    >
+    <div className="group relative flex cursor-pointer flex-col overflow-hidden border border-gold/10 bg-[#1A1A1A] transition-all duration-300 hover:border-gold/30 hover:gold-glow">
       <div className="media-hero relative block aspect-[4/3] overflow-hidden bg-black">
-        <img
-          src={imageUrl}
-          alt={product.name}
-          loading="lazy"
-          className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
-        />
+        <Link to="/products/$slug" params={{ slug: product.slug }} tabIndex={-1} aria-hidden="true">
+          <img
+            src={imageUrl}
+            alt={product.name}
+            loading="lazy"
+            className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+          />
+        </Link>
 
         <span className="absolute left-2 top-2 bg-gold px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-black">
           {categoryName}
@@ -94,12 +100,12 @@ export function ProductCard({ product }: ProductCardProps) {
 
       <div className="flex flex-1 flex-col p-4">
         <h3 className="font-serif text-base font-medium text-white transition-colors group-hover:text-gold">
-          {product.name}
+          <Link to="/products/$slug" params={{ slug: product.slug }}>
+            {product.name}
+          </Link>
         </h3>
 
-        <p className="mt-1 line-clamp-1 text-sm text-gold-dark/70">
-          {product.short_description}
-        </p>
+        <p className="mt-1 line-clamp-1 text-sm text-white/70">{product.short_description}</p>
 
         <div className="mt-3 flex items-center justify-between">
           <Price amount={product.price} className="font-mono text-lg font-bold text-gold" />
@@ -119,7 +125,9 @@ export function ProductCard({ product }: ProductCardProps) {
           className="mt-4 flex w-full items-center justify-center gap-2 bg-gold py-2.5 text-sm font-bold text-black transition-colors hover:bg-gold-vivid disabled:opacity-50"
         >
           <ShoppingBag size={16} />
-          {product.stock_quantity === 0 ? t("products.outOfStock") : t("products.addToCart")}
+          {product.stock_quantity === 0
+            ? t("products.outOfStock")
+            : t(product.product_variants?.length ? "products.chooseOptions" : "products.addToCart")}
         </button>
       </div>
     </div>

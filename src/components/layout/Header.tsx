@@ -1,17 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Link, useNavigate } from "@tanstack/react-router";
-import {
-  Search,
-  Heart,
-  ShoppingBag,
-  Menu,
-  X,
-  User,
-  Sun,
-  Moon,
-  Globe,
-  LogOut,
-} from "lucide-react";
+import { Search, Heart, ShoppingBag, Menu, X, User, Sun, Moon, Globe, LogOut } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuthStore } from "@/stores/authStore";
@@ -30,7 +19,7 @@ export function Header() {
 
   const { user, profile } = useAuthStore();
   const { openCart } = useUIStore();
-  const totalItems = useCartStore((s) => s.totalItems());
+  const totalItems = useCartStore((s) => s.items.reduce((total, item) => total + item.quantity, 0));
 
   const navigate = useNavigate();
   const { t } = useTranslation();
@@ -39,10 +28,7 @@ export function Header() {
   const nextLang = language === "en" ? "de" : "en";
 
   const userName =
-    profile?.full_name ||
-    user?.user_metadata?.full_name ||
-    user?.email?.split("@")[0] ||
-    "Account";
+    profile?.full_name || user?.user_metadata?.full_name || user?.email?.split("@")[0] || "Account";
 
   async function handleLogout() {
     if (logoutTimer.current) {
@@ -66,10 +52,7 @@ export function Header() {
         window.clearTimeout(logoutTimer.current);
       }
 
-      logoutTimer.current = window.setTimeout(
-        logoutAfterInactivity,
-        INACTIVITY_LIMIT
-      );
+      logoutTimer.current = window.setTimeout(logoutAfterInactivity, INACTIVITY_LIMIT);
     };
 
     const events = ["mousemove", "keydown", "click", "scroll", "touchstart"];
@@ -95,10 +78,7 @@ export function Header() {
     <header className="sticky top-0 z-50 border-b border-gold/30 bg-black">
       <div className="border-b border-gold/20 bg-black">
         <div className="mx-auto flex max-w-7xl items-center justify-center gap-2 px-4 py-1.5 md:px-6">
-          <span
-            className="inline-block h-1.5 w-1.5 rounded-full bg-gold"
-            aria-hidden="true"
-          />
+          <span className="inline-block h-1.5 w-1.5 rounded-full bg-gold" aria-hidden="true" />
           <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-gold">
             {t("header.craftedTag")}
           </p>
@@ -107,11 +87,7 @@ export function Header() {
 
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 md:px-6">
         <Link to="/" className="flex items-center gap-3">
-          <img
-            src="/kaptan-logo.png"
-            alt="KAPTAN"
-            className="h-12 w-12 object-contain"
-          />
+          <img src="/kaptan-logo.png" alt="KAPTAN" className="h-12 w-12 object-contain" />
           <span className="hidden font-serif text-xl font-bold tracking-[0.15em] text-gold sm:inline-block">
             KAPTAN
           </span>
@@ -277,8 +253,7 @@ export function Header() {
               onClick={() => setLanguage(nextLang)}
               className="flex items-center gap-2 text-sm font-medium text-gold/80 hover:text-gold"
             >
-              <Globe size={16} />{" "}
-              {language === "en" ? t("language.de") : t("language.en")}
+              <Globe size={16} /> {language === "en" ? t("language.de") : t("language.en")}
             </button>
 
             <CurrencySwitcher />

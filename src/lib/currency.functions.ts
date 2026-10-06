@@ -48,7 +48,11 @@ export const getExchangeRates = createServerFn({ method: "GET" }).handler(async 
 
     if (!res.ok) throw new Error(`Rate provider responded ${res.status}`);
 
-    const data = (await res.json()) as { base: string; date: string; rates: Record<string, number> };
+    const data = (await res.json()) as {
+      base: string;
+      date: string;
+      rates: Record<string, number>;
+    };
 
     cache = {
       base: "EUR",

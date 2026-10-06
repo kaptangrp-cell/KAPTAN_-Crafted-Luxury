@@ -1,259 +1,250 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { getStripeClient } from "@/lib/payments/stripe.server";
-import { isPaypalConfigured, createPaypalOrder, capturePaypalOrder } from "@/lib/payments/paypal.server";
+import {
+  createPaypalOrder,
+  capturePaypalOrder,
+  getPaypalOrder,
+  isPaypalConfigured,
+} from "@/lib/payments/paypal.server";
+import {
+  bindProvider,
+  checkoutOrigin,
+  checkoutOwner,
+  claimProvider,
+  getCheckout,
+  settleCheckout,
+} from "@/lib/payments/checkout.server";
+import { cents, verifyPayment, verifyPaypalOrder } from "@/lib/payments/verification";
 
-const CreateCheckoutSessionSchema = z.object({
-  orderId: z.string().uuid(),
-  origin: z.string().url(),
+const OrderInput = z.object({ orderId: z.string().uuid() });
+
+export const getPaymentAvailability = createServerFn({ method: "POST" }).handler(async () => {
+  checkoutOwner(true);
+  let ready = Boolean(process.env.SUPABASE_SERVICE_ROLE_KEY && process.env.SUPABASE_URL);
+  try {
+    checkoutOrigin();
+  } catch {
+    ready = false;
+  }
+  if (ready) {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { error } = await supabaseAdmin.from("order_checkouts").select("order_id").limit(0);
+    if (error) ready = false;
+  }
+  return {
+    card: ready && Boolean(getStripeClient() && process.env.STRIPE_WEBHOOK_SECRET),
+    paypal: ready && isPaypalConfigured(),
+  };
 });
 
-/**
- * Creates a Stripe Checkout Session for an already-created order and
- * returns the hosted checkout URL to redirect the customer to.
- *
- * Requires STRIPE_SECRET_KEY to be set — throws a friendly error otherwise
- * so the checkout UI can fall back to COD/Bank Transfer.
- *
- * NOTE: this only starts the payment. The order is marked paid separately,
- * once Stripe confirms the payment actually succeeded — see the
- * checkout.session.completed handler wired in from src/server.ts
- * (src/lib/payments/stripe-webhook.server.ts). Requires STRIPE_WEBHOOK_SECRET
- * to be set from a webhook endpoint registered at POST /webhooks/stripe.
- */
 export const createStripeCheckoutSession = createServerFn({ method: "POST" })
-  .inputValidator((input: unknown) => CreateCheckoutSessionSchema.parse(input))
+  .inputValidator((input: unknown) => OrderInput.parse(input))
   .handler(async ({ data }) => {
     const stripe = getStripeClient();
-
-    if (!stripe) {
-      throw new Error("Card payments are not configured yet. Please choose another payment method.");
+    if (!stripe) throw new Error("Card payments are unavailable.");
+    const { order, checkout } = await claimProvider(data.orderId, "stripe_checkout");
+    if (checkout.provider_id) {
+      const existing = await stripe.checkout.sessions.retrieve(checkout.provider_id);
+      if (existing.status !== "open" || !existing.url)
+        throw new Error("This payment session has ended. Check your order status.");
+      return { url: existing.url };
     }
-
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-
-    const { data: order, error } = await supabaseAdmin
-      .from("orders")
-      .select("*, order_items(*)")
-      .eq("id", data.orderId)
-      .single();
-
-    if (error || !order) throw new Error("Order not found");
-
-    const lineItems = (order.order_items ?? []).map((item) => ({
-      price_data: {
-        currency: "eur",
-        unit_amount: Math.round(Number(item.unit_price) * 100),
-        product_data: {
-          name: item.variant_info ? `${item.product_name} (${item.variant_info})` : item.product_name,
-        },
+    if (Date.now() - new Date(checkout.created_at).getTime() > 25 * 60 * 1000)
+      throw new Error("Payment initialization expired. Please contact support before retrying.");
+    const origin = checkoutOrigin();
+    const session = await stripe.checkout.sessions.create(
+      {
+        mode: "payment",
+        customer_email: order.customer_email,
+        line_items: [
+          {
+            price_data: {
+              currency: "eur",
+              unit_amount: cents(order.total),
+              product_data: {
+                name: `KAPTAN ${order.order_number}`,
+                description: "Order total including shipping",
+              },
+            },
+            quantity: 1,
+          },
+        ],
+        metadata: { orderId: order.id, orderNumber: order.order_number },
+        payment_intent_data: { metadata: { orderId: order.id } },
+        expires_at: Math.floor(new Date(checkout.created_at).getTime() / 1000) + 3600,
+        success_url: `${origin}/checkout/complete?orderId=${order.id}`,
+        cancel_url: `${origin}/checkout?cancelOrderId=${order.id}`,
       },
-      quantity: item.quantity,
-    }));
-
-    if (order.shipping_cost && Number(order.shipping_cost) > 0) {
-      lineItems.push({
-        price_data: {
-          currency: "eur",
-          unit_amount: Math.round(Number(order.shipping_cost) * 100),
-          product_data: { name: "Shipping" },
-        },
-        quantity: 1,
-      });
-    }
-
-    const session = await stripe.checkout.sessions.create({
-      mode: "payment",
-      line_items: lineItems,
-      customer_email: order.customer_email,
-      metadata: { orderId: order.id, orderNumber: order.order_number },
-      success_url: `${data.origin}/orders/${order.id}?payment=success`,
-      cancel_url: `${data.origin}/checkout?payment=cancelled`,
-    });
-
-    if (!session.url) throw new Error("Could not start Stripe checkout session");
-
+      { idempotencyKey: `checkout-${order.id}` },
+    );
+    if (!session.url) throw new Error("Could not start card checkout");
+    await bindProvider(order.id, session.id, session.url);
     return { url: session.url };
   });
 
-const CreatePaypalOrderSchema = z.object({
-  orderId: z.string().uuid(),
-  origin: z.string().url(),
-});
-
-/**
- * Creates a PayPal order for an already-created internal order and returns
- * the "approve" URL to redirect the customer to.
- *
- * Requires PAYPAL_CLIENT_ID / PAYPAL_CLIENT_SECRET — throws a friendly error
- * otherwise so the checkout UI can fall back to another payment method.
- */
 export const createPaypalCheckoutOrder = createServerFn({ method: "POST" })
-  .inputValidator((input: unknown) => CreatePaypalOrderSchema.parse(input))
+  .inputValidator((input: unknown) => OrderInput.parse(input))
   .handler(async ({ data }) => {
-    if (!isPaypalConfigured()) {
-      throw new Error("PayPal is not configured yet. Please choose another payment method.");
-    }
-
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-
-    const { data: order, error } = await supabaseAdmin
-      .from("orders")
-      .select("*, order_items(*)")
-      .eq("id", data.orderId)
-      .single();
-
-    if (error || !order) throw new Error("Order not found");
-
-    const items = (order.order_items ?? []).map((item) => ({
-      name: item.variant_info ? `${item.product_name} (${item.variant_info})` : item.product_name,
-      quantity: item.quantity,
-      unitAmount: Number(item.unit_price),
-    }));
-
-    const itemTotal = Number(order.subtotal);
-    const shippingTotal = Number(order.shipping_cost ?? 0);
-
-    const { paypalOrderId, approveUrl } = await createPaypalOrder({
+    if (!isPaypalConfigured()) throw new Error("PayPal is unavailable.");
+    const { order, checkout } = await claimProvider(data.orderId, "paypal");
+    if (checkout.provider_id && checkout.redirect_url)
+      return { url: checkout.redirect_url, paypalOrderId: checkout.provider_id };
+    if (Date.now() - new Date(checkout.created_at).getTime() > 25 * 60 * 1000)
+      throw new Error("Payment initialization expired. Please contact support before retrying.");
+    const origin = checkoutOrigin();
+    const result = await createPaypalOrder({
       orderNumber: order.order_number,
       currency: "EUR",
-      itemTotal,
-      shippingTotal,
+      itemTotal: Number(order.subtotal),
+      shippingTotal: Number(order.shipping_cost ?? 0),
       total: Number(order.total),
-      items,
-      returnUrl: `${data.origin}/checkout/paypal-return?orderId=${order.id}`,
-      cancelUrl: `${data.origin}/checkout?payment=cancelled`,
+      items: order.order_items.map((i) => ({
+        name: i.variant_info ? `${i.product_name} (${i.variant_info})` : i.product_name,
+        quantity: i.quantity,
+        unitAmount: Number(i.unit_price),
+      })),
+      returnUrl: `${origin}/checkout/paypal-return?orderId=${order.id}`,
+      cancelUrl: `${origin}/checkout?cancelOrderId=${order.id}`,
     });
-
-    // Stash the PayPal order id so the return page knows what to capture,
-    // and so support can trace payments from the order record.
-    await supabaseAdmin
-      .from("orders")
-      .update({
-        admin_notes: order.admin_notes
-          ? `${order.admin_notes}\nPayPal Order ID: ${paypalOrderId}`
-          : `PayPal Order ID: ${paypalOrderId}`,
-      })
-      .eq("id", order.id);
-
-    return { url: approveUrl, paypalOrderId };
+    await bindProvider(order.id, result.paypalOrderId, result.approveUrl);
+    return { url: result.approveUrl, paypalOrderId: result.paypalOrderId };
   });
 
-const CapturePaypalOrderSchema = z.object({
-  orderId: z.string().uuid(),
-  paypalOrderId: z.string().min(1),
-});
-
-/**
- * Captures an approved PayPal order and marks the matching internal order
- * as paid. Called from the /checkout/paypal-return page after the customer
- * approves payment on PayPal's site.
- */
 export const capturePaypalCheckoutOrder = createServerFn({ method: "POST" })
-  .inputValidator((input: unknown) => CapturePaypalOrderSchema.parse(input))
+  .inputValidator((input: unknown) =>
+    OrderInput.extend({
+      paypalOrderId: z
+        .string()
+        .regex(/^[A-Z0-9]+$/)
+        .max(100),
+    }).parse(input),
+  )
   .handler(async ({ data }) => {
-    if (!isPaypalConfigured()) {
-      throw new Error("PayPal is not configured");
-    }
-
+    const { hasManagedCheckout, captureLegacyPaypal } =
+      await import("@/lib/payments/legacy.server");
+    if (!(await hasManagedCheckout(data.orderId)))
+      return captureLegacyPaypal(data.orderId, data.paypalOrderId);
+    const { order, checkout } = await getCheckout(data.orderId);
+    if (
+      checkout.provider_kind !== "paypal" ||
+      checkout.provider_id !== data.paypalOrderId ||
+      checkout.state === "released"
+    )
+      throw new Error("PayPal order does not match checkout");
+    const expected = {
+      providerId: data.paypalOrderId,
+      orderNumber: order.order_number,
+      total: Number(order.total),
+    };
+    const before = await getPaypalOrder(data.paypalOrderId);
+    verifyPaypalOrder(before, expected, before.status === "COMPLETED");
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-
-    const { completed } = await capturePaypalOrder(data.paypalOrderId);
-
-    if (!completed) {
-      throw new Error("PayPal payment was not completed");
+    if (checkout.state !== "paid") {
+      // Atomic claim prevents a cancellation from releasing stock during capture.
+      const { data: claimed, error } = await supabaseAdmin
+        .from("order_checkouts")
+        .update({ capture_started: true })
+        .eq("order_id", order.id)
+        .eq("state", "reserved")
+        .select("order_id")
+        .single();
+      if (error || !claimed) throw new Error("This checkout is no longer payable");
     }
-
-    const { data: order, error } = await supabaseAdmin
-      .from("orders")
-      .update({ payment_status: "paid" })
-      .eq("id", data.orderId)
-      .select("id, order_number, total")
-      .single();
-
-    if (error || !order) throw new Error("Could not update order after payment");
-
+    const payment = await capturePaypalOrder(data.paypalOrderId);
+    verifyPaypalOrder(payment, expected, true);
+    await settleCheckout(order.id, "paid");
     return { orderId: order.id, orderNumber: order.order_number };
   });
 
-
-const CreatePaymentIntentSchema = z.object({
-  orderId: z.string().uuid(),
-});
-
-/**
- * Creates a Stripe PaymentIntent for an already-created order's total and
- * returns its client secret. Used by the Express Checkout (Apple Pay /
- * Google Pay) flow, which confirms the payment client-side via the
- * PaymentRequest API instead of redirecting to hosted Stripe Checkout.
- */
 export const createStripePaymentIntentForOrder = createServerFn({ method: "POST" })
-  .inputValidator((input: unknown) => CreatePaymentIntentSchema.parse(input))
+  .inputValidator((input: unknown) => OrderInput.parse(input))
   .handler(async ({ data }) => {
     const stripe = getStripeClient();
-
-    if (!stripe) {
-      throw new Error("Card payments are not configured yet. Please choose another payment method.");
-    }
-
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-
-    const { data: order, error } = await supabaseAdmin
-      .from("orders")
-      .select("id, order_number, total, customer_email")
-      .eq("id", data.orderId)
-      .single();
-
-    if (error || !order) throw new Error("Order not found");
-
-    const intent = await stripe.paymentIntents.create({
-      amount: Math.round(Number(order.total) * 100),
-      currency: "eur",
-      receipt_email: order.customer_email ?? undefined,
-      metadata: { orderId: order.id, orderNumber: order.order_number },
-      automatic_payment_methods: { enabled: true },
-    });
-
-    if (!intent.client_secret) throw new Error("Could not start payment");
-
+    if (!stripe) throw new Error("Card payments are unavailable.");
+    const { order, checkout } = await claimProvider(data.orderId, "stripe_intent");
+    const intent = checkout.provider_id
+      ? await stripe.paymentIntents.retrieve(checkout.provider_id)
+      : await stripe.paymentIntents.create(
+          {
+            amount: cents(order.total),
+            currency: "eur",
+            receipt_email: order.customer_email,
+            metadata: { orderId: order.id, orderNumber: order.order_number },
+            payment_method_types: ["card"],
+          },
+          { idempotencyKey: `intent-${order.id}` },
+        );
+    if (!intent.client_secret || intent.status === "canceled" || intent.status === "succeeded")
+      throw new Error("This payment is no longer available");
+    await bindProvider(order.id, intent.id);
     return { clientSecret: intent.client_secret, paymentIntentId: intent.id };
   });
 
-const ConfirmStripeOrderPaymentSchema = z.object({
-  orderId: z.string().uuid(),
-  paymentIntentId: z.string().min(1),
-});
-
-/**
- * Server-side verification step for the Express Checkout flow: confirms
- * the PaymentIntent actually succeeded and belongs to this order before
- * marking it paid, so a manipulated client can't fake a paid order.
- */
 export const confirmStripeOrderPayment = createServerFn({ method: "POST" })
-  .inputValidator((input: unknown) => ConfirmStripeOrderPaymentSchema.parse(input))
+  .inputValidator((input: unknown) =>
+    OrderInput.extend({ paymentIntentId: z.string().startsWith("pi_") }).parse(input),
+  )
   .handler(async ({ data }) => {
     const stripe = getStripeClient();
-
-    if (!stripe) {
-      throw new Error("Card payments are not configured yet.");
-    }
-
+    if (!stripe) throw new Error("Card payments are unavailable.");
+    const { order, checkout } = await getCheckout(data.orderId);
+    if (checkout.provider_kind !== "stripe_intent")
+      throw new Error("Payment does not match checkout");
     const intent = await stripe.paymentIntents.retrieve(data.paymentIntentId);
-
-    if (intent.status !== "succeeded" || intent.metadata.orderId !== data.orderId) {
-      throw new Error("Payment could not be verified");
-    }
-
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-
-    const { data: order, error } = await supabaseAdmin
-      .from("orders")
-      .update({ payment_status: "paid" })
-      .eq("id", data.orderId)
-      .select("id, order_number")
-      .single();
-
-    if (error || !order) throw new Error("Could not update order after payment");
-
+    verifyPayment(
+      {
+        providerId: intent.id,
+        orderId: intent.metadata.orderId,
+        amount: intent.amount_received,
+        currency: intent.currency,
+        paid: intent.status === "succeeded",
+      },
+      { providerId: checkout.provider_id ?? "", orderId: order.id, total: Number(order.total) },
+    );
+    await settleCheckout(order.id, "paid");
     return { orderId: order.id, orderNumber: order.order_number };
+  });
+
+/** A browser return never proves payment. Query the provider before clearing a basket. */
+export const refreshCheckoutPayment = createServerFn({ method: "POST" })
+  .inputValidator((input: unknown) => OrderInput.parse(input))
+  .handler(async ({ data }) => {
+    const { order, checkout } = await getCheckout(data.orderId);
+    if (
+      checkout.state === "reserved" &&
+      checkout.provider_kind === "stripe_checkout" &&
+      checkout.provider_id
+    ) {
+      const stripe = getStripeClient();
+      if (!stripe) throw new Error("Payment verification unavailable");
+      const session = await stripe.checkout.sessions.retrieve(checkout.provider_id);
+      if (session.payment_status === "paid") {
+        verifyPayment(
+          {
+            providerId: session.id,
+            orderId: session.metadata?.orderId,
+            amount: session.amount_total ?? -1,
+            currency: session.currency ?? "",
+            paid: true,
+          },
+          { providerId: checkout.provider_id, orderId: order.id, total: Number(order.total) },
+        );
+        await settleCheckout(order.id, "paid");
+      }
+    }
+    const current = await getCheckout(data.orderId);
+    return {
+      orderId: order.id,
+      orderNumber: order.order_number,
+      paymentStatus: current.order.payment_status,
+      total: order.total,
+    };
+  });
+
+export const cancelCheckout = createServerFn({ method: "POST" })
+  .inputValidator((input: unknown) => OrderInput.parse(input))
+  .handler(async ({ data }) => {
+    const { cancelProviderCheckout } = await import("@/lib/payments/cancel.server");
+    return cancelProviderCheckout(data.orderId);
   });

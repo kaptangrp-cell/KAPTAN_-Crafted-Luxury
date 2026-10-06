@@ -1,9 +1,11 @@
+import type { SupabaseClient } from "@supabase/supabase-js";
+import type { Database } from "@/integrations/supabase/types";
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
-async function assertAdmin(sb: any, userId: string) {
+async function assertAdmin(sb: SupabaseClient<Database>, userId: string) {
   const { data } = await sb.from("profiles").select("role").eq("id", userId).single();
   if (!data || data.role !== "admin") throw new Error("Forbidden");
 }
@@ -43,7 +45,9 @@ export const getJournalPostBySlug = createServerFn({ method: "GET" })
   .handler(async ({ data }) => {
     const { data: post, error } = await supabase
       .from("journal_posts")
-      .select("id, slug, title, excerpt, body, cover_image_url, category, author_name, published_at")
+      .select(
+        "id, slug, title, excerpt, body, cover_image_url, category, author_name, published_at",
+      )
       .eq("slug", data.slug)
       .eq("is_published", true)
       .maybeSingle();

@@ -15,7 +15,12 @@ interface CartItem {
 
 interface CartState {
   items: CartItem[];
-  addItem: (product: Product, variant: ProductVariant | null, quantity: number, imageUrl: string) => void;
+  addItem: (
+    product: Product,
+    variant: ProductVariant | null,
+    quantity: number,
+    imageUrl: string,
+  ) => void;
   removeItem: (cartItemId: string) => void;
   updateQuantity: (cartItemId: string, quantity: number) => void;
   clearCart: () => void;
@@ -40,7 +45,7 @@ export const useCartStore = create<CartState>()(
         if (existing) {
           set({
             items: get().items.map((i) =>
-              i.id === id ? { ...i, quantity: i.quantity + quantity } : i
+              i.id === id ? { ...i, quantity: Math.min(50, i.quantity + quantity) } : i,
             ),
           });
         } else {
@@ -70,7 +75,7 @@ export const useCartStore = create<CartState>()(
         } else {
           set({
             items: get().items.map((i) =>
-              i.id === cartItemId ? { ...i, quantity } : i
+              i.id === cartItemId ? { ...i, quantity: Math.min(50, Math.floor(quantity)) } : i,
             ),
           });
         }
@@ -81,6 +86,7 @@ export const useCartStore = create<CartState>()(
     }),
     {
       name: "kaptan-cart",
-    }
-  )
+      skipHydration: true,
+    },
+  ),
 );

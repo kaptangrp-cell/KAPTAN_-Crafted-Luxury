@@ -14,7 +14,9 @@ export const getMyProfile = createServerFn({ method: "GET" })
   .handler(async ({ context }) => {
     const { data, error } = await context.supabase
       .from("profiles")
-      .select("id, role, full_name, phone, avatar_url, date_of_birth, email_marketing, last_payment_method")
+      .select(
+        "id, role, full_name, phone, avatar_url, date_of_birth, email_marketing, last_payment_method",
+      )
       .eq("id", context.userId)
       .single();
     if (error) throw new Error(error.message);
@@ -46,10 +48,7 @@ export const updateMyProfile = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: unknown) => ProfileSchema.parse(input))
   .handler(async ({ data, context }) => {
-    const { error } = await context.supabase
-      .from("profiles")
-      .update(data)
-      .eq("id", context.userId);
+    const { error } = await context.supabase.from("profiles").update(data).eq("id", context.userId);
     if (error) throw new Error(error.message);
     return { ok: true };
   });

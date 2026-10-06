@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
 import { z } from "zod";
@@ -7,6 +8,7 @@ import { PageLayout } from "@/components/layout/PageLayout";
 import { ProductCard } from "@/components/product/ProductCard";
 
 const searchSchema = z.object({
+  page: z.coerce.number().int().min(1).max(10000).optional(),
   q: z.string().optional(),
   category: z.string().optional(),
   sort: z.enum(["newest", "price_asc", "price_desc", "popular"]).optional(),
@@ -29,7 +31,8 @@ function productsQueryOptions(search: ProductsSearch) {
           minPrice: search.minPrice,
           maxPrice: search.maxPrice,
           inStockOnly: search.inStock,
-          limit: 48,
+          limit: 24,
+          offset: ((search.page ?? 1) - 1) * 24,
         },
       }),
   });
@@ -67,6 +70,7 @@ const SORT_OPTIONS: { value: NonNullable<ProductsSearch["sort"]>; labelKey: stri
 function ProductsPage() {
   const { t } = useTranslation();
   const search = Route.useSearch();
+  const [filtersOpen, setFiltersOpen] = useState(false);
   const navigate = Route.useNavigate();
 
   const { data: prodData } = useSuspenseQuery(productsQueryOptions(search));
@@ -77,18 +81,12 @@ function ProductsPage() {
 
   const activeCategory = categories.find((c) => c.slug === search.category);
 
-  const leatherCategories = categories.filter((c) =>
-    c.slug.toLowerCase().includes("leather"),
-  );
+  const leatherCategories = categories.filter((c) => c.slug.toLowerCase().includes("leather"));
 
-  const saltCategories = categories.filter((c) =>
-    c.slug.toLowerCase().includes("salt"),
-  );
+  const saltCategories = categories.filter((c) => c.slug.toLowerCase().includes("salt"));
 
   const otherCategories = categories.filter(
-    (c) =>
-      !c.slug.toLowerCase().includes("leather") &&
-      !c.slug.toLowerCase().includes("salt"),
+    (c) => !c.slug.toLowerCase().includes("leather") && !c.slug.toLowerCase().includes("salt"),
   );
 
   function selectCategory(slug?: string) {
@@ -96,25 +94,38 @@ function ProductsPage() {
       search: {
         ...search,
         category: slug,
+        page: undefined,
       },
     });
   }
 
   function updateFilter(patch: Partial<ProductsSearch>) {
-    navigate({ search: { ...search, ...patch } });
+    navigate({ search: { ...search, page: undefined, ...patch } });
   }
 
   const hasActiveFilters =
-    Boolean(search.minPrice) || Boolean(search.maxPrice) || Boolean(search.inStock) || Boolean(search.sort);
+    Boolean(search.minPrice) ||
+    Boolean(search.maxPrice) ||
+    Boolean(search.inStock) ||
+    Boolean(search.sort);
 
   function clearFilters() {
     navigate({
-      search: { ...search, sort: undefined, minPrice: undefined, maxPrice: undefined, inStock: undefined },
+      search: {
+        ...search,
+        page: undefined,
+        sort: undefined,
+        minPrice: undefined,
+        maxPrice: undefined,
+        inStock: undefined,
+      },
     });
   }
 
   const emptyTitle = search.category
-    ? t("products.emptyTitleCategory", { category: activeCategory?.name ?? t("products.thisCategory") })
+    ? t("products.emptyTitleCategory", {
+        category: activeCategory?.name ?? t("products.thisCategory"),
+      })
     : t("products.emptyTitleDefault");
 
   const emptyDescription = search.category
@@ -130,27 +141,31 @@ function ProductsPage() {
               {t("products.title")}
             </h1>
             <p className="mt-2 text-sm text-white/60">
-              {t("products.productsFound", { count: products.length })}
+              {t("products.productsFound", { count: prodData.total })}
             </p>
           </div>
 
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-            <input
-              type="search"
-              defaultValue={search.q ?? ""}
-              placeholder={t("products.searchPlaceholder")}
-              onKeyDown={(e) => {
-                if (e.key === "Enter") {
-                  navigate({
-                    search: {
-                      ...search,
-                      q: (e.target as HTMLInputElement).value || undefined,
-                    },
-                  });
-                }
+            <form
+              className="flex gap-2"
+              onSubmit={(e) => {
+                e.preventDefault();
+                const query = new FormData(e.currentTarget).get("q")?.toString().trim();
+                updateFilter({ q: query || undefined, page: undefined });
               }}
-              className="w-full border border-gold/30 bg-black px-3 py-2 text-sm text-white outline-none focus:border-gold sm:w-56"
-            />
+            >
+              <input
+                type="search"
+                name="q"
+                aria-label={t("products.searchPlaceholder")}
+                defaultValue={search.q ?? ""}
+                placeholder={t("products.searchPlaceholder")}
+                className="w-full border border-gold/30 bg-black px-3 py-2 text-sm text-white outline-none focus:border-gold sm:w-56"
+              />
+              <button type="submit" className="border border-gold px-3 py-2 text-sm text-gold">
+                {t("products.searchAction")}
+              </button>
+            </form>
 
             <select
               value={search.sort ?? "newest"}
@@ -167,8 +182,17 @@ function ProductsPage() {
           </div>
         </div>
 
+        <button
+          type="button"
+          aria-expanded={filtersOpen}
+          aria-controls="product-filters"
+          onClick={() => setFiltersOpen(!filtersOpen)}
+          className="mb-5 border border-gold px-4 py-3 text-gold md:hidden"
+        >
+          {t("products.filters")}
+        </button>
         <div className="grid gap-8 md:grid-cols-[240px_1fr]">
-          <aside>
+          <aside id="product-filters" className={`${filtersOpen ? "block" : "hidden"} md:block`}>
             <button
               onClick={() => selectCategory(undefined)}
               className={`mb-6 text-left text-sm font-semibold ${
@@ -209,6 +233,7 @@ function ProductsPage() {
                 <input
                   type="number"
                   min={0}
+                  aria-label={t("products.minPriceLabel")}
                   placeholder={t("products.min")}
                   defaultValue={search.minPrice ?? ""}
                   onBlur={(e) =>
@@ -220,6 +245,7 @@ function ProductsPage() {
                 <input
                   type="number"
                   min={0}
+                  aria-label={t("products.maxPriceLabel")}
                   placeholder={t("products.max")}
                   defaultValue={search.maxPrice ?? ""}
                   onBlur={(e) =>
@@ -271,6 +297,30 @@ function ProductsPage() {
             </div>
           )}
         </div>
+        {(prodData.total > 24 || (search.page ?? 1) > 1) && (
+          <nav
+            aria-label={t("products.pagination")}
+            className="mt-8 flex justify-end gap-4 text-gold"
+          >
+            <button
+              disabled={(search.page ?? 1) <= 1}
+              onClick={() => updateFilter({ page: (search.page ?? 1) - 1 })}
+              className="border border-gold px-4 py-2 disabled:opacity-40"
+            >
+              {t("products.previous")}
+            </button>
+            <span className="py-2">
+              {search.page ?? 1} / {Math.max(1, Math.ceil(prodData.total / 24))}
+            </span>
+            <button
+              disabled={(search.page ?? 1) * 24 >= prodData.total}
+              onClick={() => updateFilter({ page: (search.page ?? 1) + 1 })}
+              className="border border-gold px-4 py-2 disabled:opacity-40"
+            >
+              {t("products.next")}
+            </button>
+          </nav>
+        )}
       </section>
     </PageLayout>
   );
@@ -291,9 +341,7 @@ function CategoryGroup({
 
   return (
     <div className="mb-8">
-      <h2 className="mb-3 font-serif text-sm uppercase tracking-wider text-gold">
-        {title}
-      </h2>
+      <h2 className="mb-3 font-serif text-sm uppercase tracking-wider text-gold">{title}</h2>
 
       <ul className="space-y-2 text-sm">
         {categories.map((c) => (
@@ -301,9 +349,7 @@ function CategoryGroup({
             <button
               onClick={() => onSelect(c.slug)}
               className={`text-left ${
-                activeCategory === c.slug
-                  ? "text-gold"
-                  : "text-white/70 hover:text-gold"
+                activeCategory === c.slug ? "text-gold" : "text-white/70 hover:text-gold"
               }`}
             >
               {c.name}

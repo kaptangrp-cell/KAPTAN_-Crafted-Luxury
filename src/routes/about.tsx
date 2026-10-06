@@ -6,9 +6,16 @@ export const Route = createFileRoute("/about")({
   head: () => ({
     meta: [
       { title: "About — KAPTAN" },
-      { name: "description", content: "The story behind KAPTAN — premium leather goods and authentic Himalayan salt lamps." },
+      {
+        name: "description",
+        content:
+          "The story behind KAPTAN — premium leather goods and authentic Himalayan salt lamps.",
+      },
       { property: "og:title", content: "About KAPTAN" },
-      { property: "og:description", content: "Heritage craftsmanship from Pakistan, shipped worldwide." },
+      {
+        property: "og:description",
+        content: "Heritage craftsmanship from Pakistan, shipped worldwide.",
+      },
     ],
   }),
   component: AboutPage,

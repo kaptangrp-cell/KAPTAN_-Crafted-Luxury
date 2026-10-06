@@ -19,30 +19,46 @@ export function Footer() {
         <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
           <div>
             <div className="mb-4 flex items-center gap-2">
-              <img
-                src="/kaptan-logo.png"
-                alt="KAPTAN"
-                className="h-10 w-10 object-contain"
-              />
-              <span className="font-serif text-lg font-bold tracking-widest text-gold">
-                KAPTAN
-              </span>
+              <img src="/kaptan-logo.png" alt="KAPTAN" className="h-10 w-10 object-contain" />
+              <span className="font-serif text-lg font-bold tracking-widest text-gold">KAPTAN</span>
             </div>
 
-            <p className="mb-4 text-sm leading-relaxed text-white/70">
-              {t("footer.tagline")}
-            </p>
+            <p className="mb-4 text-sm leading-relaxed text-white/70">{t("footer.tagline")}</p>
 
             <div className="flex items-center gap-4">
-              <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" aria-label="Instagram" className="text-gold transition-colors hover:text-gold-vivid">
-                <Instagram size={20} />
-              </a>
-              <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" aria-label="Facebook" className="text-gold transition-colors hover:text-gold-vivid">
-                <Facebook size={20} />
-              </a>
-              <a href="https://www.tiktok.com/@kaptan" target="_blank" rel="noopener noreferrer" aria-label="TikTok" className="text-gold transition-colors hover:text-gold-vivid">
-                <TikTokIcon size={20} />
-              </a>
+              {import.meta.env.VITE_INSTAGRAM_URL && (
+                <a
+                  href={import.meta.env.VITE_INSTAGRAM_URL}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Instagram"
+                  className="text-gold transition-colors hover:text-gold-vivid"
+                >
+                  <Instagram size={20} />
+                </a>
+              )}
+              {import.meta.env.VITE_FACEBOOK_URL && (
+                <a
+                  href={import.meta.env.VITE_FACEBOOK_URL}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Facebook"
+                  className="text-gold transition-colors hover:text-gold-vivid"
+                >
+                  <Facebook size={20} />
+                </a>
+              )}
+              {import.meta.env.VITE_TIKTOK_URL && (
+                <a
+                  href={import.meta.env.VITE_TIKTOK_URL}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="TikTok"
+                  className="text-gold transition-colors hover:text-gold-vivid"
+                >
+                  <TikTokIcon size={20} />
+                </a>
+              )}
             </div>
           </div>
 
@@ -51,11 +67,47 @@ export function Footer() {
               {t("footer.shop")}
             </h4>
             <ul className="space-y-2 text-sm text-white/70">
-              <li><Link to="/products" className="transition-colors hover:text-gold">{t("footer.allProducts")}</Link></li>
-              <li><Link to="/products" search={{ category: "leather-wallets" }} className="transition-colors hover:text-gold">{t("footer.leatherWallets")}</Link></li>
-              <li><Link to="/products" search={{ category: "leather-bags" }} className="transition-colors hover:text-gold">{t("footer.leatherBags")}</Link></li>
-              <li><Link to="/products" search={{ category: "salt-lamp-natural" }} className="transition-colors hover:text-gold">{t("footer.saltLamps")}</Link></li>
-              <li><Link to="/products" search={{ category: "gift-sets" }} className="transition-colors hover:text-gold">{t("footer.giftSets")}</Link></li>
+              <li>
+                <Link to="/products" className="transition-colors hover:text-gold">
+                  {t("footer.allProducts")}
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="/products"
+                  search={{ category: "leather-wallets" }}
+                  className="transition-colors hover:text-gold"
+                >
+                  {t("footer.leatherWallets")}
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="/products"
+                  search={{ category: "leather-bags" }}
+                  className="transition-colors hover:text-gold"
+                >
+                  {t("footer.leatherBags")}
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="/products"
+                  search={{ category: "salt-lamp-natural" }}
+                  className="transition-colors hover:text-gold"
+                >
+                  {t("footer.saltLamps")}
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="/products"
+                  search={{ category: "gift-sets" }}
+                  className="transition-colors hover:text-gold"
+                >
+                  {t("footer.giftSets")}
+                </Link>
+              </li>
             </ul>
           </div>
 
@@ -64,9 +116,21 @@ export function Footer() {
               {t("footer.company")}
             </h4>
             <ul className="space-y-2 text-sm text-white/70">
-              <li><Link to="/about" className="transition-colors hover:text-gold">{t("footer.aboutUs")}</Link></li>
-              <li><Link to="/contact" className="transition-colors hover:text-gold">{t("footer.contact")}</Link></li>
-              <li><Link to="/faq" className="transition-colors hover:text-gold">{t("footer.faq")}</Link></li>
+              <li>
+                <Link to="/about" className="transition-colors hover:text-gold">
+                  {t("footer.aboutUs")}
+                </Link>
+              </li>
+              <li>
+                <Link to="/contact" className="transition-colors hover:text-gold">
+                  {t("footer.contact")}
+                </Link>
+              </li>
+              <li>
+                <Link to="/faq" className="transition-colors hover:text-gold">
+                  {t("footer.faq")}
+                </Link>
+              </li>
             </ul>
           </div>
 
@@ -75,9 +139,21 @@ export function Footer() {
               {t("footer.support")}
             </h4>
             <ul className="space-y-2 text-sm text-white/70">
-              <li><Link to="/shipping" className="transition-colors hover:text-gold">{t("footer.shipping")}</Link></li>
-              <li><Link to="/returns" className="transition-colors hover:text-gold">{t("footer.returns")}</Link></li>
-              <li><Link to="/privacy" className="transition-colors hover:text-gold">{t("footer.privacy")}</Link></li>
+              <li>
+                <Link to="/shipping" className="transition-colors hover:text-gold">
+                  {t("footer.shipping")}
+                </Link>
+              </li>
+              <li>
+                <Link to="/returns" className="transition-colors hover:text-gold">
+                  {t("footer.returns")}
+                </Link>
+              </li>
+              <li>
+                <Link to="/privacy" className="transition-colors hover:text-gold">
+                  {t("footer.privacy")}
+                </Link>
+              </li>
             </ul>
           </div>
         </div>

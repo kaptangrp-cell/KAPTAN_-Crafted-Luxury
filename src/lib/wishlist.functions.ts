@@ -10,7 +10,7 @@ export const getMyWishlist = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
     const { data, error } = await context.supabase
-      .from("wishlist")
+      .from("wishlist_items")
       .select(
         `
         id,
@@ -43,7 +43,7 @@ export const toggleWishlist = createServerFn({ method: "POST" })
   .inputValidator((input: unknown) => ProductIdSchema.parse(input))
   .handler(async ({ data, context }) => {
     const existing = await context.supabase
-      .from("wishlist")
+      .from("wishlist_items")
       .select("id")
       .eq("user_id", context.userId)
       .eq("product_id", data.productId)
@@ -53,7 +53,7 @@ export const toggleWishlist = createServerFn({ method: "POST" })
 
     if (existing.data?.id) {
       const { error } = await context.supabase
-        .from("wishlist")
+        .from("wishlist_items")
         .delete()
         .eq("id", existing.data.id);
 
@@ -62,7 +62,7 @@ export const toggleWishlist = createServerFn({ method: "POST" })
       return { saved: false };
     }
 
-    const { error } = await context.supabase.from("wishlist").insert({
+    const { error } = await context.supabase.from("wishlist_items").insert({
       user_id: context.userId,
       product_id: data.productId,
     });
@@ -77,7 +77,7 @@ export const removeFromWishlist = createServerFn({ method: "POST" })
   .inputValidator((input: unknown) => ProductIdSchema.parse(input))
   .handler(async ({ data, context }) => {
     const { error } = await context.supabase
-      .from("wishlist")
+      .from("wishlist_items")
       .delete()
       .eq("user_id", context.userId)
       .eq("product_id", data.productId);

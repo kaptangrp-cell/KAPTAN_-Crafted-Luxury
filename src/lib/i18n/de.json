@@ -106,7 +106,9 @@
     "playVideoAriaLabel": "KAPTAN Leder-Handwerksvideo abspielen",
     "videoThumbnailAlt": "Vorschaubild des KAPTAN Leder-Handwerksvideos",
     "subscribing": "Wird abonniert...",
-    "subscriptionFailedToast": "Anmeldung fehlgeschlagen"
+    "subscriptionFailedToast": "Anmeldung fehlgeschlagen",
+    "availableCollection": "Entdecken Sie die aktuell verfügbaren Stücke unserer Kollektion.",
+    "exploreCollection": "KAPTAN entdecken"
   },
   "faq": {
     "title": "Häufig gestellte Fragen",
@@ -193,7 +195,12 @@
     "free": "Kostenlos",
     "total": "Gesamt",
     "proceedToCheckout": "Zur Kasse",
-    "secureCheckoutBadge": "Sicherer Checkout · Karte & PayPal"
+    "secureCheckoutBadge": "Sicherer Checkout · Karte & PayPal",
+    "drawerDescription": "Prüfen Sie Ihre Artikel und fahren Sie zur sicheren Kasse fort.",
+    "decreaseQuantity": "Menge verringern",
+    "increaseQuantity": "Menge erhöhen",
+    "titleWithCount_one": "Ihr Warenkorb ({{count}} Artikel)",
+    "titleWithCount_other": "Ihr Warenkorb ({{count}} Artikel)"
   },
   "checkout": {
     "title": "Kasse",
@@ -241,7 +248,15 @@
     "savedAddressFallbackLabel": "Adresse",
     "newAddressOption": "+ Neue Adresse hinzufügen",
     "saveAddressLabel": "Diese Adresse für nächstes Mal speichern",
-    "editCart": "Warenkorb bearbeiten"
+    "editCart": "Warenkorb bearbeiten",
+    "paymentUnavailable": "Die Online-Zahlung ist derzeit nicht verfügbar. Ihr Warenkorb bleibt gespeichert. Kontaktieren Sie uns für Hilfe.",
+    "cancelledPayment": "Zahlung abgebrochen. Ihre Artikel sind weiterhin im Warenkorb.",
+    "cancellingPayment": "Ihre abgebrochene Zahlung wird geprüft…",
+    "confirmedTitle": "Vielen Dank für Ihre Bestellung",
+    "confirmedBody": "Ihre Zahlung wurde bestätigt. Bewahren Sie Ihre Bestellnummer auf.",
+    "confirmingTitle": "Zahlung wird geprüft",
+    "confirmingBody": "Wir prüfen Ihre Zahlung beim Zahlungsanbieter. Bitte bestellen Sie nicht erneut. Prüfen Sie den Status später oder kontaktieren Sie uns.",
+    "checkPayment": "Zahlungsstatus prüfen"
   },
   "paypalReturn": {
     "missingToken": "PayPal-Bestätigungstoken fehlt.",
@@ -300,7 +315,15 @@
     "wishlistAriaLabel": "Zur Wunschliste hinzufügen",
     "lowStock": "Wenig auf Lager",
     "outOfStock": "Ausverkauft",
-    "addToCart": "In den Warenkorb"
+    "addToCart": "In den Warenkorb",
+    "chooseOptions": "Optionen wählen",
+    "filters": "Filter",
+    "searchAction": "Suchen",
+    "minPriceLabel": "Mindestpreis in EUR",
+    "maxPriceLabel": "Höchstpreis in EUR",
+    "pagination": "Produktseiten",
+    "previous": "Zurück",
+    "next": "Weiter"
   },
   "pdp": {
     "breadcrumbHome": "Startseite",

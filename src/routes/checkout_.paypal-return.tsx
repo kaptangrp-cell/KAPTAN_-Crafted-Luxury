@@ -5,6 +5,7 @@ import { z } from "zod";
 import { CheckCircle2, XCircle, Loader2 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { PageLayout } from "@/components/layout/PageLayout";
+import { finishAttempt } from "@/lib/checkout-attempt";
 import { capturePaypalCheckoutOrder } from "@/lib/payments.functions";
 
 const searchSchema = z.object({
@@ -45,7 +46,10 @@ function PaypalReturnPage() {
     }
 
     captureFn({ data: { orderId, paypalOrderId: token } })
-      .then((res) => setState({ status: "success", orderNumber: res.orderNumber }))
+      .then((res) => {
+        finishAttempt(res.orderId);
+        setState({ status: "success", orderNumber: res.orderNumber });
+      })
       .catch((err) =>
         setState({
           status: "error",
@@ -60,17 +64,19 @@ function PaypalReturnPage() {
         {state.status === "confirming" && (
           <>
             <Loader2 size={40} className="animate-spin text-gold" />
-            <h1 className="mt-6 font-serif text-2xl text-white">{t("paypalReturn.confirmingTitle")}</h1>
-            <p className="mt-2 text-sm text-white/60">
-              {t("paypalReturn.confirmingBody")}
-            </p>
+            <h1 className="mt-6 font-serif text-2xl text-white">
+              {t("paypalReturn.confirmingTitle")}
+            </h1>
+            <p className="mt-2 text-sm text-white/60">{t("paypalReturn.confirmingBody")}</p>
           </>
         )}
 
         {state.status === "success" && (
           <>
             <CheckCircle2 size={48} className="text-gold" />
-            <h1 className="mt-6 font-serif text-3xl text-white">{t("paypalReturn.successTitle")}</h1>
+            <h1 className="mt-6 font-serif text-3xl text-white">
+              {t("paypalReturn.successTitle")}
+            </h1>
             <p className="mt-2 text-sm text-white/60">
               {t("paypalReturn.successBodyPrefix")}{" "}
               <span className="text-gold">{state.orderNumber}</span>{" "}
@@ -98,9 +104,7 @@ function PaypalReturnPage() {
             <XCircle size={48} className="text-red-400" />
             <h1 className="mt-6 font-serif text-2xl text-white">{t("paypalReturn.errorTitle")}</h1>
             <p className="mt-2 text-sm text-white/60">{state.message}</p>
-            <p className="mt-1 text-xs text-white/40">
-              {t("paypalReturn.errorHint")}
-            </p>
+            <p className="mt-1 text-xs text-white/40">{t("paypalReturn.errorHint")}</p>
             <div className="mt-8 flex flex-wrap justify-center gap-3">
               <Link
                 to="/checkout"

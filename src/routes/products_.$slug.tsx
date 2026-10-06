@@ -51,7 +51,8 @@ function productQueryOptions(slug: string) {
 function relatedProductsQueryOptions(categoryId: string | null | undefined, excludeId: string) {
   return queryOptions({
     queryKey: ["related-products", categoryId, excludeId],
-    queryFn: () => getRelatedProducts({ data: { categoryId, excludeProductId: excludeId, limit: 4 } }),
+    queryFn: () =>
+      getRelatedProducts({ data: { categoryId, excludeProductId: excludeId, limit: 4 } }),
     enabled: Boolean(categoryId),
   });
 }
@@ -246,9 +247,7 @@ function ProductDetailPage() {
           body: reviewBody || undefined,
         },
       });
-      toast.success(
-        result.isVerified ? t("pdp.reviewVerifiedToast") : t("pdp.reviewThanksToast"),
-      );
+      toast.success(result.isVerified ? t("pdp.reviewVerifiedToast") : t("pdp.reviewThanksToast"));
       setReviewDialogOpen(false);
       setReviewRating(0);
       setReviewTitle("");
@@ -263,7 +262,9 @@ function ProductDetailPage() {
   }
 
   const media = product.product_images?.length
-    ? [...product.product_images].sort((a, b) => Number(a.sort_order ?? 0) - Number(b.sort_order ?? 0))
+    ? [...product.product_images].sort(
+        (a, b) => Number(a.sort_order ?? 0) - Number(b.sort_order ?? 0),
+      )
     : [
         {
           id: "ph",
@@ -298,7 +299,9 @@ function ProductDetailPage() {
       setWishlistLoading(true);
       const result = await toggleWishlistFn({ data: { productId: product.id } });
       setWishlisted(result.saved);
-      toast.success(result.saved ? t("products.addedToWishlistToast") : t("products.removedFromWishlistToast"));
+      toast.success(
+        result.saved ? t("products.addedToWishlistToast") : t("products.removedFromWishlistToast"),
+      );
       qc.invalidateQueries({ queryKey: ["wishlist"] });
     } catch (err) {
       toast.error(err instanceof Error ? err.message : t("products.wishlistFailedToast"));
@@ -317,10 +320,18 @@ function ProductDetailPage() {
     <PageLayout>
       <section className="mx-auto max-w-7xl px-4 py-10 md:px-6">
         <nav className="mb-6 text-xs text-white/50">
-          <Link to="/" className="hover:text-gold">{t("pdp.breadcrumbHome")}</Link> /{" "}
-          <Link to="/products" className="hover:text-gold">{t("pdp.breadcrumbShop")}</Link>
+          <Link to="/" className="hover:text-gold">
+            {t("pdp.breadcrumbHome")}
+          </Link>{" "}
+          /{" "}
+          <Link to="/products" className="hover:text-gold">
+            {t("pdp.breadcrumbShop")}
+          </Link>
           {product.categories && (
-            <> / <span className="text-gold/70">{product.categories.name}</span></>
+            <>
+              {" "}
+              / <span className="text-gold/70">{product.categories.name}</span>
+            </>
           )}
         </nav>
 
@@ -407,13 +418,16 @@ function ProductDetailPage() {
                       key={i}
                       size={14}
                       className={
-                        i < Math.round(reviewSummary.average) ? "fill-gold text-gold" : "text-gold/20"
+                        i < Math.round(reviewSummary.average)
+                          ? "fill-gold text-gold"
+                          : "text-gold/20"
                       }
                     />
                   ))}
                 </div>
                 <span className="text-xs text-white/50 underline-offset-2 hover:underline">
-                  {reviewSummary.average.toFixed(1)} ({t("pdp.reviewsCount", { count: reviewSummary.count })})
+                  {reviewSummary.count > 0 ? reviewSummary.average.toFixed(1) : "—"} (
+                  {t("pdp.reviewsCount", { count: reviewSummary.count })})
                 </span>
               </a>
             )}
@@ -480,6 +494,7 @@ function ProductDetailPage() {
 
               <div className="flex w-fit items-center border border-gold/30">
                 <button
+                  aria-label={t("cart.decreaseQuantity")}
                   onClick={() => setQty(Math.max(1, qty - 1))}
                   disabled={qty <= 1}
                   className="px-3 py-2 text-gold disabled:opacity-30"
@@ -490,6 +505,7 @@ function ProductDetailPage() {
                 <span className="min-w-[3ch] px-4 text-center text-white">{qty}</span>
 
                 <button
+                  aria-label={t("cart.increaseQuantity")}
                   onClick={() => setQty(Math.min(maxQty, qty + 1))}
                   disabled={qty >= maxQty}
                   className="px-3 py-2 text-gold disabled:opacity-30"
@@ -533,19 +549,24 @@ function ProductDetailPage() {
 
             <div className="mt-8 grid grid-cols-3 gap-3 border-y border-gold/10 py-4 text-xs">
               <div className="flex flex-col items-center gap-1 text-center text-white/70">
-                <ShieldCheck size={20} className="text-gold" />{t("pdp.authentic")}
+                <ShieldCheck size={20} className="text-gold" />
+                {t("pdp.authentic")}
               </div>
               <div className="flex flex-col items-center gap-1 text-center text-white/70">
-                <Truck size={20} className="text-gold" />{t("pdp.fastShipping")}
+                <Truck size={20} className="text-gold" />
+                {t("pdp.fastShipping")}
               </div>
               <div className="flex flex-col items-center gap-1 text-center text-white/70">
-                <Leaf size={20} className="text-gold" />{t("pdp.handcrafted")}
+                <Leaf size={20} className="text-gold" />
+                {t("pdp.handcrafted")}
               </div>
             </div>
 
             {product.full_description && (
               <div className="mt-8">
-                <h3 className="mb-2 font-serif text-lg text-white">{t("pdp.descriptionDetails")}</h3>
+                <h3 className="mb-2 font-serif text-lg text-white">
+                  {t("pdp.descriptionDetails")}
+                </h3>
                 <p className="whitespace-pre-line text-sm leading-relaxed text-white/70">
                   {product.full_description}
                 </p>
@@ -569,9 +590,7 @@ function ProductDetailPage() {
 
             <div className="mt-8 border border-gold/15 bg-[#1A1A1A] p-4">
               <h3 className="font-serif text-lg text-white">{t("pdp.paymentMethodsTitle")}</h3>
-              <p className="mt-2 text-sm text-white/60">
-                {t("pdp.paymentMethodsBody")}
-              </p>
+              <p className="mt-2 text-sm text-white/60">{t("pdp.paymentMethodsBody")}</p>
             </div>
           </div>
         </div>
@@ -586,14 +605,21 @@ function ProductDetailPage() {
               <div className="flex flex-1 flex-wrap items-center gap-4">
                 <div className="flex flex-col items-center gap-2">
                   <div className="h-20 w-20 overflow-hidden border border-gold/30 bg-[#1A1A1A]">
-                    <img src={firstImage.url} alt={product.name} className="h-full w-full object-cover" />
+                    <img
+                      src={firstImage.url}
+                      alt={product.name}
+                      className="h-full w-full object-cover"
+                    />
                   </div>
-                  <p className="max-w-[90px] text-center text-xs text-white/70">{t("pdp.thisItem")}</p>
+                  <p className="max-w-[90px] text-center text-xs text-white/70">
+                    {t("pdp.thisItem")}
+                  </p>
                 </div>
 
                 {frequentlyBoughtWith.map((companion) => {
                   const companionImage =
-                    (companion as unknown as { product_images?: { url: string }[] }).product_images?.[0]?.url ??
+                    (companion as unknown as { product_images?: { url: string }[] })
+                      .product_images?.[0]?.url ??
                     "https://images.unsplash.com/photo-1602028915047-37269d1a73f7?w=200&q=80";
                   const selected = bundleSelection.has(companion.id);
 
@@ -623,14 +649,19 @@ function ProductDetailPage() {
                       <p className="max-w-[90px] text-center text-xs text-white/70">
                         {companion.name}
                       </p>
-                      <Price amount={Number(companion.price)} className="font-mono text-xs text-gold" />
+                      <Price
+                        amount={Number(companion.price)}
+                        className="font-mono text-xs text-gold"
+                      />
                     </label>
                   );
                 })}
               </div>
 
               <div className="border-t border-gold/10 pt-4 md:w-56 md:border-l md:border-t-0 md:pl-6 md:pt-0">
-                <p className="text-xs uppercase tracking-wider text-gold/70">{t("pdp.bundleTotal")}</p>
+                <p className="text-xs uppercase tracking-wider text-gold/70">
+                  {t("pdp.bundleTotal")}
+                </p>
                 <Price
                   amount={
                     finalPrice +
@@ -654,11 +685,13 @@ function ProductDetailPage() {
         <div id="reviews" className="mt-16 scroll-mt-24 border-t border-gold/10 pt-12">
           <div className="flex flex-col gap-8 md:flex-row md:gap-12">
             <div className="md:w-72 md:flex-shrink-0">
-              <h2 className="font-serif text-2xl font-bold text-white">{t("pdp.customerReviews")}</h2>
+              <h2 className="font-serif text-2xl font-bold text-white">
+                {t("pdp.customerReviews")}
+              </h2>
 
               <div className="mt-4 flex items-end gap-3">
                 <span className="font-serif text-5xl font-bold text-gold">
-                  {reviewSummary.average.toFixed(1)}
+                  {reviewSummary.count > 0 ? reviewSummary.average.toFixed(1) : "—"}
                 </span>
                 <div className="pb-1">
                   <div className="flex gap-0.5">
@@ -667,7 +700,9 @@ function ProductDetailPage() {
                         key={i}
                         size={16}
                         className={
-                          i < Math.round(reviewSummary.average) ? "fill-gold text-gold" : "text-gold/20"
+                          i < Math.round(reviewSummary.average)
+                            ? "fill-gold text-gold"
+                            : "text-gold/20"
                         }
                       />
                     ))}
@@ -731,7 +766,9 @@ function ProductDetailPage() {
                     </div>
 
                     {r.title && (
-                      <h4 className="mt-2 font-serif text-base font-semibold text-white">{r.title}</h4>
+                      <h4 className="mt-2 font-serif text-base font-semibold text-white">
+                        {r.title}
+                      </h4>
                     )}
 
                     {r.body && (
@@ -771,7 +808,9 @@ function ProductDetailPage() {
 
         {recentlyViewedProducts.length > 0 && (
           <div className="mt-16 border-t border-gold/10 pt-12">
-            <h2 className="mb-8 font-serif text-xl font-semibold text-white">{t("pdp.recentlyViewed")}</h2>
+            <h2 className="mb-8 font-serif text-xl font-semibold text-white">
+              {t("pdp.recentlyViewed")}
+            </h2>
 
             <div className="grid grid-cols-2 gap-6 sm:grid-cols-3 lg:grid-cols-4">
               {recentlyViewedProducts.map((p) => (
@@ -785,7 +824,9 @@ function ProductDetailPage() {
       <Dialog open={reviewDialogOpen} onOpenChange={setReviewDialogOpen}>
         <DialogContent className="border border-gold/20 bg-[#1A1A1A] text-white sm:max-w-md">
           <DialogHeader>
-            <DialogTitle className="font-serif text-xl text-white">{t("pdp.writeAReview")}</DialogTitle>
+            <DialogTitle className="font-serif text-xl text-white">
+              {t("pdp.writeAReview")}
+            </DialogTitle>
           </DialogHeader>
 
           <form onSubmit={handleSubmitReview} className="space-y-4">

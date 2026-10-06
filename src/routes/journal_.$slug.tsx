@@ -38,7 +38,10 @@ function JournalPostPage() {
   const { data } = useSuspenseQuery(postQueryOptions(slug));
   const post = data.post!;
 
-  const paragraphs = post.body.split(/\n{2,}/).map((p) => p.trim()).filter(Boolean);
+  const paragraphs = post.body
+    .split(/\n{2,}/)
+    .map((p) => p.trim())
+    .filter(Boolean);
 
   return (
     <PageLayout>

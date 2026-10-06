@@ -1,4 +1,5 @@
 import "./lib/error-capture";
+import { reconcileCheckouts } from "./lib/payments/reconcile.server";
 
 import { consumeLastCapturedError } from "./lib/error-capture";
 import { renderErrorPage } from "./lib/error-page";
@@ -44,6 +45,8 @@ export default {
     // directly (not through our own app), and needs the raw, untouched
     // request body for signature verification.
     const url = new URL(request.url);
+    if (request.method === "POST" && url.pathname === "/internal/reconcile-checkouts")
+      return reconcileCheckouts(request);
     if (request.method === "POST" && url.pathname === "/webhooks/stripe") {
       try {
         return await handleStripeWebhook(request);

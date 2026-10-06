@@ -23,7 +23,12 @@ function ProfilePage() {
     queryFn: () => fetchProfile(),
   });
 
-  const [form, setForm] = useState({ full_name: "", phone: "", date_of_birth: "", email_marketing: false });
+  const [form, setForm] = useState({
+    full_name: "",
+    phone: "",
+    date_of_birth: "",
+    email_marketing: false,
+  });
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
@@ -64,9 +69,15 @@ function ProfilePage() {
         <h1 className="font-serif text-4xl font-semibold text-white">{t("profile.title")}</h1>
 
         <div className="mt-6 flex flex-wrap gap-4 border-b border-gold/10 pb-4 text-sm">
-          <Link to="/profile" className="text-gold">{t("account.navProfile")}</Link>
-          <Link to="/orders" className="text-white/60 hover:text-gold">{t("account.navOrders")}</Link>
-          <Link to="/wishlist" className="text-white/60 hover:text-gold">{t("account.navWishlist")}</Link>
+          <Link to="/profile" className="text-gold">
+            {t("account.navProfile")}
+          </Link>
+          <Link to="/orders" className="text-white/60 hover:text-gold">
+            {t("account.navOrders")}
+          </Link>
+          <Link to="/wishlist" className="text-white/60 hover:text-gold">
+            {t("account.navWishlist")}
+          </Link>
         </div>
 
         {isLoading ? (
@@ -74,12 +85,27 @@ function ProfilePage() {
         ) : (
           <form onSubmit={save} className="mt-8 max-w-xl space-y-4">
             <div>
-              <span className="text-xs uppercase tracking-wider text-gold/70">{t("profile.emailLabel")}</span>
+              <span className="text-xs uppercase tracking-wider text-gold/70">
+                {t("profile.emailLabel")}
+              </span>
               <p className="font-mono text-sm text-white/80">{user?.email}</p>
             </div>
-            <Field label={t("profile.fullNameLabel")} value={form.full_name} onChange={(v) => setForm((f) => ({ ...f, full_name: v }))} />
-            <Field label={t("profile.phoneLabel")} value={form.phone} onChange={(v) => setForm((f) => ({ ...f, phone: v }))} />
-            <Field label={t("profile.dobLabel")} type="date" value={form.date_of_birth} onChange={(v) => setForm((f) => ({ ...f, date_of_birth: v }))} />
+            <Field
+              label={t("profile.fullNameLabel")}
+              value={form.full_name}
+              onChange={(v) => setForm((f) => ({ ...f, full_name: v }))}
+            />
+            <Field
+              label={t("profile.phoneLabel")}
+              value={form.phone}
+              onChange={(v) => setForm((f) => ({ ...f, phone: v }))}
+            />
+            <Field
+              label={t("profile.dobLabel")}
+              type="date"
+              value={form.date_of_birth}
+              onChange={(v) => setForm((f) => ({ ...f, date_of_birth: v }))}
+            />
 
             <label className="flex items-center gap-2 text-sm text-white/80">
               <input
@@ -105,7 +131,17 @@ function ProfilePage() {
   );
 }
 
-function Field({ label, value, onChange, type = "text" }: { label: string; value: string; onChange: (v: string) => void; type?: string }) {
+function Field({
+  label,
+  value,
+  onChange,
+  type = "text",
+}: {
+  label: string;
+  value: string;
+  onChange: (v: string) => void;
+  type?: string;
+}) {
   return (
     <label className="block">
       <span className="mb-1 block text-xs uppercase tracking-wider text-gold/70">{label}</span>

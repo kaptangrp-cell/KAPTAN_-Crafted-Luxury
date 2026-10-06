@@ -1,0 +1,50 @@
+src/lib/admin.functions.ts(185,29): error TS2769: No overload matches this call.
+  Overload 1 of 4, '(value: string | number | Date): Date', gave the following error.
+    Argument of type 'string | null' is not assignable to parameter of type 'string | number | Date'.
+      Type 'null' is not assignable to type 'string | number | Date'.
+  Overload 2 of 4, '(value: string | number): Date', gave the following error.
+    Argument of type 'string | null' is not assignable to parameter of type 'string | number'.
+      Type 'null' is not assignable to type 'string | number'.
+src/lib/admin.functions.ts(354,11): error TS2345: Argument of type '{ product_id: string; url: string; media_type: "video" | "image"; sort_order: number; alt_text: string; }[]' is not assignable to parameter of type 'RejectExcessProperties<{ alt_text?: string | null | undefined; created_at?: string | null | undefined; id?: string | undefined; product_id: string; sort_order?: number | null | undefined; url: string; }, { ...; }> | RejectExcessProperties<...>[]'.
+  Type '{ product_id: string; url: string; media_type: "video" | "image"; sort_order: number; alt_text: string; }[]' is not assignable to type 'RejectExcessProperties<{ alt_text?: string | null | undefined; created_at?: string | null | undefined; id?: string | undefined; product_id: string; sort_order?: number | null | undefined; url: string; }, { ...; }>[]'.
+    Type '{ product_id: string; url: string; media_type: "video" | "image"; sort_order: number; alt_text: string; }' is not assignable to type 'RejectExcessProperties<{ alt_text?: string | null | undefined; created_at?: string | null | undefined; id?: string | undefined; product_id: string; sort_order?: number | null | undefined; url: string; }, { ...; }>'.
+      Type '{ product_id: string; url: string; media_type: "video" | "image"; sort_order: number; alt_text: string; }' is not assignable to type '{ media_type: never; }'.
+        Types of property 'media_type' are incompatible.
+          Type '"video" | "image"' is not assignable to type 'never'.
+            Type '"video"' is not assignable to type 'never'.
+src/lib/wishlist.functions.ts(13,13): error TS2769: No overload matches this call.
+  Overload 1 of 2, '(relation: "addresses" | "cart_items" | "products" | "product_variants" | "categories" | "feedback_messages" | "journal_posts" | "newsletter_subscribers" | "order_items" | "orders" | ... 5 more ... | "wishlist_items"): PostgrestQueryBuilder<...>', gave the following error.
+    Argument of type '"wishlist"' is not assignable to parameter of type '"addresses" | "cart_items" | "products" | "product_variants" | "categories" | "feedback_messages" | "journal_posts" | "newsletter_subscribers" | "order_items" | "orders" | ... 5 more ... | "wishlist_items"'.
+  Overload 2 of 2, '(relation: never): PostgrestQueryBuilder<{ PostgrestVersion: "14.5"; }, { Tables: { addresses: { Row: { city: string; country: string; created_at: string | null; full_name: string; id: string; is_default: boolean | null; ... 6 more ...; user_id: string; }; Insert: { ...; }; Update: { ...; }; Relationships: []; }; ... 14 more ...; wishlist_items: { ...; }; }; Views: {}; Functions: { ...; }; Enums: {}; CompositeTypes: {}; }, never, never, never>', gave the following error.
+    Argument of type '"wishlist"' is not assignable to parameter of type 'never'.
+src/lib/wishlist.functions.ts(33,11): error TS2345: Argument of type '"user_id"' is not assignable to parameter of type '"id"'.
+src/lib/wishlist.functions.ts(46,13): error TS2769: No overload matches this call.
+  Overload 1 of 2, '(relation: "addresses" | "cart_items" | "products" | "product_variants" | "categories" | "feedback_messages" | "journal_posts" | "newsletter_subscribers" | "order_items" | "orders" | ... 5 more ... | "wishlist_items"): PostgrestQueryBuilder<...>', gave the following error.
+    Argument of type '"wishlist"' is not assignable to parameter of type '"addresses" | "cart_items" | "products" | "product_variants" | "categories" | "feedback_messages" | "journal_posts" | "newsletter_subscribers" | "order_items" | "orders" | ... 5 more ... | "wishlist_items"'.
+  Overload 2 of 2, '(relation: never): PostgrestQueryBuilder<{ PostgrestVersion: "14.5"; }, { Tables: { addresses: { Row: { city: string; country: string; created_at: string | null; full_name: string; id: string; is_default: boolean | null; ... 6 more ...; user_id: string; }; Insert: { ...; }; Update: { ...; }; Relationships: []; }; ... 14 more ...; wishlist_items: { ...; }; }; Views: {}; Functions: { ...; }; Enums: {}; CompositeTypes: {}; }, never, never, never>', gave the following error.
+    Argument of type '"wishlist"' is not assignable to parameter of type 'never'.
+src/lib/wishlist.functions.ts(48,11): error TS2345: Argument of type '"user_id"' is not assignable to parameter of type '"id"'.
+src/lib/wishlist.functions.ts(49,11): error TS2345: Argument of type '"product_id"' is not assignable to parameter of type '"id"'.
+src/lib/wishlist.functions.ts(56,15): error TS2769: No overload matches this call.
+  Overload 1 of 2, '(relation: "addresses" | "cart_items" | "products" | "product_variants" | "categories" | "feedback_messages" | "journal_posts" | "newsletter_subscribers" | "order_items" | "orders" | ... 5 more ... | "wishlist_items"): PostgrestQueryBuilder<...>', gave the following error.
+    Argument of type '"wishlist"' is not assignable to parameter of type '"addresses" | "cart_items" | "products" | "product_variants" | "categories" | "feedback_messages" | "journal_posts" | "newsletter_subscribers" | "order_items" | "orders" | ... 5 more ... | "wishlist_items"'.
+  Overload 2 of 2, '(relation: never): PostgrestQueryBuilder<{ PostgrestVersion: "14.5"; }, { Tables: { addresses: { Row: { city: string; country: string; created_at: string | null; full_name: string; id: string; is_default: boolean | null; ... 6 more ...; user_id: string; }; Insert: { ...; }; Update: { ...; }; Relationships: []; }; ... 14 more ...; wishlist_items: { ...; }; }; Views: {}; Functions: { ...; }; Enums: {}; CompositeTypes: {}; }, never, never, never>', gave the following error.
+    Argument of type '"wishlist"' is not assignable to parameter of type 'never'.
+src/lib/wishlist.functions.ts(65,51): error TS2769: No overload matches this call.
+  Overload 1 of 2, '(relation: "addresses" | "cart_items" | "products" | "product_variants" | "categories" | "feedback_messages" | "journal_posts" | "newsletter_subscribers" | "order_items" | "orders" | ... 5 more ... | "wishlist_items"): PostgrestQueryBuilder<...>', gave the following error.
+    Argument of type '"wishlist"' is not assignable to parameter of type '"addresses" | "cart_items" | "products" | "product_variants" | "categories" | "feedback_messages" | "journal_posts" | "newsletter_subscribers" | "order_items" | "orders" | ... 5 more ... | "wishlist_items"'.
+  Overload 2 of 2, '(relation: never): PostgrestQueryBuilder<{ PostgrestVersion: "14.5"; }, { Tables: { addresses: { Row: { city: string; country: string; created_at: string | null; full_name: string; id: string; is_default: boolean | null; ... 6 more ...; user_id: string; }; Insert: { ...; }; Update: { ...; }; Relationships: []; }; ... 14 more ...; wishlist_items: { ...; }; }; Views: {}; Functions: { ...; }; Enums: {}; CompositeTypes: {}; }, never, never, never>', gave the following error.
+    Argument of type '"wishlist"' is not assignable to parameter of type 'never'.
+src/lib/wishlist.functions.ts(66,7): error TS2322: Type 'string' is not assignable to type 'never'.
+src/lib/wishlist.functions.ts(67,7): error TS2322: Type 'string' is not assignable to type 'never'.
+src/lib/wishlist.functions.ts(80,13): error TS2769: No overload matches this call.
+  Overload 1 of 2, '(relation: "addresses" | "cart_items" | "products" | "product_variants" | "categories" | "feedback_messages" | "journal_posts" | "newsletter_subscribers" | "order_items" | "orders" | ... 5 more ... | "wishlist_items"): PostgrestQueryBuilder<...>', gave the following error.
+    Argument of type '"wishlist"' is not assignable to parameter of type '"addresses" | "cart_items" | "products" | "product_variants" | "categories" | "feedback_messages" | "journal_posts" | "newsletter_subscribers" | "order_items" | "orders" | ... 5 more ... | "wishlist_items"'.
+  Overload 2 of 2, '(relation: never): PostgrestQueryBuilder<{ PostgrestVersion: "14.5"; }, { Tables: { addresses: { Row: { city: string; country: string; created_at: string | null; full_name: string; id: string; is_default: boolean | null; ... 6 more ...; user_id: string; }; Insert: { ...; }; Update: { ...; }; Relationships: []; }; ... 14 more ...; wishlist_items: { ...; }; }; Views: {}; Functions: { ...; }; Enums: {}; CompositeTypes: {}; }, never, never, never>', gave the following error.
+    Argument of type '"wishlist"' is not assignable to parameter of type 'never'.
+src/lib/wishlist.functions.ts(82,11): error TS2345: Argument of type '"user_id"' is not assignable to parameter of type '"id"'.
+src/lib/wishlist.functions.ts(83,11): error TS2345: Argument of type '"product_id"' is not assignable to parameter of type '"id"'.
+src/routes/_authenticated/wishlist.tsx(53,30): error TS2339: Property 'products' does not exist on type 'SelectQueryError<"column 'product_id' does not exist on 'addresses'."> | SelectQueryError<"column 'product_id' does not exist on 'cart_items'."> | ... 13 more ... | SelectQueryError<...>'.
+  Property 'products' does not exist on type 'SelectQueryError<"column 'product_id' does not exist on 'addresses'.">'.
+src/routes/_authenticated/wishlist.tsx(56,32): error TS2339: Property 'id' does not exist on type 'SelectQueryError<"column 'product_id' does not exist on 'addresses'."> | SelectQueryError<"column 'product_id' does not exist on 'cart_items'."> | ... 13 more ... | SelectQueryError<...>'.
+  Property 'id' does not exist on type 'SelectQueryError<"column 'product_id' does not exist on 'addresses'.">'.

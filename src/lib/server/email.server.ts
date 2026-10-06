@@ -1,11 +1,6 @@
 import { Resend } from "resend";
 
-type OrderStatus =
-  | "ordered"
-  | "packaging"
-  | "out_for_delivery"
-  | "delivered"
-  | "cancelled";
+type OrderStatus = "ordered" | "packaging" | "out_for_delivery" | "delivered" | "cancelled";
 
 const BRAND_URL = "https://www.kaptangrp.com";
 const LOGO_URL = "https://www.kaptangrp.com/kaptan-logo.png";

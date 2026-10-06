@@ -3,7 +3,15 @@ import { useTranslation } from "react-i18next";
 import { PageLayout } from "@/components/layout/PageLayout";
 
 export const Route = createFileRoute("/faq")({
-  head: () => ({ meta: [{ title: "FAQ — KAPTAN" }, { name: "description", content: "Frequently asked questions about KAPTAN orders, shipping, and care." }] }),
+  head: () => ({
+    meta: [
+      { title: "FAQ — KAPTAN" },
+      {
+        name: "description",
+        content: "Frequently asked questions about KAPTAN orders, shipping, and care.",
+      },
+    ],
+  }),
   component: FAQPage,
 });
 

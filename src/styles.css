@@ -19,13 +19,13 @@
 
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --color-gold: #C9A227;
-  --color-gold-vivid: #E4C55A;
-  --color-gold-dark: #A8841F;
-  --color-warm-grey: #1A1A1A;
-  --color-off-white: #F9F6EE;
+  --color-gold: #c9a227;
+  --color-gold-vivid: #e4c55a;
+  --color-gold-dark: #a8841f;
+  --color-warm-grey: #1a1a1a;
+  --color-off-white: #f9f6ee;
   --color-brand-black: #000000;
-  --color-brand-dark: #0D0D0D;
+  --color-brand-dark: #0d0d0d;
 }
 
 :root {
@@ -37,7 +37,7 @@
 .light {
   /* Warm off-white instead of pure white — keeps the luxury feel and
      stops the page from reading as a flat, glaring white surface. */
-  --background: #F7F4EC;
+  --background: #f7f4ec;
   --foreground: #141210;
 }
 
@@ -86,7 +86,7 @@
    ============================================ */
 
 .light .bg-black:not(.media-hero, .media-hero *) {
-  background-color: #F7F4EC !important;
+  background-color: #f7f4ec !important;
 }
 
 .light .bg-\[\#1A1A1A\]:not(.media-hero, .media-hero *) {
@@ -94,52 +94,90 @@
 }
 
 .light .bg-\[\#0D0D0D\]:not(.media-hero, .media-hero *) {
-  background-color: #FAFAF6 !important;
+  background-color: #fafaf6 !important;
 }
 
 .light .text-white:not(.media-hero, .media-hero *) {
   color: #141210 !important;
 }
 
-.light .text-white\/90:not(.media-hero, .media-hero *) { color: rgba(20, 18, 16, 0.9) !important; }
-.light .text-white\/80:not(.media-hero, .media-hero *) { color: rgba(20, 18, 16, 0.82) !important; }
-.light .text-white\/70:not(.media-hero, .media-hero *) { color: rgba(20, 18, 16, 0.78) !important; }
-.light .text-white\/60:not(.media-hero, .media-hero *) { color: rgba(20, 18, 16, 0.74) !important; }
-.light .text-white\/50:not(.media-hero, .media-hero *) { color: rgba(20, 18, 16, 0.7) !important; }
-.light .text-white\/40:not(.media-hero, .media-hero *) { color: rgba(20, 18, 16, 0.65) !important; }
-.light .text-white\/30:not(.media-hero, .media-hero *) { color: rgba(20, 18, 16, 0.6) !important; }
-.light .text-white\/20:not(.media-hero, .media-hero *) { color: rgba(20, 18, 16, 0.55) !important; }
+.light .text-white\/90:not(.media-hero, .media-hero *) {
+  color: rgba(20, 18, 16, 0.9) !important;
+}
+.light .text-white\/80:not(.media-hero, .media-hero *) {
+  color: rgba(20, 18, 16, 0.82) !important;
+}
+.light .text-white\/70:not(.media-hero, .media-hero *) {
+  color: rgba(20, 18, 16, 0.78) !important;
+}
+.light .text-white\/60:not(.media-hero, .media-hero *) {
+  color: rgba(20, 18, 16, 0.74) !important;
+}
+.light .text-white\/50:not(.media-hero, .media-hero *) {
+  color: rgba(20, 18, 16, 0.7) !important;
+}
+.light .text-white\/40:not(.media-hero, .media-hero *) {
+  color: rgba(20, 18, 16, 0.65) !important;
+}
+.light .text-white\/30:not(.media-hero, .media-hero *) {
+  color: rgba(20, 18, 16, 0.6) !important;
+}
+.light .text-white\/20:not(.media-hero, .media-hero *) {
+  color: rgba(20, 18, 16, 0.55) !important;
+}
 
 /* Light-mode gold: #D4A325, used consistently for text-gold,
    text-gold-dark, bg-gold and border-gold. */
 .light .text-gold:not(.media-hero, .media-hero *),
 .light .text-gold-dark:not(.media-hero, .media-hero *) {
-  color: #D4A325 !important;
+  color: #d4a325 !important;
 }
-.light .text-gold\/90:not(.media-hero, .media-hero *) { color: rgba(212, 163, 37, 0.9) !important; }
-.light .text-gold\/80:not(.media-hero, .media-hero *) { color: rgba(212, 163, 37, 0.8) !important; }
-.light .text-gold\/70:not(.media-hero, .media-hero *) { color: rgba(212, 163, 37, 0.7) !important; }
-.light .text-gold\/60:not(.media-hero, .media-hero *) { color: rgba(212, 163, 37, 0.6) !important; }
-.light .text-gold\/50:not(.media-hero, .media-hero *) { color: rgba(212, 163, 37, 0.5) !important; }
-.light .text-gold\/40:not(.media-hero, .media-hero *) { color: rgba(212, 163, 37, 0.4) !important; }
-.light .text-gold\/30:not(.media-hero, .media-hero *) { color: rgba(212, 163, 37, 0.3) !important; }
-.light .text-gold\/20:not(.media-hero, .media-hero *) { color: rgba(212, 163, 37, 0.2) !important; }
+.light .text-gold\/90:not(.media-hero, .media-hero *) {
+  color: rgba(212, 163, 37, 0.9) !important;
+}
+.light .text-gold\/80:not(.media-hero, .media-hero *) {
+  color: rgba(212, 163, 37, 0.8) !important;
+}
+.light .text-gold\/70:not(.media-hero, .media-hero *) {
+  color: rgba(212, 163, 37, 0.7) !important;
+}
+.light .text-gold\/60:not(.media-hero, .media-hero *) {
+  color: rgba(212, 163, 37, 0.6) !important;
+}
+.light .text-gold\/50:not(.media-hero, .media-hero *) {
+  color: rgba(212, 163, 37, 0.5) !important;
+}
+.light .text-gold\/40:not(.media-hero, .media-hero *) {
+  color: rgba(212, 163, 37, 0.4) !important;
+}
+.light .text-gold\/30:not(.media-hero, .media-hero *) {
+  color: rgba(212, 163, 37, 0.3) !important;
+}
+.light .text-gold\/20:not(.media-hero, .media-hero *) {
+  color: rgba(212, 163, 37, 0.2) !important;
+}
 
 .light .bg-gold {
-  background-color: #D4A325 !important;
+  background-color: #d4a325 !important;
   color: #000000 !important;
 }
 
 .light .border-gold {
-  border-color: #D4A325 !important;
+  border-color: #d4a325 !important;
 }
 
 /* Semantic status colors (stock badges, delete/remove icons, success
    states) — the -400 shades read fine on black but wash out on the
    off-white background, so darken them for AA contrast. */
-.light .text-red-400 { color: #B91C1C !important; }
-.light .text-amber-400 { color: #A16207 !important; }
-.light .text-green-400 { color: #15803D !important; }
+.light .text-red-400 {
+  color: #b91c1c !important;
+}
+.light .text-amber-400 {
+  color: #a16207 !important;
+}
+.light .text-green-400 {
+  color: #15803d !important;
+}
 
 /* Header search input + newsletter form placeholders */
 .light .placeholder\:text-gold\/40::placeholder {

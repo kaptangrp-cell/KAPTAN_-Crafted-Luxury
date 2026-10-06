@@ -46,7 +46,8 @@ function JournalIndexPage() {
         <div className="mx-auto max-w-4xl px-4 text-center md:px-6">
           <p className="text-xs uppercase tracking-[0.3em] text-gold">{t("journal.eyebrow")}</p>
           <h1 className="mt-4 font-serif text-5xl font-semibold text-white md:text-6xl">
-            {t("journal.titlePrefix")} <span className="text-gold">{t("journal.titleHighlight")}</span>
+            {t("journal.titlePrefix")}{" "}
+            <span className="text-gold">{t("journal.titleHighlight")}</span>
           </h1>
           <p className="mx-auto mt-6 max-w-xl text-base leading-relaxed text-white/70">
             {t("journal.subtitle")}
@@ -63,11 +64,7 @@ function JournalIndexPage() {
           <div className="grid gap-10 md:grid-cols-2 lg:grid-cols-3">
             {posts.map((post, i) => (
               <Reveal key={post.id} delay={Math.min(i, 4) * 0.06}>
-                <Link
-                  to="/journal/$slug"
-                  params={{ slug: post.slug }}
-                  className="group block"
-                >
+                <Link to="/journal/$slug" params={{ slug: post.slug }} className="group block">
                   <div className="aspect-[4/3] overflow-hidden bg-[#1A1A1A]">
                     {post.cover_image_url ? (
                       <img

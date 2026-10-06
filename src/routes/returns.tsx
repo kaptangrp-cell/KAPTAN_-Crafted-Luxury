@@ -3,7 +3,15 @@ import { useTranslation } from "react-i18next";
 import { PageLayout } from "@/components/layout/PageLayout";
 
 export const Route = createFileRoute("/returns")({
-  head: () => ({ meta: [{ title: "Returns — KAPTAN" }, { name: "description", content: "30-day return policy for KAPTAN leather goods and salt lamps." }] }),
+  head: () => ({
+    meta: [
+      { title: "Returns — KAPTAN" },
+      {
+        name: "description",
+        content: "30-day return policy for KAPTAN leather goods and salt lamps.",
+      },
+    ],
+  }),
   component: ReturnsPage,
 });
 

@@ -35,16 +35,19 @@ export const getProducts = createServerFn({ method: "POST" })
         .eq("slug", data.categorySlug)
         .single();
 
-      if (catError) return { products: [] };
+      if (catError) return { products: [], total: 0 };
 
       categoryId = category?.id ?? null;
 
-      if (!categoryId) return { products: [] };
+      if (!categoryId) return { products: [], total: 0 };
     }
 
     let query = supabase
       .from("products")
-      .select("*, categories(name, slug), product_images(url, sort_order, media_type)")
+      .select(
+        "*, categories(name, slug), product_images(url, sort_order, media_type), product_variants(id)",
+        { count: "exact" },
+      )
       .eq("is_available", true)
       .range(data.offset ?? 0, (data.offset ?? 0) + (data.limit ?? 24) - 1);
 
@@ -82,11 +85,11 @@ export const getProducts = createServerFn({ method: "POST" })
       query = query.gt("stock_quantity", 0);
     }
 
-    const { data: products, error } = await query;
+    const { data: products, error, count } = await query;
 
     if (error) throw new Error(error.message);
 
-    return { products: products ?? [] };
+    return { products: products ?? [], total: count ?? 0 };
   });
 
 export const getProductBySlug = createServerFn({ method: "POST" })
@@ -106,7 +109,9 @@ export const getProductBySlug = createServerFn({ method: "POST" })
 export const getFeaturedProducts = createServerFn({ method: "GET" }).handler(async () => {
   const { data, error } = await supabase
     .from("products")
-    .select("*, categories(name, slug), product_images(url, sort_order, media_type)")
+    .select(
+      "*, categories(name, slug), product_images(url, sort_order, media_type), product_variants(id)",
+    )
     .eq("is_featured", true)
     .eq("is_available", true)
     .order("sold_count", { ascending: false })
@@ -126,7 +131,9 @@ export const getRelatedProducts = createServerFn({ method: "POST" })
 
     const { data: products, error } = await supabase
       .from("products")
-      .select("*, categories(name, slug), product_images(url, sort_order, media_type)")
+      .select(
+        "*, categories(name, slug), product_images(url, sort_order, media_type), product_variants(id)",
+      )
       .eq("category_id", data.categoryId)
       .eq("is_available", true)
       .neq("id", data.excludeProductId)
@@ -145,7 +152,9 @@ export const getProductsByIds = createServerFn({ method: "POST" })
 
     const { data: products, error } = await supabase
       .from("products")
-      .select("*, categories(name, slug), product_images(url, sort_order, media_type)")
+      .select(
+        "*, categories(name, slug), product_images(url, sort_order, media_type), product_variants(id)",
+      )
       .in("id", data.ids)
       .eq("is_available", true);
 
@@ -170,7 +179,9 @@ export const getRecommendedProducts = createServerFn({ method: "POST" })
 
     let query = supabase
       .from("products")
-      .select("*, categories(name, slug), product_images(url, sort_order, media_type)")
+      .select(
+        "*, categories(name, slug), product_images(url, sort_order, media_type), product_variants(id)",
+      )
       .in("category_id", data.categoryIds)
       .eq("is_available", true)
       .order("sold_count", { ascending: false })

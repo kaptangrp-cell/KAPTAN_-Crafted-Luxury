@@ -44,7 +44,9 @@ function AdminLayout() {
     <PageLayout>
       <div className="mx-auto grid max-w-7xl gap-6 px-4 py-8 md:grid-cols-[220px_1fr] md:px-6">
         <aside className="h-fit border border-gold/20 bg-[#0D0D0D] p-4">
-          <p className="mb-4 font-serif text-xs uppercase tracking-[0.2em] text-gold">{t("admin.navSectionLabel")}</p>
+          <p className="mb-4 font-serif text-xs uppercase tracking-[0.2em] text-gold">
+            {t("admin.navSectionLabel")}
+          </p>
           <nav className="flex flex-col gap-1">
             {nav.map((item) => {
               const active = item.exact ? pathname === item.to : pathname.startsWith(item.to);
@@ -53,7 +55,9 @@ function AdminLayout() {
                   key={item.to}
                   to={item.to as "/admin"}
                   className={`flex items-center gap-2 px-3 py-2 text-sm transition-colors ${
-                    active ? "bg-gold/10 text-gold" : "text-white/70 hover:bg-white/5 hover:text-gold"
+                    active
+                      ? "bg-gold/10 text-gold"
+                      : "text-white/70 hover:bg-white/5 hover:text-gold"
                   }`}
                 >
                   <item.icon size={16} />
@@ -64,11 +68,7 @@ function AdminLayout() {
           </nav>
         </aside>
         <section>
-          {ready && !isAdmin ? (
-            <p className="text-white/60">{t("admin.notAdmin")}</p>
-          ) : (
-            <Outlet />
-          )}
+          {ready && !isAdmin ? <p className="text-white/60">{t("admin.notAdmin")}</p> : <Outlet />}
         </section>
       </div>
     </PageLayout>

@@ -1,3 +1,4 @@
+import type { PaypalOrder } from "./verification";
 /**
  * Thin wrapper around PayPal's REST API v2 (Orders).
  *
@@ -72,6 +73,7 @@ export async function createPaypalOrder(params: {
     headers: {
       Authorization: `Bearer ${accessToken}`,
       "Content-Type": "application/json",
+      "PayPal-Request-Id": params.orderNumber,
     },
     body: JSON.stringify({
       intent: "CAPTURE",
@@ -116,23 +118,39 @@ export async function createPaypalOrder(params: {
   return { paypalOrderId: data.id, approveUrl: approveLink };
 }
 
-/** Captures an approved PayPal order. Returns true when funds were captured. */
-export async function capturePaypalOrder(paypalOrderId: string) {
+export async function getPaypalOrder(paypalOrderId: string): Promise<PaypalOrder> {
   const accessToken = await getAccessToken();
-
-  const res = await fetch(`${getBaseUrl()}/v2/checkout/orders/${paypalOrderId}/capture`, {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${accessToken}`,
-      "Content-Type": "application/json",
+  const res = await fetch(
+    `${getBaseUrl()}/v2/checkout/orders/${encodeURIComponent(paypalOrderId)}`,
+    {
+      headers: { Authorization: `Bearer ${accessToken}` },
     },
-  });
+  );
+  if (!res.ok) throw new Error("Could not check PayPal payment. Please retry.");
+  return (await res.json()) as PaypalOrder;
+}
 
-  const data = (await res.json()) as { status: string };
-
+/** Stable request ID and retrieval make reloads/retries safe after a successful capture. */
+export async function capturePaypalOrder(paypalOrderId: string): Promise<PaypalOrder> {
+  const current = await getPaypalOrder(paypalOrderId);
+  if (current.status === "COMPLETED") return current;
+  const accessToken = await getAccessToken();
+  const res = await fetch(
+    `${getBaseUrl()}/v2/checkout/orders/${encodeURIComponent(paypalOrderId)}/capture`,
+    {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        "Content-Type": "application/json",
+        "PayPal-Request-Id": `capture-${paypalOrderId}`,
+        Prefer: "return=representation",
+      },
+    },
+  );
   if (!res.ok) {
-    throw new Error(`PayPal capture failed: ${res.status} ${JSON.stringify(data)}`);
+    const recovered = await getPaypalOrder(paypalOrderId);
+    if (recovered.status === "COMPLETED") return recovered;
+    throw new Error("PayPal payment could not be completed. Please retry or contact support.");
   }
-
-  return { completed: data.status === "COMPLETED", raw: data };
+  return await getPaypalOrder(paypalOrderId);
 }

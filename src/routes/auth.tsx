@@ -110,13 +110,30 @@ function AuthPage() {
 
         <form onSubmit={handleSubmit} className="mt-8 w-full space-y-4">
           {mode === "signup" && (
-            <Field label={t("auth.fullNameLabel")} value={fullName} onChange={setFullName} required />
+            <Field
+              label={t("auth.fullNameLabel")}
+              value={fullName}
+              onChange={setFullName}
+              required
+            />
           )}
 
-          <Field label={t("auth.emailLabel")} type="email" value={email} onChange={setEmail} required />
+          <Field
+            label={t("auth.emailLabel")}
+            type="email"
+            value={email}
+            onChange={setEmail}
+            required
+          />
 
           {mode !== "forgot" && (
-            <Field label={t("auth.passwordLabel")} type="password" value={password} onChange={setPassword} required />
+            <Field
+              label={t("auth.passwordLabel")}
+              type="password"
+              value={password}
+              onChange={setPassword}
+              required
+            />
           )}
 
           <button
@@ -151,24 +168,36 @@ function AuthPage() {
 
         {mode === "signin" && (
           <>
-            <button onClick={() => setMode("forgot")} className="mt-5 text-sm text-gold/70 hover:text-gold">
+            <button
+              onClick={() => setMode("forgot")}
+              className="mt-5 text-sm text-gold/70 hover:text-gold"
+            >
               {t("auth.forgotPassword")}
             </button>
 
-            <button onClick={() => setMode("signup")} className="mt-4 text-sm text-gold/70 hover:text-gold">
+            <button
+              onClick={() => setMode("signup")}
+              className="mt-4 text-sm text-gold/70 hover:text-gold"
+            >
               {t("auth.needAccountSignUp")}
             </button>
           </>
         )}
 
         {mode === "signup" && (
-          <button onClick={() => setMode("signin")} className="mt-6 text-sm text-gold/70 hover:text-gold">
+          <button
+            onClick={() => setMode("signin")}
+            className="mt-6 text-sm text-gold/70 hover:text-gold"
+          >
             {t("auth.alreadyHaveAccountSignIn")}
           </button>
         )}
 
         {mode === "forgot" && (
-          <button onClick={() => setMode("signin")} className="mt-6 text-sm text-gold/70 hover:text-gold">
+          <button
+            onClick={() => setMode("signin")}
+            className="mt-6 text-sm text-gold/70 hover:text-gold"
+          >
             {t("auth.backToSignIn")}
           </button>
         )}

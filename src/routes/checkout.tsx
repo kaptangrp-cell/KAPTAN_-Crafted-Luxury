@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useId, useMemo, useRef, useState } from "react";
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery } from "@tanstack/react-query";
@@ -14,10 +14,20 @@ import {
   createPaypalCheckoutOrder,
   createStripePaymentIntentForOrder,
   confirmStripeOrderPayment,
+  getPaymentAvailability,
+  cancelCheckout,
 } from "@/lib/payments.functions";
 import { getMyAddresses, saveAddress, rememberPaymentMethod } from "@/lib/profile.functions";
 import { getStripeJs } from "@/lib/payments/stripe-client";
 import { useDisplayPrice } from "@/hooks/useCurrency";
+import {
+  prepareAttempt,
+  recordAttemptOrder,
+  finishAttempt,
+  forgetAttempt,
+} from "@/lib/checkout-attempt";
+import { z } from "zod";
+import type { StripePaymentRequestButtonElement } from "@stripe/stripe-js";
 import { COUNTRIES } from "@/lib/countries";
 
 const STRIPE_ENABLED = Boolean(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
@@ -35,11 +45,13 @@ type ExpressCheckoutItem = { productId: string; variantId: string | null; quanti
  * PaymentIntent before marking the order paid.
  */
 function ExpressCheckout({
+  enabled,
   amount,
   shippingAmount,
   items,
   onOrderPlaced,
 }: {
+  enabled: boolean;
   amount: number;
   shippingAmount: number;
   items: ExpressCheckoutItem[];
@@ -51,11 +63,13 @@ function ExpressCheckout({
   const createOrderFn = useServerFn(createOrder);
   const createIntentFn = useServerFn(createStripePaymentIntentForOrder);
   const confirmPaymentFn = useServerFn(confirmStripeOrderPayment);
+  const cancelFn = useServerFn(cancelCheckout);
 
   useEffect(() => {
-    if (!STRIPE_ENABLED || amount <= 0 || items.length === 0) return;
+    if (!enabled || !STRIPE_ENABLED || amount <= 0 || items.length === 0) return;
 
     let cancelled = false;
+    let button: StripePaymentRequestButtonElement | undefined;
 
     (async () => {
       const stripe = await getStripeJs();
@@ -72,7 +86,10 @@ function ExpressCheckout({
         shippingOptions: [
           {
             id: "standard",
-            label: shippingAmount === 0 ? t("checkout.freeShippingLabel") : t("checkout.standardShippingLabel"),
+            label:
+              shippingAmount === 0
+                ? t("checkout.freeShippingLabel")
+                : t("checkout.standardShippingLabel"),
             detail: t("checkout.standardShippingDetail"),
             amount: Math.round(shippingAmount * 100),
           },
@@ -89,33 +106,37 @@ function ExpressCheckout({
         paymentRequest,
         style: { paymentRequestButton: { theme: "dark", height: "48px" } },
       });
+      button = prButton;
       prButton.mount(containerRef.current);
 
       paymentRequest.on("paymentmethod", async (ev) => {
         try {
           const shippingAddr = ev.shippingAddress;
 
-          const { orderId } = await createOrderFn({
-            data: {
-              user_id: null,
-              customer_name: ev.payerName ?? "",
-              customer_email: ev.payerEmail ?? "",
-              customer_phone: ev.payerPhone ?? "",
-              shipping_address: {
-                full_name: ev.payerName ?? "",
-                phone: ev.payerPhone ?? "",
-                line1: shippingAddr?.addressLine?.[0] ?? "",
-                line2: shippingAddr?.addressLine?.[1] || null,
-                city: shippingAddr?.city ?? "",
-                state: shippingAddr?.region ?? null,
-                postal_code: shippingAddr?.postalCode ?? "",
-                country: shippingAddr?.country ?? "DE",
-              },
-              items,
-              payment_method: "card",
-              notes: null,
+          const payload = {
+            expectedTotal: amount,
+            customer_name: ev.payerName ?? "",
+            customer_email: ev.payerEmail ?? "",
+            customer_phone: ev.payerPhone ?? "",
+            shipping_address: {
+              full_name: ev.payerName ?? "",
+              phone: ev.payerPhone ?? "",
+              line1: shippingAddr?.addressLine?.[0] ?? "",
+              line2: shippingAddr?.addressLine?.[1] || null,
+              city: shippingAddr?.city ?? "",
+              state: shippingAddr?.region ?? null,
+              postal_code: shippingAddr?.postalCode ?? "",
+              country: shippingAddr?.country ?? "DE",
             },
-          });
+            items,
+            payment_method: "card" as const,
+            notes: null,
+          };
+          const requestKey = await prepareAttempt(payload, (orderId) =>
+            cancelFn({ data: { orderId } }),
+          );
+          const { orderId } = await createOrderFn({ data: { ...payload, requestKey } });
+          recordAttemptOrder(orderId);
 
           const { clientSecret, paymentIntentId } = await createIntentFn({ data: { orderId } });
 
@@ -148,22 +169,27 @@ function ExpressCheckout({
           toast.error(err instanceof Error ? err.message : t("checkout.paymentFailedToast"));
         }
       });
-    })();
+    })().catch(() => {
+      if (!cancelled) setAvailable(false);
+    });
 
     return () => {
       cancelled = true;
+      button?.destroy();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [amount, shippingAmount, JSON.stringify(items)]);
+  }, [enabled, amount, shippingAmount, JSON.stringify(items)]);
 
-  if (!STRIPE_ENABLED || !available) return null;
+  if (!STRIPE_ENABLED || !enabled) return null;
 
   return (
-    <div className="mb-6">
+    <div className={available ? "mb-6" : "hidden"}>
       <div ref={containerRef} />
       <div className="my-4 flex items-center gap-3 text-white/30">
         <span className="h-px flex-1 bg-gold/10" />
-        <span className="text-[11px] uppercase tracking-wider">{t("checkout.expressCheckoutDivider")}</span>
+        <span className="text-[11px] uppercase tracking-wider">
+          {t("checkout.expressCheckoutDivider")}
+        </span>
         <span className="h-px flex-1 bg-gold/10" />
       </div>
     </div>
@@ -171,7 +197,8 @@ function ExpressCheckout({
 }
 
 export const Route = createFileRoute("/checkout")({
-  head: () => ({ meta: [{ title: "Checkout — KAPTAN" }] }),
+  validateSearch: (input) => z.object({ cancelOrderId: z.string().uuid().optional() }).parse(input),
+  head: () => ({ meta: [{ title: "Checkout — KAPTAN" }, { name: "robots", content: "noindex" }] }),
   component: CheckoutPage,
 });
 
@@ -183,6 +210,27 @@ function CheckoutPage() {
   const navigate = useNavigate();
   const { items, subtotal, removeItem, updateQuantity, clearCart } = useCartStore();
   const { user, profile } = useAuthStore();
+  const availabilityFn = useServerFn(getPaymentAvailability);
+  const cancelFn = useServerFn(cancelCheckout);
+  const { cancelOrderId } = Route.useSearch();
+  const cancellation = useQuery({
+    queryKey: ["cancel-checkout", cancelOrderId],
+    queryFn: async () => {
+      const result = await cancelFn({ data: { orderId: cancelOrderId! } });
+      forgetAttempt(cancelOrderId!);
+      return result;
+    },
+    enabled: Boolean(cancelOrderId),
+    retry: false,
+    staleTime: Infinity,
+  });
+  const { data: availability } = useQuery({
+    queryKey: ["payment-availability"],
+    queryFn: () => availabilityFn(),
+    staleTime: 0,
+  });
+  const cardEnabled = STRIPE_ENABLED && Boolean(availability?.card);
+  const paypalEnabled = PAYPAL_ENABLED && Boolean(availability?.paypal);
   const createOrderFn = useServerFn(createOrder);
   const createStripeSessionFn = useServerFn(createStripeCheckoutSession);
   const createPaypalOrderFn = useServerFn(createPaypalCheckoutOrder);
@@ -202,7 +250,7 @@ function CheckoutPage() {
     queryFn: () => getAddressesFn(),
     enabled: Boolean(user),
   });
-  const addresses = addressesData?.addresses ?? [];
+  const addresses = useMemo(() => addressesData?.addresses ?? [], [addressesData]);
 
   const [selectedAddressId, setSelectedAddressId] = useState<string>("new");
   const [saveThisAddress, setSaveThisAddress] = useState(false);
@@ -225,6 +273,18 @@ function CheckoutPage() {
     payment_method: initialPaymentMethod as (typeof PAYMENT_METHODS)[number],
     notes: "",
   });
+
+  useEffect(() => {
+    if (!availability) return;
+    setForm((current) => {
+      if (
+        (current.payment_method === "card" && cardEnabled) ||
+        (current.payment_method === "paypal" && paypalEnabled)
+      )
+        return current;
+      return { ...current, payment_method: cardEnabled ? "card" : "paypal" };
+    });
+  }, [availability, cardEnabled, paypalEnabled]);
 
   function set<K extends keyof typeof form>(k: K, v: (typeof form)[K]) {
     setForm((f) => ({ ...f, [k]: v }));
@@ -289,7 +349,8 @@ function CheckoutPage() {
 
     if (!form.customer_name.trim()) next.customer_name = t("checkout.errorRequired");
     if (!form.customer_email.trim()) next.customer_email = t("checkout.errorRequired");
-    else if (!EMAIL_RE.test(form.customer_email.trim())) next.customer_email = t("checkout.errorInvalidEmail");
+    else if (!EMAIL_RE.test(form.customer_email.trim()))
+      next.customer_email = t("checkout.errorInvalidEmail");
     if (!form.customer_phone.trim()) next.customer_phone = t("checkout.errorRequired");
     if (!form.line1.trim()) next.line1 = t("checkout.errorRequired");
     if (!form.city.trim()) next.city = t("checkout.errorRequired");
@@ -308,6 +369,14 @@ function CheckoutPage() {
       return;
     }
 
+    if (
+      (form.payment_method === "card" ? !cardEnabled : !paypalEnabled) ||
+      (cancelOrderId && !cancellation.isSuccess)
+    ) {
+      toast.error(t("checkout.paymentUnavailable"));
+      return;
+    }
+
     if (!validate()) {
       toast.error(t("checkout.errorFixFields"));
       return;
@@ -316,31 +385,34 @@ function CheckoutPage() {
     setSubmitting(true);
 
     try {
-      const { orderId, orderNumber } = await createOrderFn({
-        data: {
-          user_id: user?.id ?? null,
-          customer_name: form.customer_name,
-          customer_email: form.customer_email,
-          customer_phone: form.customer_phone,
-          shipping_address: {
-            full_name: form.customer_name,
-            phone: form.customer_phone,
-            line1: form.line1,
-            line2: form.line2 || null,
-            city: form.city,
-            state: form.state || null,
-            postal_code: form.postal_code,
-            country: form.country,
-          },
-          items: items.map((i) => ({
-            productId: i.productId,
-            variantId: i.variantId,
-            quantity: i.quantity,
-          })),
-          payment_method: form.payment_method,
-          notes: form.notes || null,
+      const payload = {
+        expectedTotal: grandTotal,
+        customer_name: form.customer_name,
+        customer_email: form.customer_email,
+        customer_phone: form.customer_phone,
+        shipping_address: {
+          full_name: form.customer_name,
+          phone: form.customer_phone,
+          line1: form.line1,
+          line2: form.line2 || null,
+          city: form.city,
+          state: form.state || null,
+          postal_code: form.postal_code,
+          country: form.country,
         },
-      });
+        items: items.map((i) => ({
+          productId: i.productId,
+          variantId: i.variantId,
+          quantity: i.quantity,
+        })),
+        payment_method: form.payment_method as "card" | "paypal",
+        notes: form.notes || null,
+      };
+      const requestKey = await prepareAttempt(payload, (orderId) =>
+        cancelFn({ data: { orderId } }),
+      );
+      const { orderId } = await createOrderFn({ data: { ...payload, requestKey } });
+      recordAttemptOrder(orderId);
 
       // Fire-and-forget account conveniences — never block the order on these.
       if (user) {
@@ -365,26 +437,21 @@ function CheckoutPage() {
 
       if (form.payment_method === "card") {
         const { url } = await createStripeSessionFn({
-          data: { orderId, origin: window.location.origin },
+          data: { orderId },
         });
-        clearCart();
         window.location.href = url;
         return;
       }
 
       if (form.payment_method === "paypal") {
         const { url } = await createPaypalOrderFn({
-          data: { orderId, origin: window.location.origin },
+          data: { orderId },
         });
-        clearCart();
         window.location.href = url;
         return;
       }
-
-      clearCart();
-      toast.success(t("checkout.orderPlacedToast", { orderNumber }));
-      navigate({ to: "/orders/$id", params: { id: orderId } });
     } catch (err) {
+      if (err instanceof Error && err.message.includes("expired")) forgetAttempt();
       toast.error(err instanceof Error ? err.message : t("checkout.orderFailedToast"));
     } finally {
       setSubmitting(false);
@@ -412,8 +479,25 @@ function CheckoutPage() {
       <section className="mx-auto max-w-6xl px-4 py-12 md:px-6">
         <h1 className="font-serif text-4xl font-semibold text-white">{t("checkout.title")}</h1>
 
+        {!cardEnabled && !paypalEnabled && (
+          <p className="mt-4 text-amber-200" role="status">
+            {t("checkout.paymentUnavailable")}
+          </p>
+        )}
+        {cancelOrderId && (
+          <p className="mt-4 text-white/80" role="status">
+            {cancellation.error
+              ? cancellation.error.message
+              : t(
+                  cancellation.isSuccess
+                    ? "checkout.cancelledPayment"
+                    : "checkout.cancellingPayment",
+                )}
+          </p>
+        )}
         <div className="mt-8">
           <ExpressCheckout
+            enabled={cardEnabled && (!cancelOrderId || cancellation.isSuccess)}
             amount={grandTotal}
             shippingAmount={shipping}
             items={items.map((i) => ({
@@ -422,15 +506,15 @@ function CheckoutPage() {
               quantity: i.quantity,
             }))}
             onOrderPlaced={(orderId) => {
-              clearCart();
+              finishAttempt(orderId);
               toast.success(t("checkout.orderPlacedGenericToast"));
-              navigate({ to: "/orders/$id", params: { id: orderId } });
+              navigate({ to: "/checkout/complete", search: { orderId } });
             }}
           />
         </div>
 
         <form onSubmit={handleSubmit} className="grid gap-8 md:grid-cols-[1fr_360px]">
-          <div className="order-2 space-y-8 md:order-none">
+          <div className="space-y-8">
             <section>
               <h2 className="font-serif text-lg text-gold">{t("checkout.contactSection")}</h2>
               <div className="mt-3 grid gap-3 md:grid-cols-2">
@@ -464,7 +548,9 @@ function CheckoutPage() {
             </section>
 
             <section>
-              <h2 className="font-serif text-lg text-gold">{t("checkout.shippingAddressSection")}</h2>
+              <h2 className="font-serif text-lg text-gold">
+                {t("checkout.shippingAddressSection")}
+              </h2>
 
               {user && addresses.length > 0 && (
                 <label className="mt-3 block">
@@ -478,7 +564,7 @@ function CheckoutPage() {
                   >
                     {addresses.map((a) => (
                       <option key={a.id} value={a.id} className="bg-[#1A1A1A]">
-                        {(a.label || t("checkout.savedAddressFallbackLabel"))}
+                        {a.label || t("checkout.savedAddressFallbackLabel")}
                         {" — "}
                         {a.line1}, {a.city}
                       </option>
@@ -571,18 +657,18 @@ function CheckoutPage() {
                   {
                     v: "card",
                     label: t("checkout.cardLabel"),
-                    desc: STRIPE_ENABLED
+                    desc: cardEnabled
                       ? t("checkout.cardDescEnabled")
                       : t("checkout.cardDescComingSoon"),
-                    disabled: !STRIPE_ENABLED,
+                    disabled: !cardEnabled,
                   },
                   {
                     v: "paypal",
                     label: t("checkout.paypalLabel"),
-                    desc: PAYPAL_ENABLED
+                    desc: paypalEnabled
                       ? t("checkout.paypalDescEnabled")
                       : t("checkout.paypalDescComingSoon"),
-                    disabled: !PAYPAL_ENABLED,
+                    disabled: !paypalEnabled,
                   },
                 ].map((opt) => (
                   <label
@@ -595,7 +681,7 @@ function CheckoutPage() {
                       type="radio"
                       name="payment"
                       disabled={opt.disabled}
-                      checked={form.payment_method === opt.v}
+                      checked={!opt.disabled && form.payment_method === opt.v}
                       onChange={() =>
                         set("payment_method", opt.v as "cod" | "bank_transfer" | "card" | "paypal")
                       }
@@ -625,8 +711,11 @@ function CheckoutPage() {
             </section>
 
             <section>
-              <h2 className="font-serif text-lg text-gold">{t("checkout.orderNotesSection")}</h2>
+              <label htmlFor="order-notes" className="font-serif text-lg text-gold">
+                {t("checkout.orderNotesSection")}
+              </label>
               <textarea
+                id="order-notes"
                 value={form.notes}
                 onChange={(e) => set("notes", e.target.value)}
                 rows={3}
@@ -635,10 +724,13 @@ function CheckoutPage() {
             </section>
           </div>
 
-          <aside className="order-1 h-fit border border-gold/20 bg-[#1A1A1A] p-6 md:order-none md:sticky md:top-24 md:self-start">
+          <aside className="h-fit border border-gold/20 bg-[#1A1A1A] p-6 md:order-none md:sticky md:top-24 md:self-start">
             <div className="flex items-center justify-between">
               <h2 className="font-serif text-lg text-white">{t("cart.orderSummary")}</h2>
-              <Link to="/cart" className="flex items-center gap-1 text-xs text-gold/70 hover:text-gold">
+              <Link
+                to="/cart"
+                className="flex items-center gap-1 text-xs text-gold/70 hover:text-gold"
+              >
                 <Pencil size={11} />
                 {t("checkout.editCart")}
               </Link>
@@ -650,15 +742,17 @@ function CheckoutPage() {
                   <div className="flex-1">
                     <span className="text-white/80">
                       {i.name}
-                      {i.variantLabel && <span className="block text-gold-dark">{i.variantLabel}</span>}
+                      {i.variantLabel && (
+                        <span className="block text-gold-dark">{i.variantLabel}</span>
+                      )}
                     </span>
 
                     <div className="mt-1.5 flex items-center gap-1.5">
                       <button
                         type="button"
                         onClick={() => updateQuantity(i.id, i.quantity - 1)}
-                        aria-label={t("cart.removeItem")}
-                        className="flex h-5 w-5 items-center justify-center border border-gold/20 text-gold/70 hover:border-gold hover:text-gold"
+                        aria-label={t("cart.decreaseQuantity")}
+                        className="flex h-9 w-9 items-center justify-center border border-gold/20 text-gold/70 hover:border-gold hover:text-gold"
                       >
                         <Minus size={10} />
                       </button>
@@ -666,7 +760,8 @@ function CheckoutPage() {
                       <button
                         type="button"
                         onClick={() => updateQuantity(i.id, i.quantity + 1)}
-                        className="flex h-5 w-5 items-center justify-center border border-gold/20 text-gold/70 hover:border-gold hover:text-gold"
+                        aria-label={t("cart.increaseQuantity")}
+                        className="flex h-9 w-9 items-center justify-center border border-gold/20 text-gold/70 hover:border-gold hover:text-gold"
                       >
                         <Plus size={10} />
                       </button>
@@ -674,13 +769,15 @@ function CheckoutPage() {
                         type="button"
                         onClick={() => removeItem(i.id)}
                         aria-label={t("cart.removeItem")}
-                        className="ml-1 flex h-5 w-5 items-center justify-center text-white/30 hover:text-red-400"
+                        className="ml-1 flex h-9 w-9 items-center justify-center text-white/30 hover:text-red-400"
                       >
                         <X size={12} />
                       </button>
                     </div>
                   </div>
-                  <span className="whitespace-nowrap font-mono text-gold">€{(i.price * i.quantity).toFixed(2)}</span>
+                  <span className="whitespace-nowrap font-mono text-gold">
+                    €{(i.price * i.quantity).toFixed(2)}
+                  </span>
                 </li>
               ))}
             </ul>
@@ -692,7 +789,9 @@ function CheckoutPage() {
               </div>
               <div className="flex justify-between text-white/70">
                 <dt>{t("cart.shipping")}</dt>
-                <dd className="font-mono">{shipping === 0 ? t("cart.free") : `€${shipping.toFixed(2)}`}</dd>
+                <dd className="font-mono">
+                  {shipping === 0 ? t("cart.free") : `€${shipping.toFixed(2)}`}
+                </dd>
               </div>
               <div className="mt-3 flex justify-between border-t border-gold/10 pt-3 text-base text-white">
                 <dt>{t("cart.total")}</dt>
@@ -709,14 +808,28 @@ function CheckoutPage() {
 
             <button
               type="submit"
-              disabled={submitting}
+              disabled={
+                submitting ||
+                (!cardEnabled && !paypalEnabled) ||
+                Boolean(cancelOrderId && !cancellation.isSuccess)
+              }
               className="mt-6 w-full bg-gold py-3 text-sm font-bold uppercase tracking-wider text-black transition-colors hover:bg-gold-vivid disabled:opacity-50"
             >
               {submitting ? t("checkout.placingOrder") : t("checkout.placeOrder")}
             </button>
 
             <p className="mt-3 text-center text-xs text-white/40">
-              {t("checkout.agreeTerms")}
+              <Link to="/shipping" className="underline">
+                {t("footer.shipping")}
+              </Link>
+              {" · "}
+              <Link to="/returns" className="underline">
+                {t("footer.returns")}
+              </Link>
+              {" · "}
+              <Link to="/privacy" className="underline">
+                {t("footer.privacy")}
+              </Link>
             </p>
 
             <div className="mt-5 flex items-center justify-center gap-4 border-t border-gold/10 pt-4 text-white/50">
@@ -759,10 +872,14 @@ function Field({
   autoComplete?: string;
   error?: string;
 }) {
+  const id = useId();
   return (
     <label className={`block ${className ?? ""}`}>
       <span className="mb-1 block text-xs uppercase tracking-wider text-gold/70">{label}</span>
       <input
+        id={id}
+        aria-invalid={Boolean(error)}
+        aria-describedby={error ? `${id}-error` : undefined}
         type={type}
         value={value}
         required={required}
@@ -772,7 +889,11 @@ function Field({
           error ? "border-red-500" : "border-gold/20"
         }`}
       />
-      {error && <p className="mt-1 text-xs text-red-400">{error}</p>}
+      {error && (
+        <p id={`${id}-error`} role="alert" className="mt-1 text-xs text-red-400">
+          {error}
+        </p>
+      )}
     </label>
   );
 }

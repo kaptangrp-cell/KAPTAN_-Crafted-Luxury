@@ -1,7 +1,13 @@
 import { Link } from "@tanstack/react-router";
 import { X, Minus, Plus, Trash2, Lock } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetDescription,
+} from "@/components/ui/sheet";
 import { useUIStore } from "@/stores/uiStore";
 import { useCartStore } from "@/stores/cartStore";
 import { Price } from "@/components/common/Price";
@@ -18,6 +24,7 @@ export function CartDrawer() {
           <SheetTitle className="font-serif text-lg text-white">
             {t("cart.titleWithCount", { count: items.reduce((s, i) => s + i.quantity, 0) })}
           </SheetTitle>
+          <SheetDescription className="sr-only">{t("cart.drawerDescription")}</SheetDescription>
         </SheetHeader>
 
         {items.length === 0 ? (
@@ -53,11 +60,14 @@ export function CartDrawer() {
                         {item.variantLabel && (
                           <p className="text-xs text-gold-dark">{item.variantLabel}</p>
                         )}
-                        <p className="mt-1 font-mono text-sm text-gold"><Price amount={item.price} /></p>
+                        <p className="mt-1 font-mono text-sm text-gold">
+                          <Price amount={item.price} />
+                        </p>
                       </div>
                       <div className="mt-2 flex items-center justify-between">
                         <div className="flex items-center gap-2 border border-gold/20">
                           <button
+                            aria-label={t("cart.decreaseQuantity")}
                             onClick={() => updateQuantity(item.id, item.quantity - 1)}
                             className="px-2 py-1 text-gold/80 hover:text-gold"
                           >
@@ -67,6 +77,7 @@ export function CartDrawer() {
                             {item.quantity}
                           </span>
                           <button
+                            aria-label={t("cart.increaseQuantity")}
                             onClick={() => updateQuantity(item.id, item.quantity + 1)}
                             className="px-2 py-1 text-gold/80 hover:text-gold"
                           >
@@ -90,10 +101,12 @@ export function CartDrawer() {
             <div className="border-t border-gold/10 pt-4">
               <div className="mb-4 flex justify-between font-mono text-white">
                 <span>{t("cart.subtotal")}</span>
-                <span className="text-gold"><Price amount={subtotal()} /></span>
+                <span className="text-gold">
+                  <Price amount={subtotal()} />
+                </span>
               </div>
               <Link
-                to="/cart"
+                to="/checkout"
                 onClick={closeCart}
                 className="block w-full bg-gold py-3 text-center text-sm font-bold text-black transition-colors hover:bg-gold-vivid"
               >

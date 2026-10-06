@@ -1,9 +1,11 @@
+import type { SupabaseClient } from "@supabase/supabase-js";
+import type { Database } from "@/integrations/supabase/types";
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { sendOrderStatusEmail } from "@/lib/server/email.server";
 
-async function assertAdmin(supabase: any, userId: string) {
+async function assertAdmin(supabase: SupabaseClient<Database>, userId: string) {
   const { data } = await supabase.from("profiles").select("role").eq("id", userId).single();
   if (!data || data.role !== "admin") throw new Error("Forbidden");
 }
@@ -148,7 +150,9 @@ export const adminGetAnalytics = createServerFn({ method: "POST" })
       .order("created_at", { ascending: true });
 
     if (periodStart && periodEnd) {
-      query = query.gte("created_at", periodStart.toISOString()).lt("created_at", periodEnd.toISOString());
+      query = query
+        .gte("created_at", periodStart.toISOString())
+        .lt("created_at", periodEnd.toISOString());
     }
 
     if (data.status && data.status !== "all") {
@@ -159,21 +163,28 @@ export const adminGetAnalytics = createServerFn({ method: "POST" })
     if (error) throw new Error(error.message);
 
     // Visits logged in the same window, for conversion rate = orders / visits.
-    let visitsQuery = supabaseAdmin.from("site_visits").select("id", { count: "exact", head: true });
+    let visitsQuery = supabaseAdmin
+      .from("site_visits")
+      .select("id", { count: "exact", head: true });
     if (periodStart && periodEnd) {
-      visitsQuery = visitsQuery.gte("created_at", periodStart.toISOString()).lt("created_at", periodEnd.toISOString());
+      visitsQuery = visitsQuery
+        .gte("created_at", periodStart.toISOString())
+        .lt("created_at", periodEnd.toISOString());
     }
     const { count: totalVisits, error: visitsError } = await visitsQuery;
     if (visitsError) throw new Error(visitsError.message);
 
-    const filteredOrders = (orders ?? []).filter((o: any) => {
+    const filteredOrders = (orders ?? []).filter((o) => {
       if (!data.productName || data.productName === "all") return true;
-      return (o.order_items ?? []).some((i: any) => i.product_name === data.productName);
+      return (o.order_items ?? []).some((i) => i.product_name === data.productName);
     });
 
     const salesByDay = new Map<string, { date: string; revenue: number; orders: number }>();
     const statusRevenue = new Map<string, { status: string; revenue: number; orders: number }>();
-    const bestProducts = new Map<string, { product_name: string; quantity: number; revenue: number }>();
+    const bestProducts = new Map<
+      string,
+      { product_name: string; quantity: number; revenue: number }
+    >();
     const productNames = new Set<string>();
     const customerOrderCounts = new Map<string, number>();
 
@@ -182,7 +193,7 @@ export const adminGetAnalytics = createServerFn({ method: "POST" })
     let itemsMissingCost = 0;
 
     for (const order of filteredOrders) {
-      const date = new Date(order.created_at).toISOString().slice(0, 10);
+      const date = new Date(order.created_at ?? 0).toISOString().slice(0, 10);
       const day = salesByDay.get(date) ?? { date, revenue: 0, orders: 0 };
       day.revenue += Number(order.total ?? 0);
       day.orders += 1;
@@ -218,7 +229,7 @@ export const adminGetAnalytics = createServerFn({ method: "POST" })
       }
     }
 
-    const totalRevenue = filteredOrders.reduce((s: number, o: any) => s + Number(o.total ?? 0), 0);
+    const totalRevenue = filteredOrders.reduce((s: number, o) => s + Number(o.total ?? 0), 0);
     const totalOrders = filteredOrders.length;
     const averageOrderValue = totalOrders ? totalRevenue / totalOrders : 0;
 
@@ -282,7 +293,8 @@ export const adminListProducts = createServerFn({ method: "GET" })
 
     const { data, error } = await supabaseAdmin
       .from("products")
-      .select(`
+      .select(
+        `
         id,
         name,
         slug,
@@ -297,7 +309,8 @@ export const adminListProducts = createServerFn({ method: "GET" })
         category_id,
         categories(name),
         product_images(id, url, sort_order, alt_text, media_type)
-      `)
+      `,
+      )
       .order("created_at", { ascending: false });
 
     if (error) throw new Error(error.message);
@@ -313,7 +326,11 @@ const MediaItemSchema = z.object({
 const ProductSchema = z.object({
   id: z.string().uuid().nullable().optional(),
   name: z.string().min(1).max(200),
-  slug: z.string().min(1).max(200).regex(/^[a-z0-9-]+$/),
+  slug: z
+    .string()
+    .min(1)
+    .max(200)
+    .regex(/^[a-z0-9-]+$/),
   category_id: z.string().uuid().nullable(),
   short_description: z.string().max(500).nullable(),
   full_description: z.string().max(5000).nullable(),
@@ -340,7 +357,11 @@ export const adminUpsertProduct = createServerFn({ method: "POST" })
       const { error } = await supabaseAdmin.from("products").update(payload).eq("id", id);
       if (error) throw new Error(error.message);
     } else {
-      const { data: row, error } = await supabaseAdmin.from("products").insert(payload).select("id").single();
+      const { data: row, error } = await supabaseAdmin
+        .from("products")
+        .insert(payload)
+        .select("id")
+        .single();
       if (error) throw new Error(error.message);
       productId = row.id;
     }
@@ -369,7 +390,11 @@ export const adminUpsertProduct = createServerFn({ method: "POST" })
 
 const BulkProductSchema = z.object({
   name: z.string().min(1).max(200),
-  slug: z.string().min(1).max(200).regex(/^[a-z0-9-]+$/),
+  slug: z
+    .string()
+    .min(1)
+    .max(200)
+    .regex(/^[a-z0-9-]+$/),
   category_slug: z.string().min(1).max(100),
   short_description: z.string().max(500).nullable().optional(),
   full_description: z.string().max(5000).nullable().optional(),
@@ -435,7 +460,10 @@ export const adminBulkCreateProducts = createServerFn({ method: "POST" })
       is_featured: p.is_featured,
     }));
 
-    const { data: inserted, error } = await supabaseAdmin.from("products").insert(rows).select("id");
+    const { data: inserted, error } = await supabaseAdmin
+      .from("products")
+      .insert(rows)
+      .select("id");
     if (error) throw new Error(error.message);
 
     return { created: inserted?.length ?? 0 };
@@ -469,7 +497,11 @@ export const adminListCategories = createServerFn({ method: "GET" })
 const CategorySchema = z.object({
   id: z.string().uuid().nullable().optional(),
   name: z.string().min(1).max(100),
-  slug: z.string().min(1).max(100).regex(/^[a-z0-9-]+$/),
+  slug: z
+    .string()
+    .min(1)
+    .max(100)
+    .regex(/^[a-z0-9-]+$/),
   description: z.string().max(500).nullable(),
   image_url: z.string().url().max(2000).nullable(),
   sort_order: z.number().int().min(0),
@@ -490,7 +522,11 @@ export const adminUpsertCategory = createServerFn({ method: "POST" })
       return { id };
     }
 
-    const { data: row, error } = await supabaseAdmin.from("categories").insert(payload).select("id").single();
+    const { data: row, error } = await supabaseAdmin
+      .from("categories")
+      .insert(payload)
+      .select("id")
+      .single();
     if (error) throw new Error(error.message);
 
     return { id: row.id };
@@ -517,7 +553,9 @@ export const adminListOrders = createServerFn({ method: "GET" })
 
     const { data, error } = await supabaseAdmin
       .from("orders")
-      .select("id, order_number, customer_name, customer_email, total, status, payment_status, created_at")
+      .select(
+        "id, order_number, customer_name, customer_email, total, status, payment_status, created_at",
+      )
       .order("created_at", { ascending: false })
       .limit(100);
 
@@ -529,10 +567,12 @@ export const adminListOrders = createServerFn({ method: "GET" })
 export const adminUpdateOrderStatus = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: { id: string; status: string }) =>
-    z.object({
-      id: z.string().uuid(),
-      status: z.enum(["ordered", "packaging", "out_for_delivery", "delivered", "cancelled"]),
-    }).parse(input),
+    z
+      .object({
+        id: z.string().uuid(),
+        status: z.enum(["ordered", "packaging", "out_for_delivery", "delivered", "cancelled"]),
+      })
+      .parse(input),
   )
   .handler(async ({ data, context }) => {
     await assertAdmin(context.supabase, context.userId);
@@ -545,6 +585,19 @@ export const adminUpdateOrderStatus = createServerFn({ method: "POST" })
       .single();
 
     if (beforeError) throw new Error(beforeError.message);
+
+    if (data.status === "cancelled") {
+      const { data: checkout, error: lookupError } = await supabaseAdmin
+        .from("order_checkouts")
+        .select("state")
+        .eq("order_id", data.id)
+        .maybeSingle();
+      if (lookupError) throw new Error("Could not check the payment before cancellation");
+      if (checkout?.state === "reserved") {
+        const { cancelProviderCheckout } = await import("@/lib/payments/cancel.server");
+        await cancelProviderCheckout(data.id, false);
+      }
+    }
 
     const { error } = await supabaseAdmin
       .from("orders")

@@ -20,20 +20,37 @@ function AdminCustomersPage() {
       <div className="border border-gold/15 bg-[#1A1A1A]">
         <table className="w-full text-sm">
           <thead className="text-left text-xs uppercase tracking-wider text-white/50">
-            <tr><th className="p-3">{t("adminCustomers.colName")}</th><th className="p-3">{t("adminCustomers.colPhone")}</th><th className="p-3">{t("adminCustomers.colRole")}</th><th className="p-3">{t("adminCustomers.colJoined")}</th></tr>
+            <tr>
+              <th className="p-3">{t("adminCustomers.colName")}</th>
+              <th className="p-3">{t("adminCustomers.colPhone")}</th>
+              <th className="p-3">{t("adminCustomers.colRole")}</th>
+              <th className="p-3">{t("adminCustomers.colJoined")}</th>
+            </tr>
           </thead>
           <tbody>
-            {isLoading && <tr><td colSpan={4} className="p-6 text-center text-white/50">{t("adminProducts.loading")}</td></tr>}
+            {isLoading && (
+              <tr>
+                <td colSpan={4} className="p-6 text-center text-white/50">
+                  {t("adminProducts.loading")}
+                </td>
+              </tr>
+            )}
             {(data?.customers ?? []).map((c) => (
               <tr key={c.id} className="border-t border-gold/5">
                 <td className="p-3 text-white">{c.full_name ?? "—"}</td>
                 <td className="p-3 text-white/60">{c.phone ?? "—"}</td>
                 <td className="p-3">
-                  <span className={`rounded-full px-2 py-0.5 text-xs ${c.role === "admin" ? "bg-gold/20 text-gold" : "bg-white/5 text-white/60"}`}>
+                  <span
+                    className={`rounded-full px-2 py-0.5 text-xs ${c.role === "admin" ? "bg-gold/20 text-gold" : "bg-white/5 text-white/60"}`}
+                  >
                     {c.role}
                   </span>
                 </td>
-                <td className="p-3 text-white/60">{new Date(c.created_at!).toLocaleDateString(i18n.language === "de" ? "de-DE" : "en-GB")}</td>
+                <td className="p-3 text-white/60">
+                  {new Date(c.created_at!).toLocaleDateString(
+                    i18n.language === "de" ? "de-DE" : "en-GB",
+                  )}
+                </td>
               </tr>
             ))}
           </tbody>

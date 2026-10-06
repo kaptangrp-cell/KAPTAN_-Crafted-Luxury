@@ -5,16 +5,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import * as XLSX from "xlsx";
-import {
-  Plus,
-  Pencil,
-  Trash2,
-  ImageIcon,
-  Video,
-  X,
-  Upload,
-  Download,
-} from "lucide-react";
+import { Plus, Pencil, Trash2, ImageIcon, Video, X, Upload, Download } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { supabase } from "@/integrations/supabase/client";
 import {
@@ -314,7 +305,8 @@ function AdminProductsPage() {
         compare_at_price: 39.99,
         stock_quantity: 50,
         short_description: "Handcrafted genuine leather wallet.",
-        full_description: "Premium handcrafted leather wallet with durable stitching and elegant finish.",
+        full_description:
+          "Premium handcrafted leather wallet with durable stitching and elegant finish.",
         is_available: true,
         is_featured: false,
       },
@@ -348,7 +340,8 @@ function AdminProductsPage() {
             disabled={bulkCreate.isPending}
             className="flex items-center gap-2 border border-gold px-4 py-2 text-sm font-bold text-gold hover:bg-gold hover:text-black disabled:opacity-50"
           >
-            <Upload size={16} /> {bulkCreate.isPending ? t("adminProducts.importing") : t("adminProducts.uploadExcel")}
+            <Upload size={16} />{" "}
+            {bulkCreate.isPending ? t("adminProducts.importing") : t("adminProducts.uploadExcel")}
           </button>
 
           <button
@@ -370,8 +363,8 @@ function AdminProductsPage() {
       </div>
 
       <div className="border border-gold/20 bg-[#1A1A1A] p-4 text-sm text-white/60">
-        {t("adminProducts.excelUploadHint")}
-        {" "}{t("adminProducts.excelRequiredCols")} <span className="text-gold">name, slug, category_slug, price, stock_quantity</span>.
+        {t("adminProducts.excelUploadHint")} {t("adminProducts.excelRequiredCols")}{" "}
+        <span className="text-gold">name, slug, category_slug, price, stock_quantity</span>.
       </div>
 
       <div className="border border-gold/15 bg-[#1A1A1A]">
@@ -401,7 +394,8 @@ function AdminProductsPage() {
               const sortedMedia = (p.product_images ?? []).sort(
                 (a, b) => Number(a.sort_order ?? 0) - Number(b.sort_order ?? 0),
               );
-              const firstImage = sortedMedia.find((m) => m.media_type !== "video") ?? sortedMedia[0];
+              const firstImage =
+                sortedMedia.find((m) => m.media_type !== "video") ?? sortedMedia[0];
 
               return (
                 <tr key={p.id} className="border-t border-gold/5">
@@ -446,7 +440,10 @@ function AdminProductsPage() {
                       </button>
 
                       <button
-                        onClick={() => confirm(t("adminProducts.deleteConfirm", { name: p.name })) && del.mutate(p.id)}
+                        onClick={() =>
+                          confirm(t("adminProducts.deleteConfirm", { name: p.name })) &&
+                          del.mutate(p.id)
+                        }
                         className="text-white/40 hover:text-red-400"
                       >
                         <Trash2 size={14} />
@@ -469,7 +466,10 @@ function AdminProductsPage() {
       </div>
 
       {editing && (
-        <Modal onClose={() => setEditing(null)} title={editing.id ? t("adminProducts.editProduct") : t("adminProducts.newProduct")}>
+        <Modal
+          onClose={() => setEditing(null)}
+          title={editing.id ? t("adminProducts.editProduct") : t("adminProducts.newProduct")}
+        >
           <form
             onSubmit={(e) => {
               e.preventDefault();
@@ -698,7 +698,11 @@ function AdminProductsPage() {
 }
 
 function slugify(s: string) {
-  return s.toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
+  return s
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
 }
 
 function F({
@@ -716,9 +720,7 @@ function F({
 }) {
   return (
     <label className="block">
-      <span className="mb-1 block text-xs uppercase tracking-wider text-gold/70">
-        {label}
-      </span>
+      <span className="mb-1 block text-xs uppercase tracking-wider text-gold/70">{label}</span>
       <input
         type={type}
         required={required}
@@ -761,7 +763,11 @@ function MediaUpload({
       const { data } = supabase.storage.from("product-images").getPublicUrl(fileName);
 
       onChange({ url: data.publicUrl });
-      toast.success(item.media_type === "video" ? t("adminProducts.videoUploadedToast") : t("adminProducts.imageUploadedToast"));
+      toast.success(
+        item.media_type === "video"
+          ? t("adminProducts.videoUploadedToast")
+          : t("adminProducts.imageUploadedToast"),
+      );
     } catch (err) {
       toast.error(err instanceof Error ? err.message : t("adminProducts.uploadFailedToast"));
     } finally {
@@ -773,7 +779,10 @@ function MediaUpload({
     <div className="border border-gold/15 bg-[#0D0D0D] p-3">
       <div className="mb-2 flex items-center justify-between">
         <p className="text-xs uppercase tracking-wider text-white/50">
-          {item.media_type === "video" ? t("adminProducts.videoLabelHash") : t("adminProducts.imageLabelHash")} #{index + 1}
+          {item.media_type === "video"
+            ? t("adminProducts.videoLabelHash")
+            : t("adminProducts.imageLabelHash")}{" "}
+          #{index + 1}
         </p>
 
         <button type="button" onClick={onRemove} className="text-white/40 hover:text-red-400">
@@ -796,14 +805,22 @@ function MediaUpload({
         type="url"
         value={item.url}
         onChange={(e) => onChange({ url: e.target.value })}
-        placeholder={item.media_type === "video" ? t("adminProducts.videoUrlPlaceholder") : t("adminProducts.imageUrlPlaceholder")}
+        placeholder={
+          item.media_type === "video"
+            ? t("adminProducts.videoUrlPlaceholder")
+            : t("adminProducts.imageUrlPlaceholder")
+        }
         className="mt-2 w-full border border-gold/20 bg-black px-3 py-2 text-sm text-white outline-none focus:border-gold"
       />
 
       {uploading && <p className="mt-1 text-xs text-gold">{t("adminProducts.uploading")}</p>}
 
       {item.url && item.media_type === "video" && (
-        <video src={item.url} controls className="mt-3 h-32 w-full border border-gold/20 object-cover" />
+        <video
+          src={item.url}
+          controls
+          className="mt-3 h-32 w-full border border-gold/20 object-cover"
+        />
       )}
 
       {item.url && item.media_type === "image" && (

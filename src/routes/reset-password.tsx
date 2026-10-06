@@ -49,7 +49,7 @@ function ResetPasswordPage() {
     }
 
     prepareRecoverySession();
-  }, []);
+  }, [t]);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -90,9 +90,7 @@ function ResetPasswordPage() {
           <p className="mt-6 text-sm text-white/60">{t("resetPassword.checkingLink")}</p>
         ) : !ready ? (
           <div className="mt-8 w-full text-center">
-            <p className="text-sm text-white/60">
-              {t("resetPassword.invalidLinkBody")}
-            </p>
+            <p className="text-sm text-white/60">{t("resetPassword.invalidLinkBody")}</p>
             <button
               onClick={() => navigate({ to: "/auth" })}
               className="mt-6 w-full bg-gold py-3 text-sm font-bold uppercase tracking-wider text-black"
