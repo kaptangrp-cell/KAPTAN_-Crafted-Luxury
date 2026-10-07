@@ -1,5 +1,15 @@
 # Checkout and storefront changes — 7 October 2026
 
+## Vercel security-block correction
+
+The failed deployment of commit `e41479f` stopped during dependency installation: Vercel rejected `@tanstack/start-server-core@1.169.14` for CVE-2026-102989. This was unrelated to the Recharts deprecation warning. The earlier local build did not detect Vercel's security block.
+
+The framework is now pinned to `@tanstack/react-start@1.168.60`, with `@tanstack/start-server-core@1.169.39` resolved in `package-lock.json`, matching the patched releases in [TanStack's advisory](https://github.com/TanStack/router/security/advisories/GHSA-qx66-fv34-fjm8). A dependency regression test checks every locked copy of both packages. Vercel now uses `npm ci` to install the verified lockfile. A fresh installation in an empty temporary directory succeeded. The router error handler uses the updated framework type; generated database types received formatting-only changes required by lint.
+
+Validation after the correction: clean `npm ci` passed; `npm run check` passed TypeScript, lint (zero errors, six React Refresh warnings), all five regression tests, and the production build. One low-severity dependency advisory remains unrelated to this deployment block.
+
+Commit and push these corrections, then redeploy that new commit. Do not redeploy the old commit or enable `DANGEROUSLY_DEPLOY_VULNERABLE_TANSTACK_START_XSS`. No Vercel deployment was triggered by this local fix. The checkout migration and configuration prerequisites below still apply.
+
 These changes are implemented locally. They have not been deployed and the connected production database has not been migrated. Do not deploy application code alone: the new server checkout requires the accompanying migration.
 
 ## Rollout order
