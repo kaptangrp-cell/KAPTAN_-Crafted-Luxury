@@ -1,6 +1,6 @@
 {
   "buildCommand": "npm run build",
-  "installCommand": "npm ci",
+  "installCommand": "npx --yes npm@11.6.2 ci",
   "framework": null,
   "outputDirectory": null
 }

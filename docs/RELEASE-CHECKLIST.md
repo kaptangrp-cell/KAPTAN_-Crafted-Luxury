@@ -1,5 +1,15 @@
 # Checkout and storefront changes — 7 October 2026
 
+## Vercel lockfile correction after commit `7a6cda1`
+
+The next deployment failed before compilation: `npm ci` rejected missing `@emnapi/core@1.11.3`, `@emnapi/runtime@1.11.3`, and `@emnapi/wasi-threads@1.2.3` entries. The exact three missing-entry errors were reproduced with npm 12.2.0; the earlier clean-install check had used npm 11.6.2 and did not detect them.
+
+The lockfile was repaired in a temporary directory without an existing `node_modules` tree. npm 12's dry-run validation now passes, and a real clean installation with npm 11.6.2 passes. Vercel explicitly runs `npx --yes npm@11.6.2 ci`, the GitHub workflow installs the same npm version, and `package.json` records it in `packageManager`. The TanStack security patches remain in place. No persistent permissive npm settings or vulnerability bypass were added.
+
+From the clean temporary installation, TypeScript, lint (zero errors, six warnings), all five tests, and the production build passed.
+
+A Linux container could not be run because Docker's daemon is unavailable. Local checks do not establish a successful Vercel deployment. Push all changed files together and deploy the new commit; the earlier failed commits retain their old lockfiles.
+
 ## Vercel security-block correction
 
 The failed deployment of commit `e41479f` stopped during dependency installation: Vercel rejected `@tanstack/start-server-core@1.169.14` for CVE-2026-102989. This was unrelated to the Recharts deprecation warning. The earlier local build did not detect Vercel's security block.
