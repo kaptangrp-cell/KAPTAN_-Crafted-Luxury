@@ -108,6 +108,7 @@ function ProductDetailPage() {
     short_description: string | null;
     full_description: string | null;
     stock_quantity: number | null;
+    is_available: boolean | null;
     tags: string[] | null;
     category_id: string | null;
     average_rating: number | null;
@@ -121,6 +122,7 @@ function ProductDetailPage() {
     }[];
     product_variants: {
       id: string;
+      stock_quantity: number | null;
       variant_type: string;
       variant_value: string;
       price_modifier: number | null;
@@ -158,7 +160,9 @@ function ProductDetailPage() {
 
   const { data: insightsData } = useQuery(insightsQueryOptions(product.id));
   const soldLast30Days = insightsData?.soldLast30Days ?? 0;
-  const frequentlyBoughtWith = insightsData?.frequentlyBoughtWith ?? [];
+  const frequentlyBoughtWith = (insightsData?.frequentlyBoughtWith ?? []).filter(
+    (p) => !p.product_variants?.length && p.is_available !== false && p.stock_quantity !== 0,
+  );
 
   const [bundleSelection, setBundleSelection] = useState<Set<string>>(new Set());
 
@@ -177,7 +181,8 @@ function ProductDetailPage() {
   }
 
   function handleAddBundleToCart() {
-    addItem(product as never, null, 1, firstImage.url);
+    if (cannotPurchase) return;
+    addItem(product as never, variant as never, 1, firstImage.url);
     let added = 1;
 
     for (const companion of frequentlyBoughtWith) {
@@ -280,10 +285,18 @@ function ProductDetailPage() {
   const variants = product.product_variants ?? [];
   const variant = variants.find((v) => v.id === variantId) ?? null;
   const finalPrice = Number(product.price) + Number(variant?.price_modifier ?? 0);
-  const outOfStock = product.stock_quantity === 0;
-  const maxQty = product.stock_quantity ?? 99;
+  const maxQty = Math.min(50, product.stock_quantity ?? 50, variant?.stock_quantity ?? 50);
+  const outOfStock =
+    product.is_available === false || maxQty === 0 || variant?.is_available === false;
+  const needsOption = variants.length > 0 && !variant;
+  const cannotPurchase = outOfStock || needsOption;
+
+  useEffect(() => {
+    setQty((current) => Math.max(1, Math.min(current, maxQty)));
+  }, [maxQty]);
 
   function handleAdd() {
+    if (cannotPurchase) return;
     addItem(product as never, variant as never, qty, firstImage.url);
     toast.success(t("products.addedToCartToast", { name: product.name }));
     openCart();
@@ -311,6 +324,7 @@ function ProductDetailPage() {
   }
 
   function handleBuyNow() {
+    if (cannotPurchase) return;
     addItem(product as never, variant as never, qty, firstImage.url);
     toast.success(t("products.addedToCartToast", { name: product.name }));
     navigate({ to: "/checkout" });
@@ -473,7 +487,8 @@ function ProductDetailPage() {
                     <button
                       key={v.id}
                       onClick={() => setVariantId(v.id === variantId ? null : v.id)}
-                      disabled={v.is_available === false}
+                      disabled={v.is_available === false || v.stock_quantity === 0}
+                      aria-pressed={variantId === v.id}
                       className={`border px-3 py-1.5 text-sm ${
                         variantId === v.id
                           ? "border-gold bg-gold text-black"
@@ -521,16 +536,16 @@ function ProductDetailPage() {
             <div className="mt-6 grid gap-3 sm:grid-cols-2">
               <button
                 onClick={handleAdd}
-                disabled={outOfStock}
+                disabled={cannotPurchase}
                 className="flex items-center justify-center gap-2 border border-gold bg-transparent py-3 text-sm font-bold uppercase tracking-wider text-gold transition-colors hover:bg-gold hover:text-black disabled:opacity-50"
               >
                 <ShoppingBag size={16} />
-                {t("products.addToCart")}
+                {t(needsOption ? "products.chooseOptions" : "products.addToCart")}
               </button>
 
               <button
                 onClick={handleBuyNow}
-                disabled={outOfStock}
+                disabled={cannotPurchase}
                 className="flex items-center justify-center gap-2 bg-gold py-3 text-sm font-bold uppercase tracking-wider text-black transition-colors hover:bg-gold-vivid disabled:opacity-50"
               >
                 <CreditCard size={16} />
@@ -673,9 +688,10 @@ function ProductDetailPage() {
                 />
                 <button
                   onClick={handleAddBundleToCart}
-                  className="mt-3 w-full bg-gold py-2.5 text-sm font-bold uppercase tracking-wider text-black transition-colors hover:bg-gold-vivid"
+                  disabled={cannotPurchase}
+                  className="mt-3 w-full bg-gold py-2.5 text-sm font-bold uppercase tracking-wider text-black transition-colors hover:bg-gold-vivid disabled:opacity-50"
                 >
-                  {t("pdp.addBundleToCart")}
+                  {t(needsOption ? "products.chooseOptions" : "pdp.addBundleToCart")}
                 </button>
               </div>
             </div>

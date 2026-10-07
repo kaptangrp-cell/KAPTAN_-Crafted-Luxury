@@ -451,7 +451,8 @@ function CheckoutPage() {
         return;
       }
     } catch (err) {
-      if (err instanceof Error && err.message.includes("expired")) forgetAttempt();
+      if (err instanceof Error && err.message === "Checkout expired. Start a new checkout.")
+        forgetAttempt();
       toast.error(err instanceof Error ? err.message : t("checkout.orderFailedToast"));
     } finally {
       setSubmitting(false);

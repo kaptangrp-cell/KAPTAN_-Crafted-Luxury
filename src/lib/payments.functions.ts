@@ -163,6 +163,11 @@ export const createStripePaymentIntentForOrder = createServerFn({ method: "POST"
     const stripe = getStripeClient();
     if (!stripe) throw new Error("Card payments are unavailable.");
     const { order, checkout } = await claimProvider(data.orderId, "stripe_intent");
+    if (
+      !checkout.provider_id &&
+      Date.now() - new Date(checkout.created_at).getTime() > 25 * 60 * 1000
+    )
+      throw new Error("Payment initialization expired. Please contact support before retrying.");
     const intent = checkout.provider_id
       ? await stripe.paymentIntents.retrieve(checkout.provider_id)
       : await stripe.paymentIntents.create(

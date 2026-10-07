@@ -1,4 +1,4 @@
-# Checkout and storefront changes — 6 October 2026
+# Checkout and storefront changes — 7 October 2026
 
 These changes are implemented locally. They have not been deployed and the connected production database has not been migrated. Do not deploy application code alone: the new server checkout requires the accompanying migration.
 
@@ -41,3 +41,15 @@ The code cannot establish actual product dimensions/materials, genuine testimoni
 ## Dependency maintenance
 
 Compatible npm security updates were applied. SheetJS was updated to the official 0.20.3 tarball, as documented at https://docs.sheetjs.com/docs/getting-started/installation/frameworks/. `package-lock.json` is authoritative for this release; use `npm ci`. The older `bun.lock` is not synchronized; do not deploy from it without regenerating and verifying it separately.
+
+## Final local regression results — 7 October 2026
+
+- TypeScript passed; ESLint reported zero errors and six existing React Refresh warnings.
+- All four regression tests passed: transactional inventory/order settlement, Stripe verification, PayPal capture verification, and spreadsheet import/export round trips.
+- The final production build passed. Framework deprecation and dependency bundling warnings remain; they did not prevent the build.
+- A fresh browser checkout restored its saved cart and display currency after reload with no console errors/warnings. At 390px wide, content stayed within the viewport and the form followed contact, shipping, payment, summary order. Screenshots: `audit/10-checkout-after-fixes.jpg` and `audit/11-mobile-checkout-after-fixes.jpg`.
+- Product detail purchase buttons now require an available option where applicable. Sold-out options are disabled, selected options expose their pressed state, quantities respect product/variant stock and the 50-unit limit, and bundles preserve the main product option. Companion products needing their own option selection are excluded from one-click bundles. These paths passed static checks; live variant-specific checkout still requires staging data and credentials.
+- Wallet initialization now has the same retry-age guard as hosted checkout. A provider initialization timeout retains the checkout attempt for support/recovery; only a confirmed released reservation clears the attempt for a new checkout.
+- The last dependency audit retained one low-severity esbuild development-server advisory. Compatible updates were applied; no forced major upgrade was used. Recheck advisories in CI before release.
+
+Local verification is complete within the available environment. The migration, hosted scheduler, provider webhook setup and sandbox payment scenarios above remain release prerequisites.
