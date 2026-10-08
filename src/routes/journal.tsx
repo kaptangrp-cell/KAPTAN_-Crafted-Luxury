@@ -1,3 +1,4 @@
+import { CatalogText } from "@/components/common/CatalogText";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
@@ -81,15 +82,15 @@ function JournalIndexPage() {
                   </div>
                   {post.category && (
                     <p className="mt-4 text-[11px] uppercase tracking-[0.2em] text-gold">
-                      {post.category}
+                      <CatalogText text={post.category} />
                     </p>
                   )}
                   <h2 className="mt-2 font-serif text-xl text-white transition-colors group-hover:text-gold">
-                    {post.title}
+                    <CatalogText text={post.title} />
                   </h2>
                   {post.excerpt && (
                     <p className="mt-2 line-clamp-2 text-sm leading-relaxed text-white/60">
-                      {post.excerpt}
+                      <CatalogText text={post.excerpt} />
                     </p>
                   )}
                   <p className="mt-3 text-xs text-white/40">

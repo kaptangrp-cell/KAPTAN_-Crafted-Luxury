@@ -1,3 +1,4 @@
+import { CatalogText } from "@/components/common/CatalogText";
 import { useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
@@ -356,7 +357,7 @@ function CategoryGroup({
                 activeCategory === c.slug ? "text-gold" : "text-white/70 hover:text-gold"
               }`}
             >
-              {c.name}
+              <CatalogText text={c.name} />
             </button>
           </li>
         ))}

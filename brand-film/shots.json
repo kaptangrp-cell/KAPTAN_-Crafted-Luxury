@@ -1,0 +1,518 @@
+{
+ "title": "KAPTAN — Crafted for the Journey",
+ "duration": 60,
+ "fps": 24,
+ "aspect": "16:9",
+ "style_suffix": "Cinematic premium commercial, shot on large-format digital cinema camera with vintage anamorphic-look primes, warm natural light, soft shadows, shallow depth of field, gentle film grain, restrained warm grade of ivory, walnut, cognac and charcoal, realistic full-grain leather with visible pores, saddle stitching and burnished edges, natural unposed expressions, calm modern European atmosphere, 24fps, 16:9.",
+ "negative": "plastic or glossy faux leather, warped or melting straps, extra handles, extra zippers, inconsistent bag shape, distorted hands, extra fingers, floating objects, any visible text or letters, any logo, oversized branding, sports cars, champagne, jewellery close-ups, exaggerated smiles, posing to camera, crowded frame, whip pans, heavy lens flare",
+ "products": {
+  "P1A": {
+   "name": "Laptop bag · cognac",
+   "desc": "a slim structured cognac full-grain leather laptop briefcase, about 40 by 29 by 8 cm, two rolled leather top handles, a detachable 3.5 cm leather shoulder strap with antique-brass swivel hooks, one full-length antique-brass zip with a round leather-wrapped pull, a flat front slip pocket, tonal saddle stitching, burnished dark edges",
+   "brand": "3 cm circular K mark debossed (blind, no foil) on lower-right of front panel; brass zip pull carries a tiny engraved K"
+  },
+  "P1B": {
+   "name": "Laptop bag · black",
+   "desc": "the same slim structured briefcase design in matte black full-grain leather with antique-brass hardware, two rolled top handles, detachable shoulder strap",
+   "brand": "same debossed K position as P1A; small brushed-brass tag reading KAPTAN riveted beside the handle base"
+  },
+  "P2": {
+   "name": "Backpack · tan",
+   "desc": "a minimal rectangular tan full-grain leather backpack, about 44 by 30 by 14 cm, top zip opening with antique-brass zip, one vertical front zip pocket, padded leather shoulder straps with brass adjusters, a slim rolled top grab handle",
+   "brand": "debossed K mark centred under the front pocket zip; KAPTAN debossed on the inner pocket flap"
+  },
+  "P3A": {
+   "name": "Weekender · cognac",
+   "desc": "a large cognac full-grain leather weekender holdall, about 55 by 28 by 28 cm, two rolled handles joined by a leather wrap, detachable wide shoulder strap, antique-brass hardware, four small brass feet, a softly structured body that slumps slightly when set down",
+   "brand": "cognac leather luggage tag on a looped strap, KAPTAN embossed on its face; K debossed on the side panel"
+  },
+  "P3B": {
+   "name": "Small holdall · camel",
+   "desc": "a smaller camel full-grain leather holdall in the same design family as the weekender, about 40 by 22 by 22 cm, rolled handles, antique-brass hardware",
+   "brand": "debossed K on side panel"
+  },
+  "P4": {
+   "name": "Toiletry bag · dark brown",
+   "desc": "a dark brown full-grain leather toiletry bag, about 26 by 14 by 14 cm, U-shaped wide-opening antique-brass zip, sand-coloured coated lining, a leather carry loop at one end",
+   "brand": "debossed K on the end panel beside the carry loop; woven KAPTAN label stitched into the lining"
+  },
+  "P5A": {
+   "name": "Wallet · black (him)",
+   "desc": "a slim black full-grain leather bifold wallet with eight card slots, clean painted edges, fine tonal stitching",
+   "brand": "KAPTAN blind-debossed inside the left panel, about 2 cm wide"
+  },
+  "P5B": {
+   "name": "Wallet · deep burgundy (her)",
+   "desc": "a compact deep burgundy leather wallet with a snap closure and card slots, glossy painted edges",
+   "brand": "small gold-foil KAPTAN inside the flap"
+  },
+  "P6A": {
+   "name": "Belt · black formal",
+   "desc": "a 3.5 cm black full-grain leather dress belt with fine edge stitching and a slim polished palladium-tone frame buckle",
+   "brand": "KAPTAN debossed on the belt reverse near the buckle; matte black box with gold-foil KAPTAN"
+  },
+  "P6B": {
+   "name": "Belt · cognac",
+   "desc": "a 3.5 cm cognac full-grain leather belt with edge stitching and a brushed antique-brass buckle",
+   "brand": "KAPTAN debossed on reverse near the buckle"
+  },
+  "P7": {
+   "name": "Jacket · dark chocolate",
+   "desc": "a minimal dark chocolate brown lambskin leather jacket with a soft shirt collar, centre zip in antique brass, two slanted welt pockets, clean cuffs with a short zip, no belts, no studs, no epaulettes, relaxed tailored fit",
+   "brand": "woven KAPTAN label in ivory on charcoal stitched inside the neckline; K engraved on zip puller"
+  }
+ },
+ "cast": {
+  "C1": "Daniel — man, about 32, Mediterranean, short dark hair, trimmed beard; navy unstructured blazer, white oxford shirt, grey wool trousers, brown suede loafers",
+  "C2": "Amara — woman, about 35, Black, natural hair in a low bun, small gold studs; camel wool coat over an ivory knit, charcoal wide-leg trousers",
+  "C3": "Colleague — man, about 40, East Asian, short neat hair, light grey merino sweater over a white tee",
+  "C4": "Lena — woman, about 26, Northern European, shoulder-length light brown hair; olive overshirt, white tee, straight dark jeans, white leather sneakers",
+  "C5": "Sofia — woman, about 30, Latina, dark wavy hair tied back; cream cable-knit, tan trench, ecru trousers",
+  "C6": "Karim — man, about 33, South Asian, short black hair, light stubble; charcoal knit polo, stone chinos, navy overcoat",
+  "C7": "Marco — man, about 42, salt-and-pepper hair, clean shaven; charcoal two-piece suit, white shirt (formal); navy knit, beige trousers (business casual)",
+  "C8": "Elif — woman, about 29, Turkish, dark shoulder-length wavy hair; cream fine-gauge turtleneck, black tailored trousers, the P7 jacket"
+ },
+ "shots": [
+  {
+   "id": 1,
+   "in": 0.0,
+   "out": 2.5,
+   "scene": "1 · Morning",
+   "label": "Macro hook",
+   "camera": "Slow lateral dolly, 100mm macro",
+   "prompt": "Extreme macro of cognac full-grain leather in early morning window light; a slow lateral glide across visible pores and a row of tonal saddle stitching toward a burnished edge, raking warm light reveals texture, dust motes in soft focus. Camera: Slow lateral dolly, 100mm macro. Cinematic premium commercial, shot on large-format digital cinema camera with vintage anamorphic-look primes, warm natural light, soft shadows, shallow depth of field, gentle film grain, restrained warm grade of ivory, walnut, cognac and charcoal, realistic full-grain leather with visible pores, saddle stitching and burnished edges, natural unposed expressions, calm modern European atmosphere, 24fps, 16:9.",
+   "negative": "plastic or glossy faux leather, warped or melting straps, extra handles, extra zippers, inconsistent bag shape, distorted hands, extra fingers, floating objects, any visible text or letters, any logo, oversized branding, sports cars, champagne, jewellery close-ups, exaggerated smiles, posing to camera, crowded frame, whip pans, heavy lens flare",
+   "products": [
+    "P1A"
+   ],
+   "cast": [],
+   "branding": "Track the debossed K into the last 0.8 s as focus lands on it. Better practical: shoot this macro on the real bag."
+  },
+  {
+   "id": 2,
+   "in": 2.5,
+   "out": 5.0,
+   "scene": "1 · Morning",
+   "label": "Pick-up",
+   "camera": "Static wide → slow push in, 35mm",
+   "prompt": "A bright modern apartment with oak herringbone floor and linen curtains; Daniel finishes buttoning his blazer and lifts a slim structured cognac full-grain leather laptop briefcase, about 40 by 29 by 8 cm, two rolled leather top handles, a detachable 3.5 cm leather shoulder strap with antique-brass swivel hooks, one full-length antique-brass zip with a round leather-wrapped pull, a flat front slip pocket, tonal saddle stitching, burnished dark edges from a light oak chair by its two top handles, the bag keeps its rigid shape, morning sun across the room. Camera: Static wide → slow push in, 35mm. Cinematic premium commercial, shot on large-format digital cinema camera with vintage anamorphic-look primes, warm natural light, soft shadows, shallow depth of field, gentle film grain, restrained warm grade of ivory, walnut, cognac and charcoal, realistic full-grain leather with visible pores, saddle stitching and burnished edges, natural unposed expressions, calm modern European atmosphere, 24fps, 16:9.",
+   "negative": "plastic or glossy faux leather, warped or melting straps, extra handles, extra zippers, inconsistent bag shape, distorted hands, extra fingers, floating objects, any visible text or letters, any logo, oversized branding, sports cars, champagne, jewellery close-ups, exaggerated smiles, posing to camera, crowded frame, whip pans, heavy lens flare",
+   "products": [
+    "P1A"
+   ],
+   "cast": [
+    "C1"
+   ],
+   "branding": "Deboss visible small on front panel; composite in post."
+  },
+  {
+   "id": 3,
+   "in": 5.0,
+   "out": 7.0,
+   "scene": "1 · Morning",
+   "label": "Packing insert",
+   "camera": "Top-down, locked off, 50mm, 48fps slowed",
+   "prompt": "Close top-down shot of hands sliding a thin silver laptop into the padded sleeve of an open a slim structured cognac full-grain leather laptop briefcase, about 40 by 29 by 8 cm, two rolled leather top handles, a detachable 3.5 cm leather shoulder strap with antique-brass swivel hooks, one full-length antique-brass zip with a round leather-wrapped pull, a flat front slip pocket, tonal saddle stitching, burnished dark edges, then a black notebook and a coiled white charger, fingers then draw the antique-brass zip closed in one smooth pull, realistic hands and knuckles. Camera: Top-down, locked off, 50mm, 48fps slowed. Cinematic premium commercial, shot on large-format digital cinema camera with vintage anamorphic-look primes, warm natural light, soft shadows, shallow depth of field, gentle film grain, restrained warm grade of ivory, walnut, cognac and charcoal, realistic full-grain leather with visible pores, saddle stitching and burnished edges, natural unposed expressions, calm modern European atmosphere, 24fps, 16:9.",
+   "negative": "plastic or glossy faux leather, warped or melting straps, extra handles, extra zippers, inconsistent bag shape, distorted hands, extra fingers, floating objects, any visible text or letters, any logo, oversized branding, sports cars, champagne, jewellery close-ups, exaggerated smiles, posing to camera, crowded frame, whip pans, heavy lens flare",
+   "products": [
+    "P1A"
+   ],
+   "cast": [
+    "C1"
+   ],
+   "branding": "Brass zip pull with engraved K reads for 10 frames at end of zip pull."
+  },
+  {
+   "id": 4,
+   "in": 7.0,
+   "out": 9.0,
+   "scene": "1 · Morning",
+   "label": "City walk",
+   "camera": "Backward tracking, gimbal, 40mm",
+   "prompt": "Daniel walks out onto a sunny tree-lined European boulevard with pale limestone facades, a slim structured cognac full-grain leather laptop briefcase, about 40 by 29 by 8 cm, two rolled leather top handles, a detachable 3.5 cm leather shoulder strap with antique-brass swivel hooks, one full-length antique-brass zip with a round leather-wrapped pull, a flat front slip pocket, tonal saddle stitching, burnished dark edges carried on its shoulder strap resting naturally at his hip, strap lies flat on the blazer shoulder, relaxed confident stride, soft background pedestrians. Camera: Backward tracking, gimbal, 40mm. Cinematic premium commercial, shot on large-format digital cinema camera with vintage anamorphic-look primes, warm natural light, soft shadows, shallow depth of field, gentle film grain, restrained warm grade of ivory, walnut, cognac and charcoal, realistic full-grain leather with visible pores, saddle stitching and burnished edges, natural unposed expressions, calm modern European atmosphere, 24fps, 16:9.",
+   "negative": "plastic or glossy faux leather, warped or melting straps, extra handles, extra zippers, inconsistent bag shape, distorted hands, extra fingers, floating objects, any visible text or letters, any logo, oversized branding, sports cars, champagne, jewellery close-ups, exaggerated smiles, posing to camera, crowded frame, whip pans, heavy lens flare",
+   "products": [
+    "P1A"
+   ],
+   "cast": [
+    "C1"
+   ],
+   "branding": "None needed; brand already established."
+  },
+  {
+   "id": 5,
+   "in": 9.0,
+   "out": 10.8,
+   "scene": "2 · Urban elegance",
+   "label": "Café arrival",
+   "camera": "Slow dolly right, 35mm",
+   "prompt": "A bright minimalist café co-working space with walnut tables and plants; Amara sets the same slim structured briefcase design in matte black full-grain leather with antique-brass hardware, two rolled top handles, detachable shoulder strap upright on the floor beside her chair and draws out a laptop, she glances up and smiles naturally at a colleague arriving. Camera: Slow dolly right, 35mm. Cinematic premium commercial, shot on large-format digital cinema camera with vintage anamorphic-look primes, warm natural light, soft shadows, shallow depth of field, gentle film grain, restrained warm grade of ivory, walnut, cognac and charcoal, realistic full-grain leather with visible pores, saddle stitching and burnished edges, natural unposed expressions, calm modern European atmosphere, 24fps, 16:9.",
+   "negative": "plastic or glossy faux leather, warped or melting straps, extra handles, extra zippers, inconsistent bag shape, distorted hands, extra fingers, floating objects, any visible text or letters, any logo, oversized branding, sports cars, champagne, jewellery close-ups, exaggerated smiles, posing to camera, crowded frame, whip pans, heavy lens flare",
+   "products": [
+    "P1B"
+   ],
+   "cast": [
+    "C2",
+    "C3"
+   ],
+   "branding": "Brass KAPTAN tag beside handle base; composite."
+  },
+  {
+   "id": 6,
+   "in": 10.8,
+   "out": 12.0,
+   "scene": "2 · Urban elegance",
+   "label": "Detail insert",
+   "camera": "Macro rack focus, 90mm",
+   "prompt": "Macro of a rolled black leather handle meeting the bag body, tonal stitching and an antique-brass ring, focus racks from handle to a small rectangular brushed-brass tag riveted beside it, warm café light. Camera: Macro rack focus, 90mm. Cinematic premium commercial, shot on large-format digital cinema camera with vintage anamorphic-look primes, warm natural light, soft shadows, shallow depth of field, gentle film grain, restrained warm grade of ivory, walnut, cognac and charcoal, realistic full-grain leather with visible pores, saddle stitching and burnished edges, natural unposed expressions, calm modern European atmosphere, 24fps, 16:9.",
+   "negative": "plastic or glossy faux leather, warped or melting straps, extra handles, extra zippers, inconsistent bag shape, distorted hands, extra fingers, floating objects, any visible text or letters, any logo, oversized branding, sports cars, champagne, jewellery close-ups, exaggerated smiles, posing to camera, crowded frame, whip pans, heavy lens flare",
+   "products": [
+    "P1B"
+   ],
+   "cast": [],
+   "branding": "Engrave KAPTAN on the tag in post (plain tag in generation)."
+  },
+  {
+   "id": 7,
+   "in": 12.0,
+   "out": 14.5,
+   "scene": "3 · Everyday city",
+   "label": "Station walk",
+   "camera": "Side tracking, 50mm",
+   "prompt": "Lena walks through a sunlit modern train station concourse with high glass roof, wearing a minimal rectangular tan full-grain leather backpack, about 44 by 30 by 14 cm, top zip opening with antique-brass zip, one vertical front zip pocket, padded leather shoulder straps with brass adjusters, a slim rolled top grab handle on both shoulders, straps sit naturally, backpack moves slightly with each step, she smiles at something off-screen. Camera: Side tracking, 50mm. Cinematic premium commercial, shot on large-format digital cinema camera with vintage anamorphic-look primes, warm natural light, soft shadows, shallow depth of field, gentle film grain, restrained warm grade of ivory, walnut, cognac and charcoal, realistic full-grain leather with visible pores, saddle stitching and burnished edges, natural unposed expressions, calm modern European atmosphere, 24fps, 16:9.",
+   "negative": "plastic or glossy faux leather, warped or melting straps, extra handles, extra zippers, inconsistent bag shape, distorted hands, extra fingers, floating objects, any visible text or letters, any logo, oversized branding, sports cars, champagne, jewellery close-ups, exaggerated smiles, posing to camera, crowded frame, whip pans, heavy lens flare",
+   "products": [
+    "P2"
+   ],
+   "cast": [
+    "C4"
+   ],
+   "branding": "Deboss under front pocket; composite."
+  },
+  {
+   "id": 8,
+   "in": 14.5,
+   "out": 16.5,
+   "scene": "3 · Everyday city",
+   "label": "Unpacking",
+   "camera": "Medium close, slight push, 50mm",
+   "prompt": "Seated on a wooden bench, Lena unzips the top of a minimal rectangular tan full-grain leather backpack, about 44 by 30 by 14 cm, top zip opening with antique-brass zip, one vertical front zip pocket, padded leather shoulder straps with brass adjusters, a slim rolled top grab handle on her lap and lifts out a tablet, a notebook, over-ear headphones and a steel water bottle, unhurried and natural. Camera: Medium close, slight push, 50mm. Cinematic premium commercial, shot on large-format digital cinema camera with vintage anamorphic-look primes, warm natural light, soft shadows, shallow depth of field, gentle film grain, restrained warm grade of ivory, walnut, cognac and charcoal, realistic full-grain leather with visible pores, saddle stitching and burnished edges, natural unposed expressions, calm modern European atmosphere, 24fps, 16:9.",
+   "negative": "plastic or glossy faux leather, warped or melting straps, extra handles, extra zippers, inconsistent bag shape, distorted hands, extra fingers, floating objects, any visible text or letters, any logo, oversized branding, sports cars, champagne, jewellery close-ups, exaggerated smiles, posing to camera, crowded frame, whip pans, heavy lens flare",
+   "products": [
+    "P2"
+   ],
+   "cast": [
+    "C4"
+   ],
+   "branding": "KAPTAN on inner flap visible briefly."
+  },
+  {
+   "id": 9,
+   "in": 16.5,
+   "out": 18.0,
+   "scene": "3 · Everyday city",
+   "label": "Back on",
+   "camera": "Low angle, slow motion",
+   "prompt": "Lena swings a minimal rectangular tan full-grain leather backpack, about 44 by 30 by 14 cm, top zip opening with antique-brass zip, one vertical front zip pocket, padded leather shoulder straps with brass adjusters, a slim rolled top grab handle onto one shoulder and steps out into a bright creative district street, easy smile, warm afternoon light. Camera: Low angle, slow motion. Cinematic premium commercial, shot on large-format digital cinema camera with vintage anamorphic-look primes, warm natural light, soft shadows, shallow depth of field, gentle film grain, restrained warm grade of ivory, walnut, cognac and charcoal, realistic full-grain leather with visible pores, saddle stitching and burnished edges, natural unposed expressions, calm modern European atmosphere, 24fps, 16:9.",
+   "negative": "plastic or glossy faux leather, warped or melting straps, extra handles, extra zippers, inconsistent bag shape, distorted hands, extra fingers, floating objects, any visible text or letters, any logo, oversized branding, sports cars, champagne, jewellery close-ups, exaggerated smiles, posing to camera, crowded frame, whip pans, heavy lens flare",
+   "products": [
+    "P2"
+   ],
+   "cast": [
+    "C4"
+   ],
+   "branding": "—"
+  },
+  {
+   "id": 10,
+   "in": 18.0,
+   "out": 20.5,
+   "scene": "4 · Weekend journey",
+   "label": "Packing",
+   "camera": "Overhead to 3/4, slow crane down",
+   "prompt": "Bright bedroom with white linen bed; Sofia folds a cream knit into an open a large cognac full-grain leather weekender holdall, about 55 by 28 by 28 cm, two rolled handles joined by a leather wrap, detachable wide shoulder strap, antique-brass hardware, four small brass feet, a softly structured body that slumps slightly when set down while Karim tucks a pair of brown suede loafers into the end, then pulls the antique-brass zip closed along the top. Camera: Overhead to 3/4, slow crane down. Cinematic premium commercial, shot on large-format digital cinema camera with vintage anamorphic-look primes, warm natural light, soft shadows, shallow depth of field, gentle film grain, restrained warm grade of ivory, walnut, cognac and charcoal, realistic full-grain leather with visible pores, saddle stitching and burnished edges, natural unposed expressions, calm modern European atmosphere, 24fps, 16:9.",
+   "negative": "plastic or glossy faux leather, warped or melting straps, extra handles, extra zippers, inconsistent bag shape, distorted hands, extra fingers, floating objects, any visible text or letters, any logo, oversized branding, sports cars, champagne, jewellery close-ups, exaggerated smiles, posing to camera, crowded frame, whip pans, heavy lens flare",
+   "products": [
+    "P3A"
+   ],
+   "cast": [
+    "C5",
+    "C6"
+   ],
+   "branding": "—"
+  },
+  {
+   "id": 11,
+   "in": 20.5,
+   "out": 23.0,
+   "scene": "4 · Weekend journey",
+   "label": "Station stride",
+   "camera": "Wide tracking, 48fps slowed",
+   "prompt": "Sofia and Karim walk together through a grand railway station hall with arched iron and glass roof, Karim carries a large cognac full-grain leather weekender holdall, about 55 by 28 by 28 cm, two rolled handles joined by a leather wrap, detachable wide shoulder strap, antique-brass hardware, four small brass feet, a softly structured body that slumps slightly when set down by its handles with ease, Sofia carries a smaller camel full-grain leather holdall in the same design family as the weekender, about 40 by 22 by 22 cm, rolled handles, antique-brass hardware, a leather luggage tag swings gently, sweeping cinematic movement. Camera: Wide tracking, 48fps slowed. Cinematic premium commercial, shot on large-format digital cinema camera with vintage anamorphic-look primes, warm natural light, soft shadows, shallow depth of field, gentle film grain, restrained warm grade of ivory, walnut, cognac and charcoal, realistic full-grain leather with visible pores, saddle stitching and burnished edges, natural unposed expressions, calm modern European atmosphere, 24fps, 16:9.",
+   "negative": "plastic or glossy faux leather, warped or melting straps, extra handles, extra zippers, inconsistent bag shape, distorted hands, extra fingers, floating objects, any visible text or letters, any logo, oversized branding, sports cars, champagne, jewellery close-ups, exaggerated smiles, posing to camera, crowded frame, whip pans, heavy lens flare",
+   "products": [
+    "P3A",
+    "P3B"
+   ],
+   "cast": [
+    "C5",
+    "C6"
+   ],
+   "branding": "Tag face blank in generation; KAPTAN emboss tracked in post."
+  },
+  {
+   "id": 12,
+   "in": 23.0,
+   "out": 24.5,
+   "scene": "4 · Weekend journey",
+   "label": "Luggage tag",
+   "camera": "Macro, 100mm",
+   "prompt": "Macro of a cognac leather luggage tag with a looped leather strap and brass buckle swaying slowly against the side of a cognac leather holdall, sunbeams in the station haze. Camera: Macro, 100mm. Cinematic premium commercial, shot on large-format digital cinema camera with vintage anamorphic-look primes, warm natural light, soft shadows, shallow depth of field, gentle film grain, restrained warm grade of ivory, walnut, cognac and charcoal, realistic full-grain leather with visible pores, saddle stitching and burnished edges, natural unposed expressions, calm modern European atmosphere, 24fps, 16:9.",
+   "negative": "plastic or glossy faux leather, warped or melting straps, extra handles, extra zippers, inconsistent bag shape, distorted hands, extra fingers, floating objects, any visible text or letters, any logo, oversized branding, sports cars, champagne, jewellery close-ups, exaggerated smiles, posing to camera, crowded frame, whip pans, heavy lens flare",
+   "products": [
+    "P3A"
+   ],
+   "cast": [],
+   "branding": "Hero branding moment: embossed KAPTAN on tag face. Strongly recommend a practical shot with the real tag."
+  },
+  {
+   "id": 13,
+   "in": 24.5,
+   "out": 27.0,
+   "scene": "5 · Hotel",
+   "label": "Toiletry bag",
+   "camera": "Slow push in, 50mm",
+   "prompt": "A calm premium hotel bathroom with white Carrara marble counter and brass fixtures; Karim opens a dark brown full-grain leather toiletry bag, about 26 by 14 by 14 cm, U-shaped wide-opening antique-brass zip, sand-coloured coated lining, a leather carry loop at one end wide, revealing a glass fragrance bottle, a bamboo toothbrush, a safety razor and small skincare jars neatly arranged, he lifts out the fragrance. Camera: Slow push in, 50mm. Cinematic premium commercial, shot on large-format digital cinema camera with vintage anamorphic-look primes, warm natural light, soft shadows, shallow depth of field, gentle film grain, restrained warm grade of ivory, walnut, cognac and charcoal, realistic full-grain leather with visible pores, saddle stitching and burnished edges, natural unposed expressions, calm modern European atmosphere, 24fps, 16:9.",
+   "negative": "plastic or glossy faux leather, warped or melting straps, extra handles, extra zippers, inconsistent bag shape, distorted hands, extra fingers, floating objects, any visible text or letters, any logo, oversized branding, sports cars, champagne, jewellery close-ups, exaggerated smiles, posing to camera, crowded frame, whip pans, heavy lens flare",
+   "products": [
+    "P4"
+   ],
+   "cast": [
+    "C6"
+   ],
+   "branding": "K on end panel + woven lining label (composite or practical)."
+  },
+  {
+   "id": 14,
+   "in": 27.0,
+   "out": 29.0,
+   "scene": "6 · Everyday",
+   "label": "Wallet · him",
+   "camera": "Close, 85mm",
+   "prompt": "In a softly lit restaurant, Daniel draws a slim black full-grain leather bifold wallet with eight card slots, clean painted edges, fine tonal stitching from his inside blazer pocket, opens it in one hand and slides out a single plain dark card, focus on the leather and the motion, no cash visible. Camera: Close, 85mm. Cinematic premium commercial, shot on large-format digital cinema camera with vintage anamorphic-look primes, warm natural light, soft shadows, shallow depth of field, gentle film grain, restrained warm grade of ivory, walnut, cognac and charcoal, realistic full-grain leather with visible pores, saddle stitching and burnished edges, natural unposed expressions, calm modern European atmosphere, 24fps, 16:9.",
+   "negative": "plastic or glossy faux leather, warped or melting straps, extra handles, extra zippers, inconsistent bag shape, distorted hands, extra fingers, floating objects, any visible text or letters, any logo, oversized branding, sports cars, champagne, jewellery close-ups, exaggerated smiles, posing to camera, crowded frame, whip pans, heavy lens flare",
+   "products": [
+    "P5A"
+   ],
+   "cast": [
+    "C1"
+   ],
+   "branding": "Blind KAPTAN inside left panel; composite."
+  },
+  {
+   "id": 15,
+   "in": 29.0,
+   "out": 30.5,
+   "scene": "6 · Everyday",
+   "label": "Wallet · her",
+   "camera": "Medium close, 65mm",
+   "prompt": "In a bright boutique with oak shelves, Amara opens a compact deep burgundy leather wallet with a snap closure and card slots, glossy painted edges at the counter and takes out a card, relaxed natural expression. Camera: Medium close, 65mm. Cinematic premium commercial, shot on large-format digital cinema camera with vintage anamorphic-look primes, warm natural light, soft shadows, shallow depth of field, gentle film grain, restrained warm grade of ivory, walnut, cognac and charcoal, realistic full-grain leather with visible pores, saddle stitching and burnished edges, natural unposed expressions, calm modern European atmosphere, 24fps, 16:9.",
+   "negative": "plastic or glossy faux leather, warped or melting straps, extra handles, extra zippers, inconsistent bag shape, distorted hands, extra fingers, floating objects, any visible text or letters, any logo, oversized branding, sports cars, champagne, jewellery close-ups, exaggerated smiles, posing to camera, crowded frame, whip pans, heavy lens flare",
+   "products": [
+    "P5B"
+   ],
+   "cast": [
+    "C2"
+   ],
+   "branding": "Gold-foil KAPTAN inside flap; composite."
+  },
+  {
+   "id": 16,
+   "in": 30.5,
+   "out": 32.5,
+   "scene": "7 · Formal",
+   "label": "Black belt",
+   "camera": "Macro, 100mm",
+   "prompt": "Close on Marco's hands threading a 3.5 cm black full-grain leather dress belt with fine edge stitching and a slim polished palladium-tone frame buckle through the loops of charcoal suit trousers and fastening the polished buckle, crisp white shirt tucked, clean dressing-room light. Camera: Macro, 100mm. Cinematic premium commercial, shot on large-format digital cinema camera with vintage anamorphic-look primes, warm natural light, soft shadows, shallow depth of field, gentle film grain, restrained warm grade of ivory, walnut, cognac and charcoal, realistic full-grain leather with visible pores, saddle stitching and burnished edges, natural unposed expressions, calm modern European atmosphere, 24fps, 16:9.",
+   "negative": "plastic or glossy faux leather, warped or melting straps, extra handles, extra zippers, inconsistent bag shape, distorted hands, extra fingers, floating objects, any visible text or letters, any logo, oversized branding, sports cars, champagne, jewellery close-ups, exaggerated smiles, posing to camera, crowded frame, whip pans, heavy lens flare",
+   "products": [
+    "P6A"
+   ],
+   "cast": [
+    "C7"
+   ],
+   "branding": "Black gift box with gold-foil KAPTAN on the dresser in background."
+  },
+  {
+   "id": 17,
+   "in": 32.5,
+   "out": 34.0,
+   "scene": "7 · Formal",
+   "label": "Cognac belt · full look",
+   "camera": "Mirror reflection, 35mm",
+   "prompt": "In a warm hallway mirror, Marco in a navy knit and beige trousers finishes fastening a 3.5 cm cognac full-grain leather belt with edge stitching and a brushed antique-brass buckle, checks the full look and picks up his keys. Camera: Mirror reflection, 35mm. Cinematic premium commercial, shot on large-format digital cinema camera with vintage anamorphic-look primes, warm natural light, soft shadows, shallow depth of field, gentle film grain, restrained warm grade of ivory, walnut, cognac and charcoal, realistic full-grain leather with visible pores, saddle stitching and burnished edges, natural unposed expressions, calm modern European atmosphere, 24fps, 16:9.",
+   "negative": "plastic or glossy faux leather, warped or melting straps, extra handles, extra zippers, inconsistent bag shape, distorted hands, extra fingers, floating objects, any visible text or letters, any logo, oversized branding, sports cars, champagne, jewellery close-ups, exaggerated smiles, posing to camera, crowded frame, whip pans, heavy lens flare",
+   "products": [
+    "P6B"
+   ],
+   "cast": [
+    "C7"
+   ],
+   "branding": "—"
+  },
+  {
+   "id": 18,
+   "in": 34.0,
+   "out": 36.5,
+   "scene": "8 · Jacket",
+   "label": "Putting it on",
+   "camera": "Medium, slow orbit, 40mm",
+   "prompt": "Golden hour on a quiet European side street; Elif shrugs on a minimal dark chocolate brown lambskin leather jacket with a soft shirt collar, centre zip in antique brass, two slanted welt pockets, clean cuffs with a short zip, no belts, no studs, no epaulettes, relaxed tailored fit, settles the shoulders and turns up the soft collar with both hands. Camera: Medium, slow orbit, 40mm. Cinematic premium commercial, shot on large-format digital cinema camera with vintage anamorphic-look primes, warm natural light, soft shadows, shallow depth of field, gentle film grain, restrained warm grade of ivory, walnut, cognac and charcoal, realistic full-grain leather with visible pores, saddle stitching and burnished edges, natural unposed expressions, calm modern European atmosphere, 24fps, 16:9.",
+   "negative": "plastic or glossy faux leather, warped or melting straps, extra handles, extra zippers, inconsistent bag shape, distorted hands, extra fingers, floating objects, any visible text or letters, any logo, oversized branding, sports cars, champagne, jewellery close-ups, exaggerated smiles, posing to camera, crowded frame, whip pans, heavy lens flare",
+   "products": [
+    "P7"
+   ],
+   "cast": [
+    "C8"
+   ],
+   "branding": "—"
+  },
+  {
+   "id": 19,
+   "in": 36.5,
+   "out": 39.0,
+   "scene": "8 · Jacket",
+   "label": "Evening walk",
+   "camera": "Front tracking, 50mm",
+   "prompt": "Elif walks comfortably along an elegant street at dusk with warm shop windows, wearing a minimal dark chocolate brown lambskin leather jacket with a soft shirt collar, centre zip in antique brass, two slanted welt pockets, clean cuffs with a short zip, no belts, no studs, no epaulettes, relaxed tailored fit open over a cream turtleneck, the leather softly catches the light. Camera: Front tracking, 50mm. Cinematic premium commercial, shot on large-format digital cinema camera with vintage anamorphic-look primes, warm natural light, soft shadows, shallow depth of field, gentle film grain, restrained warm grade of ivory, walnut, cognac and charcoal, realistic full-grain leather with visible pores, saddle stitching and burnished edges, natural unposed expressions, calm modern European atmosphere, 24fps, 16:9.",
+   "negative": "plastic or glossy faux leather, warped or melting straps, extra handles, extra zippers, inconsistent bag shape, distorted hands, extra fingers, floating objects, any visible text or letters, any logo, oversized branding, sports cars, champagne, jewellery close-ups, exaggerated smiles, posing to camera, crowded frame, whip pans, heavy lens flare",
+   "products": [
+    "P7"
+   ],
+   "cast": [
+    "C8"
+   ],
+   "branding": "—"
+  },
+  {
+   "id": 20,
+   "in": 39.0,
+   "out": 41.0,
+   "scene": "8 · Jacket",
+   "label": "Café terrace",
+   "camera": "Medium wide, slow dolly",
+   "prompt": "On a café terrace at blue hour, Elif sits with two friends, wearing a minimal dark chocolate brown lambskin leather jacket with a soft shirt collar, centre zip in antique brass, two slanted welt pockets, clean cuffs with a short zip, no belts, no studs, no epaulettes, relaxed tailored fit, laughing naturally at a story, wine glasses and small plates on the table. Camera: Medium wide, slow dolly. Cinematic premium commercial, shot on large-format digital cinema camera with vintage anamorphic-look primes, warm natural light, soft shadows, shallow depth of field, gentle film grain, restrained warm grade of ivory, walnut, cognac and charcoal, realistic full-grain leather with visible pores, saddle stitching and burnished edges, natural unposed expressions, calm modern European atmosphere, 24fps, 16:9.",
+   "negative": "plastic or glossy faux leather, warped or melting straps, extra handles, extra zippers, inconsistent bag shape, distorted hands, extra fingers, floating objects, any visible text or letters, any logo, oversized branding, sports cars, champagne, jewellery close-ups, exaggerated smiles, posing to camera, crowded frame, whip pans, heavy lens flare",
+   "products": [
+    "P7"
+   ],
+   "cast": [
+    "C8"
+   ],
+   "branding": "—"
+  },
+  {
+   "id": 21,
+   "in": 41.0,
+   "out": 43.0,
+   "scene": "8 · Jacket",
+   "label": "Label macro",
+   "camera": "Macro, 100mm",
+   "prompt": "Macro inside the neckline of a dark chocolate leather jacket: lining, a small woven label stitched at the collar, the antique-brass zip and a cuff seam, warm low light. Camera: Macro, 100mm. Cinematic premium commercial, shot on large-format digital cinema camera with vintage anamorphic-look primes, warm natural light, soft shadows, shallow depth of field, gentle film grain, restrained warm grade of ivory, walnut, cognac and charcoal, realistic full-grain leather with visible pores, saddle stitching and burnished edges, natural unposed expressions, calm modern European atmosphere, 24fps, 16:9.",
+   "negative": "plastic or glossy faux leather, warped or melting straps, extra handles, extra zippers, inconsistent bag shape, distorted hands, extra fingers, floating objects, any visible text or letters, any logo, oversized branding, sports cars, champagne, jewellery close-ups, exaggerated smiles, posing to camera, crowded frame, whip pans, heavy lens flare",
+   "products": [
+    "P7"
+   ],
+   "cast": [],
+   "branding": "Woven ivory-on-charcoal KAPTAN label. Practical insert recommended."
+  },
+  {
+   "id": 22,
+   "in": 43.0,
+   "out": 47.5,
+   "scene": "9 · Family",
+   "label": "Product table",
+   "camera": "Very slow lateral dolly, 65mm",
+   "prompt": "On a long dark walnut table against a warm neutral plaster wall with soft single-source light, a curated still life: a slim structured cognac full-grain leather laptop briefcase, about 40 by 29 by 8 cm, two rolled leather top handles, a detachable 3.5 cm leather shoulder strap with antique-brass swivel hooks, one full-length antique-brass zip with a round leather-wrapped pull, a flat front slip pocket, tonal saddle stitching, burnished dark edges, a minimal rectangular tan full-grain leather backpack, about 44 by 30 by 14 cm, top zip opening with antique-brass zip, one vertical front zip pocket, padded leather shoulder straps with brass adjusters, a slim rolled top grab handle, a large cognac full-grain leather weekender holdall, about 55 by 28 by 28 cm, two rolled handles joined by a leather wrap, detachable wide shoulder strap, antique-brass hardware, four small brass feet, a softly structured body that slumps slightly when set down, a dark brown full-grain leather toiletry bag, about 26 by 14 by 14 cm, U-shaped wide-opening antique-brass zip, sand-coloured coated lining, a leather carry loop at one end, a slim black full-grain leather bifold wallet with eight card slots, clean painted edges, fine tonal stitching, a coiled a 3.5 cm cognac full-grain leather belt with edge stitching and a brushed antique-brass buckle and folded a minimal dark chocolate brown lambskin leather jacket with a soft shirt collar, centre zip in antique brass, two slanted welt pockets, clean cuffs with a short zip, no belts, no studs, no epaulettes, relaxed tailored fit, generous spacing, slow camera glide across textures. Camera: Very slow lateral dolly, 65mm. Cinematic premium commercial, shot on large-format digital cinema camera with vintage anamorphic-look primes, warm natural light, soft shadows, shallow depth of field, gentle film grain, restrained warm grade of ivory, walnut, cognac and charcoal, realistic full-grain leather with visible pores, saddle stitching and burnished edges, natural unposed expressions, calm modern European atmosphere, 24fps, 16:9.",
+   "negative": "plastic or glossy faux leather, warped or melting straps, extra handles, extra zippers, inconsistent bag shape, distorted hands, extra fingers, floating objects, any visible text or letters, any logo, oversized branding, sports cars, champagne, jewellery close-ups, exaggerated smiles, posing to camera, crowded frame, whip pans, heavy lens flare",
+   "products": [
+    "P1A",
+    "P2",
+    "P3A",
+    "P4",
+    "P5A",
+    "P6B",
+    "P7"
+   ],
+   "cast": [],
+   "branding": "Every product carries its mark in correct position; best done as a real tabletop shoot."
+  },
+  {
+   "id": 23,
+   "in": 47.5,
+   "out": 49.5,
+   "scene": "9 · Family",
+   "label": "Top-down",
+   "camera": "Overhead slow push",
+   "prompt": "Overhead flat lay on honed black stone with soft light: a compact deep burgundy leather wallet with a snap closure and card slots, glossy painted edges, a 3.5 cm black full-grain leather dress belt with fine edge stitching and a slim polished palladium-tone frame buckle with its buckle, a dark brown full-grain leather toiletry bag, about 26 by 14 by 14 cm, U-shaped wide-opening antique-brass zip, sand-coloured coated lining, a leather carry loop at one end and the cognac luggage tag, arranged with breathing room. Camera: Overhead slow push. Cinematic premium commercial, shot on large-format digital cinema camera with vintage anamorphic-look primes, warm natural light, soft shadows, shallow depth of field, gentle film grain, restrained warm grade of ivory, walnut, cognac and charcoal, realistic full-grain leather with visible pores, saddle stitching and burnished edges, natural unposed expressions, calm modern European atmosphere, 24fps, 16:9.",
+   "negative": "plastic or glossy faux leather, warped or melting straps, extra handles, extra zippers, inconsistent bag shape, distorted hands, extra fingers, floating objects, any visible text or letters, any logo, oversized branding, sports cars, champagne, jewellery close-ups, exaggerated smiles, posing to camera, crowded frame, whip pans, heavy lens flare",
+   "products": [
+    "P5B",
+    "P6A",
+    "P4",
+    "P3A"
+   ],
+   "cast": [],
+   "branding": "Tag + wallet foil readable."
+  },
+  {
+   "id": 24,
+   "in": 49.5,
+   "out": 50.8,
+   "scene": "10 · Human connection",
+   "label": "Arrival",
+   "camera": "Wide, slow push",
+   "prompt": "Sofia and Karim arrive into a calm elegant hotel lobby with warm stone floors, a large cognac full-grain leather weekender holdall, about 55 by 28 by 28 cm, two rolled handles joined by a leather wrap, detachable wide shoulder strap, antique-brass hardware, four small brass feet, a softly structured body that slumps slightly when set down in hand, they share a relaxed look and smile. Camera: Wide, slow push. Cinematic premium commercial, shot on large-format digital cinema camera with vintage anamorphic-look primes, warm natural light, soft shadows, shallow depth of field, gentle film grain, restrained warm grade of ivory, walnut, cognac and charcoal, realistic full-grain leather with visible pores, saddle stitching and burnished edges, natural unposed expressions, calm modern European atmosphere, 24fps, 16:9.",
+   "negative": "plastic or glossy faux leather, warped or melting straps, extra handles, extra zippers, inconsistent bag shape, distorted hands, extra fingers, floating objects, any visible text or letters, any logo, oversized branding, sports cars, champagne, jewellery close-ups, exaggerated smiles, posing to camera, crowded frame, whip pans, heavy lens flare",
+   "products": [
+    "P3A",
+    "P3B"
+   ],
+   "cast": [
+    "C5",
+    "C6"
+   ],
+   "branding": "—"
+  },
+  {
+   "id": 25,
+   "in": 50.8,
+   "out": 52.0,
+   "scene": "10 · Human connection",
+   "label": "Last stride",
+   "camera": "Tracking, slow motion",
+   "prompt": "Daniel crosses a sunlit square with a slim structured cognac full-grain leather laptop briefcase, about 40 by 29 by 8 cm, two rolled leather top handles, a detachable 3.5 cm leather shoulder strap with antique-brass swivel hooks, one full-length antique-brass zip with a round leather-wrapped pull, a flat front slip pocket, tonal saddle stitching, burnished dark edges on his shoulder and glances back with a small easy smile. Camera: Tracking, slow motion. Cinematic premium commercial, shot on large-format digital cinema camera with vintage anamorphic-look primes, warm natural light, soft shadows, shallow depth of field, gentle film grain, restrained warm grade of ivory, walnut, cognac and charcoal, realistic full-grain leather with visible pores, saddle stitching and burnished edges, natural unposed expressions, calm modern European atmosphere, 24fps, 16:9.",
+   "negative": "plastic or glossy faux leather, warped or melting straps, extra handles, extra zippers, inconsistent bag shape, distorted hands, extra fingers, floating objects, any visible text or letters, any logo, oversized branding, sports cars, champagne, jewellery close-ups, exaggerated smiles, posing to camera, crowded frame, whip pans, heavy lens flare",
+   "products": [
+    "P1A"
+   ],
+   "cast": [
+    "C1"
+   ],
+   "branding": "Hold, then dip to end card."
+  },
+  {
+   "id": 26,
+   "in": 52.0,
+   "out": 60.0,
+   "scene": "Final",
+   "label": "End card",
+   "camera": "Rendered (endcard.html)",
+   "prompt": null,
+   "negative": null,
+   "products": [],
+   "cast": [],
+   "branding": "KAPTAN wordmark → tagline → second line → logo emblem. Already rendered: renders/kaptan-endcard-1080p.webm"
+  }
+ ]
+}

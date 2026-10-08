@@ -1,3 +1,4 @@
+import { CatalogText } from "@/components/common/CatalogText";
 import { ProductFacts } from "@/components/product/ProductFacts";
 import { useEffect, useState } from "react";
 import { createFileRoute, notFound, Link, useNavigate } from "@tanstack/react-router";
@@ -346,7 +347,10 @@ function ProductDetailPage() {
           {product.categories && (
             <>
               {" "}
-              / <span className="text-gold/70">{product.categories.name}</span>
+              /{" "}
+              <span className="text-gold/70">
+                <CatalogText text={product.categories.name} />
+              </span>
             </>
           )}
         </nav>
@@ -415,15 +419,15 @@ function ProductDetailPage() {
 
           <div>
             <p className="text-xs uppercase tracking-[0.2em] text-gold/70">
-              {product.categories?.name ?? t("pdp.defaultCategory")}
+              <CatalogText text={product.categories?.name ?? t("pdp.defaultCategory")} />
             </p>
 
             <h1 className="mt-2 font-serif text-3xl font-semibold text-white md:text-4xl">
-              {product.name}
+              <CatalogText text={product.name} />
             </h1>
 
             <p className="mt-3 text-sm leading-relaxed text-white/60">
-              {product.short_description}
+              <CatalogText text={product.short_description} />
             </p>
 
             <ProductFacts
@@ -486,7 +490,7 @@ function ProductDetailPage() {
             {variants.length > 0 && (
               <div className="mt-6">
                 <h3 className="mb-2 text-xs uppercase tracking-wider text-gold/70">
-                  {variants[0].variant_type}
+                  <CatalogText text={variants[0].variant_type} />
                 </h3>
 
                 <div className="flex flex-wrap gap-2">
@@ -502,7 +506,7 @@ function ProductDetailPage() {
                           : "border-gold/30 text-white hover:border-gold"
                       } disabled:opacity-40`}
                     >
-                      {v.variant_value}
+                      <CatalogText text={v.variant_value} />
                     </button>
                   ))}
                 </div>
@@ -590,7 +594,7 @@ function ProductDetailPage() {
                   {t("pdp.descriptionDetails")}
                 </h3>
                 <p className="whitespace-pre-line text-sm leading-relaxed text-white/70">
-                  {product.full_description}
+                  <CatalogText text={product.full_description} />
                 </p>
               </div>
             )}
@@ -669,7 +673,7 @@ function ProductDetailPage() {
                         className="accent-gold"
                       />
                       <p className="max-w-[90px] text-center text-xs text-white/70">
-                        {companion.name}
+                        <CatalogText text={companion.name} />
                       </p>
                       <Price
                         amount={Number(companion.price)}

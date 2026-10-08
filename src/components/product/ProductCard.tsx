@@ -1,3 +1,4 @@
+import { CatalogText } from "@/components/common/CatalogText";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useQueryClient } from "@tanstack/react-query";
@@ -100,7 +101,7 @@ export function ProductCard({ product }: ProductCardProps) {
         </Link>
 
         <span className="absolute bottom-2 left-2 max-w-[90%] rounded-full bg-black/80 px-2.5 py-1 text-[10px] font-medium text-white">
-          {categoryName}
+          <CatalogText text={categoryName} />
         </span>
 
         <button
@@ -115,11 +116,13 @@ export function ProductCard({ product }: ProductCardProps) {
       <div className="flex flex-1 flex-col p-3 sm:p-4">
         <h3 className="font-serif text-base font-medium text-white transition-colors group-hover:text-gold">
           <Link to="/products/$slug" params={{ slug: product.slug }}>
-            {product.name}
+            <CatalogText text={product.name} />
           </Link>
         </h3>
 
-        <p className="mt-1 line-clamp-1 text-sm text-white/70">{product.short_description}</p>
+        <p className="mt-1 line-clamp-1 text-sm text-white/70">
+          <CatalogText text={product.short_description} />
+        </p>
 
         <ProductFacts
           specifications={product.specifications}

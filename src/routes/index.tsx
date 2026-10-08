@@ -1,3 +1,4 @@
+import { CatalogText } from "@/components/common/CatalogText";
 import { useEffect, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { queryOptions, useSuspenseQuery, useQuery } from "@tanstack/react-query";
@@ -133,8 +134,8 @@ function HomePage() {
 
     try {
       setSubscribing(true);
-      const result = await subscribeFn({ data: { email: newsletterEmail } });
-      toast.success(result.message);
+      await subscribeFn({ data: { email: newsletterEmail } });
+      toast.success(t("home.subscribedToast"));
       setNewsletterEmail("");
     } catch (err) {
       toast.error(err instanceof Error ? err.message : t("home.subscriptionFailedToast"));
@@ -193,7 +194,7 @@ function HomePage() {
                     params={{ slug: heroProduct.slug }}
                     className="font-serif text-lg text-white hover:text-gold"
                   >
-                    {heroProduct.name}
+                    <CatalogText text={heroProduct.name} />
                   </Link>
                   <Price amount={heroProduct.price} className="shrink-0 font-semibold text-gold" />
                 </div>
@@ -241,7 +242,7 @@ function HomePage() {
                 search={{ category: category.slug }}
                 className="rounded-full border border-gold/25 px-4 py-2 text-sm text-white/70 transition-colors hover:border-gold hover:text-gold"
               >
-                {category.name}
+                <CatalogText text={category.name} />
               </Link>
             ))}
         </nav>

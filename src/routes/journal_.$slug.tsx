@@ -1,3 +1,4 @@
+import { CatalogText } from "@/components/common/CatalogText";
 import { createFileRoute, notFound, Link } from "@tanstack/react-router";
 import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
 import { ArrowLeft } from "lucide-react";
@@ -55,10 +56,12 @@ function JournalPostPage() {
         </Link>
 
         {post.category && (
-          <p className="mt-8 text-xs uppercase tracking-[0.2em] text-gold">{post.category}</p>
+          <p className="mt-8 text-xs uppercase tracking-[0.2em] text-gold">
+            <CatalogText text={post.category} />
+          </p>
         )}
         <h1 className="mt-3 font-serif text-4xl font-semibold text-white md:text-5xl">
-          {post.title}
+          <CatalogText text={post.title} />
         </h1>
         <p className="mt-4 text-sm text-white/40">
           {post.author_name} · {formatDate(post.published_at, i18n.language)}
@@ -77,7 +80,7 @@ function JournalPostPage() {
         <div className="mt-10 space-y-6">
           {paragraphs.map((p, i) => (
             <p key={i} className="leading-relaxed text-white/80">
-              {p}
+              <CatalogText text={p} />
             </p>
           ))}
         </div>

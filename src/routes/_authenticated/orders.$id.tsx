@@ -1,3 +1,4 @@
+import { CatalogText } from "@/components/common/CatalogText";
 import { useAuthStore } from "@/stores/authStore";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
@@ -134,10 +135,13 @@ function OrderDetailPage() {
               {t("orderDetail.paymentTitle")}
             </h3>
             <p className="mt-2 text-sm capitalize text-white">
-              {order.payment_method.replace("_", " ")}
+              {order.payment_method === "paypal" ? "PayPal" : t("checkout.cardLabel")}
             </p>
             <p className="text-xs capitalize text-white/60">
-              {t("orderDetail.paymentStatusPrefix")} {order.payment_status}
+              {t("orderDetail.paymentStatusPrefix")}{" "}
+              {t(`paymentStatus.${order.payment_status}`, {
+                defaultValue: t("paymentStatus.unknown"),
+              })}
             </p>
           </div>
         </div>
@@ -157,7 +161,7 @@ function OrderDetailPage() {
               {order.order_items.map((item) => (
                 <tr key={item.id} className="border-b border-gold/5 last:border-0">
                   <td className="p-3 text-white">
-                    {item.product_name}
+                    <CatalogText text={item.product_name} />
                     {item.variant_info && (
                       <span className="block text-xs text-gold-dark">{item.variant_info}</span>
                     )}

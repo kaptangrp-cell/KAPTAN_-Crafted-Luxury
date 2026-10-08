@@ -1,7 +1,6 @@
 {
   "header": {
-    "craftedTag": "Quality in every detail · Everyday elegance",
-    "changeCurrency": "Change display currency"
+    "craftedTag": "Quality in every detail · Everyday elegance"
   },
   "nav": {
     "home": "Home",
@@ -112,7 +111,8 @@
     "collectionEyebrow": "The KAPTAN collection",
     "qualityLabel": "Quality in the details",
     "styleLabel": "Your signature style",
-    "durabilityLabel": "Made for everyday life"
+    "durabilityLabel": "Made for everyday life",
+    "subscribedToast": "Thank you! Your newsletter subscription is confirmed."
   },
   "faq": {
     "title": "Frequently Asked Questions",
@@ -185,7 +185,8 @@
     "send": "Send Message",
     "sending": "Sending...",
     "success": "Message sent. We'll be in touch soon.",
-    "error": "Could not send message"
+    "error": "Could not send message",
+    "locationValue": "Marburg, Germany"
   },
   "whatsapp": {
     "label": "Chat with us on WhatsApp",
@@ -236,7 +237,6 @@
     "paypalDescEnabled": "Pay with your PayPal balance, card, or bank account.",
     "paypalDescComingSoon": "Coming soon — pay with your PayPal account.",
     "orderNotesSection": "Order Notes (optional)",
-    "chargedInEurNote": "≈ {{amount}} — you're charged in EUR",
     "placingOrder": "Placing order...",
     "placeOrder": "Place Order",
     "agreeTerms": "By placing this order you agree to our terms.",
@@ -674,5 +674,37 @@
     "use": "Ideal for",
     "dimensions": "Size",
     "care": "Care"
+  },
+  "common": {
+    "notFound": "Page not found",
+    "notFoundBody": "The page you are looking for does not exist or has been moved.",
+    "goHome": "Go home",
+    "loadFailed": "This page could not be loaded",
+    "loadFailedBody": "Please try again or return to the homepage.",
+    "tryAgain": "Try again",
+    "close": "Close",
+    "previous": "Previous",
+    "next": "Next",
+    "more": "More",
+    "morePages": "More pages",
+    "pagination": "Pagination",
+    "breadcrumb": "Breadcrumb",
+    "previousSlide": "Previous slide",
+    "nextSlide": "Next slide",
+    "sidebar": "Sidebar",
+    "sidebarBody": "Navigation menu",
+    "toggleSidebar": "Toggle navigation"
+  },
+  "paymentStatus": {
+    "pending": "Pending",
+    "paid": "Paid",
+    "unpaid": "Unpaid",
+    "failed": "Failed",
+    "refunded": "Refunded",
+    "partially_refunded": "Partially refunded",
+    "cancelled": "Cancelled",
+    "completed": "Completed",
+    "processing": "Processing",
+    "unknown": "Not available"
   }
 }

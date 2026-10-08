@@ -87,7 +87,7 @@ function ContactPage() {
                 <p className="text-xs uppercase tracking-wider text-gold/70">
                   {t("contact.workshop")}
                 </p>
-                <p className="text-sm text-white">Marburg, Germany</p>
+                <p className="text-sm text-white">{t("contact.locationValue")}</p>
               </div>
             </div>
           </div>

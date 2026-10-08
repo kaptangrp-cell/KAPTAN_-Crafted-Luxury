@@ -1,3 +1,4 @@
+import { CatalogText } from "@/components/common/CatalogText";
 import { useAuthStore } from "@/stores/authStore";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
@@ -95,7 +96,7 @@ function WishlistPage() {
                         params={{ slug: p.slug }}
                         className="font-serif text-sm text-white hover:text-gold"
                       >
-                        {p.name}
+                        <CatalogText text={p.name} />
                       </Link>
                       <p className="mt-1 font-mono text-sm text-gold">
                         <Price amount={Number(p.price)} />

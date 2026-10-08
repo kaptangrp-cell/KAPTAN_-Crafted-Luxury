@@ -1,13 +1,13 @@
 import { useEffect, useRef, useState } from "react";
 import { Link, useNavigate } from "@tanstack/react-router";
-import { Search, Heart, ShoppingBag, Menu, X, User, Sun, Moon, Globe, LogOut } from "lucide-react";
+import { Search, Heart, ShoppingBag, Menu, X, User, Sun, Moon, LogOut } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuthStore } from "@/stores/authStore";
 import { useUIStore } from "@/stores/uiStore";
 import { useCartStore } from "@/stores/cartStore";
 import { usePreferencesStore } from "@/stores/preferencesStore";
-import { CurrencySwitcher } from "@/components/layout/CurrencySwitcher";
+import { LanguageSwitcher } from "@/components/layout/LanguageSwitcher";
 
 const INACTIVITY_LIMIT = 15 * 60 * 1000;
 
@@ -23,9 +23,7 @@ export function Header() {
 
   const navigate = useNavigate();
   const { t } = useTranslation();
-  const { theme, toggleTheme, language, setLanguage } = usePreferencesStore();
-
-  const nextLang = language === "en" ? "de" : "en";
+  const { theme, toggleTheme } = usePreferencesStore();
 
   const userName =
     profile?.full_name || user?.user_metadata?.full_name || user?.email?.split("@")[0] || "Account";
@@ -137,17 +135,7 @@ export function Header() {
             <Search size={20} />
           </button>
 
-          <button
-            onClick={() => setLanguage(nextLang)}
-            className="hidden items-center gap-1 p-1 text-xs font-semibold uppercase text-gold/80 transition-colors hover:text-gold sm:flex"
-            aria-label={t("language.switch")}
-            title={t("language.switch")}
-          >
-            <Globe size={16} />
-            <span>{language.toUpperCase()}</span>
-          </button>
-
-          <CurrencySwitcher className="hidden sm:block" />
+          <LanguageSwitcher />
 
           <button
             onClick={toggleTheme}
@@ -248,15 +236,6 @@ export function Header() {
                 {item.label}
               </Link>
             ))}
-
-            <button
-              onClick={() => setLanguage(nextLang)}
-              className="flex items-center gap-2 text-sm font-medium text-gold/80 hover:text-gold"
-            >
-              <Globe size={16} /> {language === "en" ? t("language.de") : t("language.en")}
-            </button>
-
-            <CurrencySwitcher />
 
             {!user && (
               <Link

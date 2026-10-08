@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>KAPTAN End Card</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;1,400&family=Inter:wght@300;400&display=swap">
+<style>
+  /* KAPTAN brand film — closing card. 8.0 s, 1920×1080. Every animation is
+     driven by the Web Animations clock so render.mjs can scrub frame-exactly. */
+  :root {
+    --ground: #141210;      /* site --ink */
+    --ground-lift: #221d18; /* warm pool of light */
+    --ivory: #f7f4ec;
+    --gold: #d4a325;
+    --gold-soft: #c9a227;
+    --serif: "Playfair Display", Georgia, "Times New Roman", serif;
+    --sans: "Inter", "Helvetica Neue", Arial, sans-serif;
+  }
+  html, body { margin: 0; background: var(--ground); }
+  .stage {
+    position: relative; width: 1920px; height: 1080px; overflow: hidden;
+    background: radial-gradient(60% 70% at 50% 46%, var(--ground-lift) 0%, var(--ground) 70%);
+    color: var(--ivory); font-family: var(--sans);
+  }
+  /* fine leather-like grain, generated on canvas */
+  #grain { position: absolute; inset: 0; opacity: .16; mix-blend-mode: overlay; }
+  .vignette { position: absolute; inset: 0; background: radial-gradient(75% 75% at 50% 50%, transparent 55%, rgba(0,0,0,.65) 100%); }
+
+  .lockup { position: absolute; inset: 0; display: grid; place-items: center; }
+  .stack { display: flex; flex-direction: column; align-items: center; }
+
+  .wordmark {
+    font-family: var(--serif); font-weight: 400; font-size: 132px; line-height: 1;
+    letter-spacing: .34em; margin-right: -.34em; /* optical centre for tracking */
+    color: var(--ivory);
+    background: linear-gradient(100deg, var(--ivory) 0%, var(--ivory) 42%, #fff6dc 50%, var(--ivory) 58%, var(--ivory) 100%);
+    background-size: 300% 100%; -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+  }
+  .rule { width: 220px; height: 1px; margin: 46px 0 40px; background: linear-gradient(90deg, transparent, var(--gold), transparent); transform-origin: center; }
+  .tagline { font-family: var(--serif); font-style: italic; font-size: 46px; letter-spacing: .01em; color: var(--ivory); }
+  .subline { margin-top: 26px; font-size: 20px; font-weight: 300; letter-spacing: .32em; text-transform: uppercase; color: rgba(247,244,236,.62); margin-right: -.32em; }
+
+  .emblem { position: absolute; inset: 0; display: grid; place-items: center; }
+  .emblem img { width: 300px; height: 300px; mix-blend-mode: screen; } /* drops the PNG's black square onto the warm ground */
+
+  .fade { position: absolute; inset: 0; background: #000; pointer-events: none; }
+</style>
+</head>
+<body>
+<div class="stage" id="stage">
+  <canvas id="grain" width="960" height="540"></canvas>
+  <div class="vignette"></div>
+
+  <div class="lockup" id="lockup">
+    <div class="stack">
+      <div class="wordmark" id="wordmark">KAPTAN</div>
+      <div class="rule" id="rule"></div>
+      <div class="tagline" id="tagline">Crafted for the Journey. Designed for Life.</div>
+      <div class="subline" id="subline">Leather essentials for work, travel and everyday life</div>
+    </div>
+  </div>
+
+  <div class="emblem" id="emblem"><img src="assets/kaptan-logo.png" alt="KAPTAN logo"></div>
+  <div class="fade" id="fade"></div>
+</div>
+
+<script>
+  // grain: static luminance noise, slightly stretched so it reads as hide, not TV static
+  (function () {
+    const c = document.getElementById('grain'), x = c.getContext('2d');
+    const img = x.createImageData(c.width, c.height);
+    let s = 7;
+    const rnd = () => (s = (s * 16807) % 2147483647) / 2147483647;
+    for (let i = 0; i < img.data.length; i += 4) {
+      const v = 110 + rnd() * 90;
+      img.data[i] = v; img.data[i + 1] = v * .96; img.data[i + 2] = v * .9; img.data[i + 3] = 255;
+    }
+    x.putImageData(img, 0, 0);
+  })();
+
+  const TOTAL = 8000;
+  const E = 'cubic-bezier(.22,.61,.36,1)';
+  const $ = id => document.getElementById(id);
+  const at = (el, frames, start, dur, easing = E, fill = 'both') =>
+    el.animate(frames, { delay: start, duration: dur, easing, fill });
+
+  // 0.0–0.9  lift from black
+  at($('fade'), [{ opacity: 1 }, { opacity: 0 }], 0, 900, 'ease-out');
+  // 0.5–2.9  wordmark: tracking settles, light rakes across like a lamp over grain
+  at($('wordmark'), [{ opacity: 0, letterSpacing: '.62em', marginRight: '-.62em', filter: 'blur(6px)' },
+                     { opacity: 1, letterSpacing: '.34em', marginRight: '-.34em', filter: 'blur(0)' }], 500, 2200);
+  at($('wordmark'), [{ backgroundPosition: '100% 0' }, { backgroundPosition: '0% 0' }], 1400, 1800, 'ease-in-out');
+  // 2.2–3.0  gold rule draws out from centre
+  at($('rule'), [{ transform: 'scaleX(0)', opacity: 0 }, { transform: 'scaleX(1)', opacity: 1 }], 2200, 900);
+  // 2.7–3.9  tagline
+  at($('tagline'), [{ opacity: 0, transform: 'translateY(10px)' }, { opacity: 1, transform: 'none' }], 2700, 1200);
+  // 3.7–4.7  second line
+  at($('subline'), [{ opacity: 0 }, { opacity: 1 }], 3700, 1000);
+  // 5.6–6.5  lockup gives way to the emblem
+  at($('lockup'), [{ opacity: 1, transform: 'scale(1)' }, { opacity: 0, transform: 'scale(.985)' }], 5600, 900, 'ease-in');
+  at($('emblem'), [{ opacity: 0, transform: 'scale(.96)' }, { opacity: 1, transform: 'scale(1)' }], 6100, 1100);
+  // 7.4–8.0  out to black
+  at($('fade'), [{ opacity: 0 }, { opacity: 1 }], 7400, 600, 'ease-in', 'forwards');
+
+  // render.mjs scrubs with window.seek(ms); in a browser it just plays (and loops)
+  window.TOTAL = TOTAL;
+  window.seek = ms => document.getAnimations().forEach(a => { a.pause(); a.currentTime = ms; });
+  if (!new URLSearchParams(location.search).has('render')) {
+    const t0 = performance.now();
+    const loop = () => { window.seek((performance.now() - t0) % (TOTAL + 1200)); requestAnimationFrame(loop); };
+    requestAnimationFrame(loop);
+  }
+</script>
+</body>
+</html>

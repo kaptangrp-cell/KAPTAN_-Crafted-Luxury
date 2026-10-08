@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { useAuth } from "@/hooks/useAuth";
 import { useCartStore } from "@/stores/cartStore";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -17,9 +18,6 @@ import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/react";
 import i18n from "@/lib/i18n";
 import { usePreferencesStore } from "@/stores/preferencesStore";
-import { useCurrencyStore } from "@/stores/currencyStore";
-import { detectVisitorCountry } from "@/lib/currency.functions";
-import { detectCurrencyFromCountry, detectCurrencyFromLocale } from "@/lib/currency";
 import { WhatsAppButton } from "@/components/layout/WhatsAppButton";
 import { logVisit } from "@/lib/analytics.functions";
 
@@ -48,20 +46,21 @@ const organizationJsonLd = {
 import { reportLovableError } from "../lib/lovable-error-reporting";
 
 function NotFoundComponent() {
+  const { t } = useTranslation();
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
       <div className="max-w-md text-center">
         <h1 className="font-serif text-7xl font-bold text-foreground">404</h1>
-        <h2 className="mt-4 font-serif text-xl font-semibold text-foreground">Page not found</h2>
-        <p className="mt-2 text-sm text-muted-foreground">
-          The page you're looking for doesn't exist or has been moved.
-        </p>
+        <h2 className="mt-4 font-serif text-xl font-semibold text-foreground">
+          {t("common.notFound")}
+        </h2>
+        <p className="mt-2 text-sm text-muted-foreground">{t("common.notFoundBody")}</p>
         <div className="mt-6">
           <Link
             to="/"
             className="inline-flex items-center justify-center bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90"
           >
-            Go home
+            {t("common.goHome")}
           </Link>
         </div>
       </div>
@@ -70,6 +69,7 @@ function NotFoundComponent() {
 }
 
 function ErrorComponent({ error, reset }: ErrorComponentProps) {
+  const { t } = useTranslation();
   console.error(error);
   const router = useRouter();
 
@@ -81,11 +81,9 @@ function ErrorComponent({ error, reset }: ErrorComponentProps) {
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
       <div className="max-w-md text-center">
         <h1 className="font-serif text-xl font-semibold tracking-tight text-foreground">
-          This page didn't load
+          {t("common.loadFailed")}
         </h1>
-        <p className="mt-2 text-sm text-muted-foreground">
-          Something went wrong on our end. You can try refreshing or head back home.
-        </p>
+        <p className="mt-2 text-sm text-muted-foreground">{t("common.loadFailedBody")}</p>
         <div className="mt-6 flex flex-wrap justify-center gap-2">
           <button
             onClick={() => {
@@ -94,13 +92,13 @@ function ErrorComponent({ error, reset }: ErrorComponentProps) {
             }}
             className="inline-flex items-center justify-center bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90"
           >
-            Try again
+            {t("common.tryAgain")}
           </button>
           <a
             href="/"
             className="inline-flex items-center justify-center border border-input bg-background px-4 py-2 text-sm font-semibold text-foreground transition-colors hover:bg-accent"
           >
-            Go home
+            {t("common.goHome")}
           </a>
         </div>
       </div>
@@ -183,26 +181,6 @@ function RootComponent() {
       document.documentElement.lang = language;
       if (i18n.language !== language) i18n.changeLanguage(language);
       usePreferencesStore.setState({ hasHydrated: true });
-    });
-  }, []);
-
-  // Currency: rehydrate the shopper's explicit choice (if any), then — only
-  // when they haven't picked one — detect a sensible default for this
-  // session from Vercel's edge geo header, falling back to browser locale
-  // when that header isn't present (local dev / non-Vercel hosting).
-  useEffect(() => {
-    useCurrencyStore.persist.rehydrate()?.then(async () => {
-      useCurrencyStore.setState({ hasHydrated: true });
-
-      if (useCurrencyStore.getState().userCurrency) return;
-
-      try {
-        const { country } = await detectVisitorCountry();
-        const fromGeo = detectCurrencyFromCountry(country);
-        useCurrencyStore.getState().setDetectedCurrency(fromGeo ?? detectCurrencyFromLocale());
-      } catch {
-        useCurrencyStore.getState().setDetectedCurrency(detectCurrencyFromLocale());
-      }
     });
   }, []);
 

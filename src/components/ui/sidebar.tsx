@@ -1,3 +1,4 @@
+import { Trans } from "react-i18next";
 import * as React from "react";
 import { Slot } from "@radix-ui/react-slot";
 import { cva, type VariantProps } from "class-variance-authority";
@@ -201,8 +202,12 @@ const Sidebar = React.forwardRef<
             side={side}
           >
             <SheetHeader className="sr-only">
-              <SheetTitle>Sidebar</SheetTitle>
-              <SheetDescription>Displays the mobile sidebar.</SheetDescription>
+              <SheetTitle>
+                <Trans i18nKey="common.sidebar" />
+              </SheetTitle>
+              <SheetDescription>
+                <Trans i18nKey="common.sidebarBody" />
+              </SheetDescription>
             </SheetHeader>
             <div className="flex h-full w-full flex-col">{children}</div>
           </SheetContent>
@@ -277,7 +282,9 @@ const SidebarTrigger = React.forwardRef<
       {...props}
     >
       <PanelLeft />
-      <span className="sr-only">Toggle Sidebar</span>
+      <span className="sr-only">
+        <Trans i18nKey="common.toggleSidebar" />
+      </span>
     </Button>
   );
 });

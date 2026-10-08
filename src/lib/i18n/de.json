@@ -1,7 +1,6 @@
 {
   "header": {
-    "craftedTag": "Qualität bis ins Detail · Eleganz im Alltag",
-    "changeCurrency": "Anzeigewährung ändern"
+    "craftedTag": "Qualität bis ins Detail · Eleganz im Alltag"
   },
   "nav": {
     "home": "Startseite",
@@ -112,7 +111,8 @@
     "collectionEyebrow": "Die KAPTAN Kollektion",
     "qualityLabel": "Qualität bis ins Detail",
     "styleLabel": "Ihr persönlicher Stil",
-    "durabilityLabel": "Für den Alltag gemacht"
+    "durabilityLabel": "Für den Alltag gemacht",
+    "subscribedToast": "Vielen Dank! Ihre Newsletter-Anmeldung ist bestätigt."
   },
   "faq": {
     "title": "Häufig gestellte Fragen",
@@ -185,7 +185,8 @@
     "send": "Nachricht senden",
     "sending": "Wird gesendet...",
     "success": "Nachricht gesendet. Wir melden uns bald.",
-    "error": "Nachricht konnte nicht gesendet werden"
+    "error": "Nachricht konnte nicht gesendet werden",
+    "locationValue": "Marburg, Deutschland"
   },
   "whatsapp": {
     "label": "Chatten Sie mit uns auf WhatsApp",
@@ -236,7 +237,6 @@
     "paypalDescEnabled": "Zahle mit deinem PayPal-Guthaben, Karte oder Bankkonto.",
     "paypalDescComingSoon": "Demnächst verfügbar — zahle mit deinem PayPal-Konto.",
     "orderNotesSection": "Bestellhinweise (optional)",
-    "chargedInEurNote": "≈ {{amount}} — die Abbuchung erfolgt in EUR",
     "placingOrder": "Bestellung wird aufgegeben...",
     "placeOrder": "Bestellung aufgeben",
     "agreeTerms": "Mit der Bestellung akzeptierst du unsere AGB.",
@@ -674,5 +674,37 @@
     "use": "Ideal für",
     "dimensions": "Größe",
     "care": "Pflege"
+  },
+  "common": {
+    "notFound": "Seite nicht gefunden",
+    "notFoundBody": "Die gesuchte Seite existiert nicht oder wurde verschoben.",
+    "goHome": "Zur Startseite",
+    "loadFailed": "Diese Seite konnte nicht geladen werden",
+    "loadFailedBody": "Bitte versuchen Sie es erneut oder kehren Sie zur Startseite zurück.",
+    "tryAgain": "Erneut versuchen",
+    "close": "Schließen",
+    "previous": "Zurück",
+    "next": "Weiter",
+    "more": "Mehr",
+    "morePages": "Weitere Seiten",
+    "pagination": "Seitennavigation",
+    "breadcrumb": "Navigationspfad",
+    "previousSlide": "Vorherige Folie",
+    "nextSlide": "Nächste Folie",
+    "sidebar": "Seitenleiste",
+    "sidebarBody": "Navigationsmenü",
+    "toggleSidebar": "Navigation umschalten"
+  },
+  "paymentStatus": {
+    "pending": "Ausstehend",
+    "paid": "Bezahlt",
+    "unpaid": "Unbezahlt",
+    "failed": "Fehlgeschlagen",
+    "refunded": "Erstattet",
+    "partially_refunded": "Teilweise erstattet",
+    "cancelled": "Storniert",
+    "completed": "Abgeschlossen",
+    "processing": "In Bearbeitung",
+    "unknown": "Nicht verfügbar"
   }
 }

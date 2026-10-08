@@ -32,6 +32,7 @@ export const usePreferencesStore = create<PreferencesState>()(
         get().setTheme(next);
       },
       setLanguage: (language) => {
+        if (language !== "en" && language !== "de") return;
         set({ language });
         i18n.changeLanguage(language);
         if (typeof document !== "undefined") {
@@ -44,6 +45,14 @@ export const usePreferencesStore = create<PreferencesState>()(
       // Skip auto-rehydration so first client render matches SSR defaults.
       // Hydration is triggered explicitly from a useEffect in the root component.
       skipHydration: true,
+      merge: (persisted, current) => {
+        const saved = (persisted ?? {}) as Partial<PreferencesState>;
+        return {
+          ...current,
+          theme: saved.theme === "light" ? "light" : "dark",
+          language: saved.language === "de" ? "de" : "en",
+        };
+      },
     },
   ),
 );

@@ -1,3 +1,4 @@
+import { CatalogText } from "@/components/common/CatalogText";
 import { Link } from "@tanstack/react-router";
 import { X, Minus, Plus, Trash2, Lock } from "lucide-react";
 import { useTranslation } from "react-i18next";
@@ -56,7 +57,9 @@ export function CartDrawer() {
                     />
                     <div className="flex flex-1 flex-col justify-between">
                       <div>
-                        <p className="font-serif text-sm font-medium text-white">{item.name}</p>
+                        <p className="font-serif text-sm font-medium text-white">
+                          <CatalogText text={item.name} />
+                        </p>
                         {item.variantLabel && (
                           <p className="text-xs text-gold-dark">{item.variantLabel}</p>
                         )}

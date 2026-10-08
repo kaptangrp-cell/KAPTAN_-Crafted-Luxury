@@ -229,7 +229,11 @@ function AdminOrdersPage() {
 
                 <td className="p-3 font-mono text-white">€{Number(o.total).toFixed(2)}</td>
 
-                <td className="p-3 text-xs capitalize text-white/70">{o.payment_status}</td>
+                <td className="p-3 text-xs capitalize text-white/70">
+                  {t(`paymentStatus.${o.payment_status}`, {
+                    defaultValue: t("paymentStatus.unknown"),
+                  })}
+                </td>
 
                 <td className="p-3">
                   <select

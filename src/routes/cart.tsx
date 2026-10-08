@@ -1,3 +1,4 @@
+import { CatalogText } from "@/components/common/CatalogText";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Minus, Plus, Trash2 } from "lucide-react";
 import { useTranslation } from "react-i18next";
@@ -39,7 +40,9 @@ function CartPage() {
                   <img src={item.imageUrl} alt={item.name} className="h-24 w-24 object-cover" />
                   <div className="flex flex-1 flex-col justify-between">
                     <div>
-                      <h3 className="font-serif text-white">{item.name}</h3>
+                      <h3 className="font-serif text-white">
+                        <CatalogText text={item.name} />
+                      </h3>
                       {item.variantLabel && (
                         <p className="text-xs text-gold-dark">{item.variantLabel}</p>
                       )}

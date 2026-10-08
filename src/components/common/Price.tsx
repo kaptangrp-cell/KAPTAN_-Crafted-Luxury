@@ -1,12 +1,7 @@
-import { useDisplayPrice } from "@/hooks/useCurrency";
+import { useTranslation } from "react-i18next";
+import { formatEuro } from "@/lib/currency";
 
-/**
- * Renders a EUR amount converted into the shopper's display currency.
- * Pulled out as its own component (rather than calling useDisplayPrice
- * inline) so it's safe to use inside .map() loops without violating the
- * rules of hooks — each <Price/> instance owns its own hook call.
- */
 export function Price({ amount, className }: { amount: number; className?: string }) {
-  const { formatted } = useDisplayPrice(amount);
-  return <span className={className}>{formatted}</span>;
+  const { i18n } = useTranslation();
+  return <span className={className}>{formatEuro(amount, i18n.language)}</span>;
 }

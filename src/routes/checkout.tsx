@@ -19,7 +19,6 @@ import {
 } from "@/lib/payments.functions";
 import { getMyAddresses, saveAddress, rememberPaymentMethod } from "@/lib/profile.functions";
 import { getStripeJs } from "@/lib/payments/stripe-client";
-import { useDisplayPrice } from "@/hooks/useCurrency";
 import {
   prepareAttempt,
   recordAttemptOrder,
@@ -206,7 +205,7 @@ const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const PAYMENT_METHODS = ["cod", "bank_transfer", "card", "paypal"] as const;
 
 function CheckoutPage() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const { items, subtotal, removeItem, updateQuantity, clearCart } = useCartStore();
   const { user, profile } = useAuthStore();
@@ -243,7 +242,6 @@ function CheckoutPage() {
   const total = subtotal();
   const shipping = total > 50 ? 0 : 5.99;
   const grandTotal = total + shipping;
-  const grandTotalEstimate = useDisplayPrice(grandTotal);
 
   const { data: addressesData } = useQuery({
     queryKey: ["my-addresses", user?.id],
@@ -630,7 +628,8 @@ function CheckoutPage() {
                   >
                     {COUNTRIES.map((c) => (
                       <option key={c.code} value={c.code} className="bg-[#1A1A1A]">
-                        {c.name}
+                        {new Intl.DisplayNames([i18n.language], { type: "region" }).of(c.code) ??
+                          c.name}
                       </option>
                     ))}
                   </select>
@@ -798,13 +797,6 @@ function CheckoutPage() {
                 <dt>{t("cart.total")}</dt>
                 <dd className="font-mono text-gold">€{grandTotal.toFixed(2)}</dd>
               </div>
-              {grandTotalEstimate.isConverted && (
-                <div className="flex justify-end">
-                  <span className="text-xs text-white/40">
-                    {t("checkout.chargedInEurNote", { amount: grandTotalEstimate.formatted })}
-                  </span>
-                </div>
-              )}
             </dl>
 
             <button
