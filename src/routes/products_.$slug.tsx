@@ -1,3 +1,4 @@
+import { ProductFacts } from "@/components/product/ProductFacts";
 import { useEffect, useState } from "react";
 import { createFileRoute, notFound, Link, useNavigate } from "@tanstack/react-router";
 import { queryOptions, useSuspenseQuery, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -107,6 +108,7 @@ function ProductDetailPage() {
     compare_at_price: number | null;
     short_description: string | null;
     full_description: string | null;
+    specifications: unknown;
     stock_quantity: number | null;
     is_available: boolean | null;
     tags: string[] | null;
@@ -423,6 +425,11 @@ function ProductDetailPage() {
             <p className="mt-3 text-sm leading-relaxed text-white/60">
               {product.short_description}
             </p>
+
+            <ProductFacts
+              specifications={product.specifications}
+              variants={product.product_variants}
+            />
 
             {reviewSummary.count > 0 && (
               <a href="#reviews" className="mt-3 flex w-fit items-center gap-2 hover:opacity-80">

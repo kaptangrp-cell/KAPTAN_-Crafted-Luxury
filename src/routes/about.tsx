@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
 import { PageLayout } from "@/components/layout/PageLayout";
 
@@ -8,13 +8,13 @@ export const Route = createFileRoute("/about")({
       { title: "About — KAPTAN" },
       {
         name: "description",
-        content:
-          "The story behind KAPTAN — premium leather goods and authentic Himalayan salt lamps.",
+        content: "Discover KAPTAN: quality, durability and elegance for your everyday.",
       },
       { property: "og:title", content: "About KAPTAN" },
       {
         property: "og:description",
-        content: "Heritage craftsmanship from Pakistan, shipped worldwide.",
+        content:
+          "Refined leather accessories and home accents. Quality with purpose, style with character.",
       },
     ],
   }),
@@ -37,6 +37,14 @@ function AboutPage() {
         </div>
       </section>
 
+      <div className="mx-auto max-w-6xl px-4">
+        <img
+          src="/banners/leather-bags.webp"
+          alt={t("home.leatherProducts")}
+          className="max-h-[400px] w-full rounded-2xl object-cover"
+          loading="lazy"
+        />
+      </div>
       <section className="mx-auto grid max-w-6xl gap-12 px-4 py-16 md:grid-cols-2 md:px-6">
         <div>
           <h2 className="font-serif text-3xl text-white">{t("about.leatherTitle")}</h2>
@@ -50,18 +58,21 @@ function AboutPage() {
 
       <section className="border-y border-gold/10 bg-[#0D0D0D] py-16">
         <div className="mx-auto grid max-w-5xl gap-8 px-4 text-center md:grid-cols-3">
-          {[
-            { v: "10,000+", l: t("about.statHappy") },
-            { v: "300+", l: t("about.statYears") },
-            { v: "100%", l: t("about.statAuthentic") },
-          ].map((s) => (
-            <div key={s.l}>
-              <p className="font-serif text-4xl text-gold">{s.v}</p>
-              <p className="mt-2 text-xs uppercase tracking-wider text-white/60">{s.l}</p>
+          {["quality", "style", "durability"].map((value) => (
+            <div key={value} className="rounded-xl border border-gold/15 p-6">
+              <h3 className="font-serif text-2xl text-gold">{t(`about.${value}Title`)}</h3>
+              <p className="mt-3 text-sm leading-relaxed text-white/70">
+                {t(`about.${value}Body`)}
+              </p>
             </div>
           ))}
         </div>
       </section>
+      <div className="py-12 text-center">
+        <Link to="/products" className="inline-block bg-gold px-8 py-3 font-semibold text-black">
+          {t("home.heroShopNow")}
+        </Link>
+      </div>
     </PageLayout>
   );
 }

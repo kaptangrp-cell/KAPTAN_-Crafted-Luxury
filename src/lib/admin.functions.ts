@@ -1,5 +1,5 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
-import type { Database } from "@/integrations/supabase/types";
+import type { Database, Json } from "@/integrations/supabase/types";
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
@@ -303,6 +303,7 @@ export const adminListProducts = createServerFn({ method: "GET" })
         cost_price,
         short_description,
         full_description,
+        specifications,
         stock_quantity,
         is_available,
         is_featured,
@@ -323,6 +324,17 @@ const MediaItemSchema = z.object({
   sort_order: z.number().int().min(0),
 });
 
+const ProductSpecificationValue: z.ZodType<Json> = z.lazy(() =>
+  z.union([
+    z.string().max(5000),
+    z.number(),
+    z.boolean(),
+    z.null(),
+    z.array(ProductSpecificationValue),
+    z.record(ProductSpecificationValue),
+  ]),
+);
+
 const ProductSchema = z.object({
   id: z.string().uuid().nullable().optional(),
   name: z.string().min(1).max(200),
@@ -334,6 +346,7 @@ const ProductSchema = z.object({
   category_id: z.string().uuid().nullable(),
   short_description: z.string().max(500).nullable(),
   full_description: z.string().max(5000).nullable(),
+  specifications: z.record(ProductSpecificationValue).optional(),
   price: z.number().min(0),
   compare_at_price: z.number().min(0).nullable(),
   cost_price: z.number().min(0).nullable(),

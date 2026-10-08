@@ -1,6 +1,6 @@
 {
   "header": {
-    "craftedTag": "Crafted in Pakistan · Shipped from Germany",
+    "craftedTag": "Quality in every detail · Everyday elegance",
     "changeCurrency": "Change display currency"
   },
   "nav": {
@@ -29,7 +29,7 @@
     "de": "Deutsch"
   },
   "footer": {
-    "tagline": "Crafted to Last. Lit to Inspire. Premium leather goods and authentic Himalayan salt lamps.",
+    "tagline": "Refined leather accessories and warm home lighting. Quality, character and everyday elegance.",
     "shop": "Shop",
     "allProducts": "All Products",
     "leatherWallets": "Leather Wallets",
@@ -48,28 +48,28 @@
     "followUs": "Follow us"
   },
   "home": {
-    "heroLine1": "Crafted Leather.",
-    "heroLine2": "Himalayan Light.",
-    "heroSubtitle": "Handcrafted leather goods & authentic Himalayan salt lamps — built for those who value the finest things.",
+    "heroLine1": "Everyday elegance.",
+    "heroLine2": "Lasting style.",
+    "heroSubtitle": "Discover leather essentials and home accents that bring refined style and practical detail to your everyday.",
     "shopLeather": "Shop Leather",
     "discoverSaltLamps": "Discover Salt Lamps",
     "secureCheckout": "Secure Checkout",
     "secureCheckoutDesc": "Encrypted payments",
-    "handcrafted": "Handcrafted Quality",
-    "handcraftedDesc": "Artisan made",
+    "handcrafted": "Considered details",
+    "handcraftedDesc": "Style with purpose",
     "fastDelivery": "Fast Delivery",
     "fastDeliveryDesc": "3–5 business days",
-    "sustainable": "Sustainably Sourced",
-    "sustainableDesc": "Ethical materials",
+    "sustainable": "Timeless design",
+    "sustainableDesc": "Beyond seasonal trends",
     "collectionsTitle": "Explore Our Collections",
     "leatherProducts": "Leather Products",
-    "himalayanSaltLamps": "Himalayan Salt Lamps",
+    "himalayanSaltLamps": "Salt lamps",
     "shopNow": "Shop Now →",
-    "bestSellers": "Best Sellers",
-    "storyTitle": "The KAPTAN Story",
-    "storyP1": "KAPTAN was born from a deep respect for craftsmanship and the natural world. Our journey began in the foothills of the Himalayas, where we discovered the warm, healing glow of authentic salt crystals.",
-    "storyP2": "We partner with master leather artisans who have honed their craft for generations, using only the finest full-grain hides and traditional techniques. Every stitch tells a story of patience and precision.",
-    "storyP3": "Our mission is simple: to bring you products that are not just beautiful, but built to last a lifetime.",
+    "bestSellers": "Discover the collection",
+    "storyTitle": "Style with substance",
+    "storyP1": "Refined accessories and warm home accents, chosen for everyday living.",
+    "storyP2": "Explore materials, finishes and practical details on each product page.",
+    "storyP3": "Our focus: quality, durability and effortless elegance.",
     "learnMore": "Learn More →",
     "testimonialsTitle": "What Our Customers Say",
     "newsletterTitle": "Join the KAPTAN Circle",
@@ -83,11 +83,11 @@
     "t3Quote": "Fast shipping and the leather bag exceeded my expectations. The smell of real leather is intoxicating.",
     "t3Product": "Weekender Duffel Bag",
     "manifestoEyebrow": "Our Philosophy",
-    "manifestoLine": "We don't chase trends — we chase things that outlast them. Every hide is hand-selected, every lamp hand-carved, made for people who'd rather own one exceptional object than ten forgettable ones.",
+    "manifestoLine": "A focus on quality, lasting style and the details you use every day.",
     "journeyEyebrow": "Our Craft",
-    "step1Label": "Origin",
-    "step2Label": "Craft",
-    "step3Label": "Promise",
+    "step1Label": "Quality",
+    "step2Label": "Style",
+    "step3Label": "Everyday use",
     "heroSlide1Title": "Premium Leather Bags",
     "heroSlide1Subtitle": "New arrivals crafted for daily elegance.",
     "heroSlide2Title": "Luxury Leather Belts",
@@ -98,8 +98,8 @@
     "heroSlide4Subtitle": "Bold style for every season.",
     "heroShopNow": "Shop Now",
     "goToSlideAriaLabel": "Go to slide {{number}}",
-    "fullGrainLeather": "Full-Grain Leather",
-    "handCarvedKhewraSalt": "Hand-Carved · Khewra Salt",
+    "fullGrainLeather": "Leather essentials",
+    "handCarvedKhewraSalt": "Warm light · Natural character",
     "justForYou": "Just For You",
     "recommendedForYou": "Recommended For You",
     "videoTitle": "KAPTAN leather craft demo video",
@@ -108,7 +108,11 @@
     "subscribing": "Subscribing...",
     "subscriptionFailedToast": "Subscription failed",
     "availableCollection": "Discover the pieces currently available in our collection.",
-    "exploreCollection": "Discover KAPTAN"
+    "exploreCollection": "Discover KAPTAN",
+    "collectionEyebrow": "The KAPTAN collection",
+    "qualityLabel": "Quality in the details",
+    "styleLabel": "Your signature style",
+    "durabilityLabel": "Made for everyday life"
   },
   "faq": {
     "title": "Frequently Asked Questions",
@@ -150,17 +154,23 @@
     "p3": "You can request deletion of your account and data at any time by contacting us."
   },
   "about": {
-    "kicker": "Our Story",
-    "titlePart1": "Crafted to Last.",
-    "titlePart2": "Lit to Inspire.",
-    "intro": "KAPTAN is a tribute to mastery — bringing together the timeless art of Pakistani leatherwork and the natural beauty of authentic Himalayan salt, mined from the heart of the Khewra range.",
-    "leatherTitle": "Heritage Leather",
-    "leatherBody": "Each piece is hand-stitched by master craftsmen in Sialkot — a city renowned for centuries-old leather traditions. We use full-grain, vegetable-tanned hides that age into one-of-a-kind patinas.",
-    "saltTitle": "Authentic Salt Lamps",
-    "saltBody": "Our salt lamps are sourced directly from Pakistan's Khewra mine — the world's second-largest salt mine. Every lamp is hand-carved, giving it a unique shape and warm glow.",
+    "kicker": "The KAPTAN standard",
+    "titlePart1": "Quality with purpose.",
+    "titlePart2": "Style with character.",
+    "intro": "KAPTAN brings together refined style, practical design and a focus on durability. Discover pieces that complement your wardrobe and your home.",
+    "leatherTitle": "Your everyday signature",
+    "leatherBody": "Explore leather accessories for work, travel and daily essentials. Compare materials, colours and details to find the piece that fits your routine.",
+    "saltTitle": "A warmer space",
+    "saltBody": "Bring a soft glow and natural texture to your favourite corner. Explore sizes and finishes to find the right accent for your home.",
     "statHappy": "Happy Customers",
     "statYears": "Years of Craft",
-    "statAuthentic": "Authentic"
+    "statAuthentic": "Authentic",
+    "qualityTitle": "Quality",
+    "qualityBody": "A focus on materials, finish and the details that matter.",
+    "styleTitle": "Elegance",
+    "styleBody": "Clean lines and expressive details for your personal style.",
+    "durabilityTitle": "Durability",
+    "durabilityBody": "Everyday function, with care information to help you look after your purchase."
   },
   "contact": {
     "kicker": "Contact",
@@ -657,5 +667,12 @@
     "coverImageLabel": "Cover Image",
     "publishedCheckboxLabel": "Published (visible on the storefront)",
     "orPasteImageUrl": "Or paste an image URL"
+  },
+  "productFacts": {
+    "material": "Material",
+    "colors": "Colours",
+    "use": "Ideal for",
+    "dimensions": "Size",
+    "care": "Care"
   }
 }

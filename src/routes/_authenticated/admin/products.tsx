@@ -1,3 +1,4 @@
+import type { Json } from "@/integrations/supabase/types";
 import { useState } from "react";
 import type { ReactNode } from "react";
 import { createFileRoute } from "@tanstack/react-router";
@@ -35,6 +36,7 @@ type ProductRow = {
   cost_price: number | null;
   short_description: string | null;
   full_description: string | null;
+  specifications: Json;
   stock_quantity: number;
   is_available: boolean | null;
   is_featured: boolean | null;
@@ -69,6 +71,7 @@ const empty = {
   category_id: null as string | null,
   short_description: "",
   full_description: "",
+  specifications: {} as Record<string, Json | undefined>,
   price: 0,
   compare_at_price: null as number | null,
   cost_price: null as number | null,
@@ -109,6 +112,7 @@ function AdminProductsPage() {
           category_id: form.category_id || null,
           short_description: form.short_description || null,
           full_description: form.full_description || null,
+          specifications: form.specifications as Record<string, Json>,
           price: Number(form.price),
           compare_at_price: form.compare_at_price ? Number(form.compare_at_price) : null,
           cost_price: form.cost_price ? Number(form.cost_price) : null,
@@ -159,6 +163,10 @@ function AdminProductsPage() {
       category_id: p.category_id,
       short_description: p.short_description ?? "",
       full_description: p.full_description ?? "",
+      specifications:
+        p.specifications && typeof p.specifications === "object" && !Array.isArray(p.specifications)
+          ? p.specifications
+          : {},
       price: Number(p.price),
       compare_at_price: p.compare_at_price ? Number(p.compare_at_price) : null,
       cost_price: p.cost_price ? Number(p.cost_price) : null,
@@ -598,6 +606,45 @@ function AdminProductsPage() {
                 className="w-full border border-gold/20 bg-[#0D0D0D] px-3 py-2 text-sm text-white"
               />
             </label>
+
+            {[
+              { key: "Material", label: "material" },
+              { key: "Colour", label: "colors" },
+              { key: "Use", label: "use" },
+              { key: "Dimensions", label: "dimensions" },
+              { key: "Care", label: "care" },
+            ].map(({ key, label }) => {
+              const existingKey =
+                Object.keys(editing.specifications).find(
+                  (name) =>
+                    name.toLowerCase() === key.toLowerCase() ||
+                    (key === "Colour" && name.toLowerCase() === "color"),
+                ) ?? key;
+              const value = editing.specifications[existingKey];
+              return (
+                <label key={key} className="block">
+                  <span className="mb-1 block text-xs uppercase tracking-wider text-gold/70">
+                    {t(`productFacts.${label}`)}
+                  </span>
+                  <input
+                    maxLength={500}
+                    value={
+                      typeof value === "string" || typeof value === "number" ? String(value) : ""
+                    }
+                    onChange={(event) =>
+                      setEditing({
+                        ...editing,
+                        specifications: {
+                          ...editing.specifications,
+                          [existingKey]: event.target.value,
+                        },
+                      })
+                    }
+                    className="w-full border border-gold/20 bg-[#0D0D0D] px-3 py-2 text-sm text-white"
+                  />
+                </label>
+              );
+            })}
 
             <div className="md:col-span-2">
               <div className="mb-3 flex items-center justify-between">

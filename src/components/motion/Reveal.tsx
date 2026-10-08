@@ -1,4 +1,4 @@
-import { motion } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
 
 /**
  * Scroll-reveal wrapper (fade + rise on first viewport entry). Shared
@@ -14,12 +14,13 @@ export function Reveal({
   className?: string;
   delay?: number;
 }) {
+  const reducedMotion = useReducedMotion();
   return (
     <motion.div
-      initial={{ opacity: 0, y: 28 }}
+      initial={reducedMotion ? false : { opacity: 0, y: 16 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: "-80px" }}
-      transition={{ duration: 0.7, ease: "easeOut", delay }}
+      transition={{ duration: reducedMotion ? 0 : 0.4, ease: "easeOut", delay }}
       className={className}
     >
       {children}

@@ -3,7 +3,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { queryOptions, useSuspenseQuery, useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
-import { ChevronDown, ShieldCheck, Hand, Truck, Leaf, Play } from "lucide-react";
+import { ArrowUpRight, ShieldCheck, Gem, ShoppingBag, Sparkles } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import {
   getFeaturedProducts,
@@ -16,9 +16,8 @@ import { subscribeNewsletter } from "@/lib/newsletter.functions";
 import { getRecentlyViewedIds } from "@/lib/recentlyViewed";
 import { ProductCard } from "@/components/product/ProductCard";
 import { PageLayout } from "@/components/layout/PageLayout";
+import { Price } from "@/components/common/Price";
 import { Reveal } from "@/components/motion/Reveal";
-
-const YOUTUBE_ID = "E_rwyu6cdmc";
 
 const featuredQueryOptions = queryOptions({
   queryKey: ["featured-products"],
@@ -54,10 +53,11 @@ function recommendedQueryOptions(categoryIds: string[], excludeIds: string[]) {
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "KAPTAN — Crafted to Last. Lit to Inspire." },
+      { title: "KAPTAN — Everyday Elegance. Lasting Style." },
       {
         name: "description",
-        content: "Premium handcrafted leather products and authentic Himalayan salt lamps.",
+        content:
+          "Discover quality leather accessories and warm home lighting. Refined style, practical details and everyday elegance.",
       },
     ],
   }),
@@ -72,35 +72,22 @@ export const Route = createFileRoute("/")({
 function HomePage() {
   const { t } = useTranslation();
   const { data: featuredData } = useSuspenseQuery(featuredQueryOptions);
-  useSuspenseQuery(categoriesQueryOptions);
+  const { data: categoryData } = useSuspenseQuery(categoriesQueryOptions);
   const { data: featuredReviewsData } = useQuery(featuredReviewsQueryOptions);
 
   const subscribeFn = useServerFn(subscribeNewsletter);
   const [newsletterEmail, setNewsletterEmail] = useState("");
   const [subscribing, setSubscribing] = useState(false);
-  const [activeSlide, setActiveSlide] = useState(0);
-  const [heroPaused, setHeroPaused] = useState(false);
-  const [videoPlaying, setVideoPlaying] = useState(false);
-
   const featuredProducts = featuredData?.products ?? [];
-  const availableHeroProducts = featuredProducts
-    .filter((p) => p.is_available && (p.stock_quantity ?? 0) > 0 && p.product_images?.length)
-    .slice(0, 4);
-  const heroSlides = availableHeroProducts.length
-    ? availableHeroProducts.map((p) => ({
-        image:
-          p.product_images?.find((i) => i.media_type !== "video")?.url ??
-          "/banners/leather-bags.jpg",
-        title: p.name,
-        subtitle: t("home.availableCollection"),
-      }))
-    : [
-        {
-          image: "/banners/leather-bags.jpg",
-          title: t("home.exploreCollection"),
-          subtitle: t("footer.tagline"),
-        },
-      ];
+  const heroProduct = featuredProducts.find(
+    (p) =>
+      p.is_available &&
+      p.stock_quantity > 0 &&
+      p.product_images?.some((image) => image.media_type !== "video"),
+  );
+  const heroImage = heroProduct?.product_images
+    ?.filter((image) => image.media_type !== "video")
+    .sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0))[0]?.url;
 
   const [recentIds, setRecentIds] = useState<string[]>([]);
 
@@ -141,18 +128,6 @@ function HomePage() {
 
   const testimonials = realTestimonials;
 
-  useEffect(() => {
-    const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-
-    if (prefersReducedMotion || heroPaused) return;
-
-    const timer = window.setInterval(() => {
-      setActiveSlide((current) => (current + 1) % heroSlides.length);
-    }, 4000);
-
-    return () => window.clearInterval(timer);
-  }, [heroPaused, heroSlides.length]);
-
   async function handleNewsletterSubmit(e: React.FormEvent) {
     e.preventDefault();
 
@@ -168,170 +143,142 @@ function HomePage() {
     }
   }
 
-  const slide = heroSlides[activeSlide % heroSlides.length];
-
   return (
     <PageLayout>
-      <section
-        className="media-hero relative min-h-[80vh] overflow-hidden bg-black"
-        onMouseEnter={() => setHeroPaused(true)}
-        onMouseLeave={() => setHeroPaused(false)}
-        onFocus={() => setHeroPaused(true)}
-        onBlur={() => setHeroPaused(false)}
-      >
-        <Link to="/products" className="absolute inset-0 block">
-          {heroSlides.map((s, index) => (
-            <picture key={s.image}>
-              <img
-                src={s.image}
-                alt={s.title}
-                width={2200}
-                height={1467}
-                fetchPriority={index === 0 ? "high" : "low"}
-                loading={index === 0 ? "eager" : "lazy"}
-                decoding="async"
-                className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-700 ${
-                  index === activeSlide ? "opacity-70" : "opacity-0"
-                }`}
-              />
-            </picture>
-          ))}
-          <div className="absolute inset-0 bg-black/60" />
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,oklch(0.86_0.18_95/0.12),transparent_70%)]" />
-        </Link>
-
-        <div className="relative z-10 flex min-h-[80vh] items-center justify-center px-4 text-center">
-          <div className="max-w-4xl">
-            <p className="mb-4 text-sm font-bold uppercase tracking-[0.4em] text-gold">KAPTAN</p>
-
-            <h1 className="font-serif text-4xl font-bold leading-tight text-white md:text-6xl lg:text-7xl">
-              {slide.title}
-            </h1>
-
-            <p className="mx-auto mt-6 max-w-xl text-base leading-relaxed text-white/90 md:text-lg">
-              {slide.subtitle}
+      <section className="border-b border-gold/15 bg-[#0D0D0D]">
+        <div className="mx-auto grid max-w-7xl items-center gap-8 px-4 py-10 md:grid-cols-2 md:px-6 md:py-14">
+          <div className="max-w-lg">
+            <p className="text-xs font-semibold uppercase tracking-[0.3em] text-gold">
+              {t("home.collectionEyebrow")}
             </p>
-
-            <div className="mx-auto mt-6 h-px w-24 bg-gold/40" />
-
-            <div className="mt-8 flex flex-col items-center justify-center gap-4 sm:flex-row">
-              <Link
-                to="/products"
-                className="bg-gold px-8 py-3 font-semibold text-black transition-colors hover:bg-gold-vivid"
-              >
-                {t("home.heroShopNow")}
-              </Link>
-              <Link
-                to="/products"
-                className="border border-gold px-8 py-3 font-semibold text-gold transition-colors hover:bg-gold hover:text-black"
-              >
-                {t("products.viewAllProducts")}
-              </Link>
+            <h1 className="mt-4 font-serif text-4xl leading-tight text-white md:text-6xl">
+              {t("home.heroLine1")} <span className="text-gold">{t("home.heroLine2")}</span>
+            </h1>
+            <p className="mt-5 max-w-md text-base leading-relaxed text-white/70">
+              {t("home.heroSubtitle")}
+            </p>
+            <Link
+              to="/products"
+              className="mt-7 inline-flex items-center gap-4 bg-gold px-7 py-3.5 font-semibold text-black transition-colors hover:bg-gold-vivid"
+            >
+              {t("home.heroShopNow")}
+              <ArrowUpRight size={18} />
+            </Link>
+            <div className="mt-8 flex flex-wrap gap-x-5 gap-y-2 text-xs text-white/60">
+              <span>{t("home.qualityLabel")}</span>
+              <span>{t("home.styleLabel")}</span>
+              <span>{t("home.durabilityLabel")}</span>
             </div>
-
-            <div className="mt-8 flex justify-center gap-2">
-              {heroSlides.map((s, index) => (
-                <button
-                  key={s.image}
-                  onClick={() => setActiveSlide(index)}
-                  className={`h-2 rounded-full transition-all ${
-                    index === activeSlide ? "w-8 bg-gold" : "w-2 bg-white/40"
-                  }`}
-                  aria-label={t("home.goToSlideAriaLabel", { number: index + 1 })}
+          </div>
+          <div className="overflow-hidden rounded-2xl border border-gold/15 bg-[#1A1A1A]">
+            {heroProduct && heroImage ? (
+              <>
+                <Link
+                  to="/products/$slug"
+                  params={{ slug: heroProduct.slug }}
+                  className="block bg-[#f3f0eb]"
+                >
+                  <img
+                    src={heroImage}
+                    alt={heroProduct.name}
+                    width={700}
+                    height={520}
+                    fetchPriority="high"
+                    className="aspect-[4/3] w-full object-contain p-6 transition-transform duration-500 motion-safe:hover:scale-[1.03]"
+                  />
+                </Link>
+                <div className="flex items-center justify-between gap-4 p-5">
+                  <Link
+                    to="/products/$slug"
+                    params={{ slug: heroProduct.slug }}
+                    className="font-serif text-lg text-white hover:text-gold"
+                  >
+                    {heroProduct.name}
+                  </Link>
+                  <Price amount={heroProduct.price} className="shrink-0 font-semibold text-gold" />
+                </div>
+              </>
+            ) : (
+              <Link to="/products" className="block">
+                <img
+                  src="/banners/leather-bags.webp"
+                  alt={t("home.leatherProducts")}
+                  width={700}
+                  height={520}
+                  fetchPriority="high"
+                  className="aspect-[4/3] w-full object-cover"
                 />
-              ))}
-            </div>
-
-            <div className="mt-10 animate-bounce text-gold">
-              <ChevronDown size={24} className="mx-auto" />
-            </div>
+              </Link>
+            )}
           </div>
         </div>
       </section>
 
-      <section className="bg-black px-4 py-24 md:px-6">
-        <Reveal className="mx-auto max-w-3xl text-center">
-          <p className="text-xs font-bold uppercase tracking-[0.4em] text-gold">
-            {t("home.manifestoEyebrow")}
-          </p>
-          <p className="mt-6 font-serif text-2xl font-medium leading-snug text-white/90 md:text-3xl lg:text-4xl">
-            {t("home.manifestoLine")}
-          </p>
-          <div className="mx-auto mt-8 h-px w-16 bg-gold/40" />
-        </Reveal>
+      <section className="mx-auto max-w-7xl px-4 py-10 md:px-6">
+        <div className="mb-7 flex flex-wrap items-end justify-between gap-4">
+          <h2 className="font-serif text-3xl text-white">{t("home.bestSellers")}</h2>
+          <Link to="/products" className="inline-flex items-center gap-2 text-sm text-gold">
+            {t("products.viewAllProducts")}
+            <ArrowUpRight size={16} />
+          </Link>
+        </div>
+        <nav
+          aria-label={t("home.collectionsTitle")}
+          className="mb-8 flex gap-2 overflow-x-auto pb-2 [&>a]:shrink-0"
+        >
+          <Link
+            to="/products"
+            className="rounded-full bg-gold px-4 py-2 text-sm font-medium text-black"
+          >
+            {t("footer.allProducts")}
+          </Link>
+          {(categoryData?.categories ?? [])
+            .filter((category) => !category.parent_id)
+            .map((category) => (
+              <Link
+                key={category.id}
+                to="/products"
+                search={{ category: category.slug }}
+                className="rounded-full border border-gold/25 px-4 py-2 text-sm text-white/70 transition-colors hover:border-gold hover:text-gold"
+              >
+                {category.name}
+              </Link>
+            ))}
+        </nav>
+        <div className="grid grid-cols-2 gap-3 sm:gap-6 lg:grid-cols-4">
+          {featuredProducts.map((product, index) => (
+            <Reveal key={product.id} delay={Math.min(index, 3) * 0.06}>
+              <ProductCard product={product} />
+            </Reveal>
+          ))}
+        </div>
+        {!featuredProducts.length && (
+          <Link
+            to="/products"
+            className="block rounded-xl border border-gold/20 p-8 text-center text-gold"
+          >
+            {t("home.exploreCollection")} →
+          </Link>
+        )}
       </section>
 
-      <section className="border-y border-gold/10 bg-[#1A1A1A]">
-        <div className="mx-auto grid max-w-7xl grid-cols-2 gap-6 px-4 py-8 md:grid-cols-4 md:divide-x md:divide-gold/10 md:px-6">
+      <section className="border-y border-gold/10 bg-[#0D0D0D]">
+        <div className="mx-auto grid max-w-7xl grid-cols-2 gap-6 px-4 py-7 md:grid-cols-4 md:px-6">
           {[
-            {
-              icon: ShieldCheck,
-              label: t("home.secureCheckout"),
-              desc: t("home.secureCheckoutDesc"),
-            },
-            { icon: Hand, label: t("home.handcrafted"), desc: t("home.handcraftedDesc") },
-            { icon: Truck, label: t("home.fastDelivery"), desc: t("home.fastDeliveryDesc") },
-            { icon: Leaf, label: t("home.sustainable"), desc: t("home.sustainableDesc") },
-          ].map((b) => (
-            <div key={b.label} className="flex flex-col items-center gap-1 text-center md:py-2">
-              <b.icon size={24} className="text-gold" strokeWidth={1.5} />
-              <span className="mt-1 text-sm font-semibold text-white">{b.label}</span>
-              <span className="text-xs text-gold/60">{b.desc}</span>
+            { icon: Gem, label: "qualityLabel" },
+            { icon: Sparkles, label: "styleLabel" },
+            { icon: ShoppingBag, label: "durabilityLabel" },
+            { icon: ShieldCheck, label: "secureCheckout" },
+          ].map(({ icon: Icon, label }) => (
+            <div
+              key={label}
+              className="flex items-center justify-center gap-3 text-sm text-white/70"
+            >
+              <Icon size={20} className="shrink-0 text-gold" strokeWidth={1.5} />
+              {t(`home.${label}`)}
             </div>
           ))}
         </div>
-      </section>
-
-      <section className="bg-black">
-        <Reveal className="grid md:grid-cols-2">
-          <Link
-            to="/products"
-            className="media-hero group relative flex h-[420px] items-center justify-center overflow-hidden md:h-[560px]"
-          >
-            <picture>
-              <source srcSet="/banners/leather-bags.webp" type="image/webp" />
-              <img
-                src="/banners/leather-bags.jpg"
-                alt={t("home.leatherProducts")}
-                loading="lazy"
-                decoding="async"
-                className="absolute inset-0 h-full w-full scale-105 object-cover opacity-60 transition-all duration-700 ease-out group-hover:scale-110 group-hover:opacity-75"
-              />
-            </picture>
-            <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-black/10" />
-            <div className="relative z-10 text-center">
-              <p className="text-xs font-bold uppercase tracking-[0.3em] text-gold/70">
-                {t("home.fullGrainLeather")}
-              </p>
-              <h3 className="mt-3 font-serif text-3xl font-bold text-white md:text-4xl">
-                {t("home.leatherProducts")}
-              </h3>
-              <span className="mt-4 inline-flex items-center gap-1 border-b border-gold pb-0.5 text-sm text-gold transition-all group-hover:gap-2">
-                {t("home.shopNow")}
-              </span>
-            </div>
-          </Link>
-
-          <Link
-            to="/products"
-            search={{ category: "salt-lamp-natural" }}
-            className="media-hero group relative flex h-[420px] items-center justify-center overflow-hidden bg-[#1A1A1A] md:h-[560px]"
-          >
-            <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,oklch(0.7_0.15_70/0.25),transparent_70%)] transition-opacity duration-700 group-hover:opacity-80" />
-            <div className="absolute inset-0 bg-gradient-to-t from-black via-black/30 to-transparent" />
-            <div className="relative z-10 text-center">
-              <p className="text-xs font-bold uppercase tracking-[0.3em] text-gold/70">
-                {t("home.handCarvedKhewraSalt")}
-              </p>
-              <h3 className="mt-3 font-serif text-3xl font-bold text-white md:text-4xl">
-                {t("home.himalayanSaltLamps")}
-              </h3>
-              <span className="mt-4 inline-flex items-center gap-1 border-b border-gold pb-0.5 text-sm text-gold transition-all group-hover:gap-2">
-                {t("home.shopNow")}
-              </span>
-            </div>
-          </Link>
-        </Reveal>
       </section>
 
       {recommendedProducts.length > 0 && (
@@ -348,7 +295,7 @@ function HomePage() {
               </div>
             </Reveal>
 
-            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+            <div className="grid grid-cols-2 gap-3 sm:gap-6 lg:grid-cols-4">
               {recommendedProducts.map((p, i) => (
                 <Reveal key={p.id} delay={Math.min(i, 3) * 0.08}>
                   <ProductCard product={p as never} />
@@ -358,25 +305,6 @@ function HomePage() {
           </div>
         </section>
       )}
-
-      <section className="bg-[#0D0D0D] px-4 py-20 md:px-6">
-        <div className="mx-auto max-w-7xl">
-          <Reveal className="mb-10 text-center">
-            <h2 className="font-serif text-3xl font-bold text-white md:text-4xl">
-              {t("home.bestSellers")}
-            </h2>
-            <div className="mx-auto mt-3 h-0.5 w-12 bg-gold" />
-          </Reveal>
-
-          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-            {featuredProducts.map((p, i) => (
-              <Reveal key={p.id} delay={Math.min(i, 3) * 0.08}>
-                <ProductCard product={p as never} />
-              </Reveal>
-            ))}
-          </div>
-        </div>
-      </section>
 
       {recentlyViewedProducts.length > 1 && (
         <section className="bg-[#0D0D0D] px-4 py-20 md:px-6">
@@ -398,80 +326,6 @@ function HomePage() {
           </div>
         </section>
       )}
-
-      <section className="bg-black px-4 py-24 md:px-6">
-        <div className="mx-auto max-w-6xl">
-          <Reveal className="text-center">
-            <p className="text-xs font-bold uppercase tracking-[0.4em] text-gold">
-              {t("home.journeyEyebrow")}
-            </p>
-            <h2 className="mt-3 font-serif text-3xl font-bold text-white md:text-4xl">
-              {t("home.storyTitle")}
-            </h2>
-          </Reveal>
-
-          <Reveal
-            delay={0.1}
-            className="media-hero relative mx-auto mt-10 aspect-video max-w-4xl overflow-hidden border border-gold/20 bg-[#1A1A1A] shadow-2xl"
-          >
-            {videoPlaying ? (
-              <iframe
-                className="h-full w-full"
-                src={`https://www.youtube.com/embed/${YOUTUBE_ID}?rel=0&modestbranding=1&autoplay=1`}
-                title={t("home.videoTitle")}
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                allowFullScreen
-              />
-            ) : (
-              <button
-                type="button"
-                onClick={() => setVideoPlaying(true)}
-                className="group relative h-full w-full"
-                aria-label={t("home.playVideoAriaLabel")}
-              >
-                <img
-                  src={`https://img.youtube.com/vi/${YOUTUBE_ID}/hqdefault.jpg`}
-                  alt={t("home.videoThumbnailAlt")}
-                  loading="lazy"
-                  decoding="async"
-                  className="h-full w-full object-cover opacity-70 transition-opacity group-hover:opacity-90"
-                />
-                <span className="absolute inset-0 flex items-center justify-center bg-black/30">
-                  <span className="flex h-16 w-16 items-center justify-center rounded-full border border-gold bg-black/70 text-gold transition-transform group-hover:scale-110">
-                    <Play size={26} className="ml-1" fill="currentColor" />
-                  </span>
-                </span>
-              </button>
-            )}
-            <div className="pointer-events-none absolute inset-0 border border-gold/10" />
-          </Reveal>
-
-          <div className="mt-16 grid gap-10 md:grid-cols-3 md:gap-8">
-            {[
-              { label: t("home.step1Label"), copy: t("home.storyP1") },
-              { label: t("home.step2Label"), copy: t("home.storyP2") },
-              { label: t("home.step3Label"), copy: t("home.storyP3") },
-            ].map((step, i) => (
-              <Reveal key={step.label} delay={0.15 + i * 0.1}>
-                <div className="border-t border-gold/20 pt-6 md:border-t-0 md:border-l md:pl-8">
-                  <span className="font-serif text-4xl font-bold text-gold/30">0{i + 1}</span>
-                  <h3 className="mt-2 font-serif text-lg font-semibold text-white">{step.label}</h3>
-                  <p className="mt-3 text-sm leading-relaxed text-white/60">{step.copy}</p>
-                </div>
-              </Reveal>
-            ))}
-          </div>
-
-          <Reveal delay={0.4} className="mt-12 text-center">
-            <Link
-              to="/about"
-              className="inline-block border border-gold px-8 py-3 text-sm font-semibold text-gold transition-colors hover:bg-gold hover:text-black"
-            >
-              {t("home.learnMore")}
-            </Link>
-          </Reveal>
-        </div>
-      </section>
 
       {testimonials.length > 0 && (
         <section className="bg-[#0D0D0D] px-4 py-20 md:px-6">
@@ -524,6 +378,7 @@ function HomePage() {
               value={newsletterEmail}
               onChange={(e) => setNewsletterEmail(e.target.value)}
               placeholder={t("home.emailPlaceholder")}
+              aria-label={t("home.emailPlaceholder")}
               className="flex-1 border border-gold/40 bg-[#1A1A1A] px-4 py-3 text-sm text-white placeholder:text-white/30 focus:border-gold focus:outline-none"
             />
 

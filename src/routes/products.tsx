@@ -54,7 +54,11 @@ export const Route = createFileRoute("/products")({
   head: () => ({
     meta: [
       { title: "Shop — KAPTAN" },
-      { name: "description", content: "Browse premium leather goods and Himalayan salt lamps." },
+      {
+        name: "description",
+        content:
+          "Shop leather accessories and home lighting. Explore prices, materials, colours and practical details.",
+      },
     ],
   }),
   component: ProductsPage,

@@ -31,7 +31,7 @@ const organizationJsonLd = {
   name: "KAPTAN",
   url: "https://kaptangrp.com",
   logo: "https://kaptangrp.com/kaptan-logo.png",
-  description: "Premium handcrafted leather products and authentic Himalayan salt lamps.",
+  description: "Quality leather accessories and home lighting. Everyday elegance, lasting style.",
   email: "contact@kaptangrp.com",
   telephone: "+491757134333",
   address: {
@@ -113,15 +113,15 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "KAPTAN — Crafted to Last. Lit to Inspire." },
+      { title: "KAPTAN — Everyday Elegance. Lasting Style." },
       {
         name: "description",
-        content: "Premium handcrafted leather products and authentic Himalayan salt lamps.",
+        content: "Quality leather accessories and home lighting. Everyday elegance, lasting style.",
       },
-      { property: "og:title", content: "KAPTAN — Crafted to Last. Lit to Inspire." },
+      { property: "og:title", content: "KAPTAN — Everyday Elegance. Lasting Style." },
       {
         property: "og:description",
-        content: "Premium handcrafted leather products and authentic Himalayan salt lamps.",
+        content: "Quality leather accessories and home lighting. Everyday elegance, lasting style.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },

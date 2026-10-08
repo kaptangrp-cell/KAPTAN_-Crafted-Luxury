@@ -45,7 +45,7 @@ export const getProducts = createServerFn({ method: "POST" })
     let query = supabase
       .from("products")
       .select(
-        "*, categories(name, slug), product_images(url, sort_order, media_type), product_variants(id)",
+        "*, categories(name, slug), product_images(url, sort_order, media_type), product_variants(id, variant_type, variant_value, is_available)",
         { count: "exact" },
       )
       .eq("is_available", true)
@@ -110,7 +110,7 @@ export const getFeaturedProducts = createServerFn({ method: "GET" }).handler(asy
   const { data, error } = await supabase
     .from("products")
     .select(
-      "*, categories(name, slug), product_images(url, sort_order, media_type), product_variants(id)",
+      "*, categories(name, slug), product_images(url, sort_order, media_type), product_variants(id, variant_type, variant_value, is_available)",
     )
     .eq("is_featured", true)
     .eq("is_available", true)
@@ -132,7 +132,7 @@ export const getRelatedProducts = createServerFn({ method: "POST" })
     const { data: products, error } = await supabase
       .from("products")
       .select(
-        "*, categories(name, slug), product_images(url, sort_order, media_type), product_variants(id)",
+        "*, categories(name, slug), product_images(url, sort_order, media_type), product_variants(id, variant_type, variant_value, is_available)",
       )
       .eq("category_id", data.categoryId)
       .eq("is_available", true)
@@ -153,7 +153,7 @@ export const getProductsByIds = createServerFn({ method: "POST" })
     const { data: products, error } = await supabase
       .from("products")
       .select(
-        "*, categories(name, slug), product_images(url, sort_order, media_type), product_variants(id)",
+        "*, categories(name, slug), product_images(url, sort_order, media_type), product_variants(id, variant_type, variant_value, is_available)",
       )
       .in("id", data.ids)
       .eq("is_available", true);
@@ -180,7 +180,7 @@ export const getRecommendedProducts = createServerFn({ method: "POST" })
     let query = supabase
       .from("products")
       .select(
-        "*, categories(name, slug), product_images(url, sort_order, media_type), product_variants(id)",
+        "*, categories(name, slug), product_images(url, sort_order, media_type), product_variants(id, variant_type, variant_value, is_available)",
       )
       .in("category_id", data.categoryIds)
       .eq("is_available", true)

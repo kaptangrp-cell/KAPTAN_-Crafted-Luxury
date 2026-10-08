@@ -1,6 +1,6 @@
 {
   "header": {
-    "craftedTag": "Handgefertigt in Pakistan · Versand aus Deutschland",
+    "craftedTag": "Qualität bis ins Detail · Eleganz im Alltag",
     "changeCurrency": "Anzeigewährung ändern"
   },
   "nav": {
@@ -29,7 +29,7 @@
     "de": "Deutsch"
   },
   "footer": {
-    "tagline": "Gefertigt für die Ewigkeit. Erleuchtet zur Inspiration. Hochwertige Lederwaren und authentische Himalaya-Salzlampen.",
+    "tagline": "Stilvolle Lederaccessoires und warmes Licht für Ihr Zuhause. Qualität, Charakter und Eleganz im Alltag.",
     "shop": "Shop",
     "allProducts": "Alle Produkte",
     "leatherWallets": "Lederbörsen",
@@ -48,28 +48,28 @@
     "followUs": "Folge uns"
   },
   "home": {
-    "heroLine1": "Edles Leder.",
-    "heroLine2": "Himalaya-Licht.",
-    "heroSubtitle": "Handgefertigte Lederwaren & authentische Himalaya-Salzlampen — für alle, die das Feinste schätzen.",
+    "heroLine1": "Eleganz im Alltag.",
+    "heroLine2": "Stil, der bleibt.",
+    "heroSubtitle": "Entdecken Sie Lederaccessoires und Wohnakzente, die stilvolles Design mit praktischen Details verbinden.",
     "shopLeather": "Leder entdecken",
     "discoverSaltLamps": "Salzlampen entdecken",
     "secureCheckout": "Sicherer Checkout",
     "secureCheckoutDesc": "Verschlüsselte Zahlung",
-    "handcrafted": "Handgefertigte Qualität",
-    "handcraftedDesc": "Von Kunsthandwerkern",
+    "handcrafted": "Durchdachte Details",
+    "handcraftedDesc": "Stil mit Funktion",
     "fastDelivery": "Schnelle Lieferung",
     "fastDeliveryDesc": "3–5 Werktage",
-    "sustainable": "Nachhaltige Herkunft",
-    "sustainableDesc": "Ethische Materialien",
+    "sustainable": "Zeitloses Design",
+    "sustainableDesc": "Über Trends hinaus",
     "collectionsTitle": "Unsere Kollektionen",
     "leatherProducts": "Lederwaren",
-    "himalayanSaltLamps": "Himalaya-Salzlampen",
+    "himalayanSaltLamps": "Salzlampen",
     "shopNow": "Jetzt entdecken →",
-    "bestSellers": "Bestseller",
-    "storyTitle": "Die KAPTAN-Geschichte",
-    "storyP1": "KAPTAN entstand aus tiefem Respekt vor Handwerkskunst und Natur. Unsere Reise begann in den Ausläufern des Himalayas, wo wir das warme, heilende Leuchten echter Salzkristalle entdeckten.",
-    "storyP2": "Wir arbeiten mit Lederkünstlern zusammen, die ihr Handwerk über Generationen verfeinert haben — mit feinstem Vollnarbenleder und traditionellen Techniken. Jede Naht erzählt eine Geschichte von Geduld und Präzision.",
-    "storyP3": "Unsere Mission ist einfach: Produkte zu schaffen, die nicht nur schön sind, sondern ein Leben lang halten.",
+    "bestSellers": "Die Kollektion entdecken",
+    "storyTitle": "Stil mit Substanz",
+    "storyP1": "Stilvolle Accessoires und warme Wohnakzente für Ihren Alltag.",
+    "storyP2": "Entdecken Sie Materialien, Oberflächen und praktische Details auf jeder Produktseite.",
+    "storyP3": "Unser Fokus: Qualität, Langlebigkeit und mühelose Eleganz.",
     "learnMore": "Mehr erfahren →",
     "testimonialsTitle": "Was unsere Kunden sagen",
     "newsletterTitle": "Werde Teil des KAPTAN-Kreises",
@@ -83,11 +83,11 @@
     "t3Quote": "Schneller Versand und die Ledertasche hat meine Erwartungen übertroffen. Der Geruch von echtem Leder ist berauschend.",
     "t3Product": "Weekender Reisetasche",
     "manifestoEyebrow": "Unsere Philosophie",
-    "manifestoLine": "Wir folgen keinen Trends — wir schaffen Dinge, die sie überdauern. Jede Lederhaut wird von Hand ausgewählt, jede Lampe von Hand geschnitzt — für Menschen, die lieber ein außergewöhnliches Stück besitzen als zehn austauschbare.",
+    "manifestoLine": "Qualität, zeitloser Stil und die Details, die im Alltag zählen.",
     "journeyEyebrow": "Unser Handwerk",
-    "step1Label": "Ursprung",
-    "step2Label": "Handwerk",
-    "step3Label": "Versprechen",
+    "step1Label": "Qualität",
+    "step2Label": "Stil",
+    "step3Label": "Alltag",
     "heroSlide1Title": "Premium Ledertaschen",
     "heroSlide1Subtitle": "Neuheiten für alltägliche Eleganz.",
     "heroSlide2Title": "Luxus-Ledergürtel",
@@ -98,8 +98,8 @@
     "heroSlide4Subtitle": "Mutiger Stil für jede Jahreszeit.",
     "heroShopNow": "Jetzt einkaufen",
     "goToSlideAriaLabel": "Zu Folie {{number}} wechseln",
-    "fullGrainLeather": "Vollnarbenleder",
-    "handCarvedKhewraSalt": "Handgeschnitzt · Khewra-Salz",
+    "fullGrainLeather": "Leder für den Alltag",
+    "handCarvedKhewraSalt": "Warmes Licht · Natürlicher Charakter",
     "justForYou": "Nur für dich",
     "recommendedForYou": "Für dich empfohlen",
     "videoTitle": "KAPTAN Leder-Handwerksvideo",
@@ -108,7 +108,11 @@
     "subscribing": "Wird abonniert...",
     "subscriptionFailedToast": "Anmeldung fehlgeschlagen",
     "availableCollection": "Entdecken Sie die aktuell verfügbaren Stücke unserer Kollektion.",
-    "exploreCollection": "KAPTAN entdecken"
+    "exploreCollection": "KAPTAN entdecken",
+    "collectionEyebrow": "Die KAPTAN Kollektion",
+    "qualityLabel": "Qualität bis ins Detail",
+    "styleLabel": "Ihr persönlicher Stil",
+    "durabilityLabel": "Für den Alltag gemacht"
   },
   "faq": {
     "title": "Häufig gestellte Fragen",
@@ -150,17 +154,23 @@
     "p3": "Du kannst die Löschung deines Kontos und deiner Daten jederzeit per Kontaktanfrage verlangen."
   },
   "about": {
-    "kicker": "Unsere Geschichte",
-    "titlePart1": "Gefertigt für die Ewigkeit.",
-    "titlePart2": "Erleuchtet zur Inspiration.",
-    "intro": "KAPTAN ist eine Hommage an die Meisterschaft — wir vereinen die zeitlose Kunst pakistanischer Lederverarbeitung mit der natürlichen Schönheit echten Himalaya-Salzes aus dem Herzen der Khewra-Region.",
-    "leatherTitle": "Traditionelles Leder",
-    "leatherBody": "Jedes Stück wird von Meisterhandwerkern in Sialkot von Hand genäht — einer Stadt, die für ihre jahrhundertealte Lederverarbeitung berühmt ist. Wir verwenden vollnarbiges, pflanzlich gegerbtes Leder, das mit der Zeit eine einzigartige Patina entwickelt.",
-    "saltTitle": "Authentische Salzlampen",
-    "saltBody": "Unsere Salzlampen stammen direkt aus dem Khewra-Bergwerk in Pakistan — dem zweitgrößten Salzbergwerk der Welt. Jede Lampe wird von Hand geschnitzt und erhält so ihre einzigartige Form und warmes Leuchten.",
+    "kicker": "Der KAPTAN Anspruch",
+    "titlePart1": "Qualität mit Sinn.",
+    "titlePart2": "Stil mit Charakter.",
+    "intro": "KAPTAN verbindet eleganten Stil, praktisches Design und einen Fokus auf Langlebigkeit. Entdecken Sie Stücke für Ihre Garderobe und Ihr Zuhause.",
+    "leatherTitle": "Ihr Stil im Alltag",
+    "leatherBody": "Entdecken Sie Lederaccessoires für Arbeit, Reisen und den Alltag. Vergleichen Sie Materialien, Farben und Details und finden Sie Ihr passendes Stück.",
+    "saltTitle": "Ein Zuhause mit Wärme",
+    "saltBody": "Sanftes Licht und natürliche Struktur für Ihren Lieblingsplatz. Entdecken Sie Größen und Ausführungen, die zu Ihrem Zuhause passen.",
     "statHappy": "Zufriedene Kunden",
     "statYears": "Jahre Handwerk",
-    "statAuthentic": "Authentisch"
+    "statAuthentic": "Authentisch",
+    "qualityTitle": "Qualität",
+    "qualityBody": "Materialien, Verarbeitung und Details stehen im Mittelpunkt.",
+    "styleTitle": "Eleganz",
+    "styleBody": "Klare Linien und ausdrucksstarke Details für Ihren persönlichen Stil.",
+    "durabilityTitle": "Langlebigkeit",
+    "durabilityBody": "Praktisch im Alltag, mit Pflegehinweisen für Ihre neuen Lieblingsstücke."
   },
   "contact": {
     "kicker": "Kontakt",
@@ -657,5 +667,12 @@
     "coverImageLabel": "Titelbild",
     "publishedCheckboxLabel": "Veröffentlicht (im Shop sichtbar)",
     "orPasteImageUrl": "Oder eine Bild-URL einfügen"
+  },
+  "productFacts": {
+    "material": "Material",
+    "colors": "Farben",
+    "use": "Ideal für",
+    "dimensions": "Größe",
+    "care": "Pflege"
   }
 }

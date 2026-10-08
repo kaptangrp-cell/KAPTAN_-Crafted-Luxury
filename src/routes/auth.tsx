@@ -3,7 +3,7 @@ import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
 import { supabase } from "@/integrations/supabase/client";
-import { lovable } from "@/integrations/lovable";
+import { startGoogleSignIn } from "@/lib/google-auth";
 import { PageLayout } from "@/components/layout/PageLayout";
 
 export const Route = createFileRoute("/auth")({
@@ -74,19 +74,12 @@ function AuthPage() {
   async function handleGoogle() {
     setLoading(true);
 
-    const result = await lovable.auth.signInWithOAuth("google", {
-      redirect_uri: window.location.origin,
-    });
-
-    if (result.error) {
+    try {
+      await startGoogleSignIn(supabase.auth, window.location.origin);
+    } catch {
       toast.error(t("auth.googleSignInFailedToast"));
       setLoading(false);
-      return;
     }
-
-    if (result.redirected) return;
-
-    navigate({ to: "/" });
   }
 
   return (
