@@ -1,3 +1,4 @@
+import { useAuth } from "@/hooks/useAuth";
 import { useCartStore } from "@/stores/cartStore";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import {
@@ -164,6 +165,11 @@ function RootShell({ children }: { children: ReactNode }) {
   );
 }
 
+function AuthLifecycle() {
+  useAuth();
+  return null;
+}
+
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
   const logVisitFn = useServerFn(logVisit);
@@ -229,6 +235,7 @@ function RootComponent() {
 
   return (
     <QueryClientProvider client={queryClient}>
+      <AuthLifecycle />
       <Outlet />
 
       <Toaster

@@ -1,3 +1,4 @@
+import { useAuthStore } from "@/stores/authStore";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery } from "@tanstack/react-query";
@@ -14,11 +15,13 @@ export const Route = createFileRoute("/_authenticated/orders")({
 
 function OrdersPage() {
   const { t, i18n } = useTranslation();
+  const userId = useAuthStore((s) => s.user?.id);
   const fetchOrders = useServerFn(getMyOrders);
 
-  const { data, isLoading } = useQuery({
-    queryKey: ["my-orders"],
+  const { data, isLoading, isError, refetch } = useQuery({
+    queryKey: ["my-orders", userId],
     queryFn: () => fetchOrders(),
+    enabled: Boolean(userId),
   });
 
   return (
@@ -40,6 +43,16 @@ function OrdersPage() {
 
         {isLoading ? (
           <p className="mt-10 text-white/60">{t("orders.loadingOrders")}</p>
+        ) : isError ? (
+          <div role="alert" className="mt-10 text-white/70">
+            <p>{t("orders.loadFailed")}</p>
+            <button
+              onClick={() => void refetch()}
+              className="mt-3 border border-gold px-4 py-2 text-gold"
+            >
+              {t("orders.retry")}
+            </button>
+          </div>
         ) : !data?.orders.length ? (
           <div className="mt-12 flex flex-col items-center gap-4 border border-dashed border-gold/20 py-16 text-center">
             <p className="text-white/60">{t("orders.empty")}</p>

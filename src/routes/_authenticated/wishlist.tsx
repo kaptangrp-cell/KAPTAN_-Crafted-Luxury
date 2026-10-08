@@ -1,3 +1,4 @@
+import { useAuthStore } from "@/stores/authStore";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -15,16 +16,21 @@ export const Route = createFileRoute("/_authenticated/wishlist")({
 
 function WishlistPage() {
   const { t } = useTranslation();
+  const userId = useAuthStore((s) => s.user?.id);
   const qc = useQueryClient();
   const fetchFn = useServerFn(getMyWishlist);
   const removeFn = useServerFn(removeFromWishlist);
-  const { data, isLoading } = useQuery({ queryKey: ["wishlist"], queryFn: () => fetchFn() });
+  const { data, isLoading } = useQuery({
+    queryKey: ["wishlist", userId],
+    enabled: Boolean(userId),
+    queryFn: () => fetchFn(),
+  });
 
   const removeMutation = useMutation({
     mutationFn: (productId: string) => removeFn({ data: { productId } }),
     onSuccess: () => {
       toast.success(t("wishlist.removedToast"));
-      qc.invalidateQueries({ queryKey: ["wishlist"] });
+      qc.invalidateQueries({ queryKey: ["wishlist", userId] });
     },
   });
 

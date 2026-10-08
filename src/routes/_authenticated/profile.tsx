@@ -19,7 +19,8 @@ function ProfilePage() {
   const fetchProfile = useServerFn(getMyProfile);
   const updateFn = useServerFn(updateMyProfile);
   const { data, isLoading, refetch } = useQuery({
-    queryKey: ["my-profile"],
+    queryKey: ["my-profile", user?.id],
+    enabled: Boolean(user),
     queryFn: () => fetchProfile(),
   });
 

@@ -411,7 +411,9 @@
     "empty": "You have no orders yet.",
     "startShopping": "Start Shopping",
     "orderCancelled": "This order has been cancelled.",
-    "trackerDeliveryShort": "Delivery"
+    "trackerDeliveryShort": "Delivery",
+    "loadFailed": "Could not load your orders. Please try again.",
+    "retry": "Try again"
   },
   "orderDetail": {
     "loading": "Loading order…",
@@ -627,7 +629,10 @@
     "noOrdersToExportToast": "No orders to export",
     "excelExportedToast": "Excel exported",
     "csvExportedToast": "CSV exported",
-    "exportFailedToast": "Export failed"
+    "exportFailedToast": "Export failed",
+    "findOrder": "Find an order by its exact order number",
+    "search": "Search",
+    "listScope": "Showing up to 100 newest orders. Search an exact order number to find older orders. Submit an empty search to reset."
   },
   "adminCustomers": {
     "title": "Customers",

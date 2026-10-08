@@ -214,7 +214,7 @@ function CheckoutPage() {
   const cancelFn = useServerFn(cancelCheckout);
   const { cancelOrderId } = Route.useSearch();
   const cancellation = useQuery({
-    queryKey: ["cancel-checkout", cancelOrderId],
+    queryKey: ["cancel-checkout", user?.id, cancelOrderId],
     queryFn: async () => {
       const result = await cancelFn({ data: { orderId: cancelOrderId! } });
       forgetAttempt(cancelOrderId!);
@@ -246,7 +246,7 @@ function CheckoutPage() {
   const grandTotalEstimate = useDisplayPrice(grandTotal);
 
   const { data: addressesData } = useQuery({
-    queryKey: ["my-addresses"],
+    queryKey: ["my-addresses", user?.id],
     queryFn: () => getAddressesFn(),
     enabled: Boolean(user),
   });

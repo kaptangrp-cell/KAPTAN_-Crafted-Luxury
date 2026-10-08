@@ -1,3 +1,4 @@
+import { useAuthStore } from "@/stores/authStore";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery } from "@tanstack/react-query";
@@ -14,12 +15,14 @@ export const Route = createFileRoute("/_authenticated/orders/$id")({
 
 function OrderDetailPage() {
   const { t, i18n } = useTranslation();
+  const userId = useAuthStore((s) => s.user?.id);
   const { id } = Route.useParams();
   const fetchOrder = useServerFn(getOrderById);
 
   const { data, isLoading } = useQuery({
-    queryKey: ["order", id],
+    queryKey: ["order", userId, id],
     queryFn: () => fetchOrder({ data: { id } }),
+    enabled: Boolean(userId),
   });
 
   if (isLoading) {

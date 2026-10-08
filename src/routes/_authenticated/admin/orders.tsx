@@ -1,3 +1,5 @@
+import { useState } from "react";
+import { useAuthStore } from "@/stores/authStore";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -23,13 +25,15 @@ const STATUSES = [
 function AdminOrdersPage() {
   const { t, i18n } = useTranslation();
   const qc = useQueryClient();
+  const userId = useAuthStore((s) => s.user?.id);
+  const [orderNumber, setOrderNumber] = useState("");
   const listFn = useServerFn(adminListOrders);
   const updateFn = useServerFn(adminUpdateOrderStatus);
   const exportFn = useServerFn(adminExportOrders);
 
-  const { data, isLoading } = useQuery({
-    queryKey: ["admin-orders"],
-    queryFn: () => listFn(),
+  const { data, isLoading, isError } = useQuery({
+    queryKey: ["admin-orders", userId, orderNumber],
+    queryFn: () => listFn({ data: { orderNumber: orderNumber || undefined } }),
   });
 
   const updateStatus = useMutation({
@@ -152,6 +156,32 @@ function AdminOrdersPage() {
         </div>
       </div>
 
+      <form
+        className="flex flex-wrap gap-3"
+        onSubmit={(event) => {
+          event.preventDefault();
+          const value = new FormData(event.currentTarget).get("orderNumber");
+          setOrderNumber(String(value ?? "").trim());
+        }}
+      >
+        <label className="flex flex-col gap-1 text-sm text-white">
+          {t("adminOrders.findOrder")}
+          <input
+            name="orderNumber"
+            placeholder="KPT-..."
+            className="border border-gold/30 bg-black p-2 text-white"
+          />
+        </label>
+        <button className="self-end border border-gold px-4 py-2 text-gold" type="submit">
+          {t("adminOrders.search")}
+        </button>
+      </form>
+      <p className="text-sm text-white/60">{t("adminOrders.listScope")}</p>
+      {isError && (
+        <p role="alert" className="text-red-400">
+          {t("orders.loadFailed")}
+        </p>
+      )}
       <div className="overflow-x-auto border border-gold/15 bg-[#1A1A1A]">
         <table className="w-full text-sm">
           <thead className="text-left text-xs uppercase tracking-wider text-white/50">

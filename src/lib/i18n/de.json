@@ -411,7 +411,9 @@
     "empty": "Du hast noch keine Bestellungen.",
     "startShopping": "Jetzt einkaufen",
     "orderCancelled": "Diese Bestellung wurde storniert.",
-    "trackerDeliveryShort": "Lieferung"
+    "trackerDeliveryShort": "Lieferung",
+    "loadFailed": "Deine Bestellungen konnten nicht geladen werden. Bitte versuche es erneut.",
+    "retry": "Erneut versuchen"
   },
   "orderDetail": {
     "loading": "Bestellung wird geladen…",
@@ -627,7 +629,10 @@
     "noOrdersToExportToast": "Keine Bestellungen zum Exportieren",
     "excelExportedToast": "Excel exportiert",
     "csvExportedToast": "CSV exportiert",
-    "exportFailedToast": "Export fehlgeschlagen"
+    "exportFailedToast": "Export fehlgeschlagen",
+    "findOrder": "Bestellung mit vollständiger Bestellnummer finden",
+    "search": "Suchen",
+    "listScope": "Bis zu 100 neueste Bestellungen. Ältere Bestellungen mit vollständiger Bestellnummer suchen. Eine leere Suche setzt die Liste zurück."
   },
   "adminCustomers": {
     "title": "Kunden",

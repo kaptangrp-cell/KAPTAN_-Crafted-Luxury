@@ -1,5 +1,11 @@
 # Checkout and storefront changes — 7 October 2026
 
+## Run the release validation script
+
+With Node.js 24, Git, npm/npx and network access, run `npm run validate:release` from the project directory. It copies the current tracked and non-ignored files (including uncommitted changes) to a temporary directory, excludes local environment files, checks the manifest/lockfile and Vercel install command, installs with the pinned npm version, and runs types, lint, regression tests and the production build. It also verifies that Vercel output was generated. Your working directory's dependencies and build output are not replaced.
+
+Success prints `PASS` and removes the temporary copy. Failure exits nonzero and prints the retained temporary directory for diagnosis. Build configuration uses dummy public Supabase values. No deployment, database migration or live payment is performed. Existing lint warnings and the low-severity dependency advisory remain warnings. Use `npm run check` for a faster check against dependencies already installed in the current directory.
+
 ## Vercel lockfile correction after commit `7a6cda1`
 
 The next deployment failed before compilation: `npm ci` rejected missing `@emnapi/core@1.11.3`, `@emnapi/runtime@1.11.3`, and `@emnapi/wasi-threads@1.2.3` entries. The exact three missing-entry errors were reproduced with npm 12.2.0; the earlier clean-install check had used npm 11.6.2 and did not detect them.

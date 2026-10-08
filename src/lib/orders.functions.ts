@@ -89,56 +89,18 @@ export const getCheckoutReceipt = createServerFn({ method: "POST" })
     };
   });
 
-async function getAuthEmail(userId: string) {
-  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-  const { data } = await supabaseAdmin.auth.admin.getUserById(userId);
-  return data.user?.email?.toLowerCase() ?? null;
-}
-
-export const getMyOrders = createServerFn({ method: "GET" })
+// Customer history is tied to the authenticated account, never checkout contact email.
+export const getMyOrders = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const email = await getAuthEmail(context.userId);
-
-    let query = supabaseAdmin
-      .from("orders")
-      .select(
-        "id, order_number, status, payment_status, total, created_at, customer_email, order_items(quantity, product_name)",
-      )
-      .order("created_at", { ascending: false });
-
-    if (email) {
-      query = query.or(`user_id.eq.${context.userId},customer_email.eq.${email}`);
-    } else {
-      query = query.eq("user_id", context.userId);
-    }
-
-    const { data, error } = await query;
-
-    if (error) throw new Error(error.message);
-
-    return { orders: data ?? [] };
+    const { readAccountOrders } = await import("./account-orders");
+    return readAccountOrders(context.supabase, context.userId);
   });
 
 export const getOrderById = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: { id: string }) => z.object({ id: z.string().uuid() }).parse(input))
   .handler(async ({ data, context }) => {
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const email = await getAuthEmail(context.userId);
-
-    let query = supabaseAdmin.from("orders").select("*, order_items(*)").eq("id", data.id);
-
-    if (email) {
-      query = query.or(`user_id.eq.${context.userId},customer_email.eq.${email}`);
-    } else {
-      query = query.eq("user_id", context.userId);
-    }
-
-    const { data: order, error } = await query.single();
-
-    if (error) throw new Error(error.message);
-
-    return { order };
+    const { readAccountOrder } = await import("./account-orders");
+    return readAccountOrder(context.supabase, context.userId, data.id);
   });

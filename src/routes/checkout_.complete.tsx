@@ -1,3 +1,4 @@
+import { useAuthStore } from "@/stores/authStore";
 import { useEffect } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
@@ -19,9 +20,10 @@ export const Route = createFileRoute("/checkout_/complete")({
 function CheckoutComplete() {
   const { t } = useTranslation();
   const { orderId } = Route.useSearch();
+  const userId = useAuthStore((s) => s.user?.id);
   const verify = useServerFn(refreshCheckoutPayment);
   const receipt = useQuery({
-    queryKey: ["checkout-receipt", orderId],
+    queryKey: ["checkout-receipt", userId, orderId],
     queryFn: () => verify({ data: { orderId } }),
     retry: 2,
     refetchInterval: (q) =>

@@ -18,8 +18,15 @@ export const useAuthStore = create<AuthState>((set) => ({
   profile: null,
   isAdmin: false,
   isLoading: true,
-  setUser: (user) => set({ user }),
-  setProfile: (profile) => set({ profile, isAdmin: profile?.role === "admin" }),
+  setUser: (user) =>
+    set((state) =>
+      state.user?.id === user?.id ? { user } : { user, profile: null, isAdmin: false },
+    ),
+  setProfile: (profile) =>
+    set((state) => {
+      if (profile && profile.id !== state.user?.id) return state;
+      return { profile, isAdmin: profile?.role === "admin" };
+    }),
   setLoading: (isLoading) => set({ isLoading }),
-  logout: () => set({ user: null, profile: null, isAdmin: false }),
+  logout: () => set({ user: null, profile: null, isAdmin: false, isLoading: false }),
 }));

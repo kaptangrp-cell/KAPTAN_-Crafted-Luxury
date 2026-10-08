@@ -12,7 +12,8 @@
     "format": "prettier --write .",
     "typecheck": "tsc --noEmit",
     "test": "node --test tests/*.test.mjs",
-    "check": "npm run typecheck && npm run lint && npm test && npm run build"
+    "check": "npm run typecheck && npm run lint && npm test && npm run build",
+    "validate:release": "node scripts/validate-release.mjs"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",

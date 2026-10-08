@@ -545,13 +545,16 @@ export const adminDeleteCategory = createServerFn({ method: "POST" })
     return { ok: true };
   });
 
-export const adminListOrders = createServerFn({ method: "GET" })
+export const adminListOrders = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .handler(async ({ context }) => {
+  .inputValidator((input: unknown) =>
+    z.object({ orderNumber: z.string().trim().max(100).optional() }).parse(input ?? {}),
+  )
+  .handler(async ({ context, data: input }) => {
     await assertAdmin(context.supabase, context.userId);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
-    const { data, error } = await supabaseAdmin
+    let query = supabaseAdmin
       .from("orders")
       .select(
         "id, order_number, customer_name, customer_email, total, status, payment_status, created_at",
@@ -559,6 +562,8 @@ export const adminListOrders = createServerFn({ method: "GET" })
       .order("created_at", { ascending: false })
       .limit(100);
 
+    if (input.orderNumber) query = query.eq("order_number", input.orderNumber);
+    const { data, error } = await query;
     if (error) throw new Error(error.message);
 
     return { orders: data ?? [] };
