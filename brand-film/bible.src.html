@@ -1,0 +1,277 @@
+<title>KAPTAN Brand Film Bible</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: a production document — a scaled 60-second timeline up top, then reference (products, cast, look),
+   then the shot list as numbered slates, since shot order is the real sequence of the edit. */
+:root {
+  --bg: #f7f4ec; --surface: #fffdf7; --fg: #1d1915; --muted: #6b6257; --line: #e2dccd;
+  --accent: #8f6a12; --accent-soft: #efe4c4; --ink: #141210;
+  --display: "Playfair Display", Georgia, serif;
+  --body: "Inter", "Helvetica Neue", Arial, sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, Menlo, monospace;
+  --s1: #b07a3c; --s2: #3c3530; --s3: #c39a62; --s4: #8a5a2b; --s5: #5b3b25; --s6: #6e2430; --s7: #2b2622; --s8: #4a3424; --s9: #3f4a3a; --s10: #a8875a; --sf: #d4a325;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #141210; --surface: #1c1916; --fg: #efe9dc; --muted: #a39887; --line: #2f2a24;
+  --accent: #d4a325; --accent-soft: #2c2415; --ink: #0c0b0a; color-scheme: dark;
+  --s2: #6b625a; --s7: #57504a; --s5: #7a5236;
+} }
+:root[data-theme="dark"] {
+  --bg: #141210; --surface: #1c1916; --fg: #efe9dc; --muted: #a39887; --line: #2f2a24;
+  --accent: #d4a325; --accent-soft: #2c2415; --ink: #0c0b0a; color-scheme: dark;
+  --s2: #6b625a; --s7: #57504a; --s5: #7a5236;
+}
+body { background: var(--bg); color: var(--fg); font: 15px/1.6 var(--body); }
+.wrap { max-width: 1080px; margin: 0 auto; padding-inline: 20px; padding-block: 48px 96px; }
+h1, h2, h3 { font-family: var(--display); font-weight: 400; text-wrap: balance; margin: 0; }
+h1 { font-size: clamp(34px, 6vw, 58px); line-height: 1.05; }
+h2 { font-size: 30px; margin-bottom: 18px; }
+h3 { font-size: 19px; }
+p { margin: 0; max-width: 68ch; }
+.eyebrow { font: 500 11px/1 var(--body); letter-spacing: .18em; text-transform: uppercase; color: var(--accent); }
+.mono { font-family: var(--mono); font-variant-numeric: tabular-nums; }
+section { margin-top: 64px; display: grid; gap: 16px; }
+
+header { display: grid; grid-template-columns: 1fr auto; gap: 28px; align-items: end; padding-bottom: 28px; border-bottom: 1px solid var(--line); }
+header .lede { margin-top: 14px; color: var(--muted); font-size: 17px; }
+header img { width: 108px; height: 108px; background: var(--ink); border-radius: 50%; padding: 10px; }
+.specs { display: flex; flex-wrap: wrap; gap: 8px 28px; margin-top: 20px; font-size: 13px; color: var(--muted); }
+.specs b { color: var(--fg); font-weight: 500; }
+
+.status { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; }
+.status div { padding: 14px 16px; border: 1px solid var(--line); background: var(--surface); }
+.status .pill { display: inline-block; font: 500 10px/1 var(--body); letter-spacing: .12em; text-transform: uppercase; padding: 5px 8px; margin-bottom: 8px; }
+.done .pill { background: var(--accent-soft); color: var(--accent); }
+.todo .pill { background: var(--line); color: var(--muted); }
+
+/* timeline drawn to scale: 1 s = 1/60 of width */
+.timeline { position: relative; display: flex; height: 54px; border: 1px solid var(--line); background: var(--surface); }
+.timeline a { display: block; height: 100%; border-right: 1px solid var(--bg); color: #fff; text-decoration: none; font: 500 10px/1 var(--mono); padding: 6px 0 0 4px; overflow: hidden; white-space: nowrap; }
+.timeline a:hover, .timeline a:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+.ticks { position: relative; height: 18px; font: 10px/1 var(--mono); color: var(--muted); }
+.ticks span { position: absolute; top: 4px; transform: translateX(-50%); }
+.ticks span:first-child { transform: none; } .ticks span:last-child { transform: translateX(-100%); }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 18px; font-size: 12px; color: var(--muted); }
+.legend i { display: inline-block; width: 10px; height: 10px; margin-right: 6px; vertical-align: -1px; }
+
+.grid2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 12px; }
+.card { padding: 16px 18px; border: 1px solid var(--line); background: var(--surface); display: grid; gap: 6px; min-width: 0; }
+.card .code { font: 500 11px/1 var(--mono); color: var(--accent); }
+.card p { font-size: 13.5px; }
+.card .brand { font-size: 12.5px; color: var(--muted); border-top: 1px dashed var(--line); padding-top: 8px; margin-top: 4px; }
+.swatches { display: flex; flex-wrap: wrap; gap: 14px; }
+.swatches div { display: grid; gap: 6px; font-size: 12px; color: var(--muted); }
+.swatches i { width: 72px; height: 48px; display: block; border: 1px solid var(--line); }
+
+.rules { display: grid; gap: 10px; padding-left: 18px; margin: 0; }
+.rules li { max-width: 74ch; }
+
+.shot { display: grid; grid-template-columns: 110px 1fr; gap: 20px; padding: 22px 0; border-top: 1px solid var(--line); scroll-margin-top: 16px; }
+.slate { display: grid; align-content: start; gap: 6px; }
+.slate .n { font: 400 40px/1 var(--display); }
+.slate .tc { font: 12px/1.4 var(--mono); color: var(--muted); }
+.slate .dur { font: 500 11px/1 var(--mono); color: var(--accent); }
+.shot .body { display: grid; gap: 10px; min-width: 0; }
+.shot .meta { display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: 12.5px; color: var(--muted); }
+.shot .meta .scene { color: var(--fg); font-weight: 500; }
+.prompt { position: relative; font: 12.5px/1.6 var(--mono); background: var(--surface); border: 1px solid var(--line); padding: 12px 14px; padding-right: 76px; white-space: pre-wrap; overflow-wrap: anywhere; }
+.copy { position: absolute; top: 8px; right: 8px; font: 500 11px/1 var(--body); padding: 7px 10px; border: 1px solid var(--line); background: var(--bg); color: var(--fg); cursor: pointer; }
+.copy:hover { border-color: var(--accent); color: var(--accent); }
+.copy:focus-visible { outline: 2px solid var(--accent); }
+.branding { font-size: 13px; }
+.branding b { font-weight: 600; color: var(--accent); }
+.tags { display: flex; flex-wrap: wrap; gap: 6px; }
+.tags span { font: 11px/1 var(--mono); padding: 5px 7px; border: 1px solid var(--line); color: var(--muted); }
+
+.endcard { background: var(--ink); aspect-ratio: 16 / 9; max-width: 100%; position: relative; overflow: hidden; container-type: inline-size; }
+.endcard .ec { position: absolute; inset: 0; display: grid; place-items: center; text-align: center; color: #f7f4ec; }
+.endcard .wm { font: 400 6.9cqw/1 var(--display); letter-spacing: .34em; margin-right: -.34em; }
+.endcard .rl { width: 11cqw; height: 1px; margin: 2.4cqw auto 2cqw; background: linear-gradient(90deg, transparent, #d4a325, transparent); }
+.endcard .tg { font: italic 2.4cqw/1.2 var(--display); }
+.endcard .sl { margin-top: 1.4cqw; font: 300 1.05cqw/1 var(--body); letter-spacing: .32em; text-transform: uppercase; color: rgba(247,244,236,.62); }
+.endcard img { width: 15.6cqw; }
+.endcard .a { animation: a 9s infinite both; } .endcard .b { animation: b 9s infinite both; }
+@keyframes a { 0%,5% { opacity: 0 } 18%,62% { opacity: 1 } 70%,100% { opacity: 0 } }
+@keyframes b { 0%,68% { opacity: 0 } 78%,92% { opacity: 1 } 100% { opacity: 0 } }
+@media (prefers-reduced-motion: reduce) { .endcard .a { animation: none; opacity: 1 } .endcard .b { display: none } }
+
+table { border-collapse: collapse; width: 100%; font-size: 13.5px; }
+.tbl { overflow-x: auto; border: 1px solid var(--line); background: var(--surface); }
+th, td { text-align: left; padding: 10px 14px; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { font: 500 11px/1.2 var(--body); letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+tr:last-child td { border-bottom: 0; }
+
+@media (max-width: 640px) {
+  header { grid-template-columns: 1fr; } header img { width: 72px; height: 72px; order: -1; }
+  .shot { grid-template-columns: 1fr; gap: 10px; }
+  .slate { grid-auto-flow: column; justify-content: start; align-items: baseline; gap: 14px; }
+  .slate .n { font-size: 28px; }
+  .timeline a { font-size: 0; padding: 0; }
+}
+</style>
+
+<div class="wrap">
+  <header>
+    <div>
+      <div class="eyebrow">Brand film · production bible</div>
+      <h1>Crafted for the Journey.</h1>
+      <p class="lede">A 60-second film for KAPTAN: leather for work, travel and everyday life. It covers 25 shots, 8 recurring people, 11 hero products and one rule throughout: the leather is the protagonist and the logo is a whisper.</p>
+      <div class="specs">
+        <span><b>Runtime</b> 60 s master</span><span><b>Frame</b> 16:9, UHD master · 9:16 &amp; 4:5 cut-downs</span><span><b>Rate</b> 24 fps, 48 fps for slow-motion</span><span><b>Text</b> end card only</span>
+      </div>
+    </div>
+    <img src="{{LOGO}}" alt="KAPTAN logo">
+  </header>
+
+  <section>
+    <div class="eyebrow">Where this stands</div>
+    <div class="status">
+      <div class="done"><span class="pill">Ready</span><p>End card (52–60 s) is built and rendered at 1920×1080: wordmark, tagline, second line, then the logo.</p></div>
+      <div class="done"><span class="pill">Ready</span><p>Shot list, locked product and cast descriptions, and copy-ready prompts for Veo 3, Sora 2, Kling or Runway.</p></div>
+      <div class="todo"><span class="pill">To do</span><p>Generate shots 1–25 (two or three takes each), composite logo marks, grade, and score the music.</p></div>
+    </div>
+  </section>
+
+  <section id="timeline">
+    <h2>The 60 seconds</h2>
+    <div>
+      <div class="timeline" id="tl"></div>
+      <div class="ticks" id="ticks"></div>
+    </div>
+    <div class="legend" id="legend"></div>
+  </section>
+
+  <section>
+    <h2>How to make it look real</h2>
+    <ol class="rules">
+      <li><b>Generate products from stills, never from text alone.</b> First make one reference image of each product below, ideally by photographing the real KAPTAN piece. Then use image-to-video for every shot, with that still as the first frame or reference. This is what keeps a bag from changing design between cuts.</li>
+      <li><b>Keep logos out of the generation.</b> Video models garble lettering. Every prompt asks for no text or logos. The K deboss, brass tags, luggage tag, woven label and belt box are added in post with a planar track (Mocha, After Effects or Resolve Fusion), using the real artwork at the sizes listed per product.</li>
+      <li><b>Shoot the five branding inserts for real if at all possible.</b> Shots 1, 6, 12, 21 and 22 are macro product moments. A half-day tabletop shoot with the actual products will beat any model at these, and they are the shots that sell craftsmanship.</li>
+      <li><b>Lock people with a character reference.</b> Generate one portrait per cast member and reuse it as a subject reference (Kling Elements, Runway References, Veo ingredients) in every shot they appear.</li>
+      <li><b>Generate long, cut short.</b> Generate 5–8 s per shot and use the calmest 1.2–4.5 s. Reject any take with warped straps, extra handles, unnatural hands or a bag that floats.</li>
+    </ol>
+  </section>
+
+  <section>
+    <h2>Palette and light</h2>
+    <div class="swatches">
+      <div><i style="background:#141210"></i>Black</div>
+      <div><i style="background:#3b2416"></i>Dark brown</div>
+      <div><i style="background:#9a5b2c"></i>Cognac</div>
+      <div><i style="background:#c19060"></i>Tan</div>
+      <div><i style="background:#c8a77c"></i>Camel</div>
+      <div><i style="background:#5c1e2a"></i>Burgundy</div>
+      <div><i style="background:#2f3b2c"></i>Dark green</div>
+      <div><i style="background:#d4a325"></i>Brand gold (end card only)</div>
+    </div>
+    <p>Grade warm but not orange: lifted blacks around 3%, highlights rolled off, skin kept true. Light is mostly motivated by windows and late sun, with one soft key per shot. Keep the lens language consistent: macro inserts at 90–100 mm, people at 35–65 mm, wides at 24 mm. Nothing faster than a slow push or a walking-pace track.</p>
+  </section>
+
+  <section>
+    <h2>Products, locked</h2>
+    <p>These descriptions are pasted verbatim into the prompts. If a product changes, change it here and in <span class="mono">shots.json</span>, then rebuild.</p>
+    <div class="grid2" id="products"></div>
+  </section>
+
+  <section>
+    <h2>Cast</h2>
+    <p>Eight adults from 26 to 42. Directing note for every shot: they are mid-task and thinking about their day, not about the camera.</p>
+    <div class="grid2" id="cast"></div>
+  </section>
+
+  <section id="shots">
+    <h2>Shot list</h2>
+    <p>Each prompt already includes the product description, camera move and shared style block. Paste the negative prompt into the model's negative field where it has one; otherwise append it as “Avoid: …”.</p>
+    <div id="shotlist"></div>
+  </section>
+
+  <section id="endcard">
+    <h2>End card, 52–60 s</h2>
+    <div class="endcard">
+      <div class="ec a"><div><div class="wm">KAPTAN</div><div class="rl"></div><div class="tg">Crafted for the Journey. Designed for Life.</div><div class="sl">Leather essentials for work, travel and everyday life</div></div></div>
+      <div class="ec b"><img src="{{LOGO}}" alt="KAPTAN logo"></div>
+    </div>
+    <p>This is a preview. The frame-exact master is <span class="mono">renders/kaptan-endcard-1080p.webm</span> (8 s, 30 fps), built from <span class="mono">endcard.html</span>. It is rendered at 30 fps; conform it to 24 fps in the edit, or change <span class="mono">FPS</span> in <span class="mono">render-endcard.mjs</span> and re-render. The wordmark is set in ivory rather than the logo's yellow, so the yellow is saved for the final emblem. The alternate tagline “Elegance You Carry. Comfort You Feel.” can be swapped in on one line of the file.</p>
+  </section>
+
+  <section>
+    <h2>Music and sound</h2>
+    <div class="tbl"><table>
+      <tr><th>Time</th><th>Music</th><th>Sound design</th></tr>
+      <tr><td class="mono">0–5 s</td><td>Solo felt piano or muted Rhodes figure with an air pad. No drums yet.</td><td>Room tone, leather creak on the lift, the zip.</td></tr>
+      <tr><td class="mono">5–18 s</td><td>Warm sub bass enters. Brushed, filtered percussion around 92–100 BPM.</td><td>Footsteps on stone, café murmur, station ambience.</td></tr>
+      <tr><td class="mono">18–43 s</td><td>Full groove: plucked strings or guitar harmonics over the bass. Restrained, never euphoric.</td><td>Zip pulls, buckle click (shot 16), jacket rustle. Keep one SFX per shot at most.</td></tr>
+      <tr><td class="mono">43–52 s</td><td>Drums drop out and a string swell carries the product table.</td><td>Nearly silent. A single low tone under the dolly.</td></tr>
+      <tr><td class="mono">52–60 s</td><td>Resolve on a sustained chord, ending on a final piano note as the logo lands.</td><td>Nothing else.</td></tr>
+    </table></div>
+    <p>Search licensing libraries (Musicbed, Artlist, Marmoset) for “minimal luxury fashion”, “warm downtempo cinematic” or “modern neo-classical groove”. Avoid uplifting-corporate ukulele, trailer hits and EDM drops. If the track is AI-generated, check the commercial licence first.</p>
+  </section>
+
+  <section>
+    <h2>Deliverables</h2>
+    <div class="tbl"><table>
+      <tr><th>Version</th><th>Length</th><th>Notes</th></tr>
+      <tr><td>Master</td><td class="mono">60 s · 16:9</td><td>Website hero, YouTube, presentations.</td></tr>
+      <tr><td>Social cut</td><td class="mono">30 s · 9:16, 4:5</td><td>Shots 1, 3, 4, 7, 11, 12, 13, 14, 18, 20, 22, plus the end card shortened to 5 s. Reframe from UHD.</td></tr>
+      <tr><td>Bumpers</td><td class="mono">6 s × 3</td><td>Laptop bag (1→3→4), travel (11→12), jacket (18→21), each closing on the logo.</td></tr>
+      <tr><td>Director's cut</td><td class="mono">90 s</td><td>Same shots held longer if 60 s feels rushed. Ten scenes in 52 s averages about 2 s per shot.</td></tr>
+    </table></div>
+  </section>
+</div>
+
+<script>
+const D = {{DATA}};
+const sceneColor = s => { const k = s.split(' ')[0]; return k === 'Final' ? 'var(--sf)' : `var(--s${k})`; };
+const fmtTC = s => { const f = Math.round((s % 1) * 24), w = Math.floor(s); return `00:00:${String(w).padStart(2,'0')}:${String(f).padStart(2,'0')}`; };
+const esc = t => String(t).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+// timeline
+const tl = document.getElementById('tl');
+D.shots.forEach(s => {
+  const a = document.createElement('a');
+  a.href = s.prompt ? `#shot${s.id}` : '#endcard';
+  a.style.width = `${(s.out - s.in) / D.duration * 100}%`;
+  a.style.background = sceneColor(s.scene);
+  a.textContent = s.id === 26 ? 'END' : s.id;
+  a.title = `${s.id}. ${s.scene}: ${s.label} (${s.in}–${s.out} s)`;
+  tl.appendChild(a);
+});
+document.getElementById('ticks').innerHTML = [0,10,20,30,40,50,60].map(t => `<span style="left:${t/60*100}%">${t}s</span>`).join('');
+const scenes = [...new Map(D.shots.map(s => [s.scene, s])).values()];
+document.getElementById('legend').innerHTML = scenes.map(s => `<span><i style="background:${sceneColor(s.scene)}"></i>${esc(s.scene)}</span>`).join('');
+
+// products & cast
+document.getElementById('products').innerHTML = Object.entries(D.products).map(([k, p]) =>
+  `<div class="card"><span class="code">${k}</span><h3>${esc(p.name)}</h3><p>${esc(p.desc[0].toUpperCase() + p.desc.slice(1))}.</p><p class="brand"><b>Branding:</b> ${esc(p.brand)}</p></div>`).join('');
+document.getElementById('cast').innerHTML = Object.entries(D.cast).map(([k, c]) => {
+  const [name, rest] = c.split(' — ');
+  return `<div class="card"><span class="code">${k}</span><h3>${esc(name)}</h3><p>${esc(rest)}</p></div>`;
+}).join('');
+
+// shots
+document.getElementById('shotlist').innerHTML = D.shots.filter(s => s.prompt).map(s => `
+  <article class="shot" id="shot${s.id}">
+    <div class="slate"><span class="n">${s.id}</span><span class="tc">${fmtTC(s.in)}<br>${fmtTC(s.out)}</span><span class="dur">${(s.out - s.in).toFixed(1)} s</span></div>
+    <div class="body">
+      <div class="meta"><span class="scene">Scene ${esc(s.scene)}</span><span>${esc(s.label)}</span><span>${esc(s.camera)}</span></div>
+      <div class="prompt"><button class="copy" type="button" data-copy="p${s.id}">Copy</button><span id="p${s.id}">${esc(s.prompt)}</span></div>
+      <div class="tags">${s.products.map(p => `<span>${p}</span>`).join('')}${s.cast.map(c => `<span>${c}</span>`).join('')}</div>
+      <div class="branding"><b>Logo:</b> ${esc(s.branding)}</div>
+    </div>
+  </article>`).join('') + `
+  <article class="shot" id="negative">
+    <div class="slate"><span class="n">∅</span><span class="dur">all shots</span></div>
+    <div class="body"><div class="meta"><span class="scene">Negative prompt</span></div>
+    <div class="prompt"><button class="copy" type="button" data-copy="pneg">Copy</button><span id="pneg">${esc(D.negative)}</span></div></div>
+  </article>`;
+
+document.addEventListener('click', e => {
+  const b = e.target.closest('.copy'); if (!b) return;
+  const el = document.getElementById(b.dataset.copy);
+  const done = () => { b.textContent = 'Copied'; setTimeout(() => b.textContent = 'Copy', 1400); };
+  navigator.clipboard?.writeText(el.textContent).then(done, () => {
+    const r = document.createRange(); r.selectNodeContents(el);
+    const sel = getSelection(); sel.removeAllRanges(); sel.addRange(r); b.textContent = 'Selected';
+  });
+});
+</script>

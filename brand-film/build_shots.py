@@ -92,3 +92,11 @@ for (i,a,b,scene,label,cam,p,prods,cs,logo) in S:
 shots.append({"id":26,"in":52.0,"out":60.0,"scene":"Final","label":"End card","camera":"Rendered (endcard.html)","prompt":None,"negative":None,"products":[],"cast":[],"branding":"KAPTAN wordmark → tagline → second line → logo emblem. Already rendered: renders/kaptan-endcard-1080p.webm"})
 json.dump({"title":"KAPTAN — Crafted for the Journey","duration":60,"fps":24,"aspect":"16:9","style_suffix":STYLE,"negative":NEG,"products":products,"cast":cast,"shots":shots},open("shots.json","w"),indent=1,ensure_ascii=False)
 print(len(shots),"shots")
+
+# bible.src.html + shots.json + keyed logo -> index.html (self-contained, publishable)
+import base64
+logo = "data:image/png;base64," + base64.b64encode(open("assets/kaptan-logo-keyed.png","rb").read()).decode()
+data = json.dumps(json.load(open("shots.json")), ensure_ascii=False).replace("</", "<\\/")
+html = open("bible.src.html").read().replace("{{LOGO}}", logo).replace("{{DATA}}", data)
+open("index.html","w").write(html)
+print("index.html", len(html)//1024, "KB")

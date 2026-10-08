@@ -42,7 +42,7 @@
   .subline { margin-top: 26px; font-size: 20px; font-weight: 300; letter-spacing: .32em; text-transform: uppercase; color: rgba(247,244,236,.62); margin-right: -.32em; }
 
   .emblem { position: absolute; inset: 0; display: grid; place-items: center; }
-  .emblem img { width: 300px; height: 300px; mix-blend-mode: screen; } /* drops the PNG's black square onto the warm ground */
+  .emblem img { width: 300px; height: 300px; } /* logo keyed to transparent (alpha from luminance) so it sits on the warm ground */
 
   .fade { position: absolute; inset: 0; background: #000; pointer-events: none; }
 </style>
@@ -61,7 +61,7 @@
     </div>
   </div>
 
-  <div class="emblem" id="emblem"><img src="assets/kaptan-logo.png" alt="KAPTAN logo"></div>
+  <div class="emblem" id="emblem"><img src="assets/kaptan-logo-keyed.png" alt="KAPTAN logo"></div>
   <div class="fade" id="fade"></div>
 </div>
 
