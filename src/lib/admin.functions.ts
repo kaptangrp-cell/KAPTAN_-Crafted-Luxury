@@ -93,7 +93,8 @@ export const getAdminStats = createServerFn({ method: "POST" })
       ),
       lowStockCount: lowStock.length,
       lowStockProducts: lowStock.sort((a, b) => a.stock_quantity - b.stock_quantity).slice(0, 5),
-      pendingOrdersCount: paid.filter((o) => o.status === "ordered").length,
+      pendingOrdersCount: paid.filter((o) => o.status === "ordered" || o.status === "pending")
+        .length,
     };
   });
 

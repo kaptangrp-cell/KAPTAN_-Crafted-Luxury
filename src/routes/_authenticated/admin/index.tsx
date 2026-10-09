@@ -31,6 +31,9 @@ export const Route = createFileRoute("/_authenticated/admin/")({ component: Admi
 const statuses = ["ordered", "packaging", "out_for_delivery", "delivered", "cancelled"];
 const statusKeys: Record<string, string> = {
   ordered: "statusOrdered",
+  pending: "statusOrdered",
+  processing: "statusPackaging",
+  shipped: "statusOutForDelivery",
   packaging: "statusPackaging",
   out_for_delivery: "statusOutForDelivery",
   delivered: "statusDelivered",

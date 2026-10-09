@@ -1,3 +1,4 @@
+import { formatEuro } from "@/lib/currency";
 import { AdminFeedback } from "@/components/admin/AdminFeedback";
 import type { Json } from "@/integrations/supabase/types";
 import { useState } from "react";
@@ -84,7 +85,7 @@ const empty = {
 };
 
 function AdminProductsPage() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const qc = useQueryClient();
   const listFn = useServerFn(adminListProducts);
   const catsFn = useServerFn(adminListCategories);
@@ -468,7 +469,9 @@ function AdminProductsPage() {
 
                   <td className="p-3 text-white/60">{p.categories?.name ?? "—"}</td>
                   <td className="p-3 text-white/60">{sortedMedia.length}</td>
-                  <td className="p-3 font-mono text-gold">€{Number(p.price).toFixed(2)}</td>
+                  <td className="p-3 font-mono text-gold">
+                    {formatEuro(Number(p.price), i18n.language)}
+                  </td>
                   <td className="p-3 font-mono text-white/70">{p.stock_quantity}</td>
 
                   <td className="p-3 text-xs">

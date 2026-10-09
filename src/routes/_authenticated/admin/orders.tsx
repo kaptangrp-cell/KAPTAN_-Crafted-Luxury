@@ -1,3 +1,4 @@
+import { formatEuro } from "@/lib/currency";
 import { z } from "zod";
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { AdminFeedback } from "@/components/admin/AdminFeedback";
@@ -251,7 +252,9 @@ function AdminOrdersPage() {
                   )}
                 </td>
 
-                <td className="p-3 font-mono text-white">€{Number(o.total).toFixed(2)}</td>
+                <td className="p-3 font-mono text-white">
+                  {formatEuro(Number(o.total), i18n.language)}
+                </td>
 
                 <td className="p-3 text-xs capitalize text-white/70">
                   {t(`paymentStatus.${o.payment_status}`, {
@@ -328,12 +331,14 @@ function AdminOrdersPage() {
                     <span>
                       {item.product_name} × {item.quantity}
                     </span>
-                    <span className="text-gold">€{Number(item.line_total).toFixed(2)}</span>
+                    <span className="text-gold">
+                      {formatEuro(Number(item.line_total), i18n.language)}
+                    </span>
                   </li>
                 ))}
               </ul>
               <p className="border-t border-gold/15 pt-4 text-right font-semibold text-gold">
-                {t("cart.total")}: €{Number(selected.total).toFixed(2)}
+                {t("cart.total")}: {formatEuro(Number(selected.total), i18n.language)}
               </p>
             </div>
           )}

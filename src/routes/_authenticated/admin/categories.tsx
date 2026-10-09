@@ -140,6 +140,13 @@ function AdminCategoriesPage() {
                 </td>
               </tr>
             ))}
+            {!isLoading && !isError && !data?.categories.length && (
+              <tr>
+                <td colSpan={4} className="py-8 text-center text-white/60">
+                  {t("adminWorkspace.noMatches")}
+                </td>
+              </tr>
+            )}
           </tbody>
         </table>
       </div>
