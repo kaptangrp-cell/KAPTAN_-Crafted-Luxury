@@ -186,3 +186,37 @@
 .light .placeholder\:text-white\/30::placeholder {
   color: rgba(20, 18, 16, 0.45) !important;
 }
+
+/* Admin workspace: shared density, focus and table treatment. */
+.admin-workspace table {
+  min-width: 640px;
+}
+.admin-workspace thead {
+  background: color-mix(in srgb, var(--color-gold) 5%, transparent);
+}
+.admin-workspace th {
+  white-space: nowrap;
+  font-weight: 500;
+  padding: 1rem;
+}
+.admin-workspace td {
+  padding: 1rem;
+}
+.admin-workspace tbody tr:hover {
+  background: color-mix(in srgb, var(--color-gold) 4%, transparent);
+}
+.admin-workspace input:not([type="checkbox"]):not([type="radio"]),
+.admin-workspace select,
+.admin-workspace textarea {
+  border-radius: 0.5rem;
+}
+.admin-workspace button {
+  border-radius: 0.5rem;
+}
+.admin-workspace :is(button, a, input, select, textarea):focus-visible {
+  outline: 2px solid var(--color-gold);
+  outline-offset: 3px;
+}
+.admin-workspace h1 {
+  letter-spacing: -0.025em;
+}

@@ -1,3 +1,5 @@
+import { AdminModal } from "@/components/admin/AdminModal";
+import { AdminFeedback } from "@/components/admin/AdminFeedback";
 import { useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
@@ -31,7 +33,10 @@ function AdminCategoriesPage() {
   const listFn = useServerFn(adminListCategories);
   const upsertFn = useServerFn(adminUpsertCategory);
   const delFn = useServerFn(adminDeleteCategory);
-  const { data, isLoading } = useQuery({ queryKey: ["admin-cats"], queryFn: () => listFn() });
+  const { data, isLoading, isError, refetch } = useQuery({
+    queryKey: ["admin-cats"],
+    queryFn: () => listFn(),
+  });
   const [editing, setEditing] = useState<typeof empty | null>(null);
 
   const upsert = useMutation({
@@ -65,7 +70,7 @@ function AdminCategoriesPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-wrap gap-3 items-center justify-between">
         <h1 className="font-serif text-3xl text-white">{t("adminCategories.title")}</h1>
         <button
           onClick={() => setEditing(empty)}
@@ -75,14 +80,17 @@ function AdminCategoriesPage() {
         </button>
       </div>
 
-      <div className="border border-gold/15 bg-[#1A1A1A]">
+      {isError && <AdminFeedback retry={() => void refetch()} />}
+      <div className="overflow-x-auto rounded-2xl border border-gold/15 bg-[#0D0D0D]">
         <table className="w-full text-sm">
           <thead className="text-left text-xs uppercase tracking-wider text-white/50">
             <tr>
               <th className="p-3">{t("adminCategories.colName")}</th>
               <th className="p-3">{t("adminCategories.colSlug")}</th>
               <th className="p-3">{t("adminCategories.colOrder")}</th>
-              <th className="p-3"></th>
+              <th className="p-3">
+                <span className="sr-only">{t("adminWorkspace.actions")}</span>
+              </th>
             </tr>
           </thead>
           <tbody>
@@ -112,7 +120,8 @@ function AdminCategoriesPage() {
                           sort_order: c.sort_order ?? 0,
                         })
                       }
-                      className="text-gold/70 hover:text-gold"
+                      aria-label={t("adminWorkspace.edit")}
+                      className="p-2 text-gold/70 hover:text-gold"
                     >
                       <Pencil size={14} />
                     </button>
@@ -122,7 +131,8 @@ function AdminCategoriesPage() {
                         confirm(t("adminProducts.deleteConfirm", { name: c.name })) &&
                         del.mutate(c.id)
                       }
-                      className="text-white/40 hover:text-red-400"
+                      aria-label={t("adminWorkspace.delete")}
+                      className="p-2 text-white/40 hover:text-red-400"
                     >
                       <Trash2 size={14} />
                     </button>
@@ -135,18 +145,17 @@ function AdminCategoriesPage() {
       </div>
 
       {editing && (
-        <div className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-black/80 p-4 pt-16">
+        <AdminModal
+          onClose={() => setEditing(null)}
+          title={editing.id ? t("adminCategories.editCategory") : t("adminCategories.newCategory")}
+        >
           <form
             onSubmit={(e) => {
               e.preventDefault();
               upsert.mutate(editing);
             }}
-            className="w-full max-w-lg space-y-3 border border-gold/30 bg-[#1A1A1A] p-6"
+            className="space-y-4"
           >
-            <h2 className="font-serif text-lg text-white">
-              {editing.id ? t("adminCategories.editCategory") : t("adminCategories.newCategory")}
-            </h2>
-
             <Field
               label={t("adminCategories.nameLabel")}
               value={editing.name}
@@ -205,7 +214,7 @@ function AdminCategoriesPage() {
               </button>
             </div>
           </form>
-        </div>
+        </AdminModal>
       )}
     </div>
   );

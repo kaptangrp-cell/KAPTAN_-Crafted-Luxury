@@ -1,6 +1,9 @@
-import { useState } from "react";
+import { z } from "zod";
+import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { AdminFeedback } from "@/components/admin/AdminFeedback";
+import { useState, useEffect } from "react";
 import { useAuthStore } from "@/stores/authStore";
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
@@ -11,6 +14,7 @@ import type { TFunction } from "i18next";
 import { adminListOrders, adminUpdateOrderStatus, adminExportOrders } from "@/lib/admin.functions";
 
 export const Route = createFileRoute("/_authenticated/admin/orders")({
+  validateSearch: z.object({ orderNumber: z.string().optional() }).parse,
   component: AdminOrdersPage,
 });
 
@@ -26,12 +30,16 @@ function AdminOrdersPage() {
   const { t, i18n } = useTranslation();
   const qc = useQueryClient();
   const userId = useAuthStore((s) => s.user?.id);
-  const [orderNumber, setOrderNumber] = useState("");
+  const search = Route.useSearch();
+  const [orderNumber, setOrderNumber] = useState(search.orderNumber ?? "");
+  useEffect(() => setOrderNumber(search.orderNumber ?? ""), [search.orderNumber]);
+  const [filter, setFilter] = useState("all");
+  const [selectedId, setSelectedId] = useState<string | null>(null);
   const listFn = useServerFn(adminListOrders);
   const updateFn = useServerFn(adminUpdateOrderStatus);
   const exportFn = useServerFn(adminExportOrders);
 
-  const { data, isLoading, isError } = useQuery({
+  const { data, isLoading, isError, refetch } = useQuery({
     queryKey: ["admin-orders", userId, orderNumber],
     queryFn: () => listFn({ data: { orderNumber: orderNumber || undefined } }),
   });
@@ -132,6 +140,10 @@ function AdminOrdersPage() {
     }
   }
 
+  const selected = data?.orders.find((order) => order.id === selectedId);
+  const visibleOrders = (data?.orders ?? []).filter(
+    (order) => filter === "all" || order.status === filter,
+  );
   return (
     <div className="space-y-6">
       <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
@@ -168,6 +180,8 @@ function AdminOrdersPage() {
           {t("adminOrders.findOrder")}
           <input
             name="orderNumber"
+            defaultValue={orderNumber}
+            key={search.orderNumber ?? "all"}
             placeholder="KPT-..."
             className="border border-gold/30 bg-black p-2 text-white"
           />
@@ -175,13 +189,24 @@ function AdminOrdersPage() {
         <button className="self-end border border-gold px-4 py-2 text-gold" type="submit">
           {t("adminOrders.search")}
         </button>
+        <label className="flex flex-col gap-1 text-sm text-white">
+          {t("admin.orderStatus")}
+          <select
+            value={filter}
+            onChange={(e) => setFilter(e.target.value)}
+            className="border border-gold/30 bg-black p-2"
+          >
+            <option value="all">{t("admin.allStatuses")}</option>
+            {STATUSES.map((status) => (
+              <option key={status.value} value={status.value}>
+                {t(status.labelKey)}
+              </option>
+            ))}
+          </select>
+        </label>
       </form>
       <p className="text-sm text-white/60">{t("adminOrders.listScope")}</p>
-      {isError && (
-        <p role="alert" className="text-red-400">
-          {t("orders.loadFailed")}
-        </p>
-      )}
+      {isError && <AdminFeedback retry={() => void refetch()} />}
       <div className="overflow-x-auto border border-gold/15 bg-[#1A1A1A]">
         <table className="w-full text-sm">
           <thead className="text-left text-xs uppercase tracking-wider text-white/50">
@@ -204,16 +229,15 @@ function AdminOrdersPage() {
               </tr>
             )}
 
-            {(data?.orders ?? []).map((o) => (
+            {visibleOrders.map((o) => (
               <tr key={o.id} className="border-t border-gold/5">
                 <td className="p-3">
-                  <Link
-                    to="/orders/$id"
-                    params={{ id: o.id }}
+                  <button
+                    onClick={() => setSelectedId(o.id)}
                     className="font-mono text-gold hover:underline"
                   >
                     {o.order_number}
-                  </Link>
+                  </button>
                 </td>
 
                 <td className="p-3 text-white">
@@ -237,6 +261,8 @@ function AdminOrdersPage() {
 
                 <td className="p-3">
                   <select
+                    aria-label={t("adminWorkspace.orderStatusFor", { number: o.order_number })}
+                    disabled={updateStatus.isPending}
                     value={o.status ?? "ordered"}
                     onChange={(e) =>
                       updateStatus.mutate({
@@ -256,16 +282,63 @@ function AdminOrdersPage() {
               </tr>
             ))}
 
-            {!isLoading && !data?.orders.length && (
+            {!isLoading && !isError && !visibleOrders.length && (
               <tr>
                 <td colSpan={6} className="p-6 text-center text-white/50">
-                  {t("admin.noOrdersYet")}
+                  {t("adminWorkspace.noMatches")}
                 </td>
               </tr>
             )}
           </tbody>
         </table>
       </div>
+      <Dialog
+        open={Boolean(selected)}
+        onOpenChange={(open) => {
+          if (!open) setSelectedId(null);
+        }}
+      >
+        <DialogContent className="max-h-[85vh] overflow-y-auto border-gold/20 bg-[#0D0D0D] text-white sm:max-w-2xl">
+          <DialogTitle className="font-serif text-2xl text-gold">
+            {selected?.order_number}
+          </DialogTitle>
+          <DialogDescription>{t("adminWorkspace.orderDetails")}</DialogDescription>
+          {selected && (
+            <div className="space-y-5">
+              <div>
+                <p className="font-medium">{selected.customer_name}</p>
+                <p className="text-sm text-white/60">{selected.customer_email}</p>
+              </div>
+              <div className="rounded-xl border border-gold/15 p-4">
+                <h3 className="mb-2 text-sm text-gold">{t("orderDetail.shippingTitle")}</h3>
+                <p className="whitespace-pre-line text-sm text-white/70">
+                  {selected.shipping_address &&
+                  typeof selected.shipping_address === "object" &&
+                  !Array.isArray(selected.shipping_address)
+                    ? ["full_name", "line1", "line2", "postal_code", "city", "state", "country"]
+                        .map((key) => (selected.shipping_address as Record<string, unknown>)[key])
+                        .filter((value) => typeof value === "string")
+                        .join("\n")
+                    : "—"}
+                </p>
+              </div>
+              <ul className="space-y-3">
+                {selected.order_items.map((item) => (
+                  <li key={item.id} className="flex justify-between gap-4 text-sm">
+                    <span>
+                      {item.product_name} × {item.quantity}
+                    </span>
+                    <span className="text-gold">€{Number(item.line_total).toFixed(2)}</span>
+                  </li>
+                ))}
+              </ul>
+              <p className="border-t border-gold/15 pt-4 text-right font-semibold text-gold">
+                {t("cart.total")}: €{Number(selected.total).toFixed(2)}
+              </p>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

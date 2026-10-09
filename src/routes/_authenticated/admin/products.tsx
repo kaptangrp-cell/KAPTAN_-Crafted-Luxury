@@ -1,6 +1,7 @@
+import { AdminFeedback } from "@/components/admin/AdminFeedback";
 import type { Json } from "@/integrations/supabase/types";
 import { useState } from "react";
-import type { ReactNode } from "react";
+import { AdminModal as Modal } from "@/components/admin/AdminModal";
 import { createFileRoute } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -38,6 +39,7 @@ type ProductRow = {
   full_description: string | null;
   specifications: Json;
   stock_quantity: number;
+  low_stock_threshold: number | null;
   is_available: boolean | null;
   is_featured: boolean | null;
   category_id: string | null;
@@ -90,7 +92,12 @@ function AdminProductsPage() {
   const deleteFn = useServerFn(adminDeleteProduct);
   const bulkCreateFn = useServerFn(adminBulkCreateProducts);
 
-  const { data: prodData, isLoading } = useQuery({
+  const {
+    data: prodData,
+    isLoading,
+    isError,
+    refetch,
+  } = useQuery({
     queryKey: ["admin-products"],
     queryFn: () => listFn(),
   });
@@ -100,6 +107,8 @@ function AdminProductsPage() {
     queryFn: () => catsFn(),
   });
 
+  const [searchTerm, setSearchTerm] = useState("");
+  const [stockFilter, setStockFilter] = useState("all");
   const [editing, setEditing] = useState<typeof empty | null>(null);
 
   const upsert = useMutation({
@@ -328,6 +337,16 @@ function AdminProductsPage() {
   }
 
   const products = (prodData?.products ?? []) as never as ProductRow[];
+  const visibleProducts = products.filter(
+    (p) =>
+      `${p.name} ${p.categories?.name ?? ""}`
+        .toLowerCase()
+        .includes(searchTerm.trim().toLowerCase()) &&
+      (stockFilter === "all" ||
+        (stockFilter === "hidden"
+          ? !p.is_available
+          : p.is_available && p.stock_quantity <= (p.low_stock_threshold ?? 5))),
+  );
 
   return (
     <div className="space-y-6">
@@ -370,12 +389,39 @@ function AdminProductsPage() {
         </div>
       </div>
 
-      <div className="border border-gold/20 bg-[#1A1A1A] p-4 text-sm text-white/60">
-        {t("adminProducts.excelUploadHint")} {t("adminProducts.excelRequiredCols")}{" "}
-        <span className="text-gold">name, slug, category_slug, price, stock_quantity</span>.
+      <div className="flex flex-wrap gap-3 rounded-xl border border-gold/15 bg-[#0D0D0D] p-4">
+        <label className="min-w-48 flex-1 text-xs text-white/60">
+          {t("adminWorkspace.searchProducts")}
+          <input
+            type="search"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="mt-2 w-full border border-gold/20 bg-black px-3 py-2 text-sm text-white"
+          />
+        </label>
+        <label className="text-xs text-white/60">
+          {t("adminWorkspace.inventory")}
+          <select
+            value={stockFilter}
+            onChange={(e) => setStockFilter(e.target.value)}
+            className="mt-2 block border border-gold/20 bg-black px-3 py-2 text-sm text-white"
+          >
+            <option value="all">{t("products.allProducts")}</option>
+            <option value="low">{t("products.lowStock")}</option>
+            <option value="hidden">{t("adminProducts.hidden")}</option>
+          </select>
+        </label>
+        <details className="w-full text-xs text-white/50">
+          <summary className="cursor-pointer text-gold">{t("adminWorkspace.importHelp")}</summary>
+          <p className="mt-3">
+            {t("adminProducts.excelUploadHint")} {t("adminProducts.excelRequiredCols")} name, slug,
+            category_slug, price, stock_quantity.
+          </p>
+        </details>
       </div>
 
-      <div className="border border-gold/15 bg-[#1A1A1A]">
+      {isError && <AdminFeedback retry={() => void refetch()} />}
+      <div className="overflow-x-auto rounded-2xl border border-gold/15 bg-[#0D0D0D]">
         <table className="w-full text-sm">
           <thead className="text-left text-xs uppercase tracking-wider text-white/50">
             <tr>
@@ -385,7 +431,9 @@ function AdminProductsPage() {
               <th className="p-3">{t("adminProducts.colPrice")}</th>
               <th className="p-3">{t("adminProducts.colStock")}</th>
               <th className="p-3">{t("adminProducts.colStatus")}</th>
-              <th className="p-3"></th>
+              <th className="p-3">
+                <span className="sr-only">{t("adminWorkspace.actions")}</span>
+              </th>
             </tr>
           </thead>
 
@@ -398,8 +446,8 @@ function AdminProductsPage() {
               </tr>
             )}
 
-            {products.map((p) => {
-              const sortedMedia = (p.product_images ?? []).sort(
+            {visibleProducts.map((p) => {
+              const sortedMedia = [...(p.product_images ?? [])].sort(
                 (a, b) => Number(a.sort_order ?? 0) - Number(b.sort_order ?? 0),
               );
               const firstImage =
@@ -443,7 +491,11 @@ function AdminProductsPage() {
 
                   <td className="p-3">
                     <div className="flex justify-end gap-2">
-                      <button onClick={() => startEdit(p)} className="text-gold/70 hover:text-gold">
+                      <button
+                        onClick={() => startEdit(p)}
+                        aria-label={t("adminWorkspace.edit")}
+                        className="p-2 text-gold/70 hover:text-gold"
+                      >
                         <Pencil size={14} />
                       </button>
 
@@ -452,7 +504,8 @@ function AdminProductsPage() {
                           confirm(t("adminProducts.deleteConfirm", { name: p.name })) &&
                           del.mutate(p.id)
                         }
-                        className="text-white/40 hover:text-red-400"
+                        aria-label={t("adminWorkspace.delete")}
+                        className="p-2 text-white/40 hover:text-red-400"
                       >
                         <Trash2 size={14} />
                       </button>
@@ -462,10 +515,10 @@ function AdminProductsPage() {
               );
             })}
 
-            {!isLoading && !products.length && (
+            {!isLoading && !isError && !visibleProducts.length && (
               <tr>
                 <td colSpan={7} className="p-6 text-center text-white/50">
-                  {t("adminProducts.noProductsYet")}
+                  {t("adminWorkspace.noMatches")}
                 </td>
               </tr>
             )}
@@ -832,7 +885,12 @@ function MediaUpload({
           #{index + 1}
         </p>
 
-        <button type="button" onClick={onRemove} className="text-white/40 hover:text-red-400">
+        <button
+          type="button"
+          onClick={onRemove}
+          aria-label={t("adminWorkspace.delete")}
+          className="p-2 text-white/40 hover:text-red-400"
+        >
           <X size={16} />
         </button>
       </div>
@@ -873,30 +931,6 @@ function MediaUpload({
       {item.url && item.media_type === "image" && (
         <img src={item.url} alt="" className="mt-3 h-32 w-32 border border-gold/20 object-cover" />
       )}
-    </div>
-  );
-}
-
-export function Modal({
-  title,
-  children,
-  onClose,
-}: {
-  title: string;
-  children: ReactNode;
-  onClose: () => void;
-}) {
-  return (
-    <div className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-black/80 p-4 pt-16">
-      <div className="w-full max-w-3xl border border-gold/30 bg-[#1A1A1A]">
-        <div className="flex items-center justify-between border-b border-gold/10 p-4">
-          <h2 className="font-serif text-lg text-white">{title}</h2>
-          <button onClick={onClose} className="text-white/40 hover:text-white">
-            ✕
-          </button>
-        </div>
-        <div className="p-4">{children}</div>
-      </div>
     </div>
   );
 }

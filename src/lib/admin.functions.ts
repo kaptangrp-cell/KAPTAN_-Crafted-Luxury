@@ -1,3 +1,4 @@
+import { reportingWindow, summarizeOrders } from "@/lib/admin-analytics";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database, Json } from "@/integrations/supabase/types";
 import { createServerFn } from "@tanstack/react-start";
@@ -16,119 +17,83 @@ const AnalyticsSchema = z.object({
   productName: z.string().optional(),
 });
 
-function getPeriodStart(period: string) {
-  const now = new Date();
-  const start = new Date(now);
-
-  if (period === "7d") start.setDate(now.getDate() - 7);
-  if (period === "30d") start.setDate(now.getDate() - 30);
-  if (period === "90d") start.setDate(now.getDate() - 90);
-
-  if (period === "this_month") {
-    start.setDate(1);
-    start.setHours(0, 0, 0, 0);
+async function readAllRows<T>(
+  readPage: (
+    from: number,
+    to: number,
+  ) => PromiseLike<{ data: T[] | null; error: { message: string } | null }>,
+) {
+  const rows: T[] = [];
+  for (let offset = 0; ; offset += 500) {
+    const { data, error } = await readPage(offset, offset + 499);
+    if (error) throw new Error(error.message);
+    rows.push(...(data ?? []));
+    if (!data || data.length < 500) return rows;
   }
-
-  if (period === "last_month") {
-    start.setMonth(now.getMonth() - 1);
-    start.setDate(1);
-    start.setHours(0, 0, 0, 0);
-  }
-
-  return start;
 }
 
-function getPeriodEnd(period: string) {
-  const now = new Date();
-
-  if (period !== "last_month") return now;
-
-  const end = new Date(now);
-  end.setDate(1);
-  end.setHours(0, 0, 0, 0);
-  return end;
-}
-
-export const getAdminStats = createServerFn({ method: "GET" })
+export const getAdminStats = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
     await assertAdmin(context.supabase, context.userId);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-
     const todayStart = new Date();
-    todayStart.setHours(0, 0, 0, 0);
-    const todayStartIso = todayStart.toISOString();
-
-    const [
-      products,
-      orders,
-      customers,
-      revenueRes,
-      recent,
-      todaysOrdersRes,
-      todaysCustomersRes,
-      lowStockProductsRes,
-      pendingOrdersRes,
-    ] = await Promise.all([
-      supabaseAdmin.from("products").select("id", { count: "exact", head: true }),
-      supabaseAdmin.from("orders").select("id, status", { count: "exact" }),
-      supabaseAdmin.from("profiles").select("id", { count: "exact", head: true }),
-      supabaseAdmin.from("orders").select("total").neq("status", "cancelled"),
-      supabaseAdmin
-        .from("orders")
-        .select("id, order_number, customer_name, total, status, created_at")
-        .order("created_at", { ascending: false })
-        .limit(10),
-      supabaseAdmin
-        .from("orders")
-        .select("id, total, status, order_items(quantity)")
-        .gte("created_at", todayStartIso),
+    todayStart.setUTCHours(0, 0, 0, 0);
+    const [products, orders, customers, todaysCustomers] = await Promise.all([
+      readAllRows((from, to) =>
+        supabaseAdmin
+          .from("products")
+          .select("id, name, stock_quantity, low_stock_threshold, is_available")
+          .order("id")
+          .range(from, to),
+      ),
+      readAllRows((from, to) =>
+        supabaseAdmin
+          .from("orders")
+          .select(
+            "id, order_number, customer_name, total, status, payment_status, created_at, order_items(quantity)",
+          )
+          .order("created_at", { ascending: false })
+          .order("id")
+          .range(from, to),
+      ),
       supabaseAdmin
         .from("profiles")
         .select("id", { count: "exact", head: true })
-        .gte("created_at", todayStartIso),
+        .eq("role", "customer"),
       supabaseAdmin
-        .from("products")
-        .select("id, stock_quantity, low_stock_threshold")
-        .eq("is_available", true),
-      supabaseAdmin
-        .from("orders")
+        .from("profiles")
         .select("id", { count: "exact", head: true })
-        .eq("status", "ordered"),
+        .eq("role", "customer")
+        .gte("created_at", todayStart.toISOString()),
     ]);
-
-    const revenue = (revenueRes.data ?? []).reduce((s, r) => s + Number(r.total), 0);
-
-    const statusCounts = (orders.data ?? []).reduce<Record<string, number>>((acc, o) => {
-      const k = o.status ?? "ordered";
-      acc[k] = (acc[k] ?? 0) + 1;
-      return acc;
-    }, {});
-
-    const todaysOrders = (todaysOrdersRes.data ?? []).filter((o) => o.status !== "cancelled");
-    const todaysSales = todaysOrders.reduce((s, o) => s + Number(o.total ?? 0), 0);
-    const todaysProductsSold = todaysOrders.reduce(
-      (s, o) => s + (o.order_items ?? []).reduce((si, item) => si + Number(item.quantity ?? 0), 0),
-      0,
+    if (customers.error || todaysCustomers.error) throw new Error("Could not load customer totals");
+    const paid = orders.filter((o) => o.payment_status === "paid" && o.status !== "cancelled");
+    const today = paid.filter((o) => o.created_at && o.created_at >= todayStart.toISOString());
+    const lowStock = products.filter(
+      (p) => p.is_available && p.stock_quantity <= (p.low_stock_threshold ?? 5),
     );
-
-    const lowStockCount = (lowStockProductsRes.data ?? []).filter(
-      (p) => Number(p.stock_quantity ?? 0) <= Number(p.low_stock_threshold ?? 5),
-    ).length;
-
     return {
-      productCount: products.count ?? 0,
-      orderCount: orders.count ?? 0,
+      productCount: products.length,
+      orderCount: orders.length,
       customerCount: customers.count ?? 0,
-      revenue,
-      statusCounts,
-      recentOrders: recent.data ?? [],
-      todaysSales,
-      todaysOrderCount: todaysOrders.length,
-      todaysNewCustomers: todaysCustomersRes.count ?? 0,
-      todaysProductsSold,
-      lowStockCount,
-      pendingOrdersCount: pendingOrdersRes.count ?? 0,
+      revenue: paid.reduce((sum, o) => sum + Number(o.total), 0),
+      statusCounts: orders.reduce<Record<string, number>>((counts, o) => {
+        const status = o.status ?? "ordered";
+        counts[status] = (counts[status] ?? 0) + 1;
+        return counts;
+      }, {}),
+      recentOrders: orders.slice(0, 8),
+      todaysSales: today.reduce((sum, o) => sum + Number(o.total), 0),
+      todaysOrderCount: today.length,
+      todaysNewCustomers: todaysCustomers.count ?? 0,
+      todaysProductsSold: today.reduce(
+        (sum, o) => sum + o.order_items.reduce((n, i) => n + i.quantity, 0),
+        0,
+      ),
+      lowStockCount: lowStock.length,
+      lowStockProducts: lowStock.sort((a, b) => a.stock_quantity - b.stock_quantity).slice(0, 5),
+      pendingOrdersCount: paid.filter((o) => o.status === "ordered").length,
     };
   });
 
@@ -139,15 +104,15 @@ export const adminGetAnalytics = createServerFn({ method: "POST" })
     await assertAdmin(context.supabase, context.userId);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
-    const periodStart = data.period !== "all" ? getPeriodStart(data.period) : null;
-    const periodEnd = data.period !== "all" ? getPeriodEnd(data.period) : null;
+    const { start: periodStart, end: periodEnd } = reportingWindow(data.period);
 
     let query = supabaseAdmin
       .from("orders")
       .select(
         "id, order_number, customer_name, customer_email, user_id, total, status, payment_status, created_at, order_items(product_id, product_name, quantity, line_total, products(cost_price))",
       )
-      .order("created_at", { ascending: true });
+      .order("created_at", { ascending: true })
+      .order("id");
 
     if (periodStart && periodEnd) {
       query = query
@@ -159,8 +124,13 @@ export const adminGetAnalytics = createServerFn({ method: "POST" })
       query = query.eq("status", data.status);
     }
 
-    const { data: orders, error } = await query;
-    if (error) throw new Error(error.message);
+    const orders = [];
+    for (let offset = 0; ; offset += 500) {
+      const { data: page, error } = await query.range(offset, offset + 499);
+      if (error) throw new Error(error.message);
+      orders.push(...(page ?? []));
+      if (!page || page.length < 500) break;
+    }
 
     // Visits logged in the same window, for conversion rate = orders / visits.
     let visitsQuery = supabaseAdmin
@@ -174,100 +144,7 @@ export const adminGetAnalytics = createServerFn({ method: "POST" })
     const { count: totalVisits, error: visitsError } = await visitsQuery;
     if (visitsError) throw new Error(visitsError.message);
 
-    const filteredOrders = (orders ?? []).filter((o) => {
-      if (!data.productName || data.productName === "all") return true;
-      return (o.order_items ?? []).some((i) => i.product_name === data.productName);
-    });
-
-    const salesByDay = new Map<string, { date: string; revenue: number; orders: number }>();
-    const statusRevenue = new Map<string, { status: string; revenue: number; orders: number }>();
-    const bestProducts = new Map<
-      string,
-      { product_name: string; quantity: number; revenue: number }
-    >();
-    const productNames = new Set<string>();
-    const customerOrderCounts = new Map<string, number>();
-
-    let totalCost = 0;
-    let costTrackedRevenue = 0;
-    let itemsMissingCost = 0;
-
-    for (const order of filteredOrders) {
-      const date = new Date(order.created_at ?? 0).toISOString().slice(0, 10);
-      const day = salesByDay.get(date) ?? { date, revenue: 0, orders: 0 };
-      day.revenue += Number(order.total ?? 0);
-      day.orders += 1;
-      salesByDay.set(date, day);
-
-      const status = order.status ?? "ordered";
-      const statusRow = statusRevenue.get(status) ?? { status, revenue: 0, orders: 0 };
-      statusRow.revenue += Number(order.total ?? 0);
-      statusRow.orders += 1;
-      statusRevenue.set(status, statusRow);
-
-      const customerKey = order.user_id ?? order.customer_email?.toLowerCase() ?? order.id;
-      customerOrderCounts.set(customerKey, (customerOrderCounts.get(customerKey) ?? 0) + 1);
-
-      for (const item of order.order_items ?? []) {
-        productNames.add(item.product_name);
-        const p = bestProducts.get(item.product_name) ?? {
-          product_name: item.product_name,
-          quantity: 0,
-          revenue: 0,
-        };
-        p.quantity += Number(item.quantity ?? 0);
-        p.revenue += Number(item.line_total ?? 0);
-        bestProducts.set(item.product_name, p);
-
-        const costPrice = item.products?.cost_price;
-        if (costPrice === null || costPrice === undefined) {
-          itemsMissingCost += 1;
-        } else {
-          totalCost += Number(costPrice) * Number(item.quantity ?? 0);
-          costTrackedRevenue += Number(item.line_total ?? 0);
-        }
-      }
-    }
-
-    const totalRevenue = filteredOrders.reduce((s: number, o) => s + Number(o.total ?? 0), 0);
-    const totalOrders = filteredOrders.length;
-    const averageOrderValue = totalOrders ? totalRevenue / totalOrders : 0;
-
-    const totalCustomers = customerOrderCounts.size;
-    const returningCustomers = Array.from(customerOrderCounts.values()).filter((n) => n > 1).length;
-    const returningCustomerRate = totalCustomers ? returningCustomers / totalCustomers : 0;
-
-    const conversionRate = totalVisits ? totalOrders / totalVisits : null;
-
-    return {
-      totalRevenue,
-      totalOrders,
-      averageOrderValue,
-      productNames: Array.from(productNames).sort(),
-      salesByDay: Array.from(salesByDay.values()).map((r) => ({
-        ...r,
-        revenue: Number(r.revenue.toFixed(2)),
-      })),
-      revenueByStatus: Array.from(statusRevenue.values()).map((r) => ({
-        ...r,
-        revenue: Number(r.revenue.toFixed(2)),
-      })),
-      bestProducts: Array.from(bestProducts.values())
-        .sort((a, b) => b.revenue - a.revenue)
-        .slice(0, 10)
-        .map((r) => ({
-          ...r,
-          revenue: Number(r.revenue.toFixed(2)),
-        })),
-      returningCustomers,
-      totalCustomers,
-      returningCustomerRate,
-      totalVisits: totalVisits ?? 0,
-      conversionRate,
-      profit: Number((costTrackedRevenue - totalCost).toFixed(2)),
-      profitRevenueBasis: Number(costTrackedRevenue.toFixed(2)),
-      itemsMissingCost,
-    };
+    return summarizeOrders(orders ?? [], totalVisits ?? 0, data.productName);
   });
 
 export const adminExportOrders = createServerFn({ method: "GET" })
@@ -276,13 +153,15 @@ export const adminExportOrders = createServerFn({ method: "GET" })
     await assertAdmin(context.supabase, context.userId);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
-    const { data, error } = await supabaseAdmin
-      .from("orders")
-      .select("*, order_items(*)")
-      .order("created_at", { ascending: false });
-
-    if (error) throw new Error(error.message);
-    return { orders: data ?? [] };
+    const orders = await readAllRows((from, to) =>
+      supabaseAdmin
+        .from("orders")
+        .select("*, order_items(*)")
+        .order("created_at", { ascending: false })
+        .order("id")
+        .range(from, to),
+    );
+    return { orders };
   });
 
 export const adminListProducts = createServerFn({ method: "GET" })
@@ -305,6 +184,7 @@ export const adminListProducts = createServerFn({ method: "GET" })
         full_description,
         specifications,
         stock_quantity,
+        low_stock_threshold,
         is_available,
         is_featured,
         category_id,
@@ -570,7 +450,7 @@ export const adminListOrders = createServerFn({ method: "POST" })
     let query = supabaseAdmin
       .from("orders")
       .select(
-        "id, order_number, customer_name, customer_email, total, status, payment_status, created_at",
+        "id, order_number, customer_name, customer_email, total, status, payment_status, created_at, shipping_address, order_items(id, product_name, quantity, line_total)",
       )
       .order("created_at", { ascending: false })
       .limit(100);

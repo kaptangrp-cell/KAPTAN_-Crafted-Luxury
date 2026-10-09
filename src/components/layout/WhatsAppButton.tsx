@@ -14,7 +14,13 @@ const WHATSAPP_NUMBER = "491757134333";
 export function WhatsAppButton() {
   const { t } = useTranslation();
   const path = useRouterState({ select: (s) => s.location.pathname });
-  if (path === "/cart" || path.startsWith("/checkout")) return null;
+  if (
+    path === "/admin" ||
+    path.startsWith("/admin/") ||
+    path === "/cart" ||
+    path.startsWith("/checkout")
+  )
+    return null;
   const message = encodeURIComponent(
     t("whatsapp.prefill", "Hi KAPTAN, I have a question about your products."),
   );

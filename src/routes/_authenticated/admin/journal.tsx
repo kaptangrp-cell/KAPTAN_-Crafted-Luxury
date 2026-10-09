@@ -1,3 +1,5 @@
+import { AdminModal } from "@/components/admin/AdminModal";
+import { AdminFeedback } from "@/components/admin/AdminFeedback";
 import { useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
@@ -34,7 +36,10 @@ function AdminJournalPage() {
   const listFn = useServerFn(adminListJournalPosts);
   const upsertFn = useServerFn(adminUpsertJournalPost);
   const delFn = useServerFn(adminDeleteJournalPost);
-  const { data, isLoading } = useQuery({ queryKey: ["admin-journal"], queryFn: () => listFn() });
+  const { data, isLoading, isError, refetch } = useQuery({
+    queryKey: ["admin-journal"],
+    queryFn: () => listFn(),
+  });
   const [editing, setEditing] = useState<typeof empty | null>(null);
 
   const upsert = useMutation({
@@ -71,7 +76,7 @@ function AdminJournalPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-wrap gap-3 items-center justify-between">
         <h1 className="font-serif text-3xl text-white">{t("adminJournal.title")}</h1>
         <button
           onClick={() => setEditing(empty)}
@@ -81,14 +86,17 @@ function AdminJournalPage() {
         </button>
       </div>
 
-      <div className="border border-gold/15 bg-[#1A1A1A]">
+      {isError && <AdminFeedback retry={() => void refetch()} />}
+      <div className="overflow-x-auto rounded-2xl border border-gold/15 bg-[#0D0D0D]">
         <table className="w-full text-sm">
           <thead className="text-left text-xs uppercase tracking-wider text-white/50">
             <tr>
               <th className="p-3">{t("adminJournal.colTitle")}</th>
               <th className="p-3">{t("adminProducts.colCategory")}</th>
               <th className="p-3">{t("adminProducts.colStatus")}</th>
-              <th className="p-3"></th>
+              <th className="p-3">
+                <span className="sr-only">{t("adminWorkspace.actions")}</span>
+              </th>
             </tr>
           </thead>
           <tbody>
@@ -100,7 +108,7 @@ function AdminJournalPage() {
               </tr>
             )}
 
-            {!isLoading && (data?.posts ?? []).length === 0 && (
+            {!isLoading && !isError && (data?.posts ?? []).length === 0 && (
               <tr>
                 <td colSpan={4} className="p-6 text-center text-white/50">
                   {t("adminJournal.noPostsYet")}
@@ -139,7 +147,8 @@ function AdminJournalPage() {
                           is_published: Boolean(p.is_published),
                         })
                       }
-                      className="text-gold/70 hover:text-gold"
+                      aria-label={t("adminWorkspace.edit")}
+                      className="p-2 text-gold/70 hover:text-gold"
                     >
                       <Pencil size={14} />
                     </button>
@@ -149,7 +158,8 @@ function AdminJournalPage() {
                         confirm(t("adminJournal.deleteConfirm", { title: p.title })) &&
                         del.mutate(p.id)
                       }
-                      className="text-white/40 hover:text-red-400"
+                      aria-label={t("adminWorkspace.delete")}
+                      className="p-2 text-white/40 hover:text-red-400"
                     >
                       <Trash2 size={14} />
                     </button>
@@ -162,18 +172,17 @@ function AdminJournalPage() {
       </div>
 
       {editing && (
-        <div className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-black/80 p-4 pt-16">
+        <AdminModal
+          onClose={() => setEditing(null)}
+          title={editing.id ? t("adminJournal.editPost") : t("adminJournal.newPost")}
+        >
           <form
             onSubmit={(e) => {
               e.preventDefault();
               upsert.mutate(editing);
             }}
-            className="w-full max-w-xl space-y-3 border border-gold/30 bg-[#1A1A1A] p-6"
+            className="space-y-4"
           >
-            <h2 className="font-serif text-lg text-white">
-              {editing.id ? t("adminJournal.editPost") : t("adminJournal.newPost")}
-            </h2>
-
             <Field
               label={t("adminJournal.titleLabel")}
               value={editing.title}
@@ -259,7 +268,7 @@ function AdminJournalPage() {
               </button>
             </div>
           </form>
-        </div>
+        </AdminModal>
       )}
     </div>
   );

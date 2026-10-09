@@ -15,6 +15,9 @@ if (!i18n.isInitialized) {
     interpolation: { escapeValue: false },
     react: { useSuspense: false },
   });
+} else {
+  i18n.addResourceBundle("en", "translation", en, true, true);
+  i18n.addResourceBundle("de", "translation", de, true, true);
 }
 
 export default i18n;
