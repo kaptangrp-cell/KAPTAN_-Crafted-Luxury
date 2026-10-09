@@ -53,6 +53,7 @@ export const getAdminStats = createServerFn({ method: "POST" })
           .select(
             "id, order_number, customer_name, total, status, payment_status, created_at, order_items(quantity)",
           )
+          .in("payment_status", ["paid", "refunded", "partially_refunded"])
           .order("created_at", { ascending: false })
           .order("id")
           .range(from, to),
@@ -158,6 +159,7 @@ export const adminExportOrders = createServerFn({ method: "GET" })
       supabaseAdmin
         .from("orders")
         .select("*, order_items(*)")
+        .in("payment_status", ["paid", "refunded", "partially_refunded"])
         .order("created_at", { ascending: false })
         .order("id")
         .range(from, to),
@@ -453,6 +455,7 @@ export const adminListOrders = createServerFn({ method: "POST" })
       .select(
         "id, order_number, customer_name, customer_email, total, status, payment_status, created_at, shipping_address, order_items(id, product_name, quantity, line_total)",
       )
+      .in("payment_status", ["paid", "refunded", "partially_refunded"])
       .order("created_at", { ascending: false })
       .limit(100);
 
@@ -479,11 +482,13 @@ export const adminUpdateOrderStatus = createServerFn({ method: "POST" })
 
     const { data: beforeOrder, error: beforeError } = await supabaseAdmin
       .from("orders")
-      .select("id, order_number, customer_name, customer_email, status")
+      .select("id, order_number, customer_name, customer_email, status, payment_status")
       .eq("id", data.id)
       .single();
 
     if (beforeError) throw new Error(beforeError.message);
+    if (!["paid", "refunded", "partially_refunded"].includes(beforeOrder.payment_status ?? ""))
+      throw new Error("Unpaid checkouts are not orders and cannot be fulfilled.");
 
     if (data.status === "cancelled") {
       const { data: checkout, error: lookupError } = await supabaseAdmin

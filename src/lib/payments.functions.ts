@@ -29,7 +29,7 @@ export const getPaymentAvailability = createServerFn({ method: "POST" }).handler
   }
   if (ready) {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { error } = await supabaseAdmin.from("order_checkouts").select("order_id").limit(0);
+    const { error } = await supabaseAdmin.from("checkout_drafts").select("id").limit(0);
     if (error) ready = false;
   }
   return {

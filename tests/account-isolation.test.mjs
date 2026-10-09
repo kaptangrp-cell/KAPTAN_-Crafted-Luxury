@@ -11,7 +11,11 @@ function clientFor(rows, error = null) {
     from() {
       const filters = [];
       const result = () => ({
-        data: rows.filter((row) => filters.every(([key, value]) => row[key] === value)),
+        data: rows.filter((row) =>
+          filters.every(([key, value]) =>
+            Array.isArray(value) ? value.includes(row[key]) : row[key] === value,
+          ),
+        ),
         error,
       });
       const query = {
@@ -20,6 +24,10 @@ function clientFor(rows, error = null) {
         },
         eq(key, value) {
           filters.push([key, value]);
+          return query;
+        },
+        in(key, values) {
+          filters.push([key, values]);
           return query;
         },
         order() {
@@ -41,12 +49,15 @@ test("a new customer cannot inherit guest/other-account orders through matching 
     { id: "guest-order", user_id: null, customer_email: "new@example.test" },
     { id: "owned-order", user_id: "buyer", customer_email: "different@example.test" },
   ];
+  for (const row of rows) row.payment_status = "paid";
+  rows.push({ id: "unpaid-order", user_id: "buyer", payment_status: "pending" });
   const client = clientFor(rows);
   assert.deepEqual(await readAccountOrders(client, "new-account"), { orders: [] });
   assert.deepEqual((await readAccountOrders(client, "buyer")).orders, [rows[2]]);
   await assert.rejects(readAccountOrder(client, "new-account", "old-order"), /access denied/);
   await assert.rejects(readAccountOrder(client, "new-account", "guest-order"), /access denied/);
   assert.equal((await readAccountOrder(client, "buyer", "owned-order")).order.id, "owned-order");
+  await assert.rejects(readAccountOrder(client, "buyer", "unpaid-order"), /access denied/);
   await assert.rejects(readAccountOrders(client, ""), /Sign in/);
   await assert.rejects(
     readAccountOrders(clientFor([], { message: "offline" }), "buyer"),

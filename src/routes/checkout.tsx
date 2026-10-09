@@ -207,7 +207,7 @@ const PAYMENT_METHODS = ["cod", "bank_transfer", "card", "paypal"] as const;
 function CheckoutPage() {
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
-  const { items, subtotal, removeItem, updateQuantity, clearCart } = useCartStore();
+  const { items, subtotal, removeItem, updateQuantity } = useCartStore();
   const { user, profile } = useAuthStore();
   const availabilityFn = useServerFn(getPaymentAvailability);
   const cancelFn = useServerFn(cancelCheckout);

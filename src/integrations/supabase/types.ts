@@ -8,6 +8,12 @@ export type Database = {
   };
   public: {
     Tables: {
+      checkout_drafts: {
+        Row: { id: string; order_data: Json; item_data: Json; created_at: string };
+        Insert: { id: string; order_data: Json; item_data: Json; created_at?: string };
+        Update: { order_data?: Json; item_data?: Json };
+        Relationships: [];
+      };
       order_checkouts: {
         Row: {
           order_id: string;
@@ -752,6 +758,16 @@ export type Database = {
       [_ in never]: never;
     };
     Functions: {
+      create_checkout_draft: {
+        Args: {
+          p_request_key: string;
+          p_owner_hash: string;
+          p_request_hash: string;
+          p_user_id: string | null;
+          p_order: Json;
+        };
+        Returns: Json;
+      };
       create_checkout_order: {
         Args: {
           p_request_key: string;

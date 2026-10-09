@@ -56,7 +56,7 @@ export const createOrder = createServerFn({ method: "POST" })
       throw new Error("We cannot ship to that country. Please contact support.");
     const userId = await authenticatedUserId();
     const { requestKey, ...payload } = data;
-    const { data: result, error } = await supabaseAdmin.rpc("create_checkout_order", {
+    const { data: result, error } = await supabaseAdmin.rpc("create_checkout_draft", {
       p_request_key: requestKey,
       p_owner_hash: checkoutOwner(true),
       p_request_hash: digest(JSON.stringify({ ...payload, userId })),

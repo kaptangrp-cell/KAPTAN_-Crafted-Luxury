@@ -1,3 +1,4 @@
+import { z } from "zod";
 import { createHash, randomBytes } from "node:crypto";
 import { getCookie, setCookie, getRequest } from "@tanstack/react-start/server";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
@@ -54,12 +55,44 @@ export async function getCheckout(orderId: string, authorize = true) {
     .eq("order_id", orderId)
     .single();
   if (error || !checkout) throw new Error("Checkout not found");
-  const { data: order, error: orderError } = await supabaseAdmin
+  const { data: savedOrder, error: orderError } = await supabaseAdmin
     .from("orders")
     .select("*, order_items(*)")
     .eq("id", orderId)
-    .single();
-  if (orderError || !order) throw new Error("Order not found");
+    .maybeSingle();
+  if (orderError) throw new Error("Could not read checkout");
+  let source: unknown = savedOrder;
+  if (!savedOrder) {
+    const { data: draft, error: draftError } = await supabaseAdmin
+      .from("checkout_drafts")
+      .select("order_data, item_data")
+      .eq("id", orderId)
+      .single();
+    if (draftError || !draft) throw new Error("Checkout not found");
+    source = { ...z.record(z.unknown()).parse(draft.order_data), order_items: draft.item_data };
+  }
+  const order = z
+    .object({
+      id: z.string().uuid(),
+      order_number: z.string(),
+      user_id: z.string().nullable(),
+      customer_email: z.string(),
+      payment_status: z.string().nullable(),
+      status: z.string().nullable(),
+      payment_method: z.string().nullable(),
+      total: z.coerce.number(),
+      subtotal: z.coerce.number(),
+      shipping_cost: z.coerce.number().nullable(),
+      order_items: z.array(
+        z.object({
+          product_name: z.string(),
+          variant_info: z.string().nullable(),
+          quantity: z.number(),
+          unit_price: z.coerce.number(),
+        }),
+      ),
+    })
+    .parse(source);
   if (authorize) {
     let guestAllowed = false;
     try {

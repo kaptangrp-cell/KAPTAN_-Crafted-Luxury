@@ -30,6 +30,7 @@ function CheckoutComplete() {
       q.state.data?.paymentStatus === "pending" && q.state.dataUpdateCount < 12 ? 5000 : false,
   });
   const paid = receipt.data?.paymentStatus === "paid";
+  const failed = receipt.data?.paymentStatus === "failed";
   useEffect(() => {
     if (paid) finishAttempt(orderId);
   }, [paid, orderId]);
@@ -37,9 +38,15 @@ function CheckoutComplete() {
     <PageLayout>
       <section className="mx-auto max-w-xl px-4 py-20 text-center" aria-live="polite">
         <h1 className="font-serif text-3xl text-white">
-          {t(paid ? "checkout.confirmedTitle" : "checkout.confirmingTitle")}
+          {t(
+            paid
+              ? "checkout.confirmedTitle"
+              : failed
+                ? "checkout.paymentFailedTitle"
+                : "checkout.confirmingTitle",
+          )}
         </h1>
-        {receipt.data && (
+        {paid && receipt.data && (
           <p className="mt-4 text-gold">
             {receipt.data.orderNumber} · €{Number(receipt.data.total).toFixed(2)}
           </p>
@@ -47,7 +54,13 @@ function CheckoutComplete() {
         <p className="mt-4 text-white/80">
           {receipt.error
             ? receipt.error.message
-            : t(paid ? "checkout.confirmedBody" : "checkout.confirmingBody")}
+            : t(
+                paid
+                  ? "checkout.confirmedBody"
+                  : failed
+                    ? "checkout.paymentFailedBody"
+                    : "checkout.confirmingBody",
+              )}
         </p>
         {!paid && (
           <button
@@ -57,7 +70,12 @@ function CheckoutComplete() {
             {t("checkout.checkPayment")}
           </button>
         )}
-        <div className="mt-8 flex justify-center gap-6">
+        <div className="mt-8 flex flex-wrap justify-center gap-6">
+          {!paid && (
+            <Link to="/cart" className="text-gold underline">
+              {t("checkout.backToCart")}
+            </Link>
+          )}
           <Link to="/products" className="text-gold underline">
             {t("cart.continueShopping")}
           </Link>

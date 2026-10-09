@@ -46,3 +46,16 @@ This is a partial live audit, not confirmation that every production workflow wo
 Configure SUPABASE_SERVICE_ROLE_KEY privately in the local server environment; never use a VITE_ prefix for this secret or paste it into chat. Restart the local server and sign in as admin.
 
 Then compare known paid/unpaid/refunded/cancelled orders against report totals, test each date window, verify stock thresholds, search an exact order number, open its details, and compare full exports against the database. Test edits/imports/status changes only with agreed test records, since these actions can change inventory, issue emails or affect real orders. Verify English/German and light/dark mode on populated desktop and mobile screens.
+
+## Live verification follow-up — 9 October 2026
+
+The server key has now been configured. Corrected a malformed quote in the local `.env` entry that caused the service key to include the following configuration line, then restarted the preview with the environment loaded explicitly. The secret remains in the ignored local environment file.
+
+Verified through the authenticated browser:
+
+- Dashboard queries succeed: two products, six customer-role accounts and recent orders display. Last-30-days reporting shows zero paid orders.
+- A recent-order link retrieves the exact order; its details dialog displays shipping information, purchased items and euro total. The inspected recent order is payment-pending, so it is correctly excluded from paid sales.
+- Product inventory loads both products; searching for “Premium” narrows the list to the matching product.
+- Categories load, journal displays two records, and the customer/account list displays eight records (including administrator accounts; the dashboard customer count excludes those).
+
+These checks were read-only. Production deployment settings, payment processing, writes, imports, order-status changes/email delivery and downloaded exports remain outside this verification.
