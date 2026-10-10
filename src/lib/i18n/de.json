@@ -211,7 +211,8 @@
     "decreaseQuantity": "Menge verringern",
     "increaseQuantity": "Menge erhöhen",
     "titleWithCount_one": "Ihr Warenkorb ({{count}} Artikel)",
-    "titleWithCount_other": "Ihr Warenkorb ({{count}} Artikel)"
+    "titleWithCount_other": "Ihr Warenkorb ({{count}} Artikel)",
+    "loadingSaved": "Ihr gespeicherter Warenkorb wird geladen…"
   },
   "checkout": {
     "title": "Kasse",

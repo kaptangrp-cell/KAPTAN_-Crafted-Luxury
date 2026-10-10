@@ -211,7 +211,8 @@
     "decreaseQuantity": "Decrease quantity",
     "increaseQuantity": "Increase quantity",
     "titleWithCount_one": "Your Cart ({{count}} item)",
-    "titleWithCount_other": "Your Cart ({{count}} items)"
+    "titleWithCount_other": "Your Cart ({{count}} items)",
+    "loadingSaved": "Loading your saved cart…"
   },
   "checkout": {
     "title": "Checkout",

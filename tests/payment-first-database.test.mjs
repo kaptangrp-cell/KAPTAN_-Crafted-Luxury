@@ -18,16 +18,11 @@ test("payment-first checkout creates no order until paid and releases unpaid dra
   try {
     await db.exec(fixture);
     await db.exec(
-      await readFile(
-        new URL("../supabase/migrations/20261006090000_checkout_integrity.sql", import.meta.url),
-        "utf8",
-      ),
+      await readFile(new URL("../docs/APPLY-PAYMENT-FIRST.sql", import.meta.url), "utf8"),
     );
+    // Reapplying the setup must preserve drafts, payments and inventory.
     await db.exec(
-      await readFile(
-        new URL("../supabase/migrations/20261009190000_payment_before_order.sql", import.meta.url),
-        "utf8",
-      ),
+      await readFile(new URL("../docs/APPLY-PAYMENT-FIRST.sql", import.meta.url), "utf8"),
     );
     const productId = randomUUID(),
       otherId = randomUUID(),

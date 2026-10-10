@@ -1,3 +1,4 @@
+import { useCartHydrated } from "@/hooks/useCartHydrated";
 import { CatalogText } from "@/components/common/CatalogText";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Minus, Plus, Trash2 } from "lucide-react";
@@ -12,6 +13,7 @@ export const Route = createFileRoute("/cart")({
 });
 
 function CartPage() {
+  const cartHydrated = useCartHydrated();
   const { t } = useTranslation();
   const { items, updateQuantity, removeItem, subtotal, clearCart } = useCartStore();
   const total = subtotal();
@@ -22,7 +24,11 @@ function CartPage() {
       <section className="mx-auto max-w-6xl px-4 py-12 md:px-6">
         <h1 className="font-serif text-4xl font-semibold text-white">{t("cart.title")}</h1>
 
-        {items.length === 0 ? (
+        {!cartHydrated ? (
+          <p role="status" className="py-12 text-center text-white/70">
+            {t("cart.loadingSaved")}
+          </p>
+        ) : items.length === 0 ? (
           <div className="mt-12 flex flex-col items-center gap-4 border border-dashed border-gold/20 py-20 text-center">
             <p className="text-white/60">{t("cart.empty")}</p>
             <Link

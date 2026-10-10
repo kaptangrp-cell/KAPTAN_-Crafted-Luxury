@@ -1,3 +1,4 @@
+import { useCartHydrated } from "@/hooks/useCartHydrated";
 import { useEffect, useId, useMemo, useRef, useState } from "react";
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
@@ -205,6 +206,7 @@ const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const PAYMENT_METHODS = ["cod", "bank_transfer", "card", "paypal"] as const;
 
 function CheckoutPage() {
+  const cartHydrated = useCartHydrated();
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const { items, subtotal, removeItem, updateQuantity } = useCartStore();
@@ -361,6 +363,15 @@ function CheckoutPage() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+
+    if (!cartHydrated)
+      return (
+        <PageLayout>
+          <p role="status" className="px-4 py-20 text-center text-white/70">
+            {t("cart.loadingSaved")}
+          </p>
+        </PageLayout>
+      );
 
     if (items.length === 0) {
       toast.error(t("checkout.emptyCartError"));
