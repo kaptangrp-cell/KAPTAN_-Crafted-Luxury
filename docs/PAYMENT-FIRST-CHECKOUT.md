@@ -22,8 +22,8 @@ Until setup succeeds, the new application disables payment instead of falling ba
 
 - Type checking and production build passed in the implementation run.
 - 23 automated tests passed, including payment-first database settlement, backwards compatibility, duplicate callbacks, cancellation, ownership and persisted-cart retention.
-- Live schema inspection: `checkout_drafts` SELECT returned PGRST205 (table absent from the API schema); `create_checkout_draft` was absent from the API description. The earlier HEAD/zero-row probe returned 204 and was not sufficient evidence of deployment.
-- Browser: a temporary cart item remained after navigating to checkout and reloading. Payment was correctly unavailable while setup was missing.
+- Before activation, live schema inspection returned PGRST205 for `checkout_drafts`. After the user applied the SQL, normal SELECT requests for `checkout_drafts.id` and `order_checkouts.draft_version` both returned HTTP 200. The earlier HEAD/zero-row probe was not sufficient evidence of deployment.
+- Browser: a temporary cart item remained after navigating to checkout and reloading. After database activation, the local checkout enabled and selected PayPal, enabled Continue to payment, and no longer showed the payment-unavailable warning. Card payment remained disabled because Stripe configuration is incomplete. The temporary test item was removed afterward.
 - Local card configuration is incomplete; PayPal credentials are present with sandbox selected. No real payment or production deployment was performed.
 
 After applying the SQL, verify a sandbox successful payment, declined/cancelled payment, retry, browser refresh, and repeated confirmation. Confirm zero new orders before payment, exactly one after payment, stock released on cancellation, and cart contents retained until success. Use provider test credentials; do not use live customer orders for testing.
