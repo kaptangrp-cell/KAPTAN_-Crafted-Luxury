@@ -1,3 +1,4 @@
+import { ProductOptionPicker } from "@/components/product/ProductOptionPicker";
 import { CatalogText } from "@/components/common/CatalogText";
 import { ProductFacts } from "@/components/product/ProductFacts";
 import { useEffect, useState } from "react";
@@ -487,31 +488,12 @@ function ProductDetailPage() {
               </p>
             )}
 
-            {variants.length > 0 && (
-              <div className="mt-6">
-                <h3 className="mb-2 text-xs uppercase tracking-wider text-gold/70">
-                  <CatalogText text={variants[0].variant_type} />
-                </h3>
-
-                <div className="flex flex-wrap gap-2">
-                  {variants.map((v) => (
-                    <button
-                      key={v.id}
-                      onClick={() => setVariantId(v.id === variantId ? null : v.id)}
-                      disabled={v.is_available === false || v.stock_quantity === 0}
-                      aria-pressed={variantId === v.id}
-                      className={`border px-3 py-1.5 text-sm ${
-                        variantId === v.id
-                          ? "border-gold bg-gold text-black"
-                          : "border-gold/30 text-white hover:border-gold"
-                      } disabled:opacity-40`}
-                    >
-                      <CatalogText text={v.variant_value} />
-                    </button>
-                  ))}
-                </div>
-              </div>
-            )}
+            <ProductOptionPicker
+              key={product.id}
+              options={variants}
+              selectedId={variantId}
+              onChange={setVariantId}
+            />
 
             <div className="mt-6">
               <h3 className="mb-2 text-xs uppercase tracking-wider text-gold/70">

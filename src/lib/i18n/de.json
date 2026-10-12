@@ -749,5 +749,30 @@
     "customerScope": "Bis zu 200 zuletzt registrierte Konten. Die Suche gilt für diese Liste.",
     "customerRole": "Kunde",
     "noMatches": "Keine passenden Einträge. Ändern Sie die Suche oder den Filter."
+  },
+  "options": {
+    "manage": "Farben & Größen",
+    "help": "Fügen Sie jede verkaufbare Farb- und Größenkombination hinzu. Nur aktive Optionen erscheinen im Shop. Legen Sie den Bestand je Option fest oder lassen Sie das Feld leer, um den Produktbestand zu verwenden. Der Gesamtbestand des Produkts begrenzt weiterhin den Kauf. Deaktivieren Sie Optionen, statt sie zu löschen, damit frühere Bestellungen erhalten bleiben.",
+    "saved": "Option gespeichert",
+    "sharedStock": "Produktbestand verwenden",
+    "stockCount": "Bestand: {{count}}",
+    "active": "Aktiv",
+    "inactive": "Inaktiv",
+    "edit": "Option bearbeiten",
+    "add": "Option hinzufügen",
+    "type": "Optionstyp",
+    "colorSize": "Farbe und Größe",
+    "color": "Farbe",
+    "size": "Größe",
+    "colorExample": "z. B. Schwarz",
+    "sizeExample": "z. B. Mittel",
+    "value": "Optionsname",
+    "stock": "Optionsbestand (optional)",
+    "price": "Aufpreis (€)",
+    "activeLabel": "Aktiv — im Shop anzeigen",
+    "save": "Option speichern",
+    "none": "Derzeit sind keine Optionen verfügbar.",
+    "chooseColor": "Wählen Sie eine Farbe, um verfügbare Größen zu sehen.",
+    "choose": "Option auswählen"
   }
 }

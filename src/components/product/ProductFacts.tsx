@@ -1,3 +1,4 @@
+import { optionParts } from "@/lib/product-options";
 import { useTranslation } from "react-i18next";
 
 interface ProductFactsProps {
@@ -20,8 +21,14 @@ export function ProductFacts({ specifications, variants, compact = false }: Prod
   const colors = [
     ...new Set(
       (variants ?? [])
-        .filter((v) => v.is_available !== false && /^(colou?r|farbe)$/i.test(v.variant_type ?? ""))
-        .map((v) => v.variant_value)
+        .filter((v) => v.is_available !== false)
+        .map(
+          (v) =>
+            optionParts({
+              variant_type: v.variant_type ?? "",
+              variant_value: v.variant_value ?? "",
+            }).color,
+        )
         .filter(Boolean),
     ),
   ].join(", ");
@@ -29,7 +36,13 @@ export function ProductFacts({ specifications, variants, compact = false }: Prod
     { label: "material", value: valueFor(["material", "materials", "composition", "materialien"]) },
     {
       label: "colors",
-      value: colors || valueFor(["color", "colour", "colors", "colours", "farbe", "farben"]),
+      value: variants?.some(
+        (v) =>
+          optionParts({ variant_type: v.variant_type ?? "", variant_value: v.variant_value ?? "" })
+            .color,
+      )
+        ? colors
+        : valueFor(["color", "colour", "colors", "colours", "farbe", "farben"]),
     },
     {
       label: "use",

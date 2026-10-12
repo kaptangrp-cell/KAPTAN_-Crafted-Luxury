@@ -1,3 +1,4 @@
+import { ProductOptionSchema } from "@/lib/product-options";
 import { reportingWindow, summarizeOrders } from "@/lib/admin-analytics";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database, Json } from "@/integrations/supabase/types";
@@ -192,6 +193,7 @@ export const adminListProducts = createServerFn({ method: "GET" })
         is_featured,
         category_id,
         categories(name),
+        product_variants(*),
         product_images(id, url, sort_order, alt_text, media_type)
       `,
       )
@@ -537,4 +539,46 @@ export const adminListCustomers = createServerFn({ method: "GET" })
     if (error) throw new Error(error.message);
 
     return { customers: data ?? [] };
+  });
+
+/** Preserve variant IDs and order history; hide options rather than deleting them. */
+export const adminSaveProductOption = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) => ProductOptionSchema.parse(input))
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context.supabase, context.userId);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: product, error: productError } = await supabaseAdmin
+      .from("products")
+      .select("id")
+      .eq("id", data.product_id)
+      .single();
+    if (productError || !product) throw new Error("Product not found");
+    const { data: siblings, error: readError } = await supabaseAdmin
+      .from("product_variants")
+      .select("id, variant_type, variant_value")
+      .eq("product_id", data.product_id);
+    if (readError) throw new Error("Could not load product options");
+    if (data.id && !siblings?.some((v) => v.id === data.id))
+      throw new Error("Option does not belong to this product");
+    if (
+      siblings?.some(
+        (v) =>
+          v.id !== data.id &&
+          v.variant_type.toLowerCase() === data.variant_type.toLowerCase() &&
+          v.variant_value.toLowerCase() === data.variant_value.toLowerCase(),
+      )
+    )
+      throw new Error("This option already exists / Diese Option existiert bereits");
+    const { id, ...values } = data;
+    const result = id
+      ? await supabaseAdmin
+          .from("product_variants")
+          .update(values)
+          .eq("id", id)
+          .eq("product_id", data.product_id)
+      : await supabaseAdmin.from("product_variants").insert(values);
+    if (result.error)
+      throw new Error("Could not save option / Option konnte nicht gespeichert werden");
+    return { success: true };
   });

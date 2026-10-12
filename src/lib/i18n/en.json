@@ -749,5 +749,30 @@
     "customerScope": "Showing up to 200 most recently registered accounts. Search applies to this list.",
     "customerRole": "Customer",
     "noMatches": "No matching records. Try a different search or filter."
+  },
+  "options": {
+    "manage": "Colors & sizes",
+    "help": "Add each sellable color and size combination. Only active options appear in the store. Set stock per option, or leave it blank to share the product stock. Total product stock still limits purchases. Deactivate options instead of deleting them to preserve order history.",
+    "saved": "Option saved",
+    "sharedStock": "Use product stock",
+    "stockCount": "Stock: {{count}}",
+    "active": "Active",
+    "inactive": "Inactive",
+    "edit": "Edit option",
+    "add": "Add option",
+    "type": "Option type",
+    "colorSize": "Color and size",
+    "color": "Color",
+    "size": "Size",
+    "colorExample": "e.g. Black",
+    "sizeExample": "e.g. Medium",
+    "value": "Option name",
+    "stock": "Option stock (optional)",
+    "price": "Extra price (€)",
+    "activeLabel": "Active — show in the store",
+    "save": "Save option",
+    "none": "No options are currently available.",
+    "chooseColor": "Choose a color to see available sizes.",
+    "choose": "Choose an option"
   }
 }

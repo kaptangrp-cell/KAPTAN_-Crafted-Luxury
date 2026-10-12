@@ -1,3 +1,5 @@
+import { ProductOptionsEditor } from "@/components/admin/ProductOptionsEditor";
+import type { ProductOption } from "@/lib/product-options";
 import { formatEuro } from "@/lib/currency";
 import { AdminFeedback } from "@/components/admin/AdminFeedback";
 import type { Json } from "@/integrations/supabase/types";
@@ -8,7 +10,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import * as XLSX from "xlsx";
-import { Plus, Pencil, Trash2, ImageIcon, Video, X, Upload, Download } from "lucide-react";
+import { Palette, Plus, Pencil, Trash2, ImageIcon, Video, X, Upload, Download } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { supabase } from "@/integrations/supabase/client";
 import {
@@ -30,6 +32,7 @@ type MediaItem = {
 };
 
 type ProductRow = {
+  product_variants: ProductOption[];
   id: string;
   name: string;
   slug: string;
@@ -108,6 +111,7 @@ function AdminProductsPage() {
     queryFn: () => catsFn(),
   });
 
+  const [optionsProductId, setOptionsProductId] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [stockFilter, setStockFilter] = useState("all");
   const [editing, setEditing] = useState<typeof empty | null>(null);
@@ -495,6 +499,15 @@ function AdminProductsPage() {
                   <td className="p-3">
                     <div className="flex justify-end gap-2">
                       <button
+                        onClick={() => setOptionsProductId(p.id)}
+                        aria-label={t("options.manage")}
+                        title={t("options.manage")}
+                        className="p-2 text-gold/70 hover:text-gold"
+                      >
+                        <Palette size={16} />
+                        <span className="ml-1 hidden text-xs lg:inline">{t("options.manage")}</span>
+                      </button>
+                      <button
                         onClick={() => startEdit(p)}
                         aria-label={t("adminWorkspace.edit")}
                         className="p-2 text-gold/70 hover:text-gold"
@@ -528,6 +541,18 @@ function AdminProductsPage() {
           </tbody>
         </table>
       </div>
+
+      {optionsProductId && (
+        <Modal
+          onClose={() => setOptionsProductId(null)}
+          title={`${t("options.manage")} · ${products.find((p) => p.id === optionsProductId)?.name ?? ""}`}
+        >
+          <ProductOptionsEditor
+            productId={optionsProductId}
+            options={products.find((p) => p.id === optionsProductId)?.product_variants ?? []}
+          />
+        </Modal>
+      )}
 
       {editing && (
         <Modal

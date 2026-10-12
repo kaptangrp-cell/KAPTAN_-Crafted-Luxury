@@ -236,3 +236,59 @@ test("older in-flight orders can still settle after the payment-first migration"
     await db.close();
   }
 });
+
+test("color-size options reject inactive purchases and preserve the paid selection", async () => {
+  const db = new PGlite();
+  try {
+    await db.exec(fixture);
+    await db.exec(
+      await readFile(new URL("../docs/APPLY-PAYMENT-FIRST.sql", import.meta.url), "utf8"),
+    );
+    const productId = randomUUID(),
+      variantId = randomUUID();
+    await db.query("INSERT INTO products(id,name,price,stock_quantity) VALUES ($1,'Wallet',15,5)", [
+      productId,
+    ]);
+    await db.query(
+      "INSERT INTO product_variants(id,product_id,variant_type,variant_value,price_modifier,stock_quantity,is_available) VALUES ($1,$2,'Color / Size','Black / M',2,2,false)",
+      [variantId, productId],
+    );
+    const payload = {
+      customer_name: "Test",
+      customer_email: "test@example.test",
+      customer_phone: "123",
+      shipping_address: { country: "DE" },
+      payment_method: "paypal",
+      expectedTotal: 22.99,
+      items: [{ productId, variantId, quantity: 1 }],
+    };
+    const create = () =>
+      db.query("SELECT create_checkout_draft($1,$2,$3,NULL,$4::jsonb) AS result", [
+        randomUUID(),
+        "owner",
+        "hash",
+        JSON.stringify(payload),
+      ]);
+    await assert.rejects(create(), /unavailable variant/);
+    await db.query("UPDATE product_variants SET is_available=true WHERE id=$1", [variantId]);
+    const order = (await create()).rows[0].result;
+    assert.equal(
+      (await db.query("SELECT stock_quantity FROM product_variants WHERE id=$1", [variantId]))
+        .rows[0].stock_quantity,
+      1,
+    );
+    assert.equal((await db.query("SELECT * FROM orders")).rows.length, 0);
+    await db.query(
+      "UPDATE order_checkouts SET provider_kind='paypal',provider_id='TEST-COLOR' WHERE order_id=$1",
+      [order.orderId],
+    );
+    await db.query("SELECT settle_checkout_order($1,'paid')", [order.orderId]);
+    const item = (await db.query("SELECT * FROM order_items WHERE order_id=$1", [order.orderId]))
+      .rows[0];
+    assert.equal(item.variant_id, variantId);
+    assert.equal(item.variant_info, "Color / Size: Black / M");
+    assert.equal(Number(item.unit_price), 17);
+  } finally {
+    await db.close();
+  }
+});
