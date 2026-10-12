@@ -48,3 +48,42 @@ export const ProductOptionSchema = z
 export function activeOptions<T extends ProductOption>(options: T[]) {
   return options.filter((option) => option.is_available !== false);
 }
+
+const optionName = z
+  .string()
+  .trim()
+  .min(1)
+  .max(70)
+  .regex(/^[^/]+$/);
+export const OptionSelectionsSchema = z
+  .object({
+    colors: z.array(optionName).max(20),
+    sizes: z.array(optionName).max(20),
+  })
+  .refine(
+    (v) => Math.max(1, v.colors.length) * Math.max(1, v.sizes.length) <= 100,
+    "Maximum 100 combinations",
+  );
+
+export function optionCombinations(colors: string[], sizes: string[]) {
+  const unique = (values: string[]) => [
+    ...new Map(values.map((v) => [v.trim().toLowerCase(), v.trim()])).values(),
+  ];
+  const c = unique(colors),
+    s = unique(sizes);
+  if (c.length && s.length)
+    return c.flatMap((color) =>
+      s.map((size) => ({ variant_type: "Color / Size", variant_value: `${color} / ${size}` })),
+    );
+  return c.length
+    ? c.map((color) => ({ variant_type: "Color", variant_value: color }))
+    : s.map((size) => ({ variant_type: "Size", variant_value: size }));
+}
+
+export function optionIdentity(option: Pick<ProductOption, "variant_type" | "variant_value">) {
+  const parts = optionParts(option);
+  return JSON.stringify([
+    parts.color?.trim().toLowerCase() ?? "",
+    parts.size?.trim().toLowerCase() ?? "",
+  ]);
+}

@@ -1,4 +1,10 @@
-import { ProductOptionSchema } from "@/lib/product-options";
+import {
+  OptionSelectionsSchema,
+  optionCombinations,
+  optionIdentity,
+  optionParts,
+  ProductOptionSchema,
+} from "@/lib/product-options";
 import { reportingWindow, summarizeOrders } from "@/lib/admin-analytics";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database, Json } from "@/integrations/supabase/types";
@@ -232,6 +238,7 @@ const ProductSchema = z.object({
   short_description: z.string().max(500).nullable(),
   full_description: z.string().max(5000).nullable(),
   specifications: z.record(ProductSpecificationValue).optional(),
+  option_selections: OptionSelectionsSchema.optional(),
   price: z.number().min(0),
   compare_at_price: z.number().min(0).nullable(),
   cost_price: z.number().min(0).nullable(),
@@ -248,7 +255,7 @@ export const adminUpsertProduct = createServerFn({ method: "POST" })
     await assertAdmin(context.supabase, context.userId);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
-    const { id, media_items, ...payload } = data;
+    const { id, media_items, option_selections, ...payload } = data;
     let productId = id;
 
     if (id) {
@@ -262,6 +269,45 @@ export const adminUpsertProduct = createServerFn({ method: "POST" })
         .single();
       if (error) throw new Error(error.message);
       productId = row.id;
+    }
+
+    if (productId && option_selections) {
+      const { data: existing, error: readError } = await supabaseAdmin
+        .from("product_variants")
+        .select("*")
+        .eq("product_id", productId);
+      if (readError) throw new Error("Could not load product options");
+      const combinations = optionCombinations(option_selections.colors, option_selections.sizes);
+      const desired = new Set(combinations.map(optionIdentity));
+      const additions = combinations.filter(
+        (v) => !existing?.some((row) => optionIdentity(row) === optionIdentity(v)),
+      );
+      if (additions.length) {
+        const { error } = await supabaseAdmin.from("product_variants").insert(
+          additions.map((v) => ({
+            ...v,
+            product_id: productId!,
+            is_available: true,
+            stock_quantity: null,
+            price_modifier: 0,
+          })),
+        );
+        if (error) throw new Error("Could not save product options");
+      }
+      const removed = (existing ?? [])
+        .filter((v) => {
+          const parts = optionParts(v);
+          return (parts.color || parts.size) && !desired.has(optionIdentity(v));
+        })
+        .map((v) => v.id);
+      if (removed.length) {
+        const { error } = await supabaseAdmin
+          .from("product_variants")
+          .update({ is_available: false })
+          .eq("product_id", productId)
+          .in("id", removed);
+        if (error) throw new Error("Could not deactivate product options");
+      }
     }
 
     if (productId) {

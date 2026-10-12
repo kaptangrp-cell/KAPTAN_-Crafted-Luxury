@@ -46,3 +46,28 @@ test("option validation rejects invalid stock, price and incomplete combinations
   ])
     assert.equal(ProductOptionSchema.safeParse({ ...valid, ...patch }).success, false);
 });
+
+test("multiple selections generate every combination without duplicates", async () => {
+  const { optionCombinations, OptionSelectionsSchema, optionIdentity } =
+    await import("../src/lib/product-options.ts");
+  const combinations = optionCombinations(["Black", "Brown", "black"], ["S", "Medium", "Large"]);
+  assert.equal(combinations.length, 6);
+  assert.equal(combinations[5].variant_value, "Brown / Large");
+  assert.equal(optionCombinations([], ["S", "Large"]).length, 2);
+  assert.deepEqual(optionCombinations([], []), []);
+  assert.equal(
+    optionIdentity({ variant_type: "Colour", variant_value: "Black" }),
+    optionIdentity({ variant_type: "Color", variant_value: "black" }),
+  );
+  assert.equal(
+    OptionSelectionsSchema.safeParse({ colors: ["Black / Brown"], sizes: [] }).success,
+    false,
+  );
+  assert.equal(
+    OptionSelectionsSchema.safeParse({
+      colors: Array(11).fill("Black"),
+      sizes: Array(10).fill("S"),
+    }).success,
+    false,
+  );
+});

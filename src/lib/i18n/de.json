@@ -773,6 +773,10 @@
     "save": "Option speichern",
     "none": "Derzeit sind keine Optionen verfügbar.",
     "chooseColor": "Wählen Sie eine Farbe, um verfügbare Größen zu sehen.",
-    "choose": "Option auswählen"
+    "choose": "Option auswählen",
+    "custom": "Eigener Wert",
+    "addValue": "Hinzufügen",
+    "multiHelp": "Wählen Sie mehrere Farben und Größen. Beim Speichern wird jede Kombination mit Produktbestand und Produktpreis angelegt. Bestehende Optionen behalten Bestand, Preise und Aktivstatus; entfernte Optionen werden inaktiv. Einzelne Kombinationen verwalten Sie unter Farben & Größen.",
+    "measurements": "Abmessungen (z. B. 10 × 8 cm)"
   }
 }

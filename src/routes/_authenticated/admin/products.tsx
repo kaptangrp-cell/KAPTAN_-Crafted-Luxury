@@ -1,3 +1,5 @@
+import { OptionMultiSelect } from "@/components/admin/OptionMultiSelect";
+import { optionParts } from "@/lib/product-options";
 import { ProductOptionsEditor } from "@/components/admin/ProductOptionsEditor";
 import type { ProductOption } from "@/lib/product-options";
 import { formatEuro } from "@/lib/currency";
@@ -85,6 +87,9 @@ const empty = {
   is_available: true,
   is_featured: false,
   media_items: [] as MediaItem[],
+  colors: [] as string[],
+  sizes: [] as string[],
+  optionsChanged: false,
 };
 
 function AdminProductsPage() {
@@ -121,6 +126,9 @@ function AdminProductsPage() {
       upsertFn({
         data: {
           id: form.id,
+          option_selections: form.optionsChanged
+            ? { colors: form.colors, sizes: form.sizes }
+            : undefined,
           name: form.name,
           slug: form.slug,
           category_id: form.category_id || null,
@@ -172,6 +180,23 @@ function AdminProductsPage() {
   function startEdit(p: ProductRow) {
     setEditing({
       id: p.id,
+      colors: [
+        ...new Set(
+          (p.product_variants ?? [])
+            .filter((v) => v.is_available !== false)
+            .map((v) => optionParts(v).color)
+            .filter((v): v is string => Boolean(v)),
+        ),
+      ],
+      sizes: [
+        ...new Set(
+          (p.product_variants ?? [])
+            .filter((v) => v.is_available !== false)
+            .map((v) => optionParts(v).size)
+            .filter((v): v is string => Boolean(v)),
+        ),
+      ],
+      optionsChanged: false,
       name: p.name,
       slug: p.slug,
       category_id: p.category_id,
@@ -688,9 +713,26 @@ function AdminProductsPage() {
               />
             </label>
 
+            <div className="grid gap-3 md:col-span-2 md:grid-cols-2">
+              <OptionMultiSelect
+                label={t("options.color")}
+                presets={["Black", "Brown", "Tan", "White", "Beige", "Blue", "Red", "Green"]}
+                values={editing.colors}
+                onChange={(colors) => setEditing({ ...editing, colors, optionsChanged: true })}
+              />
+              <OptionMultiSelect
+                label={t("options.size")}
+                presets={["XS", "S", "Medium", "Large", "XL", "XXL", "One size"]}
+                values={editing.sizes}
+                onChange={(sizes) => setEditing({ ...editing, sizes, optionsChanged: true })}
+              />
+              <p className="text-xs leading-relaxed text-white/60 md:col-span-2">
+                {t("options.multiHelp")}
+              </p>
+            </div>
+
             {[
               { key: "Material", label: "material" },
-              { key: "Colour", label: "colors" },
               { key: "Use", label: "use" },
               { key: "Dimensions", label: "dimensions" },
               { key: "Care", label: "care" },
@@ -705,7 +747,7 @@ function AdminProductsPage() {
               return (
                 <label key={key} className="block">
                   <span className="mb-1 block text-xs uppercase tracking-wider text-gold/70">
-                    {t(`productFacts.${label}`)}
+                    {key === "Dimensions" ? t("options.measurements") : t(`productFacts.${label}`)}
                   </span>
                   <input
                     maxLength={500}

@@ -20,3 +20,7 @@ Options retain their IDs instead of being deleted, preserving historical order r
 Deploy the application changes. No database migration or new environment variable is required; this uses the existing product_variants table and payment validation.
 
 Type checking, production build, changed-file lint, option validation tests, and isolated database tests passed. Tests cover hidden/inactive options, sold-out options, variant stock reservation, price adjustment, and the exact variant recorded after payment. Admin browser verification requires an authenticated admin session. No live product data was modified during implementation.
+
+## Multiple selections in the product editor
+
+The product edit form includes preset color and size buttons plus custom values. Select several of each and save to create all combinations. New combinations use shared product stock and no price surcharge. Existing combinations preserve their settings; deselected combinations become inactive. Use Colors & sizes to reactivate a previously disabled combination or adjust individual stock and price. Legacy descriptive specifications do not automatically become sellable variants.

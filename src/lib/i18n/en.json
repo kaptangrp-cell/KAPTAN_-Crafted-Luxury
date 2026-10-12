@@ -773,6 +773,10 @@
     "save": "Save option",
     "none": "No options are currently available.",
     "chooseColor": "Choose a color to see available sizes.",
-    "choose": "Choose an option"
+    "choose": "Choose an option",
+    "custom": "Custom value",
+    "addValue": "Add",
+    "multiHelp": "Select multiple colors and sizes. Saving creates each combination using product stock and price. Existing options keep their stock, prices and active status; removed choices become inactive. Manage individual combinations under Colors & sizes.",
+    "measurements": "Measurements (e.g. 10 × 8 cm)"
   }
 }
