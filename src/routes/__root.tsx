@@ -18,7 +18,7 @@ import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/react";
 import i18n from "@/lib/i18n";
 import { usePreferencesStore } from "@/stores/preferencesStore";
-import { WhatsAppButton } from "@/components/layout/WhatsAppButton";
+import { StoreAssistant } from "@/components/assistant/StoreAssistant";
 import { logVisit } from "@/lib/analytics.functions";
 
 import appCss from "../styles.css?url";
@@ -229,7 +229,7 @@ function RootComponent() {
 
       <Analytics />
       <SpeedInsights />
-      <WhatsAppButton />
+      <StoreAssistant />
     </QueryClientProvider>
   );
 }

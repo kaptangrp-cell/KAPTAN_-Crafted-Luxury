@@ -5,7 +5,7 @@ import { CatalogText } from "@/components/common/CatalogText";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useQueryClient } from "@tanstack/react-query";
-import { Heart, ShoppingBag, Star } from "lucide-react";
+import { Heart, ShoppingBag, Star, Check } from "lucide-react";
 import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
 import { useCartStore } from "@/stores/cartStore";
@@ -40,6 +40,9 @@ export function ProductCard({ product }: ProductCardProps) {
   const user = useAuthStore((s) => s.user);
   const toggleWishlistFn = useServerFn(toggleWishlist);
 
+  const [added, setAdded] = useState(false);
+  const [saved, setSaved] = useState(false);
+  const [savingWishlist, setSavingWishlist] = useState(false);
   const [color, setColor] = useState("");
   const colors = [
     ...new Set(
@@ -88,6 +91,7 @@ export function ProductCard({ product }: ProductCardProps) {
       return;
     }
     addItem(product, null, 1, imageUrl);
+    setAdded(true);
     toast.success(t("products.addedToCartToast", { name: product.name }));
   }
 
@@ -99,22 +103,27 @@ export function ProductCard({ product }: ProductCardProps) {
       return;
     }
 
+    if (savingWishlist) return;
+    setSavingWishlist(true);
     try {
       const result = await toggleWishlistFn({
         data: { productId: product.id },
       });
 
+      setSaved(result.saved);
       toast.success(
         result.saved ? t("products.addedToWishlistToast") : t("products.removedFromWishlistToast"),
       );
       qc.invalidateQueries({ queryKey: ["wishlist"] });
     } catch (err) {
       toast.error(err instanceof Error ? err.message : t("products.wishlistFailedToast"));
+    } finally {
+      setSavingWishlist(false);
     }
   }
 
   return (
-    <div className="group relative flex h-full flex-col overflow-hidden rounded-xl border border-gold/15 bg-[#1A1A1A] transition-colors duration-300 hover:border-gold/40">
+    <div className="kaptan-product-card group relative flex h-full flex-col overflow-hidden rounded-xl border border-gold/15 bg-[#1A1A1A] transition-colors duration-300 hover:border-gold/40">
       <div className="media-hero relative block aspect-square overflow-hidden bg-[#f3f0eb]">
         <Link
           to="/products/$slug"
@@ -124,10 +133,11 @@ export function ProductCard({ product }: ProductCardProps) {
           aria-hidden="true"
         >
           <img
+            key={imageUrl}
             src={imageUrl}
             alt={product.name}
             loading="lazy"
-            className="h-full w-full object-contain p-4 transition-transform duration-500 motion-safe:group-hover:scale-105"
+            className="kaptan-image-fade h-full w-full object-contain p-4 transition-transform duration-500 motion-safe:group-hover:scale-105"
           />
         </Link>
 
@@ -136,11 +146,12 @@ export function ProductCard({ product }: ProductCardProps) {
         </span>
 
         <button
+          disabled={savingWishlist}
           onClick={handleWishlist}
           className="absolute right-2 top-2 flex h-9 w-9 items-center justify-center rounded-full border border-gold/40 bg-black/80 text-gold transition-colors hover:bg-gold hover:text-black"
           aria-label={t("products.wishlistAriaLabel")}
         >
-          <Heart size={17} />
+          <Heart key={String(saved)} size={17} className={saved ? "kaptan-pop fill-gold" : ""} />
         </button>
       </div>
 
@@ -233,7 +244,11 @@ export function ProductCard({ product }: ProductCardProps) {
           disabled={!product.is_available || product.stock_quantity <= 0}
           className="mt-4 flex w-full rounded-full items-center justify-center gap-2 bg-gold py-2.5 text-sm font-bold text-black transition-colors hover:bg-gold-vivid disabled:opacity-50"
         >
-          <ShoppingBag size={16} />
+          {added ? (
+            <Check size={16} className="kaptan-pop" onAnimationEnd={() => setAdded(false)} />
+          ) : (
+            <ShoppingBag size={16} />
+          )}
           {!product.is_available || product.stock_quantity <= 0
             ? t("products.outOfStock")
             : t("products.addToCart")}

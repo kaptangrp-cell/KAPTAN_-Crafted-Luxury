@@ -1,3 +1,4 @@
+import { motion, useReducedMotion } from "framer-motion";
 import { CatalogText } from "@/components/common/CatalogText";
 import { useState } from "react";
 import { createFileRoute, useRouterState } from "@tanstack/react-router";
@@ -77,6 +78,7 @@ const SORT_OPTIONS: { value: NonNullable<ProductsSearch["sort"]>; labelKey: stri
 
 function ProductsPage() {
   const { t } = useTranslation();
+  const reducedMotion = useReducedMotion();
   const search = Route.useSearch();
   const filtering = useRouterState({ select: (state) => state.isLoading });
   const [filtersOpen, setFiltersOpen] = useState(false);
@@ -399,7 +401,15 @@ function ProductsPage() {
           ) : (
             <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
               {products.map((p) => (
-                <ProductCard key={p.id} product={p as never} />
+                <motion.div
+                  key={p.id}
+                  layout={!reducedMotion}
+                  initial={reducedMotion ? false : { opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: reducedMotion ? 0 : 0.22 }}
+                >
+                  <ProductCard product={p as never} />
+                </motion.div>
               ))}
             </div>
           )}

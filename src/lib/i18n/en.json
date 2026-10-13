@@ -846,5 +846,33 @@
     "updating": "Updating results…",
     "noMatches": "No matching pieces",
     "tryAgain": "Try another colour, widen your price range, or clear your filters to explore the full collection."
+  },
+  "assistant": {
+    "title": "Ask Kaptan",
+    "description": "Product finder & store help · Guided answers from our catalogue and policies.",
+    "welcome": "How can we help?",
+    "intro": "Find your next piece, explore product details, or ask about delivery and returns.",
+    "conversation": "Conversation with Ask Kaptan",
+    "shippingCosts": "Delivery charges are shown at checkout. A tracking number is emailed when your order ships. Delivery times are estimates, not guaranteed arrival dates.",
+    "tracking": "Open My Orders to see your own order status and any available tracking details. You will be asked to sign in if needed.",
+    "payment": "The available payment methods and final total are shown at checkout.",
+    "support": "Our team can help with anything not covered here. Contact us or use the WhatsApp link below.",
+    "matches_one": "I found {{count}} matching product. Prices shown are base prices; expand the details for options.",
+    "matches_other": "I found {{count}} matching products. Here are up to six matches. Prices shown are base prices; expand the details for options.",
+    "noMatch": "I couldn’t find a confident match. Try a product name, colour, or budget—for example “brown wallets under €30”. For anything else, please contact our team.",
+    "thisProduct": "Tell me about this product",
+    "findExample": "Show me brown wallets under €30",
+    "returnsQuestion": "What is your return policy?",
+    "shippingQuestion": "How does delivery work?",
+    "trackingQuestion": "Track my order",
+    "faqQuestion": "FAQs",
+    "allDetails": "All product details & options",
+    "noDetails": "More details are not listed yet. Please contact us.",
+    "searching": "Checking the catalogue…",
+    "error": "The catalogue is unavailable right now. Your question is still here—please try again or contact us.",
+    "placeholder": "Ask about products, delivery, returns…",
+    "send": "Send question",
+    "human": "Talk to us on WhatsApp",
+    "clear": "Clear chat"
   }
 }

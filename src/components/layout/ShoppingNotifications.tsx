@@ -36,8 +36,9 @@ export function ShoppingNotifications() {
         <Heart size={19} className={count ? "fill-gold/30" : ""} />
         {count > 0 && (
           <span
+            key={count}
             aria-hidden="true"
-            className="absolute -right-1 -top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-gold px-1 text-[10px] font-bold text-black"
+            className="kaptan-pop absolute -right-1 -top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-gold px-1 text-[10px] font-bold text-black"
           >
             {count > 99 ? "99+" : count}
           </span>
@@ -53,8 +54,9 @@ export function ShoppingNotifications() {
             <ShoppingBag size={20} />
             {total > 0 && (
               <span
+                key={total}
                 aria-hidden="true"
-                className="absolute -right-1 -top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-gold px-1 text-[10px] font-bold text-black"
+                className="kaptan-pop absolute -right-1 -top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-gold px-1 text-[10px] font-bold text-black"
               >
                 {total > 99 ? "99+" : total}
               </span>

@@ -401,13 +401,14 @@ function ProductDetailPage() {
                 />
               ) : (
                 <img
+                  key={active.url}
                   src={active.url}
                   alt={
                     details.find((d) => d.url === active.url)?.alt ||
                     active.alt_text ||
                     product.name
                   }
-                  className="h-full w-full bg-[#f3f0eb] object-contain transition-transform duration-200 ease-out"
+                  className="kaptan-image-fade h-full w-full bg-[#f3f0eb] object-contain transition-transform duration-200 ease-out"
                   style={{
                     transform: zoomActive ? "scale(2)" : "scale(1)",
                     transformOrigin: zoomOrigin,

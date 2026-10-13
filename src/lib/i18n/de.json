@@ -846,5 +846,33 @@
     "updating": "Ergebnisse werden aktualisiert…",
     "noMatches": "Keine passenden Produkte",
     "tryAgain": "Wählen Sie eine andere Farbe, erweitern Sie den Preisbereich oder löschen Sie die Filter, um die gesamte Kollektion zu entdecken."
+  },
+  "assistant": {
+    "title": "Kaptan fragen",
+    "description": "Produktsuche & Hilfe · Antworten aus unserem Katalog und unseren Richtlinien.",
+    "welcome": "Wie können wir helfen?",
+    "intro": "Entdecken Sie Produkte und Details oder stellen Sie Fragen zu Versand und Rückgabe.",
+    "conversation": "Gespräch mit Kaptan",
+    "shippingCosts": "Die Versandkosten werden an der Kasse angezeigt. Nach dem Versand erhalten Sie eine Sendungsnummer per E-Mail. Lieferzeiten sind Schätzungen und keine garantierten Ankunftsdaten.",
+    "tracking": "Unter Meine Bestellungen finden Sie Ihren Bestellstatus und verfügbare Informationen zur Sendungsverfolgung. Falls nötig, werden Sie zur Anmeldung aufgefordert.",
+    "payment": "Die verfügbaren Zahlungsmethoden und der endgültige Gesamtbetrag werden an der Kasse angezeigt.",
+    "support": "Unser Team hilft Ihnen bei allen weiteren Fragen. Kontaktieren Sie uns oder nutzen Sie den WhatsApp-Link unten.",
+    "matches_one": "Ich habe {{count}} passendes Produkt gefunden. Angezeigt werden Grundpreise; öffnen Sie die Details für alle Optionen.",
+    "matches_other": "Ich habe {{count}} passende Produkte gefunden. Hier sind bis zu sechs Treffer. Angezeigt werden Grundpreise; öffnen Sie die Details für alle Optionen.",
+    "noMatch": "Ich habe keinen eindeutigen Treffer gefunden. Versuchen Sie einen Produktnamen, eine Farbe oder ein Budget, zum Beispiel „braune Geldbörsen unter €30“. Bei weiteren Fragen hilft unser Team.",
+    "thisProduct": "Details zu diesem Produkt",
+    "findExample": "Zeige mir braune Geldbörsen unter €30",
+    "returnsQuestion": "Wie funktioniert die Rückgabe?",
+    "shippingQuestion": "Wie funktioniert der Versand?",
+    "trackingQuestion": "Meine Bestellung verfolgen",
+    "faqQuestion": "FAQs",
+    "allDetails": "Alle Produktdetails und Optionen",
+    "noDetails": "Weitere Details sind noch nicht hinterlegt. Bitte kontaktieren Sie uns.",
+    "searching": "Der Katalog wird durchsucht…",
+    "error": "Der Katalog ist gerade nicht verfügbar. Ihre Frage bleibt erhalten—bitte versuchen Sie es erneut oder kontaktieren Sie uns.",
+    "placeholder": "Fragen zu Produkten, Versand, Rückgabe…",
+    "send": "Frage senden",
+    "human": "Kontakt über WhatsApp",
+    "clear": "Chat leeren"
   }
 }

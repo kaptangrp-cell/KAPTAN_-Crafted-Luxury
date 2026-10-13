@@ -220,3 +220,20 @@
 .admin-workspace h1 {
   letter-spacing: -0.025em;
 }
+
+/* Small, purposeful storefront motion; no looping attention effects. */
+@keyframes kaptan-enter { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes kaptan-fade { from { opacity: .35; } to { opacity: 1; } }
+@keyframes kaptan-pop { 0% { transform: scale(.85); } 45% { transform: scale(1.15); } 100% { transform: scale(1); } }
+@keyframes kaptan-skeleton { 50% { opacity: .4; } }
+.kaptan-enter { animation: kaptan-enter 220ms ease-out; }
+.kaptan-image-fade { animation: kaptan-fade 220ms ease-out; }
+.kaptan-pop { animation: kaptan-pop 350ms ease-out; }
+.kaptan-skeleton { animation: kaptan-skeleton 1.4s ease-in-out infinite; }
+.kaptan-product-card { transition: transform 200ms ease, border-color 200ms ease; }
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  .kaptan-product-card:hover { transform: translateY(-3px); }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; scroll-behavior: auto !important; }
+}
