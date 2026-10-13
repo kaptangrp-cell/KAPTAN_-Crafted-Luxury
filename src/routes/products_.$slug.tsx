@@ -362,7 +362,7 @@ function ProductDetailPage() {
 
   return (
     <PageLayout>
-      <section className="mx-auto max-w-7xl px-4 py-10 md:px-6">
+      <section className="mx-auto max-w-7xl px-4 pb-36 pt-10 md:px-6">
         <nav className="mb-6 text-xs text-white/50">
           <Link to="/" className="hover:text-gold">
             {t("pdp.breadcrumbHome")}
@@ -536,24 +536,25 @@ function ProductDetailPage() {
               </p>
             )}
 
-            <ProductOptionPicker
-              key={product.id}
-              options={variants}
-              selectedId={variantId}
-              basePrice={Number(product.price)}
-              colorImages={colorImages}
-              onColorChange={(color) => {
-                setGalleryColor(color);
-                setActiveMedia(0);
-              }}
-              onChange={(id) => {
-                setVariantId(id);
-                setActiveMedia(0);
-                const selected = variants.find((v) => v.id === id);
-                if (selected) setGalleryColor(optionParts(selected).color ?? "");
-              }}
-            />
-
+            <div id="product-options" className="scroll-mt-48">
+              <ProductOptionPicker
+                key={product.id}
+                options={variants}
+                selectedId={variantId}
+                basePrice={Number(product.price)}
+                colorImages={colorImages}
+                onColorChange={(color) => {
+                  setGalleryColor(color);
+                  setActiveMedia(0);
+                }}
+                onChange={(id) => {
+                  setVariantId(id);
+                  setActiveMedia(0);
+                  const selected = variants.find((v) => v.id === id);
+                  if (selected) setGalleryColor(optionParts(selected).color ?? "");
+                }}
+              />
+            </div>
             <div className="mt-6">
               <h3 className="mb-2 text-xs uppercase tracking-wider text-gold/70">
                 {t("pdp.numberOfUnits")}
@@ -585,6 +586,7 @@ function ProductDetailPage() {
               )}
             </div>
 
+            {needsOption && <p className="mt-4 text-sm text-gold">{t("buyer.chooseFirst")}</p>}
             <div className="mt-6 grid gap-3 sm:grid-cols-2">
               <button
                 onClick={handleAdd}
@@ -592,7 +594,7 @@ function ProductDetailPage() {
                 className="flex items-center justify-center gap-2 border border-gold bg-transparent py-3 text-sm font-bold uppercase tracking-wider text-gold transition-colors hover:bg-gold hover:text-black disabled:opacity-50"
               >
                 <ShoppingBag size={16} />
-                {t(needsOption ? "products.chooseOptions" : "products.addToCart")}
+                {t("products.addToCart")}
               </button>
 
               <button
@@ -601,7 +603,7 @@ function ProductDetailPage() {
                 className="flex items-center justify-center gap-2 bg-gold py-3 text-sm font-bold uppercase tracking-wider text-black transition-colors hover:bg-gold-vivid disabled:opacity-50"
               >
                 <CreditCard size={16} />
-                {t("pdp.buyNow")}
+                {t("buyer.checkout")}
               </button>
             </div>
 
@@ -1040,6 +1042,43 @@ function ProductDetailPage() {
           }),
         }}
       />
+      <div className="fixed inset-x-0 bottom-0 z-40 border-t border-gold/30 bg-black px-4 pb-[max(1rem,env(safe-area-inset-bottom))] pt-3 shadow-2xl">
+        <div className="mx-auto flex max-w-7xl flex-wrap items-center gap-3">
+          <div className="hidden min-w-0 flex-1 sm:block">
+            <p className="truncate text-sm text-white">{product.name}</p>
+            <Price amount={finalPrice} className="text-gold" />
+          </div>
+          {needsOption && !outOfStock && (
+            <a
+              href="#product-options"
+              className="w-full text-center text-xs text-gold underline sm:w-auto"
+            >
+              {t("buyer.chooseFirst")}
+            </a>
+          )}
+          <button
+            onClick={handleAdd}
+            disabled={cannotPurchase}
+            className="flex min-h-12 flex-1 items-center justify-center gap-2 rounded-full border border-gold px-3 text-sm font-semibold text-gold disabled:opacity-50 sm:flex-none sm:px-6"
+          >
+            <ShoppingBag size={16} />
+            {t("products.addToCart")}
+          </button>
+          <button
+            onClick={handleBuyNow}
+            disabled={cannotPurchase}
+            className="flex min-h-12 flex-1 items-center justify-center gap-2 rounded-full bg-gold px-3 text-sm font-semibold text-black disabled:opacity-50 sm:flex-none sm:px-8"
+          >
+            <CreditCard size={16} />
+            {t("buyer.checkout")}
+          </button>
+          {outOfStock && (
+            <span className="w-full text-center text-xs text-red-400 sm:w-auto">
+              {t("pdp.outOfStock")}
+            </span>
+          )}
+        </div>
+      </div>
     </PageLayout>
   );
 }

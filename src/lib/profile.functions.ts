@@ -1,8 +1,10 @@
+import { AvatarSelectionSchema } from "@/lib/avatars";
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
 const ProfileSchema = z.object({
+  avatar_url: AvatarSelectionSchema.optional(),
   full_name: z.string().min(1).max(120).nullable().optional(),
   phone: z.string().max(40).nullable().optional(),
   date_of_birth: z.string().nullable().optional(),
@@ -48,9 +50,14 @@ export const updateMyProfile = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: unknown) => ProfileSchema.parse(input))
   .handler(async ({ data, context }) => {
-    const { error } = await context.supabase.from("profiles").update(data).eq("id", context.userId);
+    const { data: profile, error } = await context.supabase
+      .from("profiles")
+      .update(data)
+      .eq("id", context.userId)
+      .select("*")
+      .single();
     if (error) throw new Error(error.message);
-    return { ok: true };
+    return { ok: true, profile };
   });
 
 const AddressSchema = z.object({

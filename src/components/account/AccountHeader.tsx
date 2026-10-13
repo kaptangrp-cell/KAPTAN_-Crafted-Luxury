@@ -1,3 +1,4 @@
+import { ProfileAvatar } from "./ProfileAvatar";
 import { Link } from "@tanstack/react-router";
 import { UserRound, Heart, Package, ArrowUpRight } from "lucide-react";
 import { useTranslation } from "react-i18next";
@@ -44,11 +45,9 @@ export function AccountHeader({ active }: { active: "profile" | "orders" | "wish
             {t(`accountStyle.${active}Intro`)}
           </p>
         </div>
-        <div className="hidden items-center gap-3 rounded-full border border-gold/15 bg-[#1A1A1A] py-2 pl-2 pr-5 sm:flex">
-          <span className="flex h-10 w-10 items-center justify-center rounded-full bg-gold/10 font-serif text-lg text-gold">
-            {String(name).slice(0, 1).toUpperCase()}
-          </span>
-          <span className="max-w-40 truncate text-sm text-white/80">{name}</span>
+        <div className="flex items-center gap-3 rounded-full border border-gold/15 bg-[#1A1A1A] py-2 pl-2 pr-5 sm:flex">
+          <ProfileAvatar url={profile?.avatar_url} className="h-10 w-10" />
+          <span className="hidden max-w-40 truncate sm:block text-sm text-white/80">{name}</span>
         </div>
       </div>
       <nav

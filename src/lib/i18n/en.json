@@ -811,5 +811,26 @@
     "loadFailed": "We couldn’t load your account details. Please try again.",
     "viewProduct": "Discover this piece",
     "viewOrder": "View order details"
+  },
+  "buyer": {
+    "avatarTitle": "Choose your avatar",
+    "avatarHelp": "Find your favourite from 96 illustrated portraits.",
+    "avatarNumber": "Avatar {{number}}",
+    "fewerAvatars": "Show fewer",
+    "allAvatars": "Explore all 96 avatars",
+    "resetAvatar": "Use default avatar",
+    "avatarSave": "Save your profile to keep this avatar on your account.",
+    "wishlistCount_one": "Wishlist · {{count}} saved item",
+    "wishlistCount_other": "Wishlist · {{count}} saved items",
+    "basketCount_one": "Basket · {{count}} item · Continue to checkout",
+    "basketCount_other": "Basket · {{count}} items · Continue to checkout",
+    "finishOrder": "Complete your order",
+    "basketReminder_one": "You have {{count}} item waiting in your basket.",
+    "basketReminder_other": "You have {{count}} items waiting in your basket.",
+    "checkout": "Checkout",
+    "editBasket": "Review or edit basket",
+    "close": "Close notification",
+    "chooseFirst": "Choose your product options first",
+    "optionsNext": "Select your options on the product page."
   }
 }

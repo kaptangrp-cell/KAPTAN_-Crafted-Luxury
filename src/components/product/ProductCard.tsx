@@ -231,13 +231,30 @@ export function ProductCard({ product }: ProductCardProps) {
         <button
           onClick={handleAddToCart}
           disabled={!product.is_available || product.stock_quantity <= 0}
-          className="mt-4 flex w-full items-center justify-center gap-2 bg-gold py-2.5 text-sm font-bold text-black transition-colors hover:bg-gold-vivid disabled:opacity-50"
+          className="mt-4 flex w-full rounded-full items-center justify-center gap-2 bg-gold py-2.5 text-sm font-bold text-black transition-colors hover:bg-gold-vivid disabled:opacity-50"
         >
           <ShoppingBag size={16} />
           {!product.is_available || product.stock_quantity <= 0
             ? t("products.outOfStock")
-            : t(product.product_variants?.length ? "products.chooseOptions" : "products.addToCart")}
+            : t("products.addToCart")}
         </button>
+        <button
+          onClick={() => {
+            if (product.product_variants?.length) {
+              openProduct();
+              return;
+            }
+            addItem(product, null, 1, imageUrl);
+            navigate({ to: "/checkout" });
+          }}
+          disabled={!product.is_available || product.stock_quantity <= 0}
+          className="mt-2 flex min-h-10 w-full items-center justify-center rounded-full border border-gold/50 text-sm font-semibold text-gold hover:bg-gold/10 disabled:opacity-50"
+        >
+          {t("buyer.checkout")}
+        </button>
+        {!!product.product_variants?.length && (
+          <p className="mt-2 text-center text-xs text-white/60">{t("buyer.optionsNext")}</p>
+        )}
       </div>
     </div>
   );

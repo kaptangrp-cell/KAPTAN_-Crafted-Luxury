@@ -811,5 +811,26 @@
     "loadFailed": "Ihre Kontodaten konnten nicht geladen werden. Bitte versuchen Sie es erneut.",
     "viewProduct": "Dieses Stück entdecken",
     "viewOrder": "Bestelldetails ansehen"
+  },
+  "buyer": {
+    "avatarTitle": "Wählen Sie Ihren Avatar",
+    "avatarHelp": "Entdecken Sie Ihren Favoriten unter 96 illustrierten Porträts.",
+    "avatarNumber": "Avatar {{number}}",
+    "fewerAvatars": "Weniger anzeigen",
+    "allAvatars": "Alle 96 Avatare entdecken",
+    "resetAvatar": "Standard-Avatar verwenden",
+    "avatarSave": "Speichern Sie Ihr Profil, um diesen Avatar für Ihr Konto zu übernehmen.",
+    "wishlistCount_one": "Wunschliste · {{count}} gespeicherter Artikel",
+    "wishlistCount_other": "Wunschliste · {{count}} gespeicherte Artikel",
+    "basketCount_one": "Warenkorb · {{count}} Artikel · Weiter zur Kasse",
+    "basketCount_other": "Warenkorb · {{count}} Artikel · Weiter zur Kasse",
+    "finishOrder": "Bestellung abschließen",
+    "basketReminder_one": "{{count}} Artikel wartet in Ihrem Warenkorb.",
+    "basketReminder_other": "{{count}} Artikel warten in Ihrem Warenkorb.",
+    "checkout": "Zur Kasse",
+    "editBasket": "Warenkorb prüfen oder bearbeiten",
+    "close": "Hinweis schließen",
+    "chooseFirst": "Bitte zuerst Ihre Produktoptionen wählen",
+    "optionsNext": "Wählen Sie Ihre Optionen auf der Produktseite."
   }
 }

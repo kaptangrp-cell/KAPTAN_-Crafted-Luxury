@@ -1,3 +1,4 @@
+import { AvatarPicker } from "@/components/account/AvatarPicker";
 import { AccountHeader } from "@/components/account/AccountHeader";
 import { useEffect, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
@@ -26,6 +27,7 @@ function ProfilePage() {
   });
 
   const [form, setForm] = useState({
+    avatar_url: null as string | null,
     full_name: "",
     phone: "",
     date_of_birth: "",
@@ -36,6 +38,7 @@ function ProfilePage() {
   useEffect(() => {
     if (data?.profile) {
       setForm({
+        avatar_url: data.profile.avatar_url,
         full_name: data.profile.full_name ?? "",
         phone: data.profile.phone ?? "",
         date_of_birth: data.profile.date_of_birth ?? "",
@@ -48,14 +51,21 @@ function ProfilePage() {
     e.preventDefault();
     setSaving(true);
     try {
-      await updateFn({
+      const result = await updateFn({
         data: {
+          ...(form.avatar_url !== data?.profile.avatar_url ? { avatar_url: form.avatar_url } : {}),
           full_name: form.full_name || null,
           phone: form.phone || null,
           date_of_birth: form.date_of_birth || null,
           email_marketing: form.email_marketing,
         },
       });
+      useAuthStore
+        .getState()
+        .setProfile({
+          ...result.profile,
+          role: result.profile.role === "admin" ? "admin" : "customer",
+        });
       toast.success(t("profile.updatedToast"));
       refetch();
     } catch (err) {
@@ -84,6 +94,10 @@ function ProfilePage() {
             onSubmit={save}
             className="rounded-2xl border border-gold/15 bg-[#0D0D0D] p-5 sm:p-8"
           >
+            <AvatarPicker
+              value={form.avatar_url}
+              onChange={(avatar_url) => setForm((current) => ({ ...current, avatar_url }))}
+            />
             <div className="mb-7 border-b border-gold/10 pb-6">
               <h2 className="font-serif text-xl text-white">{t("accountStyle.personalDetails")}</h2>
               <p className="mt-2 text-sm text-white/50">{t("accountStyle.personalHint")}</p>

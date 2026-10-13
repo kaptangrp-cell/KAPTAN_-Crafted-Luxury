@@ -1,9 +1,10 @@
+import { ShoppingNotifications, CartReminderBar } from "./ShoppingNotifications";
+import { ProfileAvatar } from "@/components/account/ProfileAvatar";
 import { useEffect, useRef, useState } from "react";
 import { Link, useNavigate } from "@tanstack/react-router";
 import {
   Search,
   Heart,
-  ShoppingBag,
   Menu,
   X,
   User,
@@ -18,8 +19,6 @@ import {
 import { useTranslation } from "react-i18next";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuthStore } from "@/stores/authStore";
-import { useUIStore } from "@/stores/uiStore";
-import { useCartStore } from "@/stores/cartStore";
 import { usePreferencesStore } from "@/stores/preferencesStore";
 import {
   DropdownMenu,
@@ -41,8 +40,6 @@ export function Header() {
   const logoutTimer = useRef<number | null>(null);
 
   const { user, profile } = useAuthStore();
-  const { openCart } = useUIStore();
-  const totalItems = useCartStore((s) => s.items.reduce((total, item) => total + item.quantity, 0));
 
   const navigate = useNavigate();
   const { t } = useTranslation();
@@ -114,7 +111,7 @@ export function Header() {
           </span>
         </Link>
 
-        <nav className="hidden items-center gap-6 lg:flex">
+        <nav className="hidden items-center gap-5 xl:flex">
           {[
             { label: t("nav.home"), to: "/" },
             { label: t("nav.products"), to: "/products" },
@@ -135,7 +132,7 @@ export function Header() {
         <div className="flex items-center gap-1 sm:gap-2">
           <button
             onClick={() => setSearchOpen(!searchOpen)}
-            className="flex h-10 w-10 items-center justify-center rounded-full text-gold/80 transition-colors hover:bg-gold/10 hover:text-gold"
+            className="hidden h-10 w-10 items-center justify-center rounded-full text-gold/80 transition-colors hover:bg-gold/10 hover:text-gold sm:flex"
             aria-label={t("nav.search")}
             aria-expanded={searchOpen}
             aria-controls="header-search"
@@ -207,27 +204,16 @@ export function Header() {
             </DropdownMenuContent>
           </DropdownMenu>
 
-          <button
-            onClick={openCart}
-            className="relative flex h-10 w-10 items-center justify-center rounded-full text-gold/80 transition-colors hover:text-gold"
-            aria-label={t("nav.cart")}
-          >
-            <ShoppingBag size={20} />
-            {totalItems > 0 && (
-              <span className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-gold text-[10px] font-bold text-black">
-                {totalItems}
-              </span>
-            )}
-          </button>
+          <ShoppingNotifications />
 
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <button
                 aria-label={t("nav.account")}
-                className="flex h-10 items-center gap-2 rounded-full border border-gold/25 px-3 text-gold transition-colors hover:border-gold/60 hover:bg-gold/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-gold"
+                className="flex h-10 items-center gap-1 rounded-full border border-gold/25 px-1.5 sm:px-3 text-gold transition-colors hover:border-gold/60 hover:bg-gold/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-gold"
               >
-                <User size={17} strokeWidth={1.5} />
-                <span className="hidden text-xs font-medium lg:inline">{t("nav.account")}</span>
+                <ProfileAvatar url={user ? profile?.avatar_url : null} className="h-7 w-7" />
+                <span className="hidden text-xs font-medium xl:inline">{t("nav.account")}</span>
                 <ChevronDown size={12} />
               </button>
             </DropdownMenuTrigger>
@@ -289,7 +275,7 @@ export function Header() {
 
           <button
             onClick={() => setMobileOpen(!mobileOpen)}
-            className="p-1 text-gold lg:hidden"
+            className="p-1 text-gold xl:hidden"
             aria-label={t("nav.menu")}
             aria-expanded={mobileOpen}
             aria-controls="mobile-navigation"
@@ -328,7 +314,17 @@ export function Header() {
         </form>
       )}
       {mobileOpen && (
-        <div className="border-t border-gold/20 bg-black px-4 pb-6 pt-4 lg:hidden">
+        <div className="border-t border-gold/20 bg-black px-4 pb-6 pt-4 xl:hidden">
+          <button
+            onClick={() => {
+              setSearchOpen(true);
+              setMobileOpen(false);
+            }}
+            className="mb-4 flex items-center gap-2 text-sm text-gold"
+          >
+            <Search size={16} />
+            {t("nav.search")}
+          </button>
           <nav id="mobile-navigation" className="flex flex-col gap-4">
             {[
               { label: t("nav.home"), to: "/" },
@@ -349,6 +345,7 @@ export function Header() {
           </nav>
         </div>
       )}
+      <CartReminderBar />
     </header>
   );
 }
