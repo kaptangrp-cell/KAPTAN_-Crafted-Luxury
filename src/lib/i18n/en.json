@@ -795,5 +795,21 @@
     "preview": "Preview product card",
     "uploadMany": "Upload several product photos at once (up to 10 MB each)",
     "fileLimit": "Choose image files up to 10 MB each."
+  },
+  "accountStyle": {
+    "preferences": "Preferences",
+    "appearance": "Appearance",
+    "welcome": "Welcome",
+    "profileHint": "Your details & preferences",
+    "ordersHint": "Follow every delivery",
+    "wishlistHint": "Pieces you love",
+    "profileIntro": "A few personal details. A more considered shopping experience.",
+    "ordersIntro": "Your purchases, beautifully organised. Follow each order from our hands to yours.",
+    "wishlistIntro": "A collection of your favourites, ready whenever you are.",
+    "personalDetails": "Personal details",
+    "personalHint": "Keep your details up to date and choose how you hear from us.",
+    "loadFailed": "We couldn’t load your account details. Please try again.",
+    "viewProduct": "Discover this piece",
+    "viewOrder": "View order details"
   }
 }

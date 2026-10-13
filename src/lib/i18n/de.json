@@ -795,5 +795,21 @@
     "preview": "Produktkarte als Vorschau",
     "uploadMany": "Mehrere Produktfotos hochladen (jeweils bis zu 10 MB)",
     "fileLimit": "Bitte Bilddateien bis zu 10 MB auswählen."
+  },
+  "accountStyle": {
+    "preferences": "Einstellungen",
+    "appearance": "Darstellung",
+    "welcome": "Willkommen",
+    "profileHint": "Persönliche Einstellungen",
+    "ordersHint": "Lieferungen im Blick",
+    "wishlistHint": "Ihre Lieblingsstücke",
+    "profileIntro": "Ihre persönlichen Angaben für ein Einkaufserlebnis, das zu Ihnen passt.",
+    "ordersIntro": "Ihre Einkäufe übersichtlich an einem Ort. Verfolgen Sie jede Bestellung bis zu Ihrer Tür.",
+    "wishlistIntro": "Ihre Lieblingsstücke, gesammelt für den richtigen Moment.",
+    "personalDetails": "Persönliche Angaben",
+    "personalHint": "Halten Sie Ihre Angaben aktuell und wählen Sie, wie Sie von uns hören möchten.",
+    "loadFailed": "Ihre Kontodaten konnten nicht geladen werden. Bitte versuchen Sie es erneut.",
+    "viewProduct": "Dieses Stück entdecken",
+    "viewOrder": "Bestelldetails ansehen"
   }
 }

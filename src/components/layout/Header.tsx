@@ -1,13 +1,36 @@
 import { useEffect, useRef, useState } from "react";
 import { Link, useNavigate } from "@tanstack/react-router";
-import { Search, Heart, ShoppingBag, Menu, X, User, Sun, Moon, LogOut } from "lucide-react";
+import {
+  Search,
+  Heart,
+  ShoppingBag,
+  Menu,
+  X,
+  User,
+  Sun,
+  Moon,
+  LogOut,
+  ChevronDown,
+  Package,
+  ShieldCheck,
+  SlidersHorizontal,
+} from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuthStore } from "@/stores/authStore";
 import { useUIStore } from "@/stores/uiStore";
 import { useCartStore } from "@/stores/cartStore";
 import { usePreferencesStore } from "@/stores/preferencesStore";
-import { LanguageSwitcher } from "@/components/layout/LanguageSwitcher";
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuRadioGroup,
+  DropdownMenuRadioItem,
+} from "@/components/ui/dropdown-menu";
 
 const INACTIVITY_LIMIT = 15 * 60 * 1000;
 
@@ -23,7 +46,7 @@ export function Header() {
 
   const navigate = useNavigate();
   const { t } = useTranslation();
-  const { theme, toggleTheme } = usePreferencesStore();
+  const { theme, setTheme, language, setLanguage } = usePreferencesStore();
 
   const userName =
     profile?.full_name || user?.user_metadata?.full_name || user?.email?.split("@")[0] || "Account";
@@ -91,7 +114,7 @@ export function Header() {
           </span>
         </Link>
 
-        <nav className="hidden items-center gap-8 md:flex">
+        <nav className="hidden items-center gap-6 lg:flex">
           {[
             { label: t("nav.home"), to: "/" },
             { label: t("nav.products"), to: "/products" },
@@ -109,54 +132,84 @@ export function Header() {
           ))}
         </nav>
 
-        <div className="flex items-center gap-2 md:gap-3">
-          {searchOpen && (
-            <input
-              autoFocus
-              type="text"
-              placeholder={t("nav.search")}
-              className="hidden w-40 border-b border-gold bg-transparent py-1 text-sm text-white outline-none placeholder:text-gold/40 md:block"
-              onBlur={() => setSearchOpen(false)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter") {
-                  const q = (e.target as HTMLInputElement).value;
-                  setSearchOpen(false);
-                  navigate({ to: "/products", search: { q } });
-                }
-              }}
-            />
-          )}
-
+        <div className="flex items-center gap-1 sm:gap-2">
           <button
             onClick={() => setSearchOpen(!searchOpen)}
-            className="p-1 text-gold/80 transition-colors hover:text-gold md:hidden"
+            className="flex h-10 w-10 items-center justify-center rounded-full text-gold/80 transition-colors hover:bg-gold/10 hover:text-gold"
             aria-label={t("nav.search")}
+            aria-expanded={searchOpen}
+            aria-controls="header-search"
           >
             <Search size={20} />
           </button>
 
-          <LanguageSwitcher />
-
-          <button
-            onClick={toggleTheme}
-            className="p-1 text-gold/80 transition-colors hover:text-gold"
-            aria-label={theme === "dark" ? t("theme.light") : t("theme.dark")}
-            title={theme === "dark" ? t("theme.light") : t("theme.dark")}
-          >
-            {theme === "dark" ? <Sun size={18} /> : <Moon size={18} />}
-          </button>
-
-          <Link
-            to="/wishlist"
-            className="hidden p-1 text-gold/80 transition-colors hover:text-gold md:block"
-            aria-label={t("nav.wishlist")}
-          >
-            <Heart size={20} />
-          </Link>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button
+                aria-label={t("accountStyle.preferences")}
+                className="flex h-10 w-10 items-center justify-center rounded-full text-gold/80 transition-colors hover:bg-gold/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-gold"
+              >
+                <SlidersHorizontal size={18} strokeWidth={1.5} />
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent
+              align="end"
+              sideOffset={12}
+              className="w-56 rounded-2xl border-gold/20 bg-black p-2 text-white shadow-xl"
+            >
+              <DropdownMenuLabel className="text-[10px] uppercase tracking-widest text-gold/70">
+                {t("language.switch")}
+              </DropdownMenuLabel>
+              <DropdownMenuRadioGroup
+                value={language}
+                onValueChange={(value) => {
+                  if (value === "en" || value === "de") setLanguage(value);
+                }}
+              >
+                <DropdownMenuRadioItem
+                  className="rounded-lg py-2.5 focus:bg-gold/10 focus:text-gold"
+                  value="en"
+                >
+                  English
+                </DropdownMenuRadioItem>
+                <DropdownMenuRadioItem
+                  className="rounded-lg py-2.5 focus:bg-gold/10 focus:text-gold"
+                  value="de"
+                >
+                  Deutsch
+                </DropdownMenuRadioItem>
+              </DropdownMenuRadioGroup>
+              <DropdownMenuSeparator className="bg-gold/15" />
+              <DropdownMenuLabel className="text-[10px] uppercase tracking-widest text-gold/70">
+                {t("accountStyle.appearance")}
+              </DropdownMenuLabel>
+              <DropdownMenuRadioGroup
+                value={theme}
+                onValueChange={(value) => {
+                  if (value === "light" || value === "dark") setTheme(value);
+                }}
+              >
+                <DropdownMenuRadioItem
+                  className="gap-2 rounded-lg py-2.5 focus:bg-gold/10 focus:text-gold"
+                  value="light"
+                >
+                  <Sun size={15} />
+                  {t("theme.light")}
+                </DropdownMenuRadioItem>
+                <DropdownMenuRadioItem
+                  className="gap-2 rounded-lg py-2.5 focus:bg-gold/10 focus:text-gold"
+                  value="dark"
+                >
+                  <Moon size={15} />
+                  {t("theme.dark")}
+                </DropdownMenuRadioItem>
+              </DropdownMenuRadioGroup>
+            </DropdownMenuContent>
+          </DropdownMenu>
 
           <button
             onClick={openCart}
-            className="relative p-1 text-gold/80 transition-colors hover:text-gold"
+            className="relative flex h-10 w-10 items-center justify-center rounded-full text-gold/80 transition-colors hover:text-gold"
             aria-label={t("nav.cart")}
           >
             <ShoppingBag size={20} />
@@ -167,59 +220,116 @@ export function Header() {
             )}
           </button>
 
-          {user ? (
-            <div className="hidden items-center gap-3 md:flex">
-              {profile?.role === "admin" && (
-                <Link
-                  to="/admin"
-                  className="text-xs font-medium uppercase tracking-wider text-gold/90 hover:text-gold"
-                >
-                  {t("nav.admin")}
-                </Link>
-              )}
-
-              <Link
-                to="/profile"
-                className="flex items-center gap-2 text-xs font-semibold text-gold/90 hover:text-gold"
-                aria-label={t("nav.account")}
-              >
-                <span className="max-w-[130px] truncate">{userName}</span>
-                <span className="flex h-8 w-8 items-center justify-center rounded-full border border-gold/40 text-gold">
-                  <User size={16} />
-                </span>
-              </Link>
-
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
               <button
-                onClick={handleLogout}
-                className="flex items-center gap-1 text-xs font-medium text-gold/80 hover:text-gold"
-                title={t("nav.logout")}
+                aria-label={t("nav.account")}
+                className="flex h-10 items-center gap-2 rounded-full border border-gold/25 px-3 text-gold transition-colors hover:border-gold/60 hover:bg-gold/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-gold"
               >
-                <LogOut size={16} />
-                <span>{t("nav.logout")}</span>
+                <User size={17} strokeWidth={1.5} />
+                <span className="hidden text-xs font-medium lg:inline">{t("nav.account")}</span>
+                <ChevronDown size={12} />
               </button>
-            </div>
-          ) : (
-            <Link
-              to="/auth"
-              className="hidden rounded-none border border-gold px-3 py-1.5 text-xs font-semibold text-gold transition-colors hover:bg-gold hover:text-black md:inline-block"
+            </DropdownMenuTrigger>
+            <DropdownMenuContent
+              align="end"
+              sideOffset={12}
+              className="w-64 rounded-2xl border-gold/20 bg-black p-2 text-white shadow-xl"
             >
-              {t("nav.signIn")}
-            </Link>
-          )}
+              <DropdownMenuLabel className="px-3 py-3">
+                <span className="block text-[10px] uppercase tracking-[0.2em] text-gold/70">
+                  {t("accountStyle.welcome")}
+                </span>
+                <span className="mt-1 block truncate font-serif text-lg font-medium">
+                  {user ? userName : "KAPTAN"}
+                </span>
+              </DropdownMenuLabel>
+              <DropdownMenuSeparator className="bg-gold/15" />
+              {[
+                { to: "/profile", label: t("account.navProfile"), icon: User },
+                { to: "/orders", label: t("account.navOrders"), icon: Package },
+                { to: "/wishlist", label: t("account.navWishlist"), icon: Heart },
+                ...(profile?.role === "admin"
+                  ? [{ to: "/admin", label: t("nav.admin"), icon: ShieldCheck }]
+                  : []),
+              ].map(({ to, label, icon: Icon }) => (
+                <DropdownMenuItem
+                  key={to}
+                  asChild
+                  className="cursor-pointer rounded-lg px-3 py-3 text-white/80 focus:bg-gold/10 focus:text-gold"
+                >
+                  <Link to={to}>
+                    <Icon size={16} strokeWidth={1.5} />
+                    {label}
+                  </Link>
+                </DropdownMenuItem>
+              ))}
+              <DropdownMenuSeparator className="bg-gold/15" />
+              {user ? (
+                <DropdownMenuItem
+                  onSelect={() => void handleLogout()}
+                  className="cursor-pointer rounded-lg px-3 py-3 text-white/60 focus:bg-gold/10 focus:text-gold"
+                >
+                  <LogOut size={16} />
+                  {t("nav.logout")}
+                </DropdownMenuItem>
+              ) : (
+                <DropdownMenuItem
+                  asChild
+                  className="rounded-lg px-3 py-3 text-gold focus:bg-gold/10 focus:text-gold"
+                >
+                  <Link to="/auth">
+                    <User size={16} />
+                    {t("nav.signInRegister")}
+                  </Link>
+                </DropdownMenuItem>
+              )}
+            </DropdownMenuContent>
+          </DropdownMenu>
 
           <button
             onClick={() => setMobileOpen(!mobileOpen)}
-            className="p-1 text-gold md:hidden"
+            className="p-1 text-gold lg:hidden"
             aria-label={t("nav.menu")}
+            aria-expanded={mobileOpen}
+            aria-controls="mobile-navigation"
           >
             {mobileOpen ? <X size={24} /> : <Menu size={24} />}
           </button>
         </div>
       </div>
 
+      {searchOpen && (
+        <form
+          id="header-search"
+          role="search"
+          onSubmit={(event) => {
+            event.preventDefault();
+            const q = String(new FormData(event.currentTarget).get("q") ?? "");
+            setSearchOpen(false);
+            navigate({ to: "/products", search: { q } });
+          }}
+          className="mx-auto flex max-w-7xl gap-3 border-t border-gold/15 px-4 py-3 md:px-6"
+        >
+          <input
+            autoFocus
+            name="q"
+            aria-label={t("nav.search")}
+            placeholder={t("nav.search")}
+            className="min-w-0 flex-1 rounded-lg border border-gold/20 bg-[#1A1A1A] px-4 py-2 text-sm text-white outline-none focus:border-gold"
+          />
+          <button
+            type="submit"
+            aria-label={t("nav.search")}
+            className="rounded-lg bg-gold px-4 text-black"
+          >
+            <Search size={18} />
+          </button>
+        </form>
+      )}
       {mobileOpen && (
-        <div className="border-t border-gold/20 bg-black px-4 pb-6 pt-4 md:hidden">
-          <nav className="flex flex-col gap-4">
+        <div className="border-t border-gold/20 bg-black px-4 pb-6 pt-4 lg:hidden">
+          <nav id="mobile-navigation" className="flex flex-col gap-4">
             {[
               { label: t("nav.home"), to: "/" },
               { label: t("nav.products"), to: "/products" },
@@ -236,50 +346,6 @@ export function Header() {
                 {item.label}
               </Link>
             ))}
-
-            {!user && (
-              <Link
-                to="/auth"
-                onClick={() => setMobileOpen(false)}
-                className="mt-2 inline-block w-fit border border-gold px-4 py-2 text-sm font-semibold text-gold"
-              >
-                {t("nav.signInRegister")}
-              </Link>
-            )}
-
-            {user && (
-              <>
-                <Link
-                  to="/profile"
-                  onClick={() => setMobileOpen(false)}
-                  className="flex items-center gap-2 text-sm font-semibold text-gold"
-                >
-                  <User size={16} />
-                  {userName}
-                </Link>
-
-                {profile?.role === "admin" && (
-                  <Link
-                    to="/admin"
-                    onClick={() => setMobileOpen(false)}
-                    className="text-sm font-semibold uppercase tracking-wider text-gold/90"
-                  >
-                    {t("nav.admin")}
-                  </Link>
-                )}
-
-                <button
-                  onClick={() => {
-                    setMobileOpen(false);
-                    handleLogout();
-                  }}
-                  className="flex items-center gap-2 text-left text-sm font-medium text-gold/80 hover:text-gold"
-                >
-                  <LogOut size={16} />
-                  {t("nav.logout")}
-                </button>
-              </>
-            )}
           </nav>
         </div>
       )}

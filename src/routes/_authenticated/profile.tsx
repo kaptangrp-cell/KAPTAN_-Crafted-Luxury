@@ -1,5 +1,6 @@
+import { AccountHeader } from "@/components/account/AccountHeader";
 import { useEffect, useState } from "react";
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
@@ -18,7 +19,7 @@ function ProfilePage() {
   const { user } = useAuthStore();
   const fetchProfile = useServerFn(getMyProfile);
   const updateFn = useServerFn(updateMyProfile);
-  const { data, isLoading, refetch } = useQuery({
+  const { data, isLoading, isError, refetch } = useQuery({
     queryKey: ["my-profile", user?.id],
     enabled: Boolean(user),
     queryFn: () => fetchProfile(),
@@ -66,54 +67,58 @@ function ProfilePage() {
 
   return (
     <PageLayout>
-      <section className="mx-auto max-w-5xl px-4 py-12 md:px-6">
-        <h1 className="font-serif text-4xl font-semibold text-white">{t("profile.title")}</h1>
-
-        <div className="mt-6 flex flex-wrap gap-4 border-b border-gold/10 pb-4 text-sm">
-          <Link to="/profile" className="text-gold">
-            {t("account.navProfile")}
-          </Link>
-          <Link to="/orders" className="text-white/60 hover:text-gold">
-            {t("account.navOrders")}
-          </Link>
-          <Link to="/wishlist" className="text-white/60 hover:text-gold">
-            {t("account.navWishlist")}
-          </Link>
-        </div>
+      <section className="mx-auto max-w-6xl px-4 py-10 md:px-6 md:py-14">
+        <AccountHeader active="profile" />
 
         {isLoading ? (
           <p className="mt-10 text-white/60">{t("account.loading")}</p>
+        ) : isError ? (
+          <div role="alert" className="rounded-2xl border border-gold/20 p-6 text-white/70">
+            <p>{t("accountStyle.loadFailed")}</p>
+            <button onClick={() => void refetch()} className="mt-3 text-gold">
+              {t("orders.retry")}
+            </button>
+          </div>
         ) : (
-          <form onSubmit={save} className="mt-8 max-w-xl space-y-4">
-            <div>
-              <span className="text-xs uppercase tracking-wider text-gold/70">
-                {t("profile.emailLabel")}
-              </span>
-              <p className="font-mono text-sm text-white/80">{user?.email}</p>
+          <form
+            onSubmit={save}
+            className="rounded-2xl border border-gold/15 bg-[#0D0D0D] p-5 sm:p-8"
+          >
+            <div className="mb-7 border-b border-gold/10 pb-6">
+              <h2 className="font-serif text-xl text-white">{t("accountStyle.personalDetails")}</h2>
+              <p className="mt-2 text-sm text-white/50">{t("accountStyle.personalHint")}</p>
             </div>
-            <Field
-              label={t("profile.fullNameLabel")}
-              value={form.full_name}
-              onChange={(v) => setForm((f) => ({ ...f, full_name: v }))}
-            />
-            <Field
-              label={t("profile.phoneLabel")}
-              value={form.phone}
-              onChange={(v) => setForm((f) => ({ ...f, phone: v }))}
-            />
-            <Field
-              label={t("profile.dobLabel")}
-              type="date"
-              value={form.date_of_birth}
-              onChange={(v) => setForm((f) => ({ ...f, date_of_birth: v }))}
-            />
-
-            <label className="flex items-center gap-2 text-sm text-white/80">
+            <div className="grid gap-6 sm:grid-cols-2">
+              <div className="rounded-xl border border-gold/10 bg-[#1A1A1A] px-4 py-3">
+                <span className="text-xs uppercase tracking-wider text-gold/70">
+                  {t("profile.emailLabel")}
+                </span>
+                <p className="mt-2 break-all text-sm text-white/80">{user?.email}</p>
+              </div>
+              <Field
+                label={t("profile.fullNameLabel")}
+                value={form.full_name}
+                onChange={(v) => setForm((f) => ({ ...f, full_name: v }))}
+              />
+              <Field
+                label={t("profile.phoneLabel")}
+                type="tel"
+                value={form.phone}
+                onChange={(v) => setForm((f) => ({ ...f, phone: v }))}
+              />
+              <Field
+                label={t("profile.dobLabel")}
+                type="date"
+                value={form.date_of_birth}
+                onChange={(v) => setForm((f) => ({ ...f, date_of_birth: v }))}
+              />
+            </div>
+            <label className="my-7 flex items-start gap-3 rounded-xl border border-gold/10 bg-gold/5 p-4 text-sm leading-relaxed text-white/80">
               <input
                 type="checkbox"
                 checked={form.email_marketing}
                 onChange={(e) => setForm((f) => ({ ...f, email_marketing: e.target.checked }))}
-                className="accent-gold"
+                className="mt-1 h-4 w-4 shrink-0 accent-gold"
               />
               {t("profile.marketingLabel")}
             </label>
@@ -121,7 +126,7 @@ function ProfilePage() {
             <button
               type="submit"
               disabled={saving}
-              className="bg-gold px-6 py-2 text-sm font-bold uppercase tracking-wider text-black hover:bg-gold-vivid disabled:opacity-50"
+              className="rounded-full bg-gold px-7 py-3 text-sm font-bold uppercase tracking-wider text-black hover:bg-gold-vivid disabled:opacity-50"
             >
               {saving ? t("profile.saving") : t("profile.saveChanges")}
             </button>
@@ -150,7 +155,7 @@ function Field({
         type={type}
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="w-full border border-gold/20 bg-[#1A1A1A] px-3 py-2 text-sm text-white outline-none focus:border-gold"
+        className="min-h-12 w-full rounded-xl border border-gold/20 bg-[#1A1A1A] px-4 py-3 text-sm text-white outline-none transition-shadow focus:border-gold focus:ring-2 focus:ring-gold/10"
       />
     </label>
   );

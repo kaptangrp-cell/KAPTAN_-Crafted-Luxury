@@ -25,7 +25,8 @@ export const getMyWishlist = createServerFn({ method: "GET" })
           stock_quantity,
           product_images (
             url,
-            sort_order
+            sort_order,
+            media_type
           )
         )
       `,

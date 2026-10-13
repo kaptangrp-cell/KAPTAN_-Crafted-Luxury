@@ -1,8 +1,10 @@
+import { Price } from "@/components/common/Price";
+import { AccountHeader } from "@/components/account/AccountHeader";
 import { useAuthStore } from "@/stores/authStore";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery } from "@tanstack/react-query";
-import { PackageCheck, Package, Truck, CheckCircle } from "lucide-react";
+import { PackageCheck, Package, Truck, CheckCircle, ArrowUpRight } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import type { TFunction } from "i18next";
 import { getMyOrders } from "@/lib/orders.functions";
@@ -26,20 +28,8 @@ function OrdersPage() {
 
   return (
     <PageLayout>
-      <section className="mx-auto max-w-5xl px-4 py-12 md:px-6">
-        <h1 className="font-serif text-4xl font-semibold text-white">{t("orders.title")}</h1>
-
-        <div className="mt-6 flex flex-wrap gap-4 border-b border-gold/10 pb-4 text-sm">
-          <Link to="/profile" className="text-white/60 hover:text-gold">
-            {t("account.navProfile")}
-          </Link>
-          <Link to="/orders" className="text-gold">
-            {t("account.navOrders")}
-          </Link>
-          <Link to="/wishlist" className="text-white/60 hover:text-gold">
-            {t("account.navWishlist")}
-          </Link>
-        </div>
+      <section className="mx-auto max-w-6xl px-4 py-10 md:px-6 md:py-14">
+        <AccountHeader active="orders" />
 
         {isLoading ? (
           <p className="mt-10 text-white/60">{t("orders.loadingOrders")}</p>
@@ -54,11 +44,14 @@ function OrdersPage() {
             </button>
           </div>
         ) : !data?.orders.length ? (
-          <div className="mt-12 flex flex-col items-center gap-4 border border-dashed border-gold/20 py-16 text-center">
-            <p className="text-white/60">{t("orders.empty")}</p>
+          <div className="flex flex-col items-center gap-4 rounded-2xl border border-gold/15 bg-[#0D0D0D] px-5 py-16 text-center">
+            <span className="mb-2 flex h-16 w-16 items-center justify-center rounded-full bg-gold/10 text-gold">
+              <Package size={27} strokeWidth={1} />
+            </span>
+            <p className="font-serif text-xl text-white">{t("orders.empty")}</p>
             <Link
               to="/products"
-              className="border border-gold px-4 py-2 text-sm text-gold hover:bg-gold hover:text-black"
+              className="mt-2 rounded-full border border-gold/40 px-6 py-3 text-sm text-gold transition-colors hover:bg-gold hover:text-black"
             >
               {t("orders.startShopping")}
             </Link>
@@ -70,12 +63,12 @@ function OrdersPage() {
                 key={o.id}
                 to="/orders/$id"
                 params={{ id: o.id }}
-                className="block border border-gold/10 bg-[#1A1A1A] p-4 hover:border-gold/40"
+                className="group block rounded-2xl border border-gold/15 bg-[#0D0D0D] p-5 transition-colors hover:border-gold/40 sm:p-7"
               >
                 <div className="flex flex-wrap items-center justify-between gap-3">
                   <div>
-                    <p className="font-mono text-sm text-gold">{o.order_number}</p>
-                    <p className="text-xs text-white/50">
+                    <p className="font-serif text-xl text-white">{o.order_number}</p>
+                    <p className="mt-2 text-xs text-white/50">
                       {new Date(o.created_at!).toLocaleDateString(
                         i18n.language === "de" ? "de-DE" : "en-GB",
                       )}
@@ -89,12 +82,16 @@ function OrdersPage() {
                       {statusLabel(o.status, t)}
                     </span>
                     <span className="font-mono text-sm text-white">
-                      €{Number(o.total).toFixed(2)}
+                      <Price amount={Number(o.total)} />
                     </span>
                   </div>
                 </div>
 
                 <MiniTracker status={o.status} t={t} />
+                <div className="mt-5 flex items-center justify-between border-t border-gold/10 pt-4 text-xs font-medium text-gold">
+                  {t("accountStyle.viewOrder")}
+                  <ArrowUpRight size={16} />
+                </div>
               </Link>
             ))}
           </div>
@@ -120,15 +117,18 @@ function MiniTracker({ status, t }: { status: string | null; t: TFunction }) {
   }
 
   return (
-    <div className="mt-4 grid grid-cols-4 gap-2">
+    <div className="mt-6 grid grid-cols-4 gap-2 rounded-xl bg-[#1A1A1A] p-3 sm:p-5">
       {steps.map((step, index) => {
         const Icon = step.icon;
         const active = index <= activeIndex;
 
         return (
-          <div key={step.key} className="flex items-center gap-2">
+          <div
+            key={step.key}
+            className="flex min-w-0 flex-col items-center gap-2 text-center sm:flex-row sm:text-left"
+          >
             <span
-              className={`flex h-7 w-7 items-center justify-center rounded-full border ${
+              className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full border ${
                 active ? "border-gold bg-gold text-black" : "border-white/20 text-white/40"
               }`}
             >
