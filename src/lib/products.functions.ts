@@ -1,3 +1,5 @@
+import { CatalogRequestSchema, colorVariantFilter, literalPattern } from "@/lib/catalog-filters";
+import { optionParts } from "@/lib/product-options";
 import { createServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -13,18 +15,7 @@ export const getCategories = createServerFn({ method: "GET" }).handler(async () 
 });
 
 export const getProducts = createServerFn({ method: "POST" })
-  .inputValidator(
-    (input: {
-      categorySlug?: string;
-      search?: string;
-      limit?: number;
-      offset?: number;
-      sort?: "newest" | "price_asc" | "price_desc" | "popular";
-      minPrice?: number;
-      maxPrice?: number;
-      inStockOnly?: boolean;
-    }) => input,
-  )
+  .inputValidator((input: unknown) => CatalogRequestSchema.parse(input))
   .handler(async ({ data }) => {
     let categoryId: string | null = null;
 
@@ -42,14 +33,24 @@ export const getProducts = createServerFn({ method: "POST" })
       if (!categoryId) return { products: [], total: 0 };
     }
 
-    let query = supabase
-      .from("products")
-      .select(
-        "*, categories(name, slug), product_images(url, sort_order, media_type), product_variants(id, variant_type, variant_value, is_available, price_modifier, stock_quantity)",
-        { count: "exact" },
-      )
+    const baseSelect =
+      "*, categories(name, slug), product_images(url, sort_order, media_type), product_variants(id, variant_type, variant_value, is_available, price_modifier, stock_quantity)" as const;
+    let query = (
+      data.colors?.length
+        ? supabase
+            .from("products")
+            .select(`${baseSelect}, matching_variants:product_variants!inner(id)`, {
+              count: "exact",
+            })
+        : supabase.from("products").select(baseSelect, { count: "exact" })
+    )
       .eq("is_available", true)
       .range(data.offset ?? 0, (data.offset ?? 0) + (data.limit ?? 24) - 1);
+
+    if (data.colors?.length)
+      query = query.or(colorVariantFilter(data.colors, data.inStockOnly), {
+        referencedTable: "matching_variants",
+      });
 
     switch (data.sort) {
       case "price_asc":
@@ -70,7 +71,7 @@ export const getProducts = createServerFn({ method: "POST" })
     }
 
     if (data.search) {
-      query = query.ilike("name", `%${data.search}%`);
+      query = query.ilike("name", `%${literalPattern(data.search)}%`);
     }
 
     if (typeof data.minPrice === "number") {
@@ -85,7 +86,7 @@ export const getProducts = createServerFn({ method: "POST" })
       query = query.gt("stock_quantity", 0);
     }
 
-    const { data: products, error, count } = await query;
+    const { data: products, error, count } = await query.order("id", { ascending: true });
 
     if (error) throw new Error(error.message);
 
@@ -254,3 +255,27 @@ export const getProductInsights = createServerFn({ method: "POST" })
 
     return { soldLast30Days, frequentlyBoughtWith };
   });
+
+export const getCatalogColors = createServerFn({ method: "GET" }).handler(async () => {
+  const names = new Map<string, string>();
+  for (let offset = 0; ; offset += 1000) {
+    const { data, error } = await supabase
+      .from("product_variants")
+      .select("id, variant_type, variant_value, products!inner(is_available)")
+      .eq("products.is_available", true)
+      .or("is_available.eq.true,is_available.is.null")
+      .order("id")
+      .range(offset, offset + 999);
+    if (error) throw new Error(error.message);
+    for (const row of data ?? []) {
+      const color = optionParts(row).color?.trim();
+      if (color) names.set(color.toLowerCase(), color);
+    }
+    if ((data?.length ?? 0) < 1000) break;
+  }
+  return {
+    colors: [...names.entries()]
+      .map(([value, label]) => ({ value, label }))
+      .sort((a, b) => a.label.localeCompare(b.label)),
+  };
+});

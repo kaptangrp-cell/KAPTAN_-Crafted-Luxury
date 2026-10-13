@@ -832,5 +832,19 @@
     "close": "Close notification",
     "chooseFirst": "Choose your product options first",
     "optionsNext": "Select your options on the product page."
+  },
+  "filters": {
+    "selected": "Selected filters",
+    "remove": "Remove filter: {{filter}}",
+    "reset": "Reset",
+    "under": "Up to €{{price}}",
+    "priceHelp": "Filters use the base product price. Options may cost extra.",
+    "colorHelp": "Choose one or more colours. Products matching any selected colour are shown.",
+    "showResults": "Show results ({{count}})",
+    "priceError": "The minimum price must not exceed the maximum.",
+    "applyPrice": "Apply price",
+    "updating": "Updating results…",
+    "noMatches": "No matching pieces",
+    "tryAgain": "Try another colour, widen your price range, or clear your filters to explore the full collection."
   }
 }

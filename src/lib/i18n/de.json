@@ -832,5 +832,19 @@
     "close": "Hinweis schließen",
     "chooseFirst": "Bitte zuerst Ihre Produktoptionen wählen",
     "optionsNext": "Wählen Sie Ihre Optionen auf der Produktseite."
+  },
+  "filters": {
+    "selected": "Ausgewählte Filter",
+    "remove": "Filter entfernen: {{filter}}",
+    "reset": "Zurücksetzen",
+    "under": "Bis €{{price}}",
+    "priceHelp": "Filter beziehen sich auf den Produktgrundpreis. Optionen können einen Aufpreis haben.",
+    "colorHelp": "Eine oder mehrere Farben wählen. Produkte mit mindestens einer gewählten Farbe werden angezeigt.",
+    "showResults": "Ergebnisse anzeigen ({{count}})",
+    "priceError": "Der Mindestpreis darf den Höchstpreis nicht überschreiten.",
+    "applyPrice": "Preis anwenden",
+    "updating": "Ergebnisse werden aktualisiert…",
+    "noMatches": "Keine passenden Produkte",
+    "tryAgain": "Wählen Sie eine andere Farbe, erweitern Sie den Preisbereich oder löschen Sie die Filter, um die gesamte Kollektion zu entdecken."
   }
 }
