@@ -778,5 +778,22 @@
     "addValue": "Add",
     "multiHelp": "Select multiple colors and sizes. Saving creates each combination using product stock and price. Existing options keep their stock, prices and active status; removed choices become inactive. Manage individual combinations under Colors & sizes.",
     "measurements": "Measurements (e.g. 10 × 8 cm)"
+  },
+  "catalog": {
+    "colorCount": "{{count}} colours",
+    "noReviews": "No reviews yet",
+    "delivery": "Shipping calculated at checkout · See delivery & returns",
+    "view": "Product view",
+    "allColors": "All colours / shared photo",
+    "viewExample": "Front, back, interior, on model…",
+    "alt": "Image description (accessibility)",
+    "moveUp": "Move earlier",
+    "moveDown": "Move later",
+    "cover": "Cover photo · shown first",
+    "adminGuide": "Build a complete product in one place",
+    "adminHelp": "Add the essentials, choose colours and sizes, then upload photos. Assign each photo to a colour and a view; move your cover photo to the top. Save the product, then use Manage options to set stock and price adjustments per combination.",
+    "preview": "Preview product card",
+    "uploadMany": "Upload several product photos at once (up to 10 MB each)",
+    "fileLimit": "Choose image files up to 10 MB each."
   }
 }

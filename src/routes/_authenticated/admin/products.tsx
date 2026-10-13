@@ -1,3 +1,5 @@
+import { ProductCard } from "@/components/product/ProductCard";
+import { mediaDetails } from "@/lib/product-media";
 import { OptionMultiSelect } from "@/components/admin/OptionMultiSelect";
 import { optionParts } from "@/lib/product-options";
 import { ProductOptionsEditor } from "@/components/admin/ProductOptionsEditor";
@@ -28,6 +30,9 @@ export const Route = createFileRoute("/_authenticated/admin/products")({
 });
 
 type MediaItem = {
+  color?: string;
+  view?: string;
+  alt?: string;
   url: string;
   media_type: "image" | "video";
   sort_order: number;
@@ -119,6 +124,8 @@ function AdminProductsPage() {
   const [optionsProductId, setOptionsProductId] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [stockFilter, setStockFilter] = useState("all");
+  const [batchUploading, setBatchUploading] = useState(false);
+  const [showPreview, setShowPreview] = useState(false);
   const [editing, setEditing] = useState<typeof empty | null>(null);
 
   const upsert = useMutation({
@@ -134,24 +141,36 @@ function AdminProductsPage() {
           category_id: form.category_id || null,
           short_description: form.short_description || null,
           full_description: form.full_description || null,
-          specifications: form.specifications as Record<string, Json>,
+          specifications: {
+            ...form.specifications,
+            _media: form.media_items
+              .filter((m) => m.url)
+              .map((m) => ({
+                url: m.url,
+                color: m.color ?? "",
+                view: m.view ?? "",
+                alt: m.alt ?? "",
+              })),
+          } as Record<string, Json>,
           price: Number(form.price),
           compare_at_price: form.compare_at_price ? Number(form.compare_at_price) : null,
           cost_price: form.cost_price ? Number(form.cost_price) : null,
           stock_quantity: Number(form.stock_quantity),
           is_available: form.is_available,
           is_featured: form.is_featured,
-          media_items: form.media_items.map((m, index) => ({
-            url: m.url,
-            media_type: m.media_type,
-            sort_order: index,
-          })),
+          media_items: form.media_items
+            .filter((m) => m.url.trim())
+            .map((m, index) => ({
+              url: m.url,
+              media_type: m.media_type,
+              sort_order: index,
+            })),
         },
       }),
     onSuccess: () => {
       toast.success(t("adminProducts.productSavedToast"));
       setEditing(null);
-      qc.invalidateQueries({ queryKey: ["admin-products"] });
+      qc.invalidateQueries();
     },
     onError: (e: Error) => toast.error(e.message),
   });
@@ -215,11 +234,49 @@ function AdminProductsPage() {
       media_items: (p.product_images ?? [])
         .sort((a, b) => Number(a.sort_order ?? 0) - Number(b.sort_order ?? 0))
         .map((m, index) => ({
+          ...mediaDetails(p.specifications).find((d) => d.url === m.url),
           url: m.url,
           media_type: m.media_type === "video" ? "video" : "image",
           sort_order: index,
         })),
     });
+  }
+
+  async function uploadPhotos(files: FileList | null) {
+    if (!files?.length) return;
+    setBatchUploading(true);
+    try {
+      for (const file of Array.from(files)) {
+        if (!file.type.startsWith("image/") || file.size > 10 * 1024 * 1024)
+          throw new Error(t("catalog.fileLimit"));
+        const path = `products/${crypto.randomUUID()}.${file.name.split(".").pop()}`;
+        const { error } = await supabase.storage.from("product-images").upload(path, file);
+        if (error) throw error;
+        const { data } = supabase.storage.from("product-images").getPublicUrl(path);
+        setEditing((current) =>
+          current
+            ? {
+                ...current,
+                media_items: [
+                  ...current.media_items,
+                  {
+                    url: data.publicUrl,
+                    media_type: "image",
+                    sort_order: current.media_items.length,
+                    view: "",
+                    color: "",
+                    alt: "",
+                  },
+                ],
+              }
+            : current,
+        );
+      }
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : t("adminProducts.uploadFailedToast"));
+    } finally {
+      setBatchUploading(false);
+    }
   }
 
   function addMedia(type: "image" | "video") {
@@ -581,16 +638,34 @@ function AdminProductsPage() {
 
       {editing && (
         <Modal
-          onClose={() => setEditing(null)}
+          onClose={() => {
+            if (!batchUploading && !upsert.isPending) setEditing(null);
+          }}
           title={editing.id ? t("adminProducts.editProduct") : t("adminProducts.newProduct")}
         >
           <form
             onSubmit={(e) => {
               e.preventDefault();
-              upsert.mutate(editing);
+              if (!batchUploading) upsert.mutate(editing);
             }}
             className="grid gap-3 md:grid-cols-2"
           >
+            <div className="rounded-lg border border-gold/25 bg-gold/5 p-4 md:col-span-2">
+              <p className="font-medium text-gold">{t("catalog.adminGuide")}</p>
+              <p className="mt-2 text-sm leading-relaxed text-white/65">{t("catalog.adminHelp")}</p>
+              <div className="mt-3 flex flex-wrap gap-3 text-xs text-white/70">
+                <span>
+                  {editing.name ? "✓" : "○"} {t("adminProducts.nameLabel")}
+                </span>
+                <span>
+                  {editing.media_items.some((m) => m.url) ? "✓" : "○"}{" "}
+                  {t("adminProducts.photosVideosLabel")}
+                </span>
+                <span>
+                  {editing.colors.length ? "✓" : "○"} {t("options.color")}
+                </span>
+              </div>
+            </div>
             <F
               label={t("adminProducts.nameLabel")}
               value={editing.name}
@@ -598,7 +673,10 @@ function AdminProductsPage() {
                 setEditing({
                   ...editing,
                   name: v,
-                  slug: editing.slug || slugify(v),
+                  slug:
+                    !editing.id && (!editing.slug || editing.slug === slugify(editing.name))
+                      ? slugify(v)
+                      : editing.slug,
                 })
               }
               required
@@ -794,6 +872,20 @@ function AdminProductsPage() {
                 </div>
               </div>
 
+              <label className="mb-4 block cursor-pointer rounded-lg border border-dashed border-gold/40 bg-gold/5 p-4 text-sm text-gold">
+                {batchUploading ? t("adminProducts.uploading") : t("catalog.uploadMany")}
+                <input
+                  type="file"
+                  accept="image/*"
+                  multiple
+                  disabled={batchUploading}
+                  onChange={(e) => {
+                    void uploadPhotos(e.target.files);
+                    e.target.value = "";
+                  }}
+                  className="mt-2 block w-full text-xs text-white/60"
+                />
+              </label>
               <div className="space-y-4">
                 {editing.media_items.length === 0 && (
                   <p className="border border-dashed border-gold/20 p-4 text-center text-sm text-white/50">
@@ -804,6 +896,18 @@ function AdminProductsPage() {
                 {editing.media_items.map((item, index) => (
                   <MediaUpload
                     key={index}
+                    colors={editing.colors}
+                    onMove={(direction) =>
+                      setEditing((current) => {
+                        if (!current) return current;
+                        const media = [...current.media_items];
+                        const target = index + direction;
+                        if (target < 0 || target >= media.length) return current;
+                        [media[index], media[target]] = [media[target], media[index]];
+                        return { ...current, media_items: media };
+                      })
+                    }
+                    isLast={index === editing.media_items.length - 1}
                     item={item}
                     index={index}
                     onChange={(patch) => updateMedia(index, patch)}
@@ -843,9 +947,63 @@ function AdminProductsPage() {
               {t("adminProducts.featured")}
             </label>
 
+            <div className="md:col-span-2">
+              <button
+                type="button"
+                onClick={() => setShowPreview(!showPreview)}
+                className="border border-gold/30 px-4 py-2 text-sm text-gold"
+              >
+                {t("catalog.preview")}
+              </button>
+              {showPreview && (
+                <div className="mt-3 max-w-sm pointer-events-none" inert>
+                  <ProductCard
+                    product={
+                      {
+                        ...editing,
+                        sku: null,
+                        low_stock_threshold: 5,
+                        tags: [],
+                        sold_count: 0,
+                        meta_title: null,
+                        meta_description: null,
+                        created_at: null,
+                        updated_at: null,
+                        id: editing.id ?? "preview",
+                        specifications: {
+                          ...editing.specifications,
+                          _media: editing.media_items.map((m) => ({
+                            url: m.url,
+                            color: m.color ?? "",
+                            view: m.view ?? "",
+                            alt: m.alt ?? "",
+                          })),
+                        },
+                        product_images: editing.media_items,
+                        product_variants: editing.colors.map((color) => ({
+                          id: color,
+                          variant_type: "Color",
+                          variant_value: color,
+                          is_available: true,
+                        })),
+                        categories: {
+                          name:
+                            (catData?.categories ?? []).find((c) => c.id === editing.category_id)
+                              ?.name ?? "KAPTAN",
+                          slug: "",
+                        },
+                        review_count: 0,
+                        average_rating: 0,
+                      } satisfies Parameters<typeof ProductCard>[0]["product"]
+                    }
+                  />
+                </div>
+              )}
+            </div>
             <div className="flex justify-end gap-2 md:col-span-2">
               <button
                 type="button"
+                disabled={batchUploading || upsert.isPending}
                 onClick={() => setEditing(null)}
                 className="border border-white/20 px-4 py-2 text-sm text-white/70"
               >
@@ -854,7 +1012,7 @@ function AdminProductsPage() {
 
               <button
                 type="submit"
-                disabled={upsert.isPending}
+                disabled={upsert.isPending || batchUploading}
                 className="bg-gold px-4 py-2 text-sm font-bold text-black hover:bg-gold-vivid disabled:opacity-50"
               >
                 {upsert.isPending ? t("adminProducts.saving") : t("adminProducts.save")}
@@ -907,7 +1065,13 @@ function MediaUpload({
   index,
   onChange,
   onRemove,
+  colors,
+  onMove,
+  isLast,
 }: {
+  colors: string[];
+  onMove: (direction: number) => void;
+  isLast: boolean;
   item: MediaItem;
   index: number;
   onChange: (patch: Partial<MediaItem>) => void;
@@ -965,6 +1129,59 @@ function MediaUpload({
         </button>
       </div>
 
+      <div className="mb-3 grid gap-3 sm:grid-cols-2">
+        <label className="text-xs text-white/70">
+          {t("options.color")}
+          <select
+            value={item.color ?? ""}
+            onChange={(e) => onChange({ color: e.target.value })}
+            className="mt-1 w-full border border-gold/20 bg-black p-2 text-white"
+          >
+            <option value="">{t("catalog.allColors")}</option>
+            {[...new Set([...colors, ...(item.color ? [item.color] : [])])].map((color) => (
+              <option key={color}>{color}</option>
+            ))}
+          </select>
+        </label>
+        <label className="text-xs text-white/70">
+          {t("catalog.view")}
+          <input
+            value={item.view ?? ""}
+            onChange={(e) => onChange({ view: e.target.value })}
+            placeholder={t("catalog.viewExample")}
+            maxLength={100}
+            className="mt-1 w-full border border-gold/20 bg-black p-2 text-white"
+          />
+        </label>
+        <label className="text-xs text-white/70 sm:col-span-2">
+          {t("catalog.alt")}
+          <input
+            value={item.alt ?? ""}
+            onChange={(e) => onChange({ alt: e.target.value })}
+            maxLength={300}
+            className="mt-1 w-full border border-gold/20 bg-black p-2 text-white"
+          />
+        </label>
+      </div>
+      <div className="mb-3 flex items-center gap-3 text-xs text-gold">
+        <button
+          type="button"
+          disabled={index === 0}
+          onClick={() => onMove(-1)}
+          className="border border-gold/30 p-2 disabled:opacity-30"
+        >
+          {t("catalog.moveUp")}
+        </button>
+        <button
+          type="button"
+          disabled={isLast}
+          onClick={() => onMove(1)}
+          className="border border-gold/30 p-2 disabled:opacity-30"
+        >
+          {t("catalog.moveDown")}
+        </button>
+        {index === 0 && <span>{t("catalog.cover")}</span>}
+      </div>
       <input
         type="file"
         accept={item.media_type === "video" ? "video/*" : "image/*"}

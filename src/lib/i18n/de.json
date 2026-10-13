@@ -778,5 +778,22 @@
     "addValue": "Hinzufügen",
     "multiHelp": "Wählen Sie mehrere Farben und Größen. Beim Speichern wird jede Kombination mit Produktbestand und Produktpreis angelegt. Bestehende Optionen behalten Bestand, Preise und Aktivstatus; entfernte Optionen werden inaktiv. Einzelne Kombinationen verwalten Sie unter Farben & Größen.",
     "measurements": "Abmessungen (z. B. 10 × 8 cm)"
+  },
+  "catalog": {
+    "colorCount": "{{count}} Farben",
+    "noReviews": "Noch keine Bewertungen",
+    "delivery": "Versandkosten im Checkout · Versand und Rückgabe",
+    "view": "Produktansicht",
+    "allColors": "Alle Farben / gemeinsames Foto",
+    "viewExample": "Vorne, hinten, innen, am Model…",
+    "alt": "Bildbeschreibung (Barrierefreiheit)",
+    "moveUp": "Nach vorne",
+    "moveDown": "Nach hinten",
+    "cover": "Titelbild · wird zuerst angezeigt",
+    "adminGuide": "Ein vollständiges Produkt an einem Ort erstellen",
+    "adminHelp": "Grunddaten eingeben, Farben und Größen wählen und Fotos hochladen. Jedem Foto eine Farbe und Ansicht zuweisen; das Titelbild nach oben verschieben. Produkt speichern und dann über Optionen verwalten Bestand und Preisaufschläge je Kombination festlegen.",
+    "preview": "Produktkarte als Vorschau",
+    "uploadMany": "Mehrere Produktfotos hochladen (jeweils bis zu 10 MB)",
+    "fileLimit": "Bitte Bilddateien bis zu 10 MB auswählen."
   }
 }

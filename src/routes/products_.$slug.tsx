@@ -1,3 +1,5 @@
+import { galleryForColor, mediaDetails } from "@/lib/product-media";
+import { optionParts } from "@/lib/product-options";
 import { ProductOptionPicker } from "@/components/product/ProductOptionPicker";
 import { CatalogText } from "@/components/common/CatalogText";
 import { ProductFacts } from "@/components/product/ProductFacts";
@@ -135,6 +137,7 @@ function ProductDetailPage() {
     categories: { name: string; slug: string } | null;
   };
 
+  const [galleryColor, setGalleryColor] = useState("");
   const [qty, setQty] = useState(1);
   const [activeMedia, setActiveMedia] = useState(0);
   const [variantId, setVariantId] = useState<string | null>(null);
@@ -270,24 +273,47 @@ function ProductDetailPage() {
     }
   }
 
-  const media = product.product_images?.length
-    ? [...product.product_images].sort(
-        (a, b) => Number(a.sort_order ?? 0) - Number(b.sort_order ?? 0),
-      )
+  const filteredMedia = galleryForColor(
+    product.product_images ?? [],
+    product.specifications,
+    galleryColor,
+  );
+  const details = mediaDetails(product.specifications);
+  const media = filteredMedia.length
+    ? filteredMedia
     : [
         {
           id: "ph",
-          url: "https://images.unsplash.com/photo-1602028915047-37269d1a73f7?w=800&q=80",
+          url: "/product-placeholder.svg",
           alt_text: product.name,
           media_type: "image" as const,
         },
       ];
 
-  const active = media[activeMedia];
+  const active = media[activeMedia] ?? media[0];
   const firstImage = media.find((m) => m.media_type !== "video") ?? media[0];
 
   const variants = product.product_variants ?? [];
   const variant = variants.find((v) => v.id === variantId) ?? null;
+  useEffect(() => {
+    setVariantId(null);
+    setGalleryColor("");
+    setActiveMedia(0);
+    setQty(1);
+  }, [product.id]);
+  const colorImages = Object.fromEntries(
+    variants.map((v) => {
+      const color = optionParts(v).color ?? "";
+      return [
+        color,
+        galleryForColor(product.product_images ?? [], product.specifications, color).find(
+          (m) =>
+            m.media_type !== "video" &&
+            details.some((d) => d.url === m.url && d.color.toLowerCase() === color.toLowerCase()),
+        )?.url ?? "",
+      ];
+    }),
+  );
   const finalPrice = Number(product.price) + Number(variant?.price_modifier ?? 0);
   const maxQty = Math.min(50, product.stock_quantity ?? 50, variant?.stock_quantity ?? 50);
   const outOfStock =
@@ -376,8 +402,12 @@ function ProductDetailPage() {
               ) : (
                 <img
                   src={active.url}
-                  alt={active.alt_text ?? product.name}
-                  className="h-full w-full object-cover transition-transform duration-200 ease-out"
+                  alt={
+                    details.find((d) => d.url === active.url)?.alt ||
+                    active.alt_text ||
+                    product.name
+                  }
+                  className="h-full w-full bg-[#f3f0eb] object-contain transition-transform duration-200 ease-out"
                   style={{
                     transform: zoomActive ? "scale(2)" : "scale(1)",
                     transformOrigin: zoomOrigin,
@@ -392,11 +422,21 @@ function ProductDetailPage() {
               )}
             </div>
 
+            {details.find((d) => d.url === active.url)?.view && (
+              <p className="mt-2 text-center text-xs text-white/60">
+                {galleryColor} · {details.find((d) => d.url === active.url)?.view}
+              </p>
+            )}
             {media.length > 1 && (
               <div className="mt-3 flex gap-2 overflow-x-auto">
                 {media.map((item, i) => (
                   <button
                     key={item.id ?? item.url}
+                    aria-label={
+                      details.find((d) => d.url === item.url)?.view ||
+                      `${t("catalog.view")} ${i + 1}`
+                    }
+                    aria-pressed={i === activeMedia}
                     onClick={() => setActiveMedia(i)}
                     className={`relative h-20 w-20 flex-shrink-0 overflow-hidden border ${
                       i === activeMedia ? "border-gold" : "border-gold/20"
@@ -469,13 +509,21 @@ function ProductDetailPage() {
               )}
             </div>
 
+            <Link to="/shipping" className="mt-2 block text-xs text-white/60 hover:text-gold">
+              {t("catalog.delivery")}
+            </Link>
             <p className="mt-2 text-sm">
               {outOfStock ? (
                 <span className="text-red-400">{t("pdp.outOfStock")}</span>
               ) : (
                 <span className="text-green-400">
                   {product.stock_quantity !== null
-                    ? t("pdp.inStockWithCount", { count: product.stock_quantity })
+                    ? t("pdp.inStockWithCount", {
+                        count: Math.min(
+                          product.stock_quantity,
+                          variant?.stock_quantity ?? product.stock_quantity,
+                        ),
+                      })
                     : t("pdp.inStock")}
                 </span>
               )}
@@ -492,7 +540,18 @@ function ProductDetailPage() {
               key={product.id}
               options={variants}
               selectedId={variantId}
-              onChange={setVariantId}
+              basePrice={Number(product.price)}
+              colorImages={colorImages}
+              onColorChange={(color) => {
+                setGalleryColor(color);
+                setActiveMedia(0);
+              }}
+              onChange={(id) => {
+                setVariantId(id);
+                setActiveMedia(0);
+                const selected = variants.find((v) => v.id === id);
+                if (selected) setGalleryColor(optionParts(selected).color ?? "");
+              }}
             />
 
             <div className="mt-6">
@@ -942,7 +1001,7 @@ function ProductDetailPage() {
 
           <img
             src={active.url}
-            alt={active.alt_text ?? product.name}
+            alt={details.find((d) => d.url === active.url)?.alt || active.alt_text || product.name}
             onClick={(e) => e.stopPropagation()}
             className="max-h-[90vh] max-w-[90vw] object-contain"
           />

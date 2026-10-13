@@ -1,8 +1,11 @@
+import { useState } from "react";
+import { optionParts } from "@/lib/product-options";
+import { colorHex, galleryForColor } from "@/lib/product-media";
 import { CatalogText } from "@/components/common/CatalogText";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useQueryClient } from "@tanstack/react-query";
-import { Heart, ShoppingBag } from "lucide-react";
+import { Heart, ShoppingBag, Star } from "lucide-react";
 import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
 import { useCartStore } from "@/stores/cartStore";
@@ -22,6 +25,8 @@ interface ProductCardProps {
           variant_type?: string;
           variant_value?: string;
           is_available?: boolean | null;
+          price_modifier?: number | null;
+          stock_quantity?: number | null;
         }[]
       | null;
   };
@@ -35,12 +40,38 @@ export function ProductCard({ product }: ProductCardProps) {
   const user = useAuthStore((s) => s.user);
   const toggleWishlistFn = useServerFn(toggleWishlist);
 
+  const [color, setColor] = useState("");
+  const colors = [
+    ...new Set(
+      (product.product_variants ?? [])
+        .filter((v) => v.is_available !== false)
+        .map(
+          (v) =>
+            optionParts({
+              variant_type: v.variant_type ?? "",
+              variant_value: v.variant_value ?? "",
+            }).color,
+        )
+        .filter((v): v is string => !!v),
+    ),
+  ];
   const imageUrl =
-    product.product_images
-      ?.filter((image) => image.media_type !== "video")
-      .sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0))[0]?.url ??
-    "/product-placeholder.svg";
+    galleryForColor(product.product_images ?? [], product.specifications, color)?.filter(
+      (image) => image.media_type !== "video",
+    )[0]?.url ?? "/product-placeholder.svg";
 
+  const selectedOptions = (product.product_variants ?? []).filter(
+    (v) =>
+      v.is_available !== false &&
+      (!color ||
+        optionParts({ variant_type: v.variant_type ?? "", variant_value: v.variant_value ?? "" })
+          .color === color),
+  );
+  const displayPrice =
+    Number(product.price) +
+    (selectedOptions.length
+      ? Math.min(...selectedOptions.map((v) => Number(v.price_modifier ?? 0)))
+      : 0);
   const categoryName = product.categories?.name ?? t("products.defaultCategory");
 
   function openProduct() {
@@ -114,16 +145,53 @@ export function ProductCard({ product }: ProductCardProps) {
       </div>
 
       <div className="flex flex-1 flex-col p-3 sm:p-4">
+        {!!colors.length && (
+          <div className="mb-3 flex flex-wrap items-center gap-2" aria-label={t("options.color")}>
+            {colors.map((value) => (
+              <button
+                key={value}
+                type="button"
+                title={value}
+                aria-label={value}
+                aria-pressed={color === value}
+                onClick={() => setColor(value)}
+                className={`h-8 w-8 rounded-full border-2 p-0.5 ${color === value ? "border-gold" : "border-white/30"}`}
+              >
+                <span
+                  className="block h-full w-full rounded-full"
+                  style={{ background: colorHex(value) }}
+                />
+              </button>
+            ))}
+            <span className="text-xs text-white/65">
+              {color || t("catalog.colorCount", { count: colors.length })}
+            </span>
+          </div>
+        )}
         <h3 className="font-serif text-base font-medium text-white transition-colors group-hover:text-gold">
           <Link to="/products/$slug" params={{ slug: product.slug }}>
             <CatalogText text={product.name} />
           </Link>
         </h3>
 
-        <p className="mt-1 line-clamp-1 text-sm text-white/70">
+        <p className="mt-1 line-clamp-2 text-sm text-white/70">
           <CatalogText text={product.short_description} />
         </p>
 
+        <Link
+          to="/products/$slug"
+          params={{ slug: product.slug }}
+          hash="reviews"
+          className="mt-3 flex items-center gap-1.5 text-xs text-white/70"
+        >
+          <Star
+            size={14}
+            className={product.review_count ? "fill-gold text-gold" : "text-white/40"}
+          />
+          {product.review_count
+            ? `${Number(product.average_rating ?? 0).toFixed(1)} (${product.review_count})`
+            : t("catalog.noReviews")}
+        </Link>
         <ProductFacts
           specifications={product.specifications}
           variants={product.product_variants}
@@ -131,17 +199,35 @@ export function ProductCard({ product }: ProductCardProps) {
         />
 
         <div className="mt-auto flex flex-wrap items-center justify-between gap-2 pt-4">
-          <Price amount={product.price} className="font-mono text-lg font-bold text-gold" />
+          <Price amount={displayPrice} className="font-mono text-lg font-bold text-gold" />
 
-          {(product.stock_quantity ?? 0) <= 5 && (product.stock_quantity ?? 0) > 0 && (
-            <span className="text-xs text-amber-400">{t("products.lowStock")}</span>
+          {product.compare_at_price != null && product.compare_at_price > displayPrice && (
+            <>
+              <Price
+                amount={product.compare_at_price}
+                className="text-sm text-white/45 line-through"
+              />
+              <span className="rounded bg-gold/15 px-2 py-1 text-xs text-gold">
+                −{Math.round((1 - displayPrice / product.compare_at_price) * 100)}%
+              </span>
+            </>
           )}
+          {(product.stock_quantity ?? 0) <= (product.low_stock_threshold ?? 5) &&
+            (product.stock_quantity ?? 0) > 0 && (
+              <span className="text-xs text-amber-400">{t("products.lowStock")}</span>
+            )}
 
           {(product.stock_quantity ?? 0) === 0 && (
             <span className="text-xs text-red-400">{t("products.outOfStock")}</span>
           )}
         </div>
 
+        {product.stock_quantity > (product.low_stock_threshold ?? 5) && (
+          <p className="mt-2 text-xs text-green-400">{t("pdp.inStock")}</p>
+        )}
+        <Link to="/shipping" className="mt-3 text-xs text-white/55 hover:text-gold">
+          {t("catalog.delivery")}
+        </Link>
         <button
           onClick={handleAddToCart}
           disabled={!product.is_available || product.stock_quantity <= 0}

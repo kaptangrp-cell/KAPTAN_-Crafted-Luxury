@@ -294,6 +294,17 @@ export const adminUpsertProduct = createServerFn({ method: "POST" })
         );
         if (error) throw new Error("Could not save product options");
       }
+      const restored = (existing ?? [])
+        .filter((v) => desired.has(optionIdentity(v)) && v.is_available === false)
+        .map((v) => v.id);
+      if (restored.length) {
+        const { error } = await supabaseAdmin
+          .from("product_variants")
+          .update({ is_available: true })
+          .eq("product_id", productId)
+          .in("id", restored);
+        if (error) throw new Error("Could not restore product options");
+      }
       const removed = (existing ?? [])
         .filter((v) => {
           const parts = optionParts(v);
@@ -311,7 +322,11 @@ export const adminUpsertProduct = createServerFn({ method: "POST" })
     }
 
     if (productId) {
-      await supabaseAdmin.from("product_images").delete().eq("product_id", productId);
+      const { error: mediaDeleteError } = await supabaseAdmin
+        .from("product_images")
+        .delete()
+        .eq("product_id", productId);
+      if (mediaDeleteError) throw new Error(mediaDeleteError.message);
       const cleanMedia = (media_items ?? []).filter((m) => m.url.trim());
 
       if (cleanMedia.length > 0) {

@@ -1,3 +1,5 @@
+import { Price } from "@/components/common/Price";
+import { colorHex } from "@/lib/product-media";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { activeOptions, optionParts, type ProductOption } from "@/lib/product-options";
@@ -6,7 +8,13 @@ export function ProductOptionPicker({
   options,
   selectedId,
   onChange,
+  onColorChange,
+  colorImages = {},
+  basePrice = 0,
 }: {
+  colorImages?: Record<string, string>;
+  basePrice?: number;
+  onColorChange?: (color: string) => void;
   options: ProductOption[];
   selectedId: string | null;
   onChange: (id: string | null) => void;
@@ -59,13 +67,37 @@ export function ProductOptionPicker({
                     }
                     onClick={() => {
                       setColor(value);
+                      onColorChange?.(value);
                       const match = visible.find(
                         (v) => optionParts(v).color === value && !optionParts(v).size,
                       );
                       onChange(match?.id ?? null);
                     }}
                   >
-                    {value}
+                    {colorImages[value] ? (
+                      <img
+                        src={colorImages[value]}
+                        alt=""
+                        className="mb-2 h-20 w-20 rounded object-contain bg-[#f3f0eb]"
+                      />
+                    ) : (
+                      <span
+                        className="mx-auto mb-2 block h-8 w-8 rounded-full border border-white/30"
+                        style={{ background: colorHex(value) }}
+                      />
+                    )}
+                    <span className="block">{value}</span>
+                    <Price
+                      amount={
+                        basePrice +
+                        Math.min(
+                          ...visible
+                            .filter((v) => optionParts(v).color === value)
+                            .map((v) => Number(v.price_modifier ?? 0)),
+                        )
+                      }
+                      className="mt-1 block text-xs"
+                    />
                   </button>
                 ))}
               </div>
