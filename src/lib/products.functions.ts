@@ -1,3 +1,4 @@
+import { consumerProduct } from "./tax";
 import { CatalogRequestSchema, colorVariantFilter, literalPattern } from "@/lib/catalog-filters";
 import { optionParts } from "@/lib/product-options";
 import { createServerFn } from "@tanstack/react-start";
@@ -75,11 +76,14 @@ export const getProducts = createServerFn({ method: "POST" })
     }
 
     if (typeof data.minPrice === "number") {
-      query = query.gte("price", data.minPrice);
+      query = query.gte("price", Math.ceil((Math.round(data.minPrice * 100) - 0.5) / 1.19) / 100);
     }
 
     if (typeof data.maxPrice === "number") {
-      query = query.lte("price", data.maxPrice);
+      query = query.lte(
+        "price",
+        (Math.ceil((Math.round(data.maxPrice * 100) + 0.5) / 1.19) - 1) / 100,
+      );
     }
 
     if (data.inStockOnly) {
@@ -90,7 +94,10 @@ export const getProducts = createServerFn({ method: "POST" })
 
     if (error) throw new Error(error.message);
 
-    return { products: products ?? [], total: count ?? 0 };
+    return {
+      products: (products ?? []).map((product) => consumerProduct(product)),
+      total: count ?? 0,
+    };
   });
 
 export const getProductBySlug = createServerFn({ method: "POST" })
@@ -104,7 +111,7 @@ export const getProductBySlug = createServerFn({ method: "POST" })
 
     if (error) throw new Error(error.message);
 
-    return { product };
+    return { product: consumerProduct(product) };
   });
 
 export const getFeaturedProducts = createServerFn({ method: "GET" }).handler(async () => {
@@ -143,7 +150,7 @@ export const getRelatedProducts = createServerFn({ method: "POST" })
 
     if (error) throw new Error(error.message);
 
-    return { products: products ?? [] };
+    return { products: (products ?? []).map((product) => consumerProduct(product)) };
   });
 
 export const getProductsByIds = createServerFn({ method: "POST" })
@@ -168,7 +175,7 @@ export const getProductsByIds = createServerFn({ method: "POST" })
       (a, b) => (order.get(a.id) ?? 0) - (order.get(b.id) ?? 0),
     );
 
-    return { products: sorted };
+    return { products: sorted.map((product) => consumerProduct(product)) };
   });
 
 export const getRecommendedProducts = createServerFn({ method: "POST" })
@@ -196,7 +203,7 @@ export const getRecommendedProducts = createServerFn({ method: "POST" })
 
     if (error) throw new Error(error.message);
 
-    return { products: products ?? [] };
+    return { products: (products ?? []).map((product) => consumerProduct(product)) };
   });
 
 /**

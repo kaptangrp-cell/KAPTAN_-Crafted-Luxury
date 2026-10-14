@@ -1,3 +1,4 @@
+import { consumerProduct } from "./tax";
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
@@ -25,7 +26,7 @@ export const searchAssistantProducts = createServerFn({ method: "POST" })
         .eq("slug", data.slug!)
         .maybeSingle();
       if (error) throw new Error("Catalogue unavailable");
-      if (product) return { products: [product], total: 1 };
+      if (product) return { products: [consumerProduct(product)], total: 1 };
     }
     const matches = [];
     for (let offset = 0; ; offset += 500) {
@@ -36,7 +37,7 @@ export const searchAssistantProducts = createServerFn({ method: "POST" })
         .order("id")
         .range(offset, offset + 499);
       if (error) throw new Error("Catalogue unavailable");
-      matches.push(...matchAssistantProducts(products ?? [], data.question));
+      matches.push(...matchAssistantProducts((products ?? []).map(consumerProduct), data.question));
       if ((products?.length ?? 0) < 500) break;
     }
     const ranked = matchAssistantProducts(matches, data.question);

@@ -1,3 +1,6 @@
+import { SHIPPING_GROSS } from "@/lib/tax";
+import { BillingFields } from "@/components/checkout/BillingFields";
+import { BillingInputSchema, emptyBilling, type BillingInput } from "@/lib/billing";
 import { useCartHydrated } from "@/hooks/useCartHydrated";
 import { useEffect, useId, useMemo, useRef, useState } from "react";
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
@@ -45,12 +48,14 @@ type ExpressCheckoutItem = { productId: string; variantId: string | null; quanti
  * PaymentIntent before marking the order paid.
  */
 function ExpressCheckout({
+  billing,
   enabled,
   amount,
   shippingAmount,
   items,
   onOrderPlaced,
 }: {
+  billing: BillingInput;
   enabled: boolean;
   amount: number;
   shippingAmount: number;
@@ -115,6 +120,7 @@ function ExpressCheckout({
 
           const payload = {
             expectedTotal: amount,
+            billing,
             customer_name: ev.payerName ?? "",
             customer_email: ev.payerEmail ?? "",
             customer_phone: ev.payerPhone ?? "",
@@ -178,7 +184,7 @@ function ExpressCheckout({
       button?.destroy();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [enabled, amount, shippingAmount, JSON.stringify(items)]);
+  }, [enabled, amount, shippingAmount, JSON.stringify(items), JSON.stringify(billing)]);
 
   if (!STRIPE_ENABLED || !enabled) return null;
 
@@ -242,8 +248,14 @@ function CheckoutPage() {
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   const total = subtotal();
-  const shipping = total > 50 ? 0 : 5.99;
+  const shipping = total > 50 ? 0 : SHIPPING_GROSS;
   const grandTotal = total + shipping;
+  const netCents =
+    items.reduce(
+      (sum, item) => sum + Math.round((Math.round(item.price * 100) * item.quantity) / 1.19),
+      0,
+    ) + Math.round(Math.round(shipping * 100) / 1.19);
+  const includedVat = Math.round(netCents * 0.19) / 100;
 
   const { data: addressesData } = useQuery({
     queryKey: ["my-addresses", user?.id],
@@ -260,6 +272,8 @@ function CheckoutPage() {
   const initialPaymentMethod =
     savedPaymentMethod === "card" || savedPaymentMethod === "paypal" ? savedPaymentMethod : "card";
 
+  const [billing, setBilling] = useState<BillingInput>({ ...emptyBilling });
+  const [billingError, setBillingError] = useState("");
   const [form, setForm] = useState({
     customer_name: profile?.full_name ?? "",
     customer_email: user?.email ?? "",
@@ -357,6 +371,9 @@ function CheckoutPage() {
     if (!form.postal_code.trim()) next.postal_code = t("checkout.errorRequired");
     if (!form.country.trim()) next.country = t("checkout.errorRequired");
 
+    const billingCheck = BillingInputSchema.safeParse(billing);
+    setBillingError(billingCheck.success ? "" : t("billing.invalid"));
+    if (!billingCheck.success) next.billing = t("billing.invalid");
     setErrors(next);
     return Object.keys(next).length === 0;
   }
@@ -395,6 +412,7 @@ function CheckoutPage() {
 
     try {
       const payload = {
+        billing,
         expectedTotal: grandTotal,
         customer_name: form.customer_name,
         customer_email: form.customer_email,
@@ -505,9 +523,22 @@ function CheckoutPage() {
                 )}
           </p>
         )}
-        <div className="mt-8">
+        <div className="mt-8 space-y-5">
+          <BillingFields
+            value={billing}
+            onChange={(value) => {
+              setBilling(value);
+              setBillingError("");
+            }}
+            error={billingError}
+          />
           <ExpressCheckout
-            enabled={cardEnabled && (!cancelOrderId || cancellation.isSuccess)}
+            billing={billing}
+            enabled={
+              BillingInputSchema.safeParse(billing).success &&
+              cardEnabled &&
+              (!cancelOrderId || cancellation.isSuccess)
+            }
             amount={grandTotal}
             shippingAmount={shipping}
             items={items.map((i) => ({
@@ -637,7 +668,7 @@ function CheckoutPage() {
                       errors.country ? "border-red-500" : "border-gold/20"
                     }`}
                   >
-                    {COUNTRIES.map((c) => (
+                    {COUNTRIES.filter((country) => country.code === "DE").map((c) => (
                       <option key={c.code} value={c.code} className="bg-[#1A1A1A]">
                         {new Intl.DisplayNames([i18n.language], { type: "region" }).of(c.code) ??
                           c.name}
@@ -807,6 +838,10 @@ function CheckoutPage() {
               <div className="mt-3 flex justify-between border-t border-gold/10 pt-3 text-base text-white">
                 <dt>{t("cart.total")}</dt>
                 <dd className="font-mono text-gold">€{grandTotal.toFixed(2)}</dd>
+              </div>
+              <div className="flex justify-between text-xs text-white/60">
+                <dt>{t("billing.vatIncluded")}</dt>
+                <dd>€{includedVat.toFixed(2)}</dd>
               </div>
             </dl>
 

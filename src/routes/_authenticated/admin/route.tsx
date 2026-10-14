@@ -41,6 +41,7 @@ const nav: { to: string; labelKey: string; icon: typeof LayoutDashboard; exact?:
   { to: "/admin/categories", labelKey: "admin.navCategories", icon: FolderTree },
   { to: "/admin/journal", labelKey: "admin.navJournal", icon: Newspaper },
   { to: "/admin/orders", labelKey: "admin.navOrders", icon: ShoppingCart },
+  { to: "/admin/invoices", labelKey: "invoices.title", icon: Newspaper },
   { to: "/admin/inventory", labelKey: "warehouse.inventoryTitle", icon: Package },
   { to: "/admin/staff", labelKey: "warehouse.staffTitle", icon: ShieldCheck },
   { to: "/admin/customers", labelKey: "admin.navCustomers", icon: Users },

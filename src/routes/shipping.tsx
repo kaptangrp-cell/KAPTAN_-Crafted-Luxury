@@ -8,7 +8,7 @@ export const Route = createFileRoute("/shipping")({
       { title: "Shipping — KAPTAN" },
       {
         name: "description",
-        content: "Shipping rates, transit times, and tracking for KAPTAN orders worldwide.",
+        content: "Shipping rates, transit times, and tracking for KAPTAN orders in Germany.",
       },
     ],
   }),

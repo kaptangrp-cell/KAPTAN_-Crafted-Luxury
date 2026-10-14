@@ -4,7 +4,11 @@ import { useQuery } from "@tanstack/react-query";
 import { useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { z } from "zod";
-import { getWarehouseDashboard, manageWarehouse } from "@/lib/warehouse.functions";
+import {
+  getWarehouseDashboard,
+  manageWarehouse,
+  getQrActivationBlockers,
+} from "@/lib/warehouse.functions";
 import {
   warehousePermissions,
   type WarehousePermission,
@@ -37,6 +41,15 @@ export function InventoryAdmin({ staffOnly = false }: { staffOnly?: boolean }) {
   const pending = useRef<z.infer<typeof WarehouseAdminSchema> | null>(null);
   const running = useRef(false);
   const product = query.data?.products?.find((p) => p.id === productId);
+  const blockersFn = useServerFn(getQrActivationBlockers);
+  const blockers = useQuery({
+    queryKey: ["qr-activation-blockers", user?.id, productId],
+    queryFn: () => blockersFn({ data: { productId } }),
+    enabled: Boolean(product && !product.managed),
+    retry: false,
+    refetchOnWindowFocus: true,
+  });
+  const hasBlockers = Boolean(blockers.data?.orders.length || blockers.data?.holds.length);
   async function run(command: Omit<z.infer<typeof WarehouseAdminSchema>, "operation">) {
     if (running.current) return;
     setError("");
@@ -60,6 +73,7 @@ export function InventoryAdmin({ staffOnly = false }: { staffOnly?: boolean }) {
       await query.refetch();
     } catch (e) {
       setError(e instanceof Error ? e.message : t("warehouse.failed"));
+      if (command.action === "enable") void blockers.refetch();
     } finally {
       running.current = false;
       setBusy(false);
@@ -197,6 +211,81 @@ export function InventoryAdmin({ staffOnly = false }: { staffOnly?: boolean }) {
                     <p className="rounded-xl border border-amber-400/30 p-4 text-sm text-amber-200">
                       {t("warehouse.activationWarning", { count: product.stock })}
                     </p>
+                    <section
+                      className="space-y-3 rounded-xl border border-white/15 p-4"
+                      aria-label={t("warehouse.blockersTitle")}
+                    >
+                      <div className="flex flex-wrap items-center justify-between gap-3">
+                        <h2 className="font-semibold">{t("warehouse.blockersTitle")}</h2>
+                        <button
+                          type="button"
+                          disabled={blockers.isFetching}
+                          onClick={() => void blockers.refetch()}
+                          className="text-gold underline"
+                        >
+                          {t("warehouse.recheck")}
+                        </button>
+                      </div>
+                      {blockers.isFetching && (
+                        <p role="status">{t("warehouse.checkingBlockers")}</p>
+                      )}
+                      {blockers.error && (
+                        <p role="alert" className="text-red-300">
+                          {blockers.error.message}
+                        </p>
+                      )}
+                      {blockers.data && (
+                        <>
+                          {!hasBlockers && (
+                            <p className="text-green-300">{t("warehouse.noBlockers")}</p>
+                          )}
+                          {hasBlockers && (
+                            <p className="text-sm text-white/70">{t("warehouse.blockersHelp")}</p>
+                          )}
+                          {blockers.data.orders.map((order) => (
+                            <div
+                              key={order.id}
+                              className="rounded-lg border border-white/10 p-3 text-sm"
+                            >
+                              <Link
+                                to="/admin/orders"
+                                search={{ orderNumber: order.number }}
+                                className="break-all font-semibold text-gold underline"
+                              >
+                                {order.number}
+                              </Link>
+                              <p>
+                                {t("warehouse.orderStatus")}:{" "}
+                                {t(`warehouse.orderStates.${order.status}`, {
+                                  defaultValue: order.status,
+                                })}{" "}
+                                · {t("warehouse.paymentStatus")}:{" "}
+                                {t(`warehouse.paymentStates.${order.payment}`, {
+                                  defaultValue: order.payment,
+                                })}
+                              </p>
+                              {order.payment === "pending" && (
+                                <p className="mt-1 text-amber-200">
+                                  {t("warehouse.pendingOrderHelp")}
+                                </p>
+                              )}
+                            </div>
+                          ))}
+                          {blockers.data.holds.length > 0 && (
+                            <p className="text-sm text-white/70">{t("warehouse.holdsHelp")}</p>
+                          )}
+                          {blockers.data.holds.map((hold) => (
+                            <p
+                              key={hold.id}
+                              className="break-all rounded-lg border border-white/10 p-3 text-sm"
+                            >
+                              {t("warehouse.paymentHold")} · {hold.id} ·{" "}
+                              {new Date(hold.createdAt).toLocaleString()}
+                            </p>
+                          ))}
+                        </>
+                      )}
+                    </section>
                     <label className="flex gap-3">
                       <input
                         type="checkbox"
@@ -206,7 +295,14 @@ export function InventoryAdmin({ staffOnly = false }: { staffOnly?: boolean }) {
                       {t("warehouse.activationAck")}
                     </label>
                     <button
-                      disabled={busy || !ack}
+                      disabled={
+                        busy ||
+                        !ack ||
+                        blockers.isFetching ||
+                        !blockers.data ||
+                        Boolean(blockers.error) ||
+                        hasBlockers
+                      }
                       onClick={() => void run({ action: "enable", data: { productId } })}
                       className="warehouse-button"
                     >

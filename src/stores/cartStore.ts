@@ -82,10 +82,14 @@ export const useCartStore = create<CartState>()(
       },
       clearCart: () => set({ items: [] }),
       totalItems: () => get().items.reduce((sum, i) => sum + i.quantity, 0),
-      subtotal: () => get().items.reduce((sum, i) => sum + i.price * i.quantity, 0),
+      subtotal: () =>
+        get().items.reduce((sum, i) => sum + Math.round(i.price * 100) * i.quantity, 0) / 100,
     }),
     {
       name: "kaptan-cart",
+      version: 2,
+      // Old carts stored net prices. Require a fresh selection after tax rollout.
+      migrate: () => ({ items: [] }),
       skipHydration: true,
     },
   ),

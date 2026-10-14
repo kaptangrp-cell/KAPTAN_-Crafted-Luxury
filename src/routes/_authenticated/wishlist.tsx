@@ -1,3 +1,4 @@
+import { grossPrice } from "@/lib/tax";
 import { AccountHeader } from "@/components/account/AccountHeader";
 import { CatalogText } from "@/components/common/CatalogText";
 import { useAuthStore } from "@/stores/authStore";
@@ -107,7 +108,7 @@ function WishlistPage() {
                         <CatalogText text={p.name} />
                       </Link>
                       <p className="mt-1 font-mono text-sm text-gold">
-                        <Price amount={Number(p.price)} />
+                        <Price amount={grossPrice(Number(p.price))} />
                       </p>
                     </div>
                     <button

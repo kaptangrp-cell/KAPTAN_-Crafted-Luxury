@@ -70,3 +70,18 @@ export const scanWarehouseUnit = createServerFn({ method: "POST" })
       p_operation: data.operation,
     }),
   );
+
+/** Read-only explanation of the same blockers checked atomically by warehouse_admin. */
+export const getQrActivationBlockers = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) => z.object({ productId: z.string().uuid() }).parse(input))
+  .handler(async ({ context, data }) => {
+    const { data: profile, error: profileError } = await context.supabase
+      .from("profiles")
+      .select("role")
+      .eq("id", context.userId)
+      .single();
+    if (profileError || profile?.role !== "admin") throw new Error("Forbidden");
+    const { readQrActivationBlockers } = await import("./warehouse-activation.server");
+    return readQrActivationBlockers(data.productId);
+  });

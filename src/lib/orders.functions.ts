@@ -1,3 +1,4 @@
+import { BillingInputSchema, billingSnapshot } from "@/lib/billing";
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
@@ -26,6 +27,7 @@ const CreateOrderSchema = z.object({
   customer_email: z.string().email(),
   customer_phone: z.string().min(3).max(40),
   shipping_address: AddressSchema,
+  billing: BillingInputSchema,
   items: z.array(CartItemSchema).min(1).max(50),
   payment_method: z.enum(["card", "paypal"]),
   notes: z.string().max(1000).optional().nullable(),
@@ -54,8 +56,14 @@ export const createOrder = createServerFn({ method: "POST" })
       .filter(Boolean);
     if (allowed?.length && !allowed.includes(data.shipping_address.country.toUpperCase()))
       throw new Error("We cannot ship to that country. Please contact support.");
+    const billingData = billingSnapshot(
+      data.billing,
+      { name: data.customer_name, email: data.customer_email },
+      data.shipping_address,
+    );
     const userId = await authenticatedUserId();
-    const { requestKey, ...payload } = data;
+    const { requestKey, billing: _billing, ...orderPayload } = data;
+    const payload = { ...orderPayload, billing_data: billingData };
     const { data: result, error } = await supabaseAdmin.rpc("create_checkout_draft", {
       p_request_key: requestKey,
       p_owner_hash: checkoutOwner(true),

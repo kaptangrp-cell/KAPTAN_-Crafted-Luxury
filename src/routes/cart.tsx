@@ -1,3 +1,4 @@
+import { SHIPPING_GROSS } from "@/lib/tax";
 import { useCartHydrated } from "@/hooks/useCartHydrated";
 import { CatalogText } from "@/components/common/CatalogText";
 import { createFileRoute, Link } from "@tanstack/react-router";
@@ -17,7 +18,7 @@ function CartPage() {
   const { t } = useTranslation();
   const { items, updateQuantity, removeItem, subtotal, clearCart } = useCartStore();
   const total = subtotal();
-  const shipping = total > 50 ? 0 : 5.99;
+  const shipping = total > 50 ? 0 : SHIPPING_GROSS;
 
   return (
     <PageLayout>
@@ -112,6 +113,7 @@ function CartPage() {
                   </dd>
                 </div>
               </dl>
+              <p className="mt-2 text-xs text-white/60">{t("billing.grossNotice")}</p>
               <Link
                 to="/checkout"
                 className="mt-6 block w-full bg-gold py-3 text-center text-sm font-bold uppercase tracking-wider text-black transition-colors hover:bg-gold-vivid"
