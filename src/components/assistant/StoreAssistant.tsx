@@ -120,7 +120,8 @@ export function StoreAssistant() {
       }
     }
   }
-  if (path.startsWith("/admin") || path.startsWith("/checkout")) return null;
+  if (path.startsWith("/warehouse") || path.startsWith("/admin") || path.startsWith("/checkout"))
+    return null;
   const suggestions = [
     ...(slug ? [t("assistant.thisProduct")] : [t("assistant.findExample")]),
     t("assistant.returnsQuestion"),

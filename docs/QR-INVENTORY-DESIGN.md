@@ -1,6 +1,6 @@
 # KAPTAN QR inventory design
 
-Status: proposed implementation specification, 14 October 2026. No database or live inventory changes have been applied.
+Status: design implemented locally on 14 October 2026. See [setup and implementation decisions](QR-INVENTORY-SETUP.md) for the shipped scope, activation steps and differences from this proposal. No hosted database or live inventory changes have been applied.
 
 ## Product experience
 

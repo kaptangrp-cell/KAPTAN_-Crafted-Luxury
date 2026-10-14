@@ -1,3 +1,4 @@
+import { StockUpdates } from "@/components/warehouse/StockUpdates";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "@/hooks/useAuth";
 import { useCartStore } from "@/stores/cartStore";
@@ -229,6 +230,7 @@ function RootComponent() {
 
       <Analytics />
       <SpeedInsights />
+      <StockUpdates />
       <StoreAssistant />
     </QueryClientProvider>
   );

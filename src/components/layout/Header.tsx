@@ -1,3 +1,4 @@
+import { WarehouseMenuItem } from "@/components/warehouse/WarehouseMenuItem";
 import { ShoppingNotifications, CartReminderBar } from "./ShoppingNotifications";
 import { ProfileAvatar } from "@/components/account/ProfileAvatar";
 import { useEffect, useRef, useState } from "react";
@@ -251,6 +252,7 @@ export function Header() {
                 </DropdownMenuItem>
               ))}
               <DropdownMenuSeparator className="bg-gold/15" />
+              <WarehouseMenuItem />
               {user ? (
                 <DropdownMenuItem
                   onSelect={() => void handleLogout()}
