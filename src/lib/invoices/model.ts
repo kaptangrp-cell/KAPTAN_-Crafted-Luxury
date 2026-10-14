@@ -1,12 +1,14 @@
+import catalogGerman from "../i18n/catalog-de.json" with { type: "json" };
 import { z } from "zod";
 export const seller = {
-  name: "Zoraiz Fazal, trading as Kaptan",
+  name: "Kaptan, Inhaber Zoraiz Fazal",
   legalForm: "Einzelunternehmen",
   street: "Bahnhofstraße 36",
   postalCode: "35037",
   city: "Marburg",
   country: "DE",
   vatId: "DE464080693",
+  taxNumber: "031 816 03520",
   email: "kaptangrp@gmail.com",
   phone: "015216164830",
 };
@@ -27,6 +29,7 @@ export const InvoiceSchema = z.object({
     city: z.string(),
     country: z.literal("DE"),
     vatId: z.string(),
+    taxNumber: z.string().min(3),
     email: z.string().email(),
     phone: z.string(),
   }),
@@ -93,6 +96,7 @@ export function berlinDate(value: string | Date = new Date()) {
 // A single immutable snapshot drives PDF, XML and reporting. Never read live catalogue prices.
 export function buildInvoice(input: {
   taxMode: "kleinunternehmer" | "regular";
+  sellerTaxNumber: string;
   number: string;
   kind: Invoice["kind"];
   issueDate: string;
@@ -114,12 +118,18 @@ export function buildInvoice(input: {
   reference?: Invoice["reference"];
   reason?: string | null;
 }): Invoice {
+  if (!input.sellerTaxNumber?.trim())
+    throw new Error("Steuernummer fehlt. Rechnung kann nicht ausgestellt werden.");
+  if (/^DE\d/i.test(input.sellerTaxNumber.trim()))
+    throw new Error("USt-IdNr. ist keine Steuernummer.");
   const exempt = input.taxMode === "kleinunternehmer";
   const rate = exempt ? 0 : 19;
   const factor = 1 + rate / 100;
   const lines = input.items.map((i) => ({
     productId: i.product_id,
-    description: i.product_name + (i.variant_info ? ` — ${i.variant_info}` : ""),
+    description:
+      germanDescription(i.product_name) +
+      (i.variant_info ? ` - ${germanDescription(i.variant_info)}` : ""),
     quantity: i.quantity,
     netUnit: Math.round((Number(i.unit_price) / factor) * 1000000) / 1000000,
     net: Math.round(cents(i.line_total) / factor),
@@ -128,7 +138,7 @@ export function buildInvoice(input: {
   if (input.shipping > 0)
     lines.push({
       productId: null,
-      description: "Versand / Delivery",
+      description: "Versand",
       quantity: 1,
       netUnit: Math.round((input.shipping / factor) * 1000000) / 1000000,
       net: Math.round(cents(input.shipping) / factor),
@@ -154,7 +164,7 @@ export function buildInvoice(input: {
     paidDate: input.paidDate,
     orderId: input.orderId,
     orderNumber: input.orderNumber,
-    seller,
+    seller: { ...seller, taxNumber: input.sellerTaxNumber.trim() },
     buyer: input.buyer,
     lines,
     net,
@@ -171,4 +181,34 @@ export function buildInvoice(input: {
     reference: input.reference ?? null,
     reason: input.reason ?? null,
   });
+}
+
+export const germanMoney = (minor: number) =>
+  new Intl.NumberFormat("de-DE", { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(
+    minor / 100,
+  );
+export const germanDate = (iso: string) => iso.split("-").reverse().join(".");
+function germanDescription(value: string) {
+  const dictionary: Record<string, string> = catalogGerman;
+  if (dictionary[value]) return dictionary[value];
+  const terms: Record<string, string> = {
+    Color: "Farbe",
+    Colour: "Farbe",
+    Size: "Größe",
+    Black: "Schwarz",
+    Brown: "Braun",
+    White: "Weiß",
+    Blue: "Blau",
+    Red: "Rot",
+    Green: "Grün",
+    Grey: "Grau",
+    Gray: "Grau",
+    Beige: "Beige",
+    Tan: "Hellbraun",
+    "One size": "Einheitsgröße",
+  };
+  return value
+    .split(/(\s*[:/]\s*)/)
+    .map((part) => terms[part] ?? part)
+    .join("");
 }

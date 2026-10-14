@@ -1,7 +1,7 @@
 import { PDFDocument, rgb, type PDFFont } from "pdf-lib";
 import fontkit from "@pdf-lib/fontkit";
 import type { Invoice } from "./model.ts";
-import { money } from "./model.ts";
+import { germanMoney as money, germanDate } from "./model.ts";
 export async function invoicePdf(
   i: Invoice,
   assets: { inter: Uint8Array; serif: Uint8Array; logo: Uint8Array },
@@ -43,10 +43,19 @@ export async function invoicePdf(
     page.drawRectangle({ x: 0, y: 727, width: 596, height: 115, color: ink });
     page.drawImage(logo, { x: 42, y: 756, width: 54, height: 54 });
     text("KAPTAN", 112, 783, 25, serif, gold);
-    text("CRAFTED LUXURY", 113, 761, 8, font, rgb(0.8, 0.8, 0.8));
-    text(sample ? "MUSTER - NICHT BUCHEN" : i.number, 350, 782, 10, font, rgb(1, 1, 1));
-    text(i.issueDate, 350, 760, 10, font, rgb(0.8, 0.8, 0.8));
-    y = 698;
+    text("HOCHWERTIGE LEDERWAREN", 113, 761, 8, font, rgb(0.8, 0.8, 0.8));
+    text("RECHNUNG", 391, 793, 16, font, rgb(1, 1, 1));
+    text(i.number, 350, 771, 9, font, rgb(0.8, 0.8, 0.8));
+    text(
+      sample ? "MUSTER - NICHT BUCHEN" : `Datum: ${germanDate(i.issueDate)}`,
+      350,
+      750,
+      9,
+      font,
+      gold,
+    );
+    // Leave a clear white gap below the dark brand header on every page.
+    y = 675;
   };
   header();
   const ensure = (height: number) => {
@@ -74,30 +83,55 @@ export async function invoicePdf(
     24,
     serif,
   );
-  y -= 30;
+  y -= 36;
   para(`Bestellung ${i.orderNumber}`, 500, 9);
-  para(`${i.seller.name} | ${i.seller.street} | ${i.seller.postalCode} ${i.seller.city}`, 500, 8);
-  y -= 6;
-  para(i.buyer.legalName);
-  para(
+  const columnTop = y - 18;
+  const column = (label: string, values: string[], x: number, width: number) => {
+    let cursor = columnTop;
+    text(label, x, cursor, 9, font, muted);
+    cursor -= 23;
+    for (const value of values) {
+      for (const row of wrap(value, width, 10)) {
+        text(row, x, cursor, 10);
+        cursor -= 15;
+      }
+      cursor -= 5;
+    }
+    return cursor;
+  };
+  const sellerBottom = column(
+    "Verkäufer",
     [
-      i.buyer.address.line1,
-      i.buyer.address.line2,
-      `${i.buyer.address.postalCode} ${i.buyer.address.city}`,
-      "Deutschland",
-    ]
-      .filter(Boolean)
-      .join(", "),
+      i.seller.name,
+      i.seller.street,
+      `${i.seller.postalCode} ${i.seller.city}`,
+      `Steuernummer: ${i.seller.taxNumber}`,
+    ],
+    44,
+    230,
   );
+  const buyerBottom = column(
+    "Rechnungsempfänger",
+    [
+      i.buyer.legalName,
+      i.buyer.address.line1,
+      ...(i.buyer.address.line2 ? [i.buyer.address.line2] : []),
+      `${i.buyer.address.postalCode} ${i.buyer.address.city}`,
+      `Rechnungsdatum: ${germanDate(i.issueDate)}`,
+    ],
+    314,
+    237,
+  );
+  y = Math.min(sellerBottom, buyerBottom) - 44;
   if (i.buyer.vatId) para(`USt-IdNr. Kunde: ${i.buyer.vatId}`);
   if (i.buyer.buyerReference) para(`Käuferreferenz / Leitweg-ID: ${i.buyer.buyerReference}`);
   if (i.buyer.purchaseOrder) para(`Bestellreferenz: ${i.buyer.purchaseOrder}`);
   para(
     i.kind === "advance"
-      ? `Zahlungseingang: ${i.paidDate}. Lieferung steht noch aus.`
-      : `Leistungsdatum: ${i.supplyDate || i.paidDate}`,
+      ? `Zahlungseingang: ${germanDate(i.paidDate)}. Lieferung steht noch aus.`
+      : `Leistungsdatum: ${germanDate(i.supplyDate || i.paidDate)}`,
   );
-  y -= 12;
+  y -= 24;
   const tableHeader = () => {
     ensure(35);
     page.drawRectangle({ x: 44, y: y - 8, width: 507, height: 26, color: rgb(0.96, 0.94, 0.88) });
@@ -105,12 +139,12 @@ export async function invoicePdf(
     text("Menge", 325, y, 9);
     text(i.taxMode === "kleinunternehmer" ? "Einzelpreis" : "Einzel netto", 375, y, 9);
     text(i.taxMode === "kleinunternehmer" ? "Gesamt" : "Gesamt netto", 465, y, 9);
-    y -= 30;
+    y -= 38;
   };
   tableHeader();
   for (const line of i.lines) {
     const rows = wrap(line.description, 263, 9);
-    const height = rows.length * 14 + 18;
+    const height = rows.length * 14 + 30;
     if (y - height < 115) {
       page = pdf.addPage([595.28, 841.89]);
       header();
@@ -118,18 +152,24 @@ export async function invoicePdf(
     }
     rows.forEach((r, n) => text(r, 50, y - n * 14, 9));
     text(String(line.quantity), 333, y, 9);
-    text(i.lines.length ? line.netUnit.toFixed(2) + " €" : "", 383, y, 9);
-    text(money(line.net) + " €", 474, y, 9);
+    const unitText =
+      new Intl.NumberFormat("de-DE", { minimumFractionDigits: 2, maximumFractionDigits: 6 }).format(
+        line.netUnit,
+      ) + " €";
+    text(unitText, 455 - font.widthOfTextAtSize(unitText, 8), y, 8);
+    const lineText = money(line.net) + " €";
+    text(lineText, 545 - font.widthOfTextAtSize(lineText, 9), y, 9);
     y -= height;
     page.drawLine({
-      start: { x: 44, y: y + 8 },
-      end: { x: 551, y: y + 8 },
+      start: { x: 44, y: y + 16 },
+      end: { x: 551, y: y + 16 },
       color: rgb(0.9, 0.9, 0.9),
       thickness: 0.5,
     });
   }
-  y -= 12;
-  ensure(160);
+  y -= 24;
+  // Exempt invoices have three summary rows; avoid an unnecessary second page.
+  ensure(i.taxMode === "kleinunternehmer" ? 125 : 175);
   for (const [label, value] of [
     ...(i.taxMode === "kleinunternehmer"
       ? [["Gesamtbetrag", i.gross] as const]
@@ -145,14 +185,24 @@ export async function invoicePdf(
     ],
     ["Noch zu zahlen", i.kind === "credit" ? 0 : i.due],
   ] as const) {
-    text(label, 300, y, 10);
-    text(money(value) + " €", 470, y, 10);
-    y -= 22;
+    const important = label === "Gesamtbetrag" || label === "Bruttobetrag";
+    const size = important ? 15 : 10;
+    text(label, 300, y, size, font, important ? gold : ink);
+    const formatted = money(value) + " €";
+    text(
+      formatted,
+      545 - font.widthOfTextAtSize(formatted, size),
+      y,
+      size,
+      font,
+      important ? gold : ink,
+    );
+    y -= important ? 29 : 22;
   }
   y -= 10;
   if (i.exemptionReason) para(i.exemptionReason);
   if (i.reference) {
-    para(`Bezug: ${i.reference.number} vom ${i.reference.date}.`);
+    para(`Bezug: ${i.reference.number} vom ${germanDate(i.reference.date)}.`);
     if (i.kind === "final")
       para(
         i.taxMode === "kleinunternehmer"
@@ -167,7 +217,7 @@ export async function invoicePdf(
     page.drawLine({ start: { x: 44, y: 88 }, end: { x: 551, y: 88 }, color: gold, thickness: 1 });
     text(`${i.seller.name} | ${i.seller.legalForm}`, 44, 72, 8);
     text(
-      `${i.seller.street}, ${i.seller.postalCode} ${i.seller.city} | USt-IdNr. ${i.seller.vatId}`,
+      `${i.seller.street}, ${i.seller.postalCode} ${i.seller.city} | Steuernummer: ${i.seller.taxNumber}`,
       44,
       58,
       8,

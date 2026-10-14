@@ -1,5 +1,5 @@
 import { useTranslation } from "react-i18next";
-import translations from "@/lib/i18n/catalog-de.json";
+import translations from "@/lib/i18n/catalog-de.json" with { type: "json" };
 
 /** Exact-source translations never replace changed merchant copy with stale descriptions. */
 export function CatalogText({ text }: { text: string | null | undefined }) {

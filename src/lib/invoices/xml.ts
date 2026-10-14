@@ -1,5 +1,5 @@
 import type { Invoice } from "./model.ts";
-import { money } from "./model.ts";
+import { money, germanDate, germanMoney } from "./model.ts";
 export const xmlEscape = (value: string) =>
   value
     // XML 1.0 forbids these control characters.
@@ -23,11 +23,11 @@ export function invoiceXml(i: Invoice) {
     : "";
   const note =
     i.kind === "advance"
-      ? `Vorauszahlungsrechnung. Zahlungseingang: ${i.paidDate}. Lieferung steht noch aus.`
+      ? `Vorauszahlungsrechnung. Zahlungseingang: ${germanDate(i.paidDate)}. Lieferung steht noch aus.`
       : i.kind === "final"
         ? i.taxMode === "kleinunternehmer"
-          ? `Endrechnung. Vorauszahlung ${i.reference!.number}: EUR ${money(i.reference!.gross)}. Vollständig abgesetzt; Restbetrag EUR 0.00.`
-          : `Endrechnung. Bereits vereinnahmte Vorauszahlung ${i.reference!.number}: netto EUR ${money(i.reference!.net)}, Umsatzsteuer EUR ${money(i.reference!.vat)}, brutto EUR ${money(i.reference!.gross)}. Vollständig abgesetzt; Restbetrag EUR 0.00.`
+          ? `Endrechnung. Vorauszahlung ${i.reference!.number}: EUR ${germanMoney(i.reference!.gross)}. Vollständig abgesetzt; Restbetrag EUR 0,00.`
+          : `Endrechnung. Bereits vereinnahmte Vorauszahlung ${i.reference!.number}: netto EUR ${germanMoney(i.reference!.net)}, Umsatzsteuer EUR ${germanMoney(i.reference!.vat)}, brutto EUR ${germanMoney(i.reference!.gross)}. Vollständig abgesetzt; Restbetrag EUR 0,00.`
         : `Rechnungskorrektur: ${i.reason}`;
   return `<?xml version="1.0" encoding="UTF-8"?>
 <${root} xmlns="urn:oasis:names:specification:ubl:schema:xsd:${root}-2" xmlns:cac="urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2" xmlns:cbc="urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2">
@@ -38,9 +38,9 @@ export function invoiceXml(i: Invoice) {
 <cbc:Note>${e(note + (i.exemptionReason ? " " + i.exemptionReason : ""))}</cbc:Note>${credit ? "" : `<cbc:TaxPointDate>${i.supplyDate ?? i.paidDate}</cbc:TaxPointDate>`}<cbc:DocumentCurrencyCode>EUR</cbc:DocumentCurrencyCode>
 <cbc:BuyerReference>${e(i.buyer.buyerReference || i.orderNumber)}</cbc:BuyerReference>
 <cac:OrderReference><cbc:ID>${e(i.buyer.purchaseOrder || i.orderNumber)}</cbc:ID><cbc:SalesOrderID>${e(i.orderNumber)}</cbc:SalesOrderID></cac:OrderReference>${reference}
-<cac:AccountingSupplierParty><cac:Party><cbc:EndpointID schemeID="EM">${e(i.seller.email)}</cbc:EndpointID><cac:PartyName><cbc:Name>KAPTAN</cbc:Name></cac:PartyName>
+<cac:AccountingSupplierParty><cac:Party><cbc:EndpointID schemeID="EM">${e(i.seller.email)}</cbc:EndpointID><cac:PartyIdentification><cbc:ID>${e(i.seller.taxNumber)}</cbc:ID></cac:PartyIdentification><cac:PartyName><cbc:Name>KAPTAN</cbc:Name></cac:PartyName>
 <cac:PostalAddress><cbc:StreetName>${e(i.seller.street)}</cbc:StreetName><cbc:CityName>${e(i.seller.city)}</cbc:CityName><cbc:PostalZone>${i.seller.postalCode}</cbc:PostalZone><cac:Country><cbc:IdentificationCode>DE</cbc:IdentificationCode></cac:Country></cac:PostalAddress>
-<cac:PartyTaxScheme><cbc:CompanyID>${i.seller.vatId}</cbc:CompanyID><cac:TaxScheme><cbc:ID>VAT</cbc:ID></cac:TaxScheme></cac:PartyTaxScheme><cac:PartyLegalEntity><cbc:RegistrationName>${e(i.seller.name)}</cbc:RegistrationName></cac:PartyLegalEntity>
+<cac:PartyTaxScheme><cbc:CompanyID>${e(i.seller.taxNumber)}</cbc:CompanyID><cac:TaxScheme><cbc:ID>FC</cbc:ID></cac:TaxScheme></cac:PartyTaxScheme><cac:PartyLegalEntity><cbc:RegistrationName>${e(i.seller.name)}</cbc:RegistrationName></cac:PartyLegalEntity>
 <cac:Contact><cbc:Name>Zoraiz Fazal</cbc:Name><cbc:Telephone>${e(i.seller.phone)}</cbc:Telephone><cbc:ElectronicMail>${e(i.seller.email)}</cbc:ElectronicMail></cac:Contact></cac:Party></cac:AccountingSupplierParty>
 <cac:AccountingCustomerParty><cac:Party><cbc:EndpointID schemeID="EM">${e(i.buyer.email)}</cbc:EndpointID>
 <cac:PostalAddress><cbc:StreetName>${e(i.buyer.address.line1)}</cbc:StreetName>${i.buyer.address.line2 ? `<cbc:AdditionalStreetName>${e(i.buyer.address.line2)}</cbc:AdditionalStreetName>` : ""}<cbc:CityName>${e(i.buyer.address.city)}</cbc:CityName><cbc:PostalZone>${e(i.buyer.address.postalCode)}</cbc:PostalZone><cac:Country><cbc:IdentificationCode>DE</cbc:IdentificationCode></cac:Country></cac:PostalAddress>

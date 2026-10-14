@@ -15,6 +15,7 @@ const billing = billingSnapshot(
   address,
 );
 const base = {
+  sellerTaxNumber: "000/000/00000",
   taxMode: "regular",
   number: "KPT-WEB-00000001",
   kind: "advance",
@@ -253,4 +254,17 @@ test("VAT checkout, invoice outbox, serial numbers, immutable archive and staff 
   } finally {
     await db.close();
   }
+});
+
+test("seller tax number cannot be missing or relabelled VAT ID", () => {
+  assert.throws(() => buildInvoice({ ...base, sellerTaxNumber: "" }), /Steuernummer fehlt/);
+  assert.throws(
+    () => buildInvoice({ ...base, sellerTaxNumber: "DE464080693" }),
+    /keine Steuernummer/,
+  );
+  const invoice = buildInvoice({ ...base, taxMode: "kleinunternehmer" });
+  const xml = invoiceXml(invoice);
+  assert.match(xml, /<cbc:CompanyID>000\/000\/00000<\/cbc:CompanyID>/);
+  assert.match(xml, /<cbc:ID>FC<\/cbc:ID>/);
+  assert.doesNotMatch(xml, /DE464080693/);
 });

@@ -3,7 +3,7 @@ import { createClient } from "@supabase/supabase-js";
 import { Resend } from "resend";
 import { readFile } from "node:fs/promises";
 import { createHash, randomUUID } from "node:crypto";
-import { buildInvoice } from "../../src/lib/invoices/model.ts";
+import { buildInvoice, seller } from "../../src/lib/invoices/model.ts";
 import { invoiceXml, xmlEscape } from "../../src/lib/invoices/xml.ts";
 import { invoicePdf } from "../../src/lib/invoices/pdf.ts";
 import { validateXml } from "./validate.mjs";
@@ -30,6 +30,11 @@ const assets = {
   ),
   logo: await readFile(new URL("../../public/kaptan-logo.png", import.meta.url)),
 };
+const sellerTaxNumber = process.env.INVOICE_STEUERNUMMER?.trim() || seller.taxNumber;
+if (!sellerTaxNumber || /^DE\d/i.test(sellerTaxNumber))
+  throw new Error(
+    "INVOICE_STEUERNUMMER fehlt oder enthält eine USt-IdNr. Keine Rechnung wird ausgestellt.",
+  );
 for (let n = 0; n < 20; n++) {
   const row = check(await db.rpc("claim_invoice"));
   if (!row) break;
@@ -44,6 +49,7 @@ for (let n = 0; n < 20; n++) {
     if (order.tax_data.rate === 0 && order.tax_data.mode !== "kleinunternehmer")
       throw new Error("Missing §19 tax exemption snapshot");
     const model = buildInvoice({
+      sellerTaxNumber,
       taxMode: order.tax_data.rate === 0 ? "kleinunternehmer" : "regular",
       number: row.number,
       kind: row.kind,

@@ -3,6 +3,7 @@ import { buildInvoice } from "../../src/lib/invoices/model.ts";
 import { invoiceXml } from "../../src/lib/invoices/xml.ts";
 import { invoicePdf } from "../../src/lib/invoices/pdf.ts";
 const model = buildInvoice({
+  sellerTaxNumber: "031 816 03520",
   taxMode: "kleinunternehmer",
   number: "MUSTER-KPT-WEB-00000001",
   kind: "advance",

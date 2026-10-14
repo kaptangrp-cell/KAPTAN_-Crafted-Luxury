@@ -11,6 +11,7 @@ RUN mkdir -p /opt/kosit/config && \
  echo '2530cd107c414511c5d0462ec10f886910395abfca820db82e83d70bf01221a8  /opt/kosit/config.zip' | sha256sum -c - && \
  unzip -q /opt/kosit/config.zip -d /opt/kosit/config && rm /opt/kosit/config.zip
 COPY src/lib/invoices ./src/lib/invoices
+COPY src/lib/i18n/catalog-de.json ./src/lib/i18n/catalog-de.json
 COPY scripts/invoices ./scripts/invoices
 COPY public/kaptan-logo.png ./public/kaptan-logo.png
 ENV KOSIT_JAR=/opt/kosit/validator.jar KOSIT_CONFIG=/opt/kosit/config JAVA_BIN=java
