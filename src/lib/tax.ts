@@ -1,8 +1,15 @@
-// Germany-only, regular VAT; confirmed by the merchant on 14 October 2026.
-// Catalogue storage remains NET. Customer-facing catalogue responses are GROSS.
-export const VAT_RATE = 19;
-export const SHIPPING_GROSS = 7.13; // EUR 5.99 net, rounded once.
-export const grossPrice = (net: number) => Math.round(Number(net) * 119 + Number.EPSILON) / 100;
+// Corrected merchant declaration: Kleinunternehmer under §19 UStG.
+// A future regular-VAT rollout must update the database policy and application together.
+// Never use current policy to recalculate historical order or invoice snapshots.
+export type TaxMode = "kleinunternehmer" | "regular";
+export const CURRENT_TAX_MODE: TaxMode = "kleinunternehmer";
+export const VAT_RATE = 0;
+export const VAT_FACTOR = 1;
+export const EXEMPTION_NOTICE =
+  "Steuerbefreiung für Kleinunternehmer gemäß § 19 UStG. Es wird keine Umsatzsteuer berechnet.";
+export const SHIPPING_GROSS = 5.99;
+export const grossPrice = (net: number) =>
+  Math.round(Number(net) * 100 * VAT_FACTOR + Number.EPSILON) / 100;
 export function consumerProduct<
   T extends {
     price: number;

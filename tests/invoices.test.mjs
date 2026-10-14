@@ -15,6 +15,7 @@ const billing = billingSnapshot(
   address,
 );
 const base = {
+  taxMode: "regular",
   number: "KPT-WEB-00000001",
   kind: "advance",
   issueDate: "2026-10-14",
@@ -43,8 +44,8 @@ test("gross catalogue, net invoice amounts and payable rounding reconcile", () =
     compare_at_price: 15,
     product_variants: [{ price_modifier: 0.99 }],
   });
-  assert.equal(product.price, 1.18);
-  assert.equal(product.product_variants[0].price_modifier, 1.18);
+  assert.equal(product.price, 0.99);
+  assert.equal(product.product_variants[0].price_modifier, 0.99);
   const i = buildInvoice(base);
   assert.equal(i.net, 896);
   assert.equal(i.vat, 170);
@@ -200,6 +201,55 @@ test("VAT checkout, invoice outbox, serial numbers, immutable archive and staff 
     rows = (await db.query("SELECT * FROM invoices ORDER BY created_at")).rows;
     assert.equal(rows.length, 2);
     assert.equal(rows[1].source.reference.number, claim.number);
+    await db.exec(
+      await readFile(
+        new URL(
+          "../supabase/migrations/20261014150000_kleinunternehmer_correction.sql",
+          import.meta.url,
+        ),
+        "utf8",
+      ),
+    );
+    const exemptKey = randomUUID();
+    const exemptCreate = (body) =>
+      db.query("SELECT create_checkout_draft($1,$2,$3,NULL,$4) result", [
+        exemptKey,
+        "owner2",
+        "hash2",
+        JSON.stringify(body),
+      ]);
+    await assert.rejects(exemptCreate(payload), /Prices changed/);
+    const exemptOrder = (await exemptCreate({ ...payload, expectedTotal: 20.99 })).rows[0].result;
+    const exemptDraft = (
+      await db.query("SELECT order_data FROM checkout_drafts WHERE id=$1", [exemptOrder.orderId])
+    ).rows[0].order_data;
+    assert.equal(exemptDraft.total, 20.99);
+    assert.equal(exemptDraft.tax_data.mode, "kleinunternehmer");
+    assert.equal(exemptDraft.tax_data.rate, 0);
+    const historical = (await db.query("SELECT model FROM invoices WHERE id=$1", [claim.id]))
+      .rows[0].model;
+    assert.equal(historical.rate, 19);
+    await db.query(
+      "UPDATE order_checkouts SET provider_kind='stripe_checkout',provider_id='cs_exempt' WHERE order_id=$1",
+      [exemptOrder.orderId],
+    );
+    await db.query("SELECT settle_checkout_order($1,'paid')", [exemptOrder.orderId]);
+    const exemptSource = (
+      await db.query("SELECT source FROM invoices WHERE order_id=$1", [exemptOrder.orderId])
+    ).rows[0].source;
+    const exemptModel = buildInvoice({
+      ...base,
+      taxMode: "kleinunternehmer",
+      items: exemptSource.items,
+      shipping: 5.99,
+      total: 20.99,
+    });
+    assert.equal(exemptModel.vat, 0);
+    assert.equal(exemptModel.rounding, 0);
+    assert.equal(exemptModel.net, 2099);
+    assert.match(invoiceXml(exemptModel), /<cbc:ID>E<\/cbc:ID>/);
+    assert.match(invoiceXml(exemptModel), /TaxExemptionReason/);
+    assert.match(exemptModel.exemptionReason, /§ 19/);
   } finally {
     await db.close();
   }

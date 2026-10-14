@@ -87,8 +87,8 @@ export const useCartStore = create<CartState>()(
     }),
     {
       name: "kaptan-cart",
-      version: 2,
-      // Old carts stored net prices. Require a fresh selection after tax rollout.
+      version: 3,
+      // Reset carts from the superseded 19% pricing release.
       migrate: () => ({ items: [] }),
       skipHydration: true,
     },

@@ -103,8 +103,8 @@ export async function invoicePdf(
     page.drawRectangle({ x: 44, y: y - 8, width: 507, height: 26, color: rgb(0.96, 0.94, 0.88) });
     text("Artikel / Beschreibung", 50, y, 9);
     text("Menge", 325, y, 9);
-    text("Einzel netto", 375, y, 9);
-    text("Gesamt netto", 465, y, 9);
+    text(i.taxMode === "kleinunternehmer" ? "Einzelpreis" : "Einzel netto", 375, y, 9);
+    text(i.taxMode === "kleinunternehmer" ? "Gesamt" : "Gesamt netto", 465, y, 9);
     y -= 30;
   };
   tableHeader();
@@ -131,10 +131,14 @@ export async function invoicePdf(
   y -= 12;
   ensure(160);
   for (const [label, value] of [
-    ["Nettobetrag", i.net],
-    ["Umsatzsteuer 19 %", i.vat],
-    ["Bruttobetrag", i.gross],
-    ["Rundung", i.rounding],
+    ...(i.taxMode === "kleinunternehmer"
+      ? [["Gesamtbetrag", i.gross] as const]
+      : [
+          ["Nettobetrag", i.net] as const,
+          ["Umsatzsteuer 19 %", i.vat] as const,
+          ["Bruttobetrag", i.gross] as const,
+          ["Rundung", i.rounding] as const,
+        ]),
     [
       i.kind === "credit" ? "Erstattungsbetrag" : "Bereits bezahlt",
       i.kind === "credit" ? i.due : i.paid,
@@ -146,11 +150,14 @@ export async function invoicePdf(
     y -= 22;
   }
   y -= 10;
+  if (i.exemptionReason) para(i.exemptionReason);
   if (i.reference) {
     para(`Bezug: ${i.reference.number} vom ${i.reference.date}.`);
     if (i.kind === "final")
       para(
-        `Vereinnahmte Vorauszahlung vollständig abgesetzt: netto ${money(i.reference.net)} €, USt. ${money(i.reference.vat)} €, brutto ${money(i.reference.gross)} €. Kein weiterer Zahlungsbetrag.`,
+        i.taxMode === "kleinunternehmer"
+          ? `Vereinnahmte Vorauszahlung vollständig abgesetzt: ${money(i.reference.gross)} €. Kein weiterer Zahlungsbetrag.`
+          : `Vereinnahmte Vorauszahlung vollständig abgesetzt: netto ${money(i.reference.net)} €, USt. ${money(i.reference.vat)} €, brutto ${money(i.reference.gross)} €. Kein weiterer Zahlungsbetrag.`,
       );
   }
   if (i.reason) para(`Korrekturgrund: ${i.reason}`);

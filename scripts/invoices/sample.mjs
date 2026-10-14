@@ -3,6 +3,7 @@ import { buildInvoice } from "../../src/lib/invoices/model.ts";
 import { invoiceXml } from "../../src/lib/invoices/xml.ts";
 import { invoicePdf } from "../../src/lib/invoices/pdf.ts";
 const model = buildInvoice({
+  taxMode: "kleinunternehmer",
   number: "MUSTER-KPT-WEB-00000001",
   kind: "advance",
   issueDate: "2026-10-14",
@@ -33,12 +34,12 @@ const model = buildInvoice({
       product_name: "Premium Leather Wallet",
       variant_info: "Black / S",
       quantity: 2,
-      unit_price: 17.85,
-      line_total: 35.7,
+      unit_price: 15,
+      line_total: 30,
     },
   ],
-  shipping: 7.13,
-  total: 42.83,
+  shipping: 5.99,
+  total: 35.99,
 });
 const assets = {
   inter: await readFile(

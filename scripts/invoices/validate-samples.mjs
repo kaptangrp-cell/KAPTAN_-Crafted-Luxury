@@ -35,6 +35,7 @@ for (const model of [
     },
   },
   buildInvoice({
+    taxMode: "regular",
     number: "MUSTER-ROUNDING",
     kind: "advance",
     issueDate: sample.issueDate,

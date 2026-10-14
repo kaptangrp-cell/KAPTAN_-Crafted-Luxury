@@ -138,7 +138,7 @@
   "shipping": {
     "title": "Shipping Info",
     "p1": "We currently deliver within Germany only. Contact us for current delivery estimates.",
-    "p2": "Delivery costs €7.13 including 19% VAT. Delivery is free when the product subtotal exceeds €50 including VAT.",
+    "p2": "Delivery costs €5.99. Delivery is free when the product subtotal exceeds €50. No VAT is charged under §19 UStG.",
     "p3": "International delivery is not available at checkout yet."
   },
   "returns": {
@@ -585,7 +585,7 @@
     "nameLabel": "Name",
     "slugLabel": "Slug",
     "categoryLabel": "Category",
-    "priceLabel": "Price (EUR, excluding 19% VAT)",
+    "priceLabel": "Selling price (EUR, §19 VAT exempt)",
     "compareAtPriceLabel": "Compare At Price (€)",
     "costPriceLabel": "Cost Price (€) — for profit reports",
     "stockLabel": "Stock",
@@ -768,7 +768,7 @@
     "sizeExample": "e.g. Medium",
     "value": "Option name",
     "stock": "Option stock (optional)",
-    "price": "Price adjustment (net EUR)",
+    "price": "Price adjustment (EUR, VAT exempt)",
     "activeLabel": "Active — show in the store",
     "save": "Save option",
     "none": "No options are currently available.",
@@ -782,7 +782,7 @@
   "catalog": {
     "colorCount": "{{count}} colours",
     "noReviews": "No reviews yet",
-    "delivery": "Includes 19% VAT · Delivery €7.13, free over €50",
+    "delivery": "VAT exempt under §19 UStG (Kleinunternehmer). · Delivery €5.99, free over €50",
     "view": "Product view",
     "allColors": "All colours / shared photo",
     "viewExample": "Front, back, interior, on model…",
@@ -996,8 +996,8 @@
     "germany": "Billing country: Germany",
     "consent": "I agree to receive invoices electronically at the email address entered for this order. Contact us before ordering if you need another delivery method.",
     "invalid": "Please complete the required billing fields and confirm electronic delivery.",
-    "vatIncluded": "Included VAT (19%)",
-    "grossNotice": "Prices include 19% VAT."
+    "vatIncluded": "VAT exempt under §19 UStG (Kleinunternehmer).",
+    "grossNotice": "VAT exempt under §19 UStG (Kleinunternehmer)."
   },
   "invoices": {
     "title": "Invoices",
@@ -1029,8 +1029,8 @@
     "loading": "Loading invoices…",
     "empty": "No invoices in this selection. New paid orders are queued automatically after setup.",
     "net": "Net",
-    "vat": "VAT 19%",
-    "gross": "Total including VAT",
+    "vat": "VAT",
+    "gross": "Total",
     "portalDone": "Portal submission recorded",
     "portalPending": "Portal submission required — email is a customer copy only",
     "validation": "Validation report",

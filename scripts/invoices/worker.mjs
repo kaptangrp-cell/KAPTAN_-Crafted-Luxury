@@ -35,9 +35,16 @@ for (let n = 0; n < 20; n++) {
   if (!row) break;
   try {
     const { order, items, paidDate, supplyDate, reference, reason } = row.source;
-    if (order.tax_data?.rate !== 19 || Number(order.discount) !== 0)
+    if (![0, 19].includes(order.tax_data?.rate) || Number(order.discount) !== 0)
       throw new Error("Unsupported tax or discount snapshot; requires review");
+    if (order.tax_data.rate === 19 && process.env.INVOICE_ALLOW_REGULAR_VAT !== "true")
+      throw new Error(
+        "Regular-VAT order requires review: Kaptan currently declares §19 exemption. Do not issue a 19% invoice automatically.",
+      );
+    if (order.tax_data.rate === 0 && order.tax_data.mode !== "kleinunternehmer")
+      throw new Error("Missing §19 tax exemption snapshot");
     const model = buildInvoice({
+      taxMode: order.tax_data.rate === 0 ? "kleinunternehmer" : "regular",
       number: row.number,
       kind: row.kind,
       issueDate: row.issue_date,

@@ -1,17 +1,17 @@
 # KAPTAN German invoices — implementation and rollout
 
-Status: implemented locally, 14 October 2026. **Not deployed. No customer invoices have been issued or emailed by this implementation.** Production requires the migrations, application deployment and an online invoice worker. Do not claim full operational GoBD compliance from software validation alone.
+Status: 14 October 2026. User reports the original database migrations deployed; a read-only check found zero invoice records and no 19%-VAT checkout drafts. **The new Kleinunternehmer correction is local and still needs deployment. No invoices have been issued or emailed by this implementation.** Production also requires the matching application release and invoice processing setup. Do not claim full operational GoBD compliance from software validation alone.
 
 ## Confirmed merchant configuration
 
-User confirmed: Zoraiz Fazal, trading as Kaptan, sole proprietor (Einzelunternehmen), Bahnhofstraße 36, 35037 Marburg, Germany; VAT ID DE464080693; kaptangrp@gmail.com; 015216164830. Regular VAT at 19% for current products and delivery. Existing catalogue prices are NET. Germany-only billing/delivery; private, business and public-authority customers.
+User confirmed: Zoraiz Fazal, trading as Kaptan, sole proprietor (Einzelunternehmen), Bahnhofstraße 36, 35037 Marburg, Germany; VAT ID DE464080693; kaptangrp@gmail.com; 015216164830. CORRECTION: the merchant subsequently confirmed Kleinunternehmer exemption under §19 UStG. No VAT is charged. Earlier confirmation of regular 19% VAT is superseded. Existing catalogue amounts become final exempt selling prices. Germany-only billing/delivery; private, business and public-authority customers.
 
 ## Delivered
 
 - Checkout buyer classification, optional company VAT ID, legal recipient name, separate billing address, authority buyer reference/Leitweg-ID, purchase order reference and portal instructions; electronic delivery consent is stored with a timestamp.
-- Stored catalogue/admin prices remain net. Public catalogue, options, search, assistant and carts use rounded VAT-inclusive unit prices. Delivery is EUR 5.99 net / EUR 7.13 gross, waived when gross goods subtotal exceeds EUR 50. Old stored carts reset once to prevent paying obsolete net prices. Existing paid orders and pending payment attempts retain their historic amounts.
+- Stored catalogue/admin amounts are final exempt selling prices. Public catalogue, options, search, assistant and carts do not add VAT. Delivery is EUR 5.99, waived when goods subtotal exceeds EUR 50. Carts from the superseded 19% release reset once. Existing paid orders and pending payment attempts retain their historic amounts.
 - Payment settlement snapshots billing, tax and order lines in the same database transaction. An immutable invoice source is queued only after verified payment; payment retries cannot duplicate the document.
-- Branded PDF using the existing logo, Inter and Playfair Display; matching UBL XRechnung 3.0 XML. Integer-cent net/tax totals, delivery line, explicit payable rounding and zero balance for paid invoices. The readable PDF includes the same tax breakdown as XML.
+- Branded PDF using the existing logo, Inter and Playfair Display; matching UBL XRechnung 3.0 XML. Exempt invoices include the §19 exemption notice, no separately charged VAT, a delivery line and zero balance for paid invoices. XML uses category E with an exemption reason, rather than zero-rated category Z. Regular-19% historical models remain supported separately. The readable PDF includes the same tax breakdown as XML.
 - Dedicated `KPT-WEB-00000001` numbering series (unique, database sequence; gaps from rolled-back/conflicting transactions are possible). Do not reuse this prefix in another invoice system. Existing invoices are not retroactively fabricated.
 - Advance-payment invoice on verified payment. Admin enters the actual tax-relevant supply date to create a final invoice that references and offsets the advance payment. A full cancellation credit is available with an explicit reason and original-invoice reference. Original records cannot be edited or deleted. Partial credits are not implemented; handle partial returns/corrections through the accountant instead of misusing full cancellation.
 - `/admin/invoices`: day/week/month/year filters using Berlin calendar dates, products from historical snapshots, document types, PDF/XML/validation downloads, CSV export, email state, retries, and authority portal submission receipts. Warehouse staff have no archive access.
@@ -27,8 +27,9 @@ Back up the database and confirm no other system uses `KPT-WEB-`. Test against s
 1. `supabase/migrations/20261014120000_billing_profiles.sql`
 2. `supabase/migrations/20261014130000_german_vat.sql`
 3. `supabase/migrations/20261014140000_invoice_archive.sql`
-4. Deploy the matching frontend/server code. The billing and tax RPCs must be installed together with the gross-price release. Do not reapply older checkout migrations afterwards.
-5. Start the worker on a trusted existing continuously running server (or a computer while powered on). Vercel's current serverless deployment does not contain Java and is not the worker host. Hosting choice is still pending.
+4. **New correction:** `supabase/migrations/20261014150000_kleinunternehmer_correction.sql`. If the first three are already applied, apply only this new correction. It changes new checkout calculations, not historical records.
+5. Deploy the matching frontend/server code. The tax correction must be released together with the exempt-price application. Do not reapply older checkout migrations afterwards.
+6. Start the worker on a trusted existing continuously running server (or a computer while powered on). Vercel's current serverless deployment does not contain Java and is not the worker host. Hosting choice is still pending.
 
 The Dockerfile at `deploy/invoices/Dockerfile` pins KoSIT 1.6.3 and the official XRechnung 3.0.2 configuration dated 2026-08-31, verifying both download hashes. Build from the repository root:
 
@@ -45,7 +46,7 @@ A retry keeps the invoice number and source. Email retries use the invoice ID as
 
 Maintain backups and retention/access controls for the original structured XML, PDF, validation reports and audit history. Document procedures for migration, corrections, worker monitoring, retention extensions/legal holds and disaster recovery with the tax adviser. The database's technical immutability is not a certified WORM archive or blanket GoBD assurance. Incoming business e-invoices need a receiving/retention process too; this release is the outbound store-invoice workflow.
 
-For every full/partial refund, separately reconcile payment-provider refunds, stock and invoice corrections. The credit-note button does not move money or inventory. This implementation only covers confirmed German 19% domestic sales. Do not enable foreign sales, exemptions, reverse charge, reduced rates or discounts without implementing and validating their tax rules.
+For every full/partial refund, separately reconcile payment-provider refunds, stock and invoice corrections. The credit-note button does not move money or inventory. Current policy covers German §19-exempt domestic sales. The worker blocks regular-VAT source orders by default for review (`INVOICE_ALLOW_REGULAR_VAT` is intentionally unset). A future regular-VAT change requires a confirmed effective date, coordinated pricing/database release and explicit issuance enablement. It must not rewrite historical exempt invoices. Store sales alone are not necessarily the merchant's full tax-relevant turnover. Do not enable foreign sales, different exemptions, reverse charge, reduced rates or discounts without implementing and validating their tax rules.
 
 ## Verification
 
@@ -61,3 +62,5 @@ Automated tests cover gross-price conversion, rounding, safe XML/CSV escaping, B
 - KoSIT configuration and usage: https://github.com/itplr-kosit/validator-configuration-xrechnung/blob/master/docs/usage.md
 - §14b UStG retention: https://www.gesetze-im-internet.de/ustg_1980/__14b.html
 - Consumer gross-price display: https://www.gesetze-im-internet.de/pangv_2022/__3.html
+
+Kleinunternehmer invoice requirements: https://www.gesetze-im-internet.de/ustdv_1980/__34a.html . Ordinary PDF invoices are permitted under this tax provision; public-sector recipient submission requirements remain separate. The existing structured workflow is retained, not legally required for every exempt B2C/B2B sale.

@@ -138,7 +138,7 @@
   "shipping": {
     "title": "Versandinformationen",
     "p1": "Wir liefern derzeit ausschließlich innerhalb Deutschlands. Aktuelle Lieferzeiten erfahren Sie auf Anfrage.",
-    "p2": "Der Versand kostet 7,13 € inkl. 19 % USt. Ab einem Warenwert von über 50 € inkl. USt. ist der Versand kostenlos.",
+    "p2": "Der Versand kostet 5,99 €. Ab einem Warenwert von über 50 € ist der Versand kostenlos. Gemäß § 19 UStG wird keine Umsatzsteuer berechnet.",
     "p3": "Internationale Lieferungen sind im Checkout noch nicht verfügbar."
   },
   "returns": {
@@ -585,7 +585,7 @@
     "nameLabel": "Name",
     "slugLabel": "Slug",
     "categoryLabel": "Kategorie",
-    "priceLabel": "Preis (EUR, netto, zzgl. 19 % USt.)",
+    "priceLabel": "Verkaufspreis (EUR, steuerbefreit nach § 19 UStG)",
     "compareAtPriceLabel": "Vergleichspreis (€)",
     "costPriceLabel": "Einkaufspreis (€) — für Gewinnberichte",
     "stockLabel": "Bestand",
@@ -768,7 +768,7 @@
     "sizeExample": "z. B. Mittel",
     "value": "Optionsname",
     "stock": "Optionsbestand (optional)",
-    "price": "Preisaufschlag (netto EUR)",
+    "price": "Preisaufschlag (EUR, steuerbefreit)",
     "activeLabel": "Aktiv — im Shop anzeigen",
     "save": "Option speichern",
     "none": "Derzeit sind keine Optionen verfügbar.",
@@ -782,7 +782,7 @@
   "catalog": {
     "colorCount": "{{count}} Farben",
     "noReviews": "Noch keine Bewertungen",
-    "delivery": "Inkl. 19 % USt. · Versand 7,13 €, ab über 50 € kostenlos",
+    "delivery": "Steuerbefreit gemäß § 19 UStG (Kleinunternehmer). · Versand 5,99 €, über 50 € kostenlos",
     "view": "Produktansicht",
     "allColors": "Alle Farben / gemeinsames Foto",
     "viewExample": "Vorne, hinten, innen, am Model…",
@@ -996,8 +996,8 @@
     "germany": "Rechnungsland: Deutschland",
     "consent": "Ich stimme dem elektronischen Rechnungsversand an die für diese Bestellung angegebene E-Mail-Adresse zu. Für einen anderen Versandweg kontaktieren Sie uns bitte vor der Bestellung.",
     "invalid": "Bitte vervollständigen Sie die Rechnungsangaben und stimmen Sie dem elektronischen Versand zu.",
-    "vatIncluded": "Enthaltene USt. (19 %)",
-    "grossNotice": "Preise inkl. 19 % USt."
+    "vatIncluded": "Steuerbefreit gemäß § 19 UStG (Kleinunternehmer).",
+    "grossNotice": "Steuerbefreit gemäß § 19 UStG (Kleinunternehmer)."
   },
   "invoices": {
     "title": "Rechnungen",
@@ -1029,8 +1029,8 @@
     "loading": "Rechnungen werden geladen…",
     "empty": "Keine Rechnungen in dieser Auswahl. Neue bezahlte Bestellungen werden nach Einrichtung automatisch vorgemerkt.",
     "net": "Netto",
-    "vat": "USt. 19 %",
-    "gross": "Gesamt inkl. USt.",
+    "vat": "USt.",
+    "gross": "Gesamt",
     "portalDone": "Portaleinreichung dokumentiert",
     "portalPending": "Portaleinreichung erforderlich — E-Mail ist nur eine Kundenkopie",
     "validation": "Prüfbericht",

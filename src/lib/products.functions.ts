@@ -1,4 +1,4 @@
-import { consumerProduct } from "./tax";
+import { consumerProduct, VAT_FACTOR } from "./tax";
 import { CatalogRequestSchema, colorVariantFilter, literalPattern } from "@/lib/catalog-filters";
 import { optionParts } from "@/lib/product-options";
 import { createServerFn } from "@tanstack/react-start";
@@ -76,13 +76,16 @@ export const getProducts = createServerFn({ method: "POST" })
     }
 
     if (typeof data.minPrice === "number") {
-      query = query.gte("price", Math.ceil((Math.round(data.minPrice * 100) - 0.5) / 1.19) / 100);
+      query = query.gte(
+        "price",
+        Math.ceil((Math.round(data.minPrice * 100) - 0.5) / VAT_FACTOR) / 100,
+      );
     }
 
     if (typeof data.maxPrice === "number") {
       query = query.lte(
         "price",
-        (Math.ceil((Math.round(data.maxPrice * 100) + 0.5) / 1.19) - 1) / 100,
+        (Math.ceil((Math.round(data.maxPrice * 100) + 0.5) / VAT_FACTOR) - 1) / 100,
       );
     }
 

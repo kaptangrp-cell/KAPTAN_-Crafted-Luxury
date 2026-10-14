@@ -65,7 +65,9 @@ export const InvoiceSchema = z.object({
   rounding: z.number().int(),
   paid: z.number().int(),
   due: z.number().int(),
-  rate: z.literal(19),
+  rate: z.union([z.literal(0), z.literal(19)]),
+  taxMode: z.enum(["kleinunternehmer", "regular"]),
+  exemptionReason: z.string().nullable(),
   reference: z
     .object({
       number: z.string(),
@@ -90,6 +92,7 @@ export function berlinDate(value: string | Date = new Date()) {
 }
 // A single immutable snapshot drives PDF, XML and reporting. Never read live catalogue prices.
 export function buildInvoice(input: {
+  taxMode: "kleinunternehmer" | "regular";
   number: string;
   kind: Invoice["kind"];
   issueDate: string;
@@ -111,12 +114,15 @@ export function buildInvoice(input: {
   reference?: Invoice["reference"];
   reason?: string | null;
 }): Invoice {
+  const exempt = input.taxMode === "kleinunternehmer";
+  const rate = exempt ? 0 : 19;
+  const factor = 1 + rate / 100;
   const lines = input.items.map((i) => ({
     productId: i.product_id,
     description: i.product_name + (i.variant_info ? ` — ${i.variant_info}` : ""),
     quantity: i.quantity,
-    netUnit: Math.round((Number(i.unit_price) / 1.19) * 1000000) / 1000000,
-    net: Math.round(cents(i.line_total) / 1.19),
+    netUnit: Math.round((Number(i.unit_price) / factor) * 1000000) / 1000000,
+    net: Math.round(cents(i.line_total) / factor),
     gross: cents(i.line_total),
   }));
   if (input.shipping > 0)
@@ -124,16 +130,16 @@ export function buildInvoice(input: {
       productId: null,
       description: "Versand / Delivery",
       quantity: 1,
-      netUnit: Math.round((input.shipping / 1.19) * 1000000) / 1000000,
-      net: Math.round(cents(input.shipping) / 1.19),
+      netUnit: Math.round((input.shipping / factor) * 1000000) / 1000000,
+      net: Math.round(cents(input.shipping) / factor),
       gross: cents(input.shipping),
     });
   const net = lines.reduce((s, l) => s + l.net, 0),
-    vat = Math.round((net * 19) / 100),
+    vat = Math.round((net * rate) / 100),
     gross = net + vat;
   const paid = cents(input.total),
     rounding = paid - gross;
-  if (Math.abs(rounding) > lines.length)
+  if (Math.abs(rounding) > (exempt ? 0 : lines.length))
     throw new Error("Order total does not reconcile with invoice lines");
   if (input.kind === "final" && (!input.supplyDate || !input.reference))
     throw new Error("Final invoice requires supply date and advance invoice");
@@ -157,7 +163,11 @@ export function buildInvoice(input: {
     rounding,
     paid: input.kind === "credit" ? 0 : paid,
     due: input.kind === "credit" ? paid : 0,
-    rate: 19,
+    rate,
+    taxMode: input.taxMode,
+    exemptionReason: exempt
+      ? "Steuerbefreiung für Kleinunternehmer gemäß § 19 UStG. Es wird keine Umsatzsteuer berechnet."
+      : null,
     reference: input.reference ?? null,
     reason: input.reason ?? null,
   });
