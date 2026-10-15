@@ -13,6 +13,7 @@ RUN mkdir -p /opt/kosit/config && \
 COPY src/lib/invoices ./src/lib/invoices
 COPY src/lib/i18n/catalog-de.json ./src/lib/i18n/catalog-de.json
 COPY scripts/invoices ./scripts/invoices
+COPY scripts/finance ./scripts/finance
 COPY public/kaptan-logo.png ./public/kaptan-logo.png
 ENV KOSIT_JAR=/opt/kosit/validator.jar KOSIT_CONFIG=/opt/kosit/config JAVA_BIN=java
 USER node

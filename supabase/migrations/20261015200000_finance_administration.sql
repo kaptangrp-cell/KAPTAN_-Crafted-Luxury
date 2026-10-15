@@ -51,7 +51,7 @@ DECLARE eid uuid;
 BEGIN
  IF NOT EXISTS(SELECT 1 FROM public.profiles WHERE id=p_actor AND role='admin') AND NOT EXISTS(SELECT 1 FROM public.finance_members WHERE user_id=p_actor AND role IN ('accountant','staff')) THEN RAISE EXCEPTION 'Forbidden'; END IF;
  IF NOT EXISTS(SELECT 1 FROM public.finance_documents WHERE id=p_document AND state='ready' AND sha256=p_hash) THEN RAISE EXCEPTION 'Original fingerprint mismatch'; END IF;
- IF length(p_engine)>100 OR length(p_result::text)>100000 THEN RAISE EXCEPTION 'Invalid extraction'; END IF;
+ IF length(p_engine)>100 OR length(p_result::text)>4200000 THEN RAISE EXCEPTION 'Invalid extraction'; END IF;
  INSERT INTO public.finance_extractions(document_id,engine,source_hash,result,created_by) VALUES(p_document,p_engine,p_hash,p_result,p_actor) ON CONFLICT(document_id,engine,source_hash) DO NOTHING RETURNING id INTO eid;
  IF eid IS NULL THEN SELECT id INTO eid FROM public.finance_extractions WHERE document_id=p_document AND engine=p_engine AND source_hash=p_hash; END IF;
  INSERT INTO public.finance_audit(actor,event,reference) VALUES(p_actor,'structured_invoice_extracted',p_document::text);
@@ -61,7 +61,7 @@ CREATE FUNCTION public.finance_administration(p_search text DEFAULT '') RETURNS 
 BEGIN
  IF public.finance_role() IS NULL THEN RAISE EXCEPTION 'Forbidden'; END IF;
  IF length(p_search)>200 THEN RAISE EXCEPTION 'Search too long'; END IF;
- RETURN jsonb_build_object('suppliers',coalesce((SELECT jsonb_agg(to_jsonb(s)) FROM (SELECT * FROM public.finance_suppliers WHERE name ILIKE '%'||p_search||'%' OR tax_id ILIKE '%'||p_search||'%' ORDER BY name,id LIMIT 100)s),'[]'::jsonb),'years',coalesce((SELECT jsonb_agg(to_jsonb(y)) FROM (SELECT extract(year FROM id)::integer year,count(*)::integer months,count(*) FILTER(WHERE closed)::integer closed FROM public.finance_periods GROUP BY 1 ORDER BY 1)y),'[]'::jsonb));
+ RETURN jsonb_build_object('suppliers',coalesce((SELECT jsonb_agg(to_jsonb(s)) FROM (SELECT * FROM public.finance_suppliers WHERE name ILIKE '%'||p_search||'%' OR tax_id ILIKE '%'||p_search||'%' ORDER BY name,id LIMIT 100)s),'[]'::jsonb),'years',coalesce((SELECT jsonb_agg(to_jsonb(y)) FROM (SELECT extract(year FROM id)::integer AS "year",count(*)::integer months,count(*) FILTER(WHERE closed)::integer closed FROM public.finance_periods GROUP BY 1 ORDER BY 1)y),'[]'::jsonb));
 END $$;
 CREATE FUNCTION public.finance_document_details(p_id uuid) RETURNS jsonb LANGUAGE plpgsql SECURITY DEFINER SET search_path=public AS $$
 BEGIN

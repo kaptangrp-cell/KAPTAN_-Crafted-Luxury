@@ -8,19 +8,27 @@ for (const signal of ["SIGTERM", "SIGINT"])
     child?.kill(signal);
   });
 while (!stopping) {
-  await new Promise((resolve) => {
-    child = spawn(process.execPath, ["scripts/invoices/worker.mjs"], { stdio: "inherit" });
-    child.on("error", () => {
-      console.error("Invoice worker could not start");
-      resolve();
+  for (const script of [
+    "scripts/invoices/worker.mjs",
+    ...(process.env.FINANCE_VALIDATION_ENABLED === "true"
+      ? ["scripts/finance/validate-incoming.mjs"]
+      : []),
+  ]) {
+    if (stopping) break;
+    await new Promise((resolve) => {
+      child = spawn(process.execPath, [script], { stdio: "inherit" });
+      child.on("error", () => {
+        console.error("Invoice worker could not start");
+        resolve();
+      });
+      child.on("exit", (code) => {
+        if (code)
+          console.error(
+            "Invoice worker exited unsuccessfully; inspect configuration and admin queue",
+          );
+        resolve();
+      });
     });
-    child.on("exit", (code) => {
-      if (code)
-        console.error(
-          "Invoice worker exited unsuccessfully; inspect configuration and admin queue",
-        );
-      resolve();
-    });
-  });
+  }
   if (!stopping) await setTimeout(60000);
 }

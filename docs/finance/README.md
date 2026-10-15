@@ -58,3 +58,9 @@ Migration and app are **not deployed by this implementation**. No real journal, 
 ## Verification
 
 Run `npm run typecheck`, `npm test`, `npm run build`, and ESLint for changed TS files. `tests/finance.test.mjs` runs isolated PostgreSQL-compatible tests: exact cent arithmetic/allocation; balanced postings; idempotency conflicts; posted/line/audit immutability; role restrictions; customer/anonymous isolation; period closure/reopening; reversal/retry and zero-net trial reconciliation. These are foundation tests, not end-to-end provider, import, tax-year or production acceptance tests.
+
+## Suppliers, incoming invoices and assets
+
+See [Phase 4](PHASE-4.md) for supplier maintenance, retention review, structured invoice extraction, the local receiving-validation queue and the internal fixed-asset register. Apply migrations through `20261015220000_finance_assets.sql` with the matching application and worker deployment. The [completion matrix](COMPLETION-MATRIX.md) separates implemented scope from outstanding work.
+
+Local verification for this increment: 64 tests passed; TypeScript, changed-file ESLint and the production build passed. No production migration or live worker acceptance was performed.

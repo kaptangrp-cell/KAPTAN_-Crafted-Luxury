@@ -1,3 +1,4 @@
+import { FinanceAssets } from "@/components/finance/Assets";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -7,6 +8,7 @@ import { toast } from "sonner";
 import { financeSnapshot, financeCommand, type FinanceCommand } from "@/lib/finance.functions";
 import { cents, euros } from "@/lib/finance/money";
 import { useAuthStore } from "@/stores/authStore";
+import { FinanceAdministration } from "@/components/finance/Administration";
 import { FinanceAutomation } from "@/components/finance/Automation";
 import { FinanceTax } from "@/components/finance/Tax";
 import { FinanceCosts } from "@/components/finance/Costs";
@@ -138,6 +140,8 @@ function Finance() {
                   ["costs", de ? "Inventar & Kosten" : "Inventory & costs"],
                   ["tax", de ? "Steuerprüfung" : "Tax review"],
                   ["automation", de ? "Automatik" : "Automation"],
+                  ["assets", de ? "Anlagen" : "Assets"],
+                  ["settings", de ? "Lieferanten & Jahre" : "Suppliers & years"],
                   ["documents", t("financeDocs.title")],
                   ["ledger", t("finance.journals")],
                   ["trial", t("finance.trialBalance")],
@@ -155,6 +159,8 @@ function Finance() {
                   </button>
                 ))}
               </nav>
+              {tab === "assets" && <FinanceAssets role={data.role} />}
+              {tab === "settings" && <FinanceAdministration role={data.role} />}
               {tab === "automation" && <FinanceAutomation role={data.role} />}
               {tab === "tax" && <FinanceTax role={data.role} />}
               {tab === "costs" && <FinanceCosts accounts={data.accounts} role={data.role} />}

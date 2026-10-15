@@ -1,3 +1,6 @@
+import { financeAdministration } from "@/lib/finance-administration.functions";
+import { DocumentTools } from "./DocumentTools";
+import type { Extraction } from "@/lib/finance/extraction";
 import { useEffect, useState, type FormEvent } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
@@ -41,6 +44,11 @@ export function FinanceDocuments({
     de = i18n.language.startsWith("de");
   const user = useAuthStore((s) => s.user?.id),
     qc = useQueryClient();
+  const [suggestion, setSuggestion] = useState<{
+    document: string;
+    value: Extraction;
+    nonce: string;
+  } | null>(null);
   const list = useServerFn(listFinanceDocuments),
     upload = useServerFn(uploadFinanceDocument),
     read = useServerFn(readFinanceDocument),
@@ -236,13 +244,35 @@ export function FinanceDocuments({
                     )}
                   </pre>
                 )}
+                <DocumentTools
+                  key={preview.data.document.id}
+                  id={preview.data.document.id}
+                  mime={preview.data.document.mime}
+                  role={role}
+                  apply={(value) => {
+                    setReview(null);
+                    setSuggestion({
+                      document: preview.data.document.id,
+                      value,
+                      nonce: crypto.randomUUID(),
+                    });
+                  }}
+                />
                 <p className="break-all text-xs text-neutral-500">
                   SHA-256: {preview.data.document.sha256}
                 </p>
               </div>
               {role !== "auditor" && !payment && (
                 <ExpenseForm
-                  key={review?.id ?? preview.data.document.id}
+                  key={
+                    review?.id ??
+                    (suggestion?.document === preview.data.document.id
+                      ? suggestion.nonce
+                      : preview.data.document.id)
+                  }
+                  suggestion={
+                    suggestion?.document === preview.data.document.id ? suggestion.value : null
+                  }
                   document={preview.data.document}
                   previous={query.data?.expenses.find((e) => e.id === review?.id) ?? review}
                   canPost={canPost}
@@ -369,28 +399,39 @@ export function FinanceDocuments({
   );
 }
 function ExpenseForm({
+  suggestion,
   canPost,
   document,
   previous,
   busy,
   submit,
 }: {
+  suggestion: Extraction | null;
   canPost: boolean;
   document: FinanceDocument;
   previous: FinanceExpense | null;
   busy: boolean;
   submit: (data: ExpenseCommand) => Promise<boolean>;
 }) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const readSuppliers = useServerFn(financeAdministration);
+  const userId = useAuthStore((s) => s.user?.id);
+  const suppliers = useQuery({
+    queryKey: ["finance-supplier-options", userId],
+    queryFn: () => readSuppliers({ data: { search: "" } }),
+    enabled: !!userId,
+  });
   const [id, setId] = useState(() => crypto.randomUUID());
-  const [supplier, setSupplier] = useState(previous?.supplier ?? ""),
-    [number, setNumber] = useState(previous?.invoice_number ?? ""),
-    [date, setDate] = useState(previous?.invoice_date ?? today()),
+  const [supplier, setSupplier] = useState(previous?.supplier ?? suggestion?.supplier ?? ""),
+    [number, setNumber] = useState(previous?.invoice_number ?? suggestion?.number ?? ""),
+    [date, setDate] = useState(previous?.invoice_date ?? suggestion?.date ?? today()),
     [description, setDescription] = useState(previous?.description ?? ""),
     [gross, setGross] = useState(
       previous
         ? `${BigInt(previous.gross) / 100n}.${(BigInt(previous.gross) % 100n).toString().padStart(2, "0")}`
-        : "",
+        : suggestion?.gross
+          ? `${BigInt(suggestion.gross) / 100n}.${(BigInt(suggestion.gross) % 100n).toString().padStart(2, "0")}`
+          : "",
     ),
     [confirmed, setConfirmed] = useState(false);
   let unchanged = false;
@@ -434,6 +475,28 @@ function ExpenseForm({
     <form className="space-y-4 rounded-xl border border-yellow-400/25 p-5" onSubmit={save}>
       <h3 className="text-xl">{t("financeDocs.expenseReview")}</h3>
       <p className="text-sm text-neutral-400">{t("financeDocs.manualReview")}</p>
+      <label className="block">
+        {i18n.language.startsWith("de")
+          ? "Gespeicherter Lieferant (optional)"
+          : "Saved supplier (optional)"}
+        <select
+          className={field}
+          value=""
+          onChange={(e) => {
+            const s = suppliers.data?.suppliers.find((s) => s.id === e.target.value);
+            if (s) setSupplier(s.name);
+          }}
+        >
+          <option value="">—</option>
+          {suppliers.data?.suppliers
+            .filter((s) => s.active)
+            .map((s) => (
+              <option key={s.id} value={s.id}>
+                {s.name} · {s.country} · {s.tax_id}
+              </option>
+            ))}
+        </select>
+      </label>
       {[
         ["supplier", supplier, setSupplier],
         ["invoiceNumber", number, setNumber],
