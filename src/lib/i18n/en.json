@@ -1051,7 +1051,7 @@
   "finance": {
     "saved": "Saved",
     "internalAccountsMappingPending": "Internal accounts — mapping pending",
-    "foundationManualLedgerAndAccessControlsStoreSynchronizationDocumentUploadAndTaxReportsAreNotEnabledY": "In development: ledger, original documents and reviewed operating expenses. Automatic store accounting, complete financial statements and tax reports are not enabled yet.",
+    "foundationManualLedgerAndAccessControlsStoreSynchronizationDocumentUploadAndTaxReportsAreNotEnabledY": "Ledger, documents, banking, inventory costing and asset tools are available after database setup. Store automation must be enabled by the owner. Tax workpapers use internal accounts and are not submitted tax returns.",
     "from": "From",
     "to": "To",
     "loading": "Loading…",

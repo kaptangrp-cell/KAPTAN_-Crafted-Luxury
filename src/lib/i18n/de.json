@@ -1051,7 +1051,7 @@
   "finance": {
     "saved": "Gespeichert",
     "internalAccountsMappingPending": "Interner Kontenplan — Zuordnung ausstehend",
-    "foundationManualLedgerAndAccessControlsStoreSynchronizationDocumentUploadAndTaxReportsAreNotEnabledY": "Ausbauphase: Hauptbuch, Belegarchiv und geprüfte Betriebsausgaben. Automatische Shop-Buchungen, vollständige Finanzberichte und Steuerberichte sind noch nicht aktiviert.",
+    "foundationManualLedgerAndAccessControlsStoreSynchronizationDocumentUploadAndTaxReportsAreNotEnabledY": "Hauptbuch, Belege, Bankabgleich, Bestandsbewertung und Anlagenverwaltung stehen nach der Datenbankeinrichtung bereit. Shop-Automatisierung muss vom Inhaber aktiviert werden. Steuer-Arbeitsunterlagen verwenden interne Konten und sind keine eingereichten Steuererklärungen.",
     "from": "Von",
     "to": "Bis",
     "loading": "Wird geladen…",
