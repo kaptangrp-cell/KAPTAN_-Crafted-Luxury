@@ -7,6 +7,9 @@ import { toast } from "sonner";
 import { financeSnapshot, financeCommand, type FinanceCommand } from "@/lib/finance.functions";
 import { cents, euros } from "@/lib/finance/money";
 import { useAuthStore } from "@/stores/authStore";
+import { FinanceSales } from "@/components/finance/Sales";
+import { FinanceReports } from "@/components/finance/Reports";
+import { FinanceDocuments } from "@/components/finance/Documents";
 import { LanguageSwitcher } from "@/components/layout/LanguageSwitcher";
 
 export const Route = createFileRoute("/_authenticated/finance")({
@@ -87,28 +90,30 @@ function Finance() {
             "finance.foundationManualLedgerAndAccessControlsStoreSynchronizationDocumentUploadAndTaxReportsAreNotEnabledY",
           )}
         </p>
-        <div className="flex flex-wrap gap-4">
-          <label>
-            {t("finance.from")}
-            <input
-              aria-label={t("finance.from")}
-              type="date"
-              className={field}
-              value={from}
-              onChange={(e) => setFrom(e.target.value)}
-            />
-          </label>
-          <label>
-            {t("finance.to")}
-            <input
-              aria-label={t("finance.to")}
-              type="date"
-              className={field}
-              value={to}
-              onChange={(e) => setTo(e.target.value)}
-            />
-          </label>
-        </div>
+        {["ledger", "trial", "overview"].includes(tab) && (
+          <div className="flex flex-wrap gap-4">
+            <label>
+              {t("finance.from")}
+              <input
+                aria-label={t("finance.from")}
+                type="date"
+                className={field}
+                value={from}
+                onChange={(e) => setFrom(e.target.value)}
+              />
+            </label>
+            <label>
+              {t("finance.to")}
+              <input
+                aria-label={t("finance.to")}
+                type="date"
+                className={field}
+                value={to}
+                onChange={(e) => setTo(e.target.value)}
+              />
+            </label>
+          </div>
+        )}
         {query.isPending ? (
           <p role="status">{t("finance.loading")}</p>
         ) : query.error ? (
@@ -123,6 +128,9 @@ function Finance() {
             <>
               <nav className="flex flex-wrap gap-2" aria-label="Finance">
                 {[
+                  ["overview", t("financeReports.title")],
+                  ["sales", t("financeSales.title")],
+                  ["documents", t("financeDocs.title")],
                   ["ledger", t("finance.journals")],
                   ["trial", t("finance.trialBalance")],
                   ["periods", t("finance.periods")],
@@ -139,6 +147,9 @@ function Finance() {
                   </button>
                 ))}
               </nav>
+              {tab === "sales" && <FinanceSales role={data.role} />}
+              {tab === "overview" && <FinanceReports from={from} to={to} />}
+              {tab === "documents" && <FinanceDocuments role={data.role} />}
               {tab === "ledger" && (
                 <div className="grid gap-8 lg:grid-cols-[1fr_380px]">
                   <section className="space-y-3">

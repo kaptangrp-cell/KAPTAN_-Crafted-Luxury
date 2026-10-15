@@ -141,3 +141,26 @@ export const financeCommand = createServerFn({ method: "POST" })
     if (result.error) throw new Error(result.error.message);
     return { id: typeof result.data === "string" ? result.data : null };
   });
+
+export const financeReport = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((x: unknown) =>
+    z
+      .object({ from: date, to: date })
+      .refine((v) => v.from <= v.to)
+      .parse(x),
+  )
+  .handler(async ({ context, data }) => {
+    const r = await (context.supabase as SupabaseClient).rpc("finance_report", {
+      p_from: data.from,
+      p_to: data.to,
+    });
+    if (r.error)
+      throw new Error(
+        r.error.code === "PGRST202"
+          ? "Apply the finance reports migration before use."
+          : r.error.message,
+      );
+    const { ReportSchema } = await import("./finance/reports");
+    return ReportSchema.parse(r.data);
+  });
