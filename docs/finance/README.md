@@ -2,7 +2,7 @@
 
 ## Current delivery (15 October 2026)
 
-The foundation and the next incremental delivery are implemented locally; this is not yet the complete ERP requested in the brief. See [PHASE-2.md](PHASE-2.md) for documents, expenses, financial reports, sales inbox, deployment order and verification gaps. The architecture and posting contract are in [ARCHITECTURE.md](ARCHITECTURE.md).
+The foundation and subsequent increments are implemented locally; this is not yet the complete ERP requested in the brief. See [PHASE-2.md](PHASE-2.md) for documents, expenses, financial reports, sales inbox, deployment order and verification gaps. The architecture and posting contract are in [ARCHITECTURE.md](ARCHITECTURE.md).
 
 Implemented locally:
 - Integrated `/finance` workspace, linked from Admin, English/German, responsive layout.
@@ -17,7 +17,9 @@ Added since the foundation: private document archive with original previews, ver
 
 Banking increment: [BANKING.md](BANKING.md) documents Revolut/PayPal CSV presets, private originals, exact balance checks, reviewed matching and separate bank ledger accounts. This increment is local and not deployed.
 
-Still outstanding: structured invoice extraction/validation, automated full sales lifecycle postings, supplier master data, advanced bank matching and import-cost processing, historical stock valuation, complete statements, EÜR schedules/threshold engine, tax submissions, advanced exports and forecasting. Existing invoice worker deployment limitations remain. Nothing posts historical orders automatically.
+Additional local delivery: [PHASE-3.md](PHASE-3.md) covers QR unit costing/import allocation, sales completion/refund payments, draft tax reviews, accountant exports and owner-controlled future-event automation. [COMPLETION-MATRIX.md](COMPLETION-MATRIX.md) tracks the original brief without implying the full ERP is complete.
+
+Still outstanding: structured invoice extraction/validation, regular-VAT/partial-credit/provider lifecycle integration, supplier master data, advanced bank matching, cost corrections and non-QR valuation, complete statements, official EÜR schedules and special tax rules, tax submissions, validated export mappings and forecasting. Existing invoice worker deployment limitations remain. Nothing posts historical orders automatically.
 
 ## Deployment
 

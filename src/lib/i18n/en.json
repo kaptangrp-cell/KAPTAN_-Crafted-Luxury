@@ -1176,14 +1176,14 @@
   },
   "financeSales": {
     "title": "Store accounting inbox",
-    "scope": "Newly issued shop invoices are automatically collected for review. Import records verified §19 EUR advances as provider clearing against customer advances, not revenue yet. No EÜR classification or bank settlement. Unpaid orders are not posted.",
+    "scope": "Issued shop invoices are automatically collected for review. §19 EUR advances, final invoices and full invoice credits are linked. Finals recognize revenue without a second payment; credits create a refund obligation. Record actual refunds separately with evidence.",
     "rescan": "Collect existing issued invoices for review",
     "empty": "No invoice events yet. The invoice worker must have issued invoices.",
     "source": "Order",
     "pending": "Review required",
     "journal": "Journal ID",
-    "confirm": "I reviewed the invoice, payment and date. This is a real customer payment, not a test order, and has not been posted manually.",
-    "import": "Import reviewed advance",
-    "manual": "Final invoices and credits still need separate accounting review. Do not import them again as payments."
+    "confirm": "I checked the original, referenced document, payment or supply and date. This is not a test transaction and is not already posted manually.",
+    "import": "Post reviewed event",
+    "manual": "Other tax cases and partial credits require separate review."
   }
 }

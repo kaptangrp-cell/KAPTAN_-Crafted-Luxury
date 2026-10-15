@@ -1,3 +1,7 @@
+import { useState } from "react";
+import { toast } from "sonner";
+import { financeExport } from "@/lib/finance-export.functions";
+import { journalCsv, accountantWorkbook } from "@/lib/finance/exports";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useTranslation } from "react-i18next";
@@ -9,6 +13,8 @@ export function FinanceReports({ from, to }: { from: string; to: string }) {
   const { t, i18n } = useTranslation(),
     de = i18n.language.startsWith("de"),
     user = useAuthStore((s) => s.user?.id);
+  const exporter = useServerFn(financeExport),
+    [exporting, setExporting] = useState(false);
   const read = useServerFn(financeReport),
     query = useQuery({
       queryKey: ["finance", "report", user, from, to],
@@ -30,8 +36,40 @@ export function FinanceReports({ from, to }: { from: string; to: string }) {
     a.click();
     setTimeout(() => URL.revokeObjectURL(url), 1000);
   }
+  async function accountantExport(format: "csv" | "xlsx" | "json") {
+    setExporting(true);
+    try {
+      const result = await exporter({ data: { from, to } });
+      const content =
+        format === "xlsx"
+          ? await accountantWorkbook(result)
+          : format === "csv"
+            ? journalCsv(result)
+            : JSON.stringify(result, null, 2);
+      const url = URL.createObjectURL(
+        new Blob([content as BlobPart], {
+          type:
+            format === "xlsx"
+              ? "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+              : format === "csv"
+                ? "text/csv;charset=utf-8"
+                : "application/json",
+        }),
+      );
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `Kaptan-accountant-${from}-${to}.${format}`;
+      a.click();
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+    } catch (e) {
+      toast.error(String(e));
+    } finally {
+      setExporting(false);
+    }
+  }
   return (
-    <section className="space-y-6">
+    <section className="finance-report space-y-6">
+      <style>{`@media print { .finance-workspace, .finance-workspace * { background: white !important; color: black !important; box-shadow: none !important; } .finance-workspace nav, .finance-workspace button, .finance-workspace input, .finance-workspace label { display: none !important; } .finance-workspace { padding: 0 !important; } .finance-report table { font-size: 9pt; } .finance-report tr { break-inside: avoid; } .finance-report thead { display: table-header-group; } .finance-report .overflow-x-auto { overflow: visible !important; } }`}</style>
       <div className="flex flex-wrap justify-between gap-4">
         <h2 className="text-2xl">{t("financeReports.title")}</h2>
         <button
@@ -41,7 +79,29 @@ export function FinanceReports({ from, to }: { from: string; to: string }) {
           {t("financeReports.export")}
         </button>
       </div>
+      <div className="flex flex-wrap gap-3">
+        {(["csv", "xlsx", "json"] as const).map((format) => (
+          <button
+            key={format}
+            disabled={exporting}
+            className="rounded border border-yellow-400/40 px-4 py-2 text-yellow-300 disabled:opacity-40"
+            onClick={() => accountantExport(format)}
+          >
+            {de ? "Buchungsdaten" : "Journal data"} {format.toUpperCase()}
+          </button>
+        ))}
+        <button
+          className="rounded border border-yellow-400/40 px-4 py-2 text-yellow-300"
+          onClick={() => window.print()}
+        >
+          {de ? "Drucken / Als PDF speichern" : "Print / Save as PDF"}
+        </button>
+      </div>
       <p className="max-w-4xl text-sm text-neutral-400">{t("financeReports.provisional")}</p>
+      <p>
+        {from} – {to} · EUR ·{" "}
+        {de ? "Interne, nicht amtliche Auswertung" : "Internal, non-statutory report"}
+      </p>
       <p>
         {data.postedCount} {t("financeReports.posted")} · {data.draftCount}{" "}
         {t("financeReports.drafts")}

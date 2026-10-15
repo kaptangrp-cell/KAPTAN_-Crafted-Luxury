@@ -31,6 +31,7 @@ export const financeSalesList = createServerFn({ method: "POST" })
           rounding: z.string().nullable(),
           currency: z.string().nullable(),
           tax_mode: z.string().nullable(),
+          refunded: z.string().regex(/^\d+$/).default("0"),
         }),
       )
       .parse(r.data);
@@ -56,7 +57,7 @@ export const financeSalesAction = createServerFn({ method: "POST" })
       if (r.error) throw new Error(r.error.message);
       return { error: null };
     }
-    const r = await client.rpc("finance_sales_import", { p_id: data.id });
+    const r = await client.rpc("finance_sales_complete", { p_id: data.id });
     if (r.error) throw new Error(r.error.message);
     return z.object({ error: z.string().nullable() }).parse(r.data);
   });
@@ -70,4 +71,34 @@ export const financeSalesOriginal = createServerFn({ method: "POST" })
     });
     if (r.error) throw new Error(r.error.message);
     return z.object({ number: z.string(), pdf: z.string() }).parse(r.data);
+  });
+
+export const financeRefundPay = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((x: unknown) =>
+    z
+      .object({
+        id: z.string().uuid(),
+        event: z.string().uuid(),
+        document: z.string().uuid(),
+        reference: z.string().trim().min(5).max(200),
+        date: z.string().date(),
+        amount: z.string().regex(/^[1-9]\d{0,12}$/),
+        account: z.string().min(1).max(40),
+        confirmed: z.literal(true),
+      })
+      .parse(x),
+  )
+  .handler(async ({ context, data }) => {
+    const r = await (context.supabase as SupabaseClient).rpc("finance_refund_pay", {
+      p_id: data.id,
+      p_event: data.event,
+      p_document: data.document,
+      p_reference: data.reference,
+      p_date: data.date,
+      p_amount: data.amount,
+      p_account: data.account,
+    });
+    if (r.error) throw new Error(r.error.message);
+    return { ok: true };
   });

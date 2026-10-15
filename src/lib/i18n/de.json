@@ -1176,14 +1176,14 @@
   },
   "financeSales": {
     "title": "Shop-Buchungseingang",
-    "scope": "Neu ausgestellte Shop-Rechnungen werden automatisch zur Prüfung erfasst. Der Import bucht bestätigte §19-Anzahlungen in EUR als Zahlungsdienstleister-Guthaben gegen erhaltene Anzahlungen, noch nicht als Erlös. Keine EÜR-Zuordnung oder Bankgutschrift. Unbezahlte Bestellungen werden nicht gebucht.",
+    "scope": "Ausgestellte Shop-Rechnungen werden automatisch zur Prüfung erfasst. §19-EUR-Anzahlungen, Schlussrechnungen und vollständige Rechnungskorrekturen werden miteinander verknüpft. Schlussrechnungen buchen Erlöse ohne zweite Zahlung; Gutschriften erzeugen eine Erstattungsverbindlichkeit. Tatsächliche Erstattungen separat mit Beleg erfassen.",
     "rescan": "Vorhandene ausgestellte Rechnungen zur Prüfung laden",
     "empty": "Noch keine Rechnungseingänge. Der Rechnungsdienst muss Rechnungen ausgestellt haben.",
     "source": "Bestellung",
     "pending": "Prüfung erforderlich",
     "journal": "Buchungs-ID",
-    "confirm": "Ich habe Rechnung, Zahlung und Datum geprüft. Es ist eine echte Kundenzahlung, keine Testbestellung. Sie wurde noch nicht manuell gebucht.",
-    "import": "Geprüfte Anzahlung importieren",
-    "manual": "Schlussrechnungen und Gutschriften benötigen noch eine gesonderte Buchungsprüfung. Nicht erneut als Zahlung importieren."
+    "confirm": "Ich habe Original, Vorgängerbeleg, Zahlung bzw. Leistung und Datum geprüft. Kein Testvorgang, noch nicht manuell gebucht.",
+    "import": "Geprüften Vorgang buchen",
+    "manual": "Abweichende Steuerfälle und Teilgutschriften benötigen eine gesonderte Prüfung."
   }
 }

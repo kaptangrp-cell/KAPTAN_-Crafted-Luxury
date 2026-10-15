@@ -7,6 +7,9 @@ import { toast } from "sonner";
 import { financeSnapshot, financeCommand, type FinanceCommand } from "@/lib/finance.functions";
 import { cents, euros } from "@/lib/finance/money";
 import { useAuthStore } from "@/stores/authStore";
+import { FinanceAutomation } from "@/components/finance/Automation";
+import { FinanceTax } from "@/components/finance/Tax";
+import { FinanceCosts } from "@/components/finance/Costs";
 import { FinanceBanking } from "@/components/finance/Banking";
 import { FinanceSales } from "@/components/finance/Sales";
 import { FinanceReports } from "@/components/finance/Reports";
@@ -72,7 +75,7 @@ function Finance() {
   }
   const canPost = data?.role === "owner" || data?.role === "accountant";
   return (
-    <main className="min-h-screen bg-black px-4 py-8 text-white md:px-10">
+    <main className="finance-workspace min-h-screen bg-black px-4 py-8 text-white md:px-10">
       <div className="mx-auto max-w-7xl space-y-7">
         <header className="flex flex-wrap items-center justify-between gap-4 border-b border-yellow-400/25 pb-6">
           <div>
@@ -131,7 +134,10 @@ function Finance() {
                 {[
                   ["overview", t("financeReports.title")],
                   ["sales", t("financeSales.title")],
-                  ["banking", de ? "Bank & PayPal" : "Bank & PayPal"],
+                  ["banking", "Bank & PayPal"],
+                  ["costs", de ? "Inventar & Kosten" : "Inventory & costs"],
+                  ["tax", de ? "Steuerprüfung" : "Tax review"],
+                  ["automation", de ? "Automatik" : "Automation"],
                   ["documents", t("financeDocs.title")],
                   ["ledger", t("finance.journals")],
                   ["trial", t("finance.trialBalance")],
@@ -149,8 +155,11 @@ function Finance() {
                   </button>
                 ))}
               </nav>
+              {tab === "automation" && <FinanceAutomation role={data.role} />}
+              {tab === "tax" && <FinanceTax role={data.role} />}
+              {tab === "costs" && <FinanceCosts accounts={data.accounts} role={data.role} />}
               {tab === "banking" && <FinanceBanking role={data.role} />}
-              {tab === "sales" && <FinanceSales role={data.role} />}
+              {tab === "sales" && <FinanceSales accounts={data.accounts} role={data.role} />}
               {tab === "overview" && <FinanceReports from={from} to={to} />}
               {tab === "documents" && (
                 <FinanceDocuments accounts={data.accounts} role={data.role} />
