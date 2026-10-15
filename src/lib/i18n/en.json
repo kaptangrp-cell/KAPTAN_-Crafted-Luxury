@@ -1102,7 +1102,7 @@
     "title": "Documents & expenses",
     "scope": "Preserve and review original evidence. The expense workflow currently supports ordinary domestic operating expenses in EUR with non-deductible input VAT. Inventory, fixed assets, imports and reverse charge need separate workflows.",
     "drop": "Drop files here or choose files",
-    "fileLimit": "PDF, PNG, JPEG or UTF-8 XML. Maximum 3 MB per file.",
+    "fileLimit": "PDF, PNG, JPEG, UTF-8 XML or CSV. Maximum 3 MB per file.",
     "readFailed": "Could not read file",
     "duplicate": "Already preserved — no duplicate created",
     "uploaded": "Original preserved",

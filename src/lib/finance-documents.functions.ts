@@ -56,7 +56,7 @@ export const uploadFinanceDocument = createServerFn({ method: "POST" })
     if (role.error || !["owner", "accountant", "staff"].includes(role.data))
       throw new Error("Forbidden");
     const { inspectDocument } = await import("./finance/documents.server");
-    const file = inspectDocument(data.base64);
+    const file = inspectDocument(data.base64, data.name.toLowerCase().endsWith(".csv"));
     const reserved = await client.rpc("finance_document_reserve", {
       p_hash: file.hash,
       p_name: Array.from(data.name, (c) =>
@@ -81,6 +81,7 @@ export const uploadFinanceDocument = createServerFn({ method: "POST" })
         throw new Error("Original upload failed. Please retry the same file.");
       const existing = inspectDocument(
         Buffer.from(await old.data.arrayBuffer()).toString("base64"),
+        file.mime === "text/csv",
       );
       if (existing.hash !== file.hash) throw new Error("Stored original fingerprint mismatch");
     }
@@ -106,7 +107,7 @@ export const readFinanceDocument = createServerFn({ method: "POST" })
     if (file.error || !file.data) throw new Error("Original unavailable; contact the owner");
     const { inspectDocument } = await import("./finance/documents.server");
     const base64 = Buffer.from(await file.data.arrayBuffer()).toString("base64");
-    if (inspectDocument(base64).hash !== doc.sha256)
+    if (inspectDocument(base64, doc.mime === "text/csv").hash !== doc.sha256)
       throw new Error("Original fingerprint mismatch");
     return { document: doc, base64 };
   });
@@ -135,7 +136,7 @@ const Command = z.discriminatedUnion("action", [
     document: z.string().uuid(),
     date: z.string().date(),
     amount,
-    account: z.enum(["BANK", "CASH"]),
+    account: z.string().min(1).max(40),
     confirmed: z.literal(true),
   }),
 ]);

@@ -9,6 +9,7 @@ const minor = z
   .refine((v) => BigInt(v) <= 9000000000000n);
 const Account = z.object({
   code: z.string(),
+  cash_kind: z.enum(["bank", "cash"]).nullable().optional(),
   name_de: z.string(),
   name_en: z.string(),
   kind: z.enum(["asset", "liability", "equity", "income", "expense"]),

@@ -24,7 +24,19 @@ function today() {
     day: "2-digit",
   }).format(new Date());
 }
-export function FinanceDocuments({ role }: { role: "owner" | "accountant" | "staff" | "auditor" }) {
+type CashAccount = {
+  code: string;
+  name_de: string;
+  name_en: string;
+  cash_kind?: "bank" | "cash" | null;
+};
+export function FinanceDocuments({
+  role,
+  accounts,
+}: {
+  accounts: CashAccount[];
+  role: "owner" | "accountant" | "staff" | "auditor";
+}) {
   const { t, i18n } = useTranslation(),
     de = i18n.language.startsWith("de");
   const user = useAuthStore((s) => s.user?.id),
@@ -131,7 +143,7 @@ export function FinanceDocuments({ role }: { role: "owner" | "accountant" | "sta
               className="mt-4 block w-full text-sm"
               type="file"
               multiple
-              accept=".pdf,.png,.jpg,.jpeg,.xml"
+              accept=".pdf,.png,.jpg,.jpeg,.xml,.csv"
               disabled={busy}
               onChange={(e) => {
                 if (e.target.files) void files(e.target.files);
@@ -242,6 +254,7 @@ export function FinanceDocuments({ role }: { role: "owner" | "accountant" | "sta
           )}
           {payment && (
             <PaymentForm
+              accounts={accounts}
               key={payment.id}
               expense={payment}
               documents={query.data?.documents.filter((d) => d.state === "ready") ?? []}
@@ -486,11 +499,13 @@ function ExpenseForm({
   );
 }
 function PaymentForm({
+  accounts,
   expense,
   documents,
   busy,
   submit,
 }: {
+  accounts: CashAccount[];
   expense: FinanceExpense;
   documents: FinanceDocument[];
   busy: boolean;
@@ -501,7 +516,7 @@ function PaymentForm({
     [document, setDocument] = useState(""),
     [date, setDate] = useState(today()),
     [amount, setAmount] = useState(""),
-    [account, setAccount] = useState<"BANK" | "CASH">("BANK"),
+    [account, setAccount] = useState("BANK"),
     [confirmed, setConfirmed] = useState(false);
   return (
     <form
@@ -571,8 +586,13 @@ function PaymentForm({
           value={account}
           onChange={(e) => setAccount(e.target.value as typeof account)}
         >
-          <option value="BANK">{t("financeDocs.bank")}</option>
-          <option value="CASH">{t("financeDocs.cash")}</option>
+          {accounts
+            .filter((a) => a.cash_kind || ["BANK", "CASH"].includes(a.code))
+            .map((a) => (
+              <option key={a.code} value={a.code}>
+                {a.name_de}
+              </option>
+            ))}
         </select>
       </label>
       <label className="flex gap-3 text-sm">

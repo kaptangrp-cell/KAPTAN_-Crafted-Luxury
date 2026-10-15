@@ -9,6 +9,7 @@ export const ReportSchema = z.object({
   accounts: z.array(
     z.object({
       code: z.string(),
+      cash_kind: z.enum(["bank", "cash"]).nullable().optional(),
       name_de: z.string(),
       name_en: z.string(),
       kind: z.enum(["asset", "liability", "equity", "income", "expense"]),
@@ -35,7 +36,7 @@ export function summarizeReport(report: FinanceReport) {
     equity = -sum("equity", "closing") - sum("income", "closing") - sum("expense", "closing");
   const cash = (key: "opening" | "closing") =>
     report.accounts
-      .filter((a) => ["BANK", "CASH"].includes(a.code))
+      .filter((a) => a.cash_kind != null || ["BANK", "CASH"].includes(a.code))
       .reduce((n, a) => n + BigInt(a[key]), 0n);
   const get = (code: string) => report.accounts.find((a) => a.code === code)?.closing ?? "0";
   return {
@@ -54,7 +55,10 @@ export function summarizeReport(report: FinanceReport) {
       BigInt(report.cash.inflow) +
       BigInt(report.cash.outflow)
     ).toString(),
-    bank: get("BANK"),
+    bank: report.accounts
+      .filter((a) => a.cash_kind === "bank" || a.code === "BANK")
+      .reduce((n, a) => n + BigInt(a.closing), 0n)
+      .toString(),
     inventory: get("STOCK"),
     receivables: get("AR"),
     payables: (-BigInt(get("AP"))).toString(),

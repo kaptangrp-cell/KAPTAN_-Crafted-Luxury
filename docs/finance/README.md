@@ -15,7 +15,9 @@ Implemented locally:
 
 Added since the foundation: private document archive with original previews, versioned expense review and posting, evidence-linked partial payments, ledger financial overview and CSV export, and an automatic issued-invoice inbox with reviewed advance imports.
 
-Still outstanding: structured invoice extraction/validation, automated full sales lifecycle postings, supplier master data, bank/import processing, historical stock valuation, complete statements, EÜR schedules/threshold engine, tax submissions, advanced exports and forecasting. Existing invoice worker deployment limitations remain. Nothing posts historical orders automatically.
+Banking increment: [BANKING.md](BANKING.md) documents Revolut/PayPal CSV presets, private originals, exact balance checks, reviewed matching and separate bank ledger accounts. This increment is local and not deployed.
+
+Still outstanding: structured invoice extraction/validation, automated full sales lifecycle postings, supplier master data, advanced bank matching and import-cost processing, historical stock valuation, complete statements, EÜR schedules/threshold engine, tax submissions, advanced exports and forecasting. Existing invoice worker deployment limitations remain. Nothing posts historical orders automatically.
 
 ## Deployment
 

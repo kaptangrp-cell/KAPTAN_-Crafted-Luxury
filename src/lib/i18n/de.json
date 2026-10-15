@@ -1102,7 +1102,7 @@
     "title": "Belege & Ausgaben",
     "scope": "Originalbelege sicher aufbewahren und prüfen. Der Ausgabenablauf unterstützt derzeit gewöhnliche inländische Betriebsausgaben in EUR mit nicht abziehbarer Vorsteuer. Waren, Anlagegüter, Importe und Reverse Charge benötigen einen gesonderten Ablauf.",
     "drop": "Dateien hier ablegen oder auswählen",
-    "fileLimit": "PDF, PNG, JPEG oder UTF-8 XML. Maximal 3 MB je Datei.",
+    "fileLimit": "PDF, PNG, JPEG, UTF-8 XML oder CSV. Maximal 3 MB je Datei.",
     "readFailed": "Datei konnte nicht gelesen werden",
     "duplicate": "Bereits archiviert — kein Duplikat erstellt",
     "uploaded": "Original gespeichert",

@@ -7,6 +7,7 @@ import { toast } from "sonner";
 import { financeSnapshot, financeCommand, type FinanceCommand } from "@/lib/finance.functions";
 import { cents, euros } from "@/lib/finance/money";
 import { useAuthStore } from "@/stores/authStore";
+import { FinanceBanking } from "@/components/finance/Banking";
 import { FinanceSales } from "@/components/finance/Sales";
 import { FinanceReports } from "@/components/finance/Reports";
 import { FinanceDocuments } from "@/components/finance/Documents";
@@ -130,6 +131,7 @@ function Finance() {
                 {[
                   ["overview", t("financeReports.title")],
                   ["sales", t("financeSales.title")],
+                  ["banking", de ? "Bank & PayPal" : "Bank & PayPal"],
                   ["documents", t("financeDocs.title")],
                   ["ledger", t("finance.journals")],
                   ["trial", t("finance.trialBalance")],
@@ -147,9 +149,12 @@ function Finance() {
                   </button>
                 ))}
               </nav>
+              {tab === "banking" && <FinanceBanking role={data.role} />}
               {tab === "sales" && <FinanceSales role={data.role} />}
               {tab === "overview" && <FinanceReports from={from} to={to} />}
-              {tab === "documents" && <FinanceDocuments role={data.role} />}
+              {tab === "documents" && (
+                <FinanceDocuments accounts={data.accounts} role={data.role} />
+              )}
               {tab === "ledger" && (
                 <div className="grid gap-8 lg:grid-cols-[1fr_380px]">
                   <section className="space-y-3">
