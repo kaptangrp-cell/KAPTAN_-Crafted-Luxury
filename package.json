@@ -16,6 +16,8 @@
     "finance:check-deployment": "node --env-file=.env scripts/finance/check-deployment.mjs",
     "validate:release": "node scripts/validate-release.mjs",
     "invoices:worker": "node --experimental-strip-types scripts/invoices/worker.mjs",
+    "invoices:package": "node scripts/invoices/build-serverless.mjs --prepare",
+    "invoices:check-worker": "node --env-file=.env scripts/invoices/check-serverless.mjs",
     "invoices:sample": "node --experimental-strip-types scripts/invoices/sample.mjs"
   },
   "dependencies": {
@@ -101,6 +103,7 @@
     "@types/react": "^19.2.0",
     "@types/react-dom": "^19.2.0",
     "@vitejs/plugin-react": "^5.0.4",
+    "esbuild": "^0.27.7",
     "eslint": "^9.32.0",
     "eslint-config-prettier": "^10.1.1",
     "eslint-plugin-prettier": "^5.2.6",

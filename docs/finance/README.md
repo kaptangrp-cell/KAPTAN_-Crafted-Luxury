@@ -1,6 +1,10 @@
 # KAPTAN Finance — implementation status
 
-## Current delivery (15 October 2026)
+## Current delivery (16 October 2026)
+
+See [production verification](DEPLOYMENT-2026-10-16.md). This record supersedes historical deployment-status notes below. All 13 finance migrations and the matching application are deployed; admin read screens load successfully. Live worker and full workflow acceptance remain pending.
+
+The [serverless worker adaptation](SERVERLESS-WORKER.md) is implemented and locally tested but not activated. The observed Vercel Hobby plan excludes commercial use, so hosting eligibility must be resolved before production worker deployment.
 
 The foundation and subsequent increments are implemented locally; this is not yet the complete ERP requested in the brief. See [PHASE-2.md](PHASE-2.md) for documents, expenses, financial reports, sales inbox, deployment order and verification gaps. The architecture and posting contract are in [ARCHITECTURE.md](ARCHITECTURE.md).
 

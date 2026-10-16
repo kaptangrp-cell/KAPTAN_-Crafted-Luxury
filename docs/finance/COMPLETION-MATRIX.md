@@ -1,6 +1,6 @@
 # Original ERP brief — completion matrix
 
-Status as of 15 October 2026. “Local” means code and automated tests where documented; it does not mean production deployment, legal certification or browser acceptance.
+Status as of 16 October 2026. All 13 existing finance migrations and the matching application are deployed. Admin screens load successfully; full workflow acceptance remains pending. See [deployment verification](DEPLOYMENT-2026-10-16.md). “Local” means code and automated tests where documented; it does not mean legal certification or full browser acceptance.
 
 | Area | Local implementation | Outstanding |
 |---|---|---|

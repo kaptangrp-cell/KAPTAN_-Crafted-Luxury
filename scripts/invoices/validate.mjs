@@ -30,7 +30,10 @@ export async function validateXml(xml) {
           directory,
           path,
         ],
-        { timeout: 120000, maxBuffer: 4 * 1024 * 1024 },
+        {
+          timeout: process.env.INVOICE_SERVERLESS_RUNTIME === "true" ? 18000 : 120000,
+          maxBuffer: 4 * 1024 * 1024,
+        },
       );
     } catch (e) {
       failure = e;

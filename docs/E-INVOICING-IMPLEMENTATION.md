@@ -38,6 +38,16 @@ docker build -f deploy/invoices/Dockerfile -t kaptan-invoices .
 docker run -d --restart unless-stopped --env-file /secure/path/invoice-worker.env --name kaptan-invoices kaptan-invoices
 ```
 
+Alternatively, use the prepared Compose deployment:
+
+```sh
+export KAPTAN_WORKER_ENV=/secure/path/invoice-worker.env
+docker compose -f deploy/invoices/compose.yaml up -d --build
+docker compose -f deploy/invoices/compose.yaml logs --tail=50
+```
+
+The build context uses an allowlist so local credentials and customer files are not sent to Docker. Compose runs with a read-only root filesystem, temporary validator workspace, no added Linux capabilities and bounded logs. Keep the environment file outside Git. The worker can run only while its host and Docker are running; restart policy does not keep a sleeping or powered-off Mac available. Compose configuration has been validated, but the container still requires build and live validation on the selected host.
+
 Use `deploy/invoices/worker.env.example` as the template, with real secrets outside Git. The process checks the queue every minute. For an existing Node 24 + Java 11+ host, configure `KOSIT_JAR`, `KOSIT_CONFIG`, optional `JAVA_BIN`, plus the environment above, then run `npm run invoices:worker` for one pass or `node scripts/invoices/loop.mjs` continuously. The worker needs the same repo assets and installed dependencies. No customer data is sent to a third-party validation website.
 
 A retry keeps the invoice number and source. Email retries use the invoice ID as the provider idempotency key. After 23 hours from an ambiguous sending attempt, the worker marks delivery uncertain and stops automatic retry; inspect the provider record before a manual resend. Do not reset this guard without verifying delivery. Missing credentials and failures are never reported as sent.

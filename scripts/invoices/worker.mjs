@@ -7,6 +7,9 @@ import { buildInvoice, seller } from "../../src/lib/invoices/model.ts";
 import { invoiceXml, xmlEscape } from "../../src/lib/invoices/xml.ts";
 import { invoicePdf } from "../../src/lib/invoices/pdf.ts";
 import { validateXml } from "./validate.mjs";
+import { batchSize } from "./batch.mjs";
+const invoiceLimit = batchSize(process.env.INVOICE_BATCH_SIZE, 20);
+const emailLimit = batchSize(process.env.INVOICE_EMAIL_BATCH_SIZE, 20);
 const db = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY, {
   auth: { persistSession: false },
 });
@@ -35,7 +38,7 @@ if (!sellerTaxNumber || /^DE\d/i.test(sellerTaxNumber))
   throw new Error(
     "INVOICE_STEUERNUMMER fehlt oder enthält eine USt-IdNr. Keine Rechnung wird ausgestellt.",
   );
-for (let n = 0; n < 20; n++) {
+for (let n = 0; n < invoiceLimit; n++) {
   const row = check(await db.rpc("claim_invoice"));
   if (!row) break;
   try {
@@ -117,7 +120,7 @@ const candidates = check(
     .from("invoice_delivery")
     .select("*")
     .or(`state.eq.pending,and(state.eq.sending,lease_until.lt.${new Date().toISOString()})`)
-    .limit(20),
+    .limit(emailLimit),
 );
 for (const candidate of candidates) {
   const lease = randomUUID();
