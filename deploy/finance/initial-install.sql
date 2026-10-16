@@ -1257,8 +1257,7 @@ END $$;
 REVOKE ALL ON FUNCTION public.finance_asset_register(uuid,uuid,uuid,text,date,integer,text),public.finance_asset_amount(bigint,date,integer,date),public.finance_asset_depreciate(uuid,date),public.finance_asset_reversal_guard(),public.finance_assets_list(date) FROM PUBLIC,anon,authenticated;
 GRANT EXECUTE ON FUNCTION public.finance_asset_register(uuid,uuid,uuid,text,date,integer,text),public.finance_asset_depreciate(uuid,date),public.finance_assets_list(date) TO authenticated;
 
-CREATE SCHEMA IF NOT EXISTS supabase_migrations;
-CREATE TABLE IF NOT EXISTS supabase_migrations.schema_migrations(version text PRIMARY KEY,statements text[],name text);
+-- Existing Supabase migration history was verified during deployment preflight.
 INSERT INTO supabase_migrations.schema_migrations(version,name) VALUES
 ('20261015100000','finance_foundation'),
 ('20261015110000','finance_documents_expenses'),

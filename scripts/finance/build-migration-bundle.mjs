@@ -22,8 +22,7 @@ DO $preflight$ BEGIN
  IF to_regclass('public.invoices') IS NULL OR to_regclass('public.inventory_units') IS NULL THEN RAISE EXCEPTION 'Existing invoice and warehouse migrations required'; END IF;
 END $preflight$;
 ${body.join("\n")}
-CREATE SCHEMA IF NOT EXISTS supabase_migrations;
-CREATE TABLE IF NOT EXISTS supabase_migrations.schema_migrations(version text PRIMARY KEY,statements text[],name text);
+-- Existing Supabase migration history was verified during deployment preflight.
 INSERT INTO supabase_migrations.schema_migrations(version,name) VALUES
 ${names.map((n, i) => "('" + versions[i] + "','" + n.slice(15, -4) + "')").join(",\n")};
 NOTIFY pgrst, 'reload schema';
