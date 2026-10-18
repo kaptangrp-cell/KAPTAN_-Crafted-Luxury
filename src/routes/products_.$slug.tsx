@@ -652,7 +652,9 @@ function ProductDetailPage() {
                 {careInstructions.map((line) => (
                   <li key={line} className="flex gap-2">
                     <span className="text-gold">•</span>
-                    <span>{line}</span>
+                    <span>
+                      <CatalogText text={line} />
+                    </span>
                   </li>
                 ))}
               </ul>
@@ -1046,7 +1048,9 @@ function ProductDetailPage() {
       <div className="fixed inset-x-0 bottom-0 z-40 border-t border-gold/30 bg-black px-4 pb-[max(1rem,env(safe-area-inset-bottom))] pt-3 shadow-2xl">
         <div className="mx-auto flex max-w-7xl flex-wrap items-center gap-3">
           <div className="hidden min-w-0 flex-1 sm:block">
-            <p className="truncate text-sm text-white">{product.name}</p>
+            <p className="truncate text-sm text-white">
+              <CatalogText text={product.name} />
+            </p>
             <Price amount={finalPrice} className="text-gold" />
           </div>
           {needsOption && !outOfStock && (

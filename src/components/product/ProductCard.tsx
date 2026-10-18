@@ -1,3 +1,4 @@
+import { translateCatalogText } from "@/lib/catalog-translation";
 import { useState } from "react";
 import { optionParts } from "@/lib/product-options";
 import { colorHex, galleryForColor } from "@/lib/product-media";
@@ -33,7 +34,7 @@ interface ProductCardProps {
 }
 
 export function ProductCard({ product }: ProductCardProps) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const qc = useQueryClient();
   const addItem = useCartStore((s) => s.addItem);
@@ -135,7 +136,7 @@ export function ProductCard({ product }: ProductCardProps) {
           <img
             key={imageUrl}
             src={imageUrl}
-            alt={product.name}
+            alt={translateCatalogText(product.name, i18n.language)}
             loading="lazy"
             className="kaptan-image-fade h-full w-full object-contain p-4 transition-transform duration-500 motion-safe:group-hover:scale-105"
           />
@@ -162,8 +163,8 @@ export function ProductCard({ product }: ProductCardProps) {
               <button
                 key={value}
                 type="button"
-                title={value}
-                aria-label={value}
+                title={translateCatalogText(value, i18n.language)}
+                aria-label={translateCatalogText(value, i18n.language)}
                 aria-pressed={color === value}
                 onClick={() => setColor(value)}
                 className={`h-8 w-8 rounded-full border-2 p-0.5 ${color === value ? "border-gold" : "border-white/30"}`}
@@ -175,7 +176,11 @@ export function ProductCard({ product }: ProductCardProps) {
               </button>
             ))}
             <span className="text-xs text-white/65">
-              {color || t("catalog.colorCount", { count: colors.length })}
+              {color ? (
+                <CatalogText text={color} />
+              ) : (
+                t("catalog.colorCount", { count: colors.length })
+              )}
             </span>
           </div>
         )}

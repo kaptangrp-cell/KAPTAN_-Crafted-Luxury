@@ -1,3 +1,4 @@
+import { CatalogText } from "@/components/common/CatalogText";
 import { optionParts } from "@/lib/product-options";
 import { useTranslation } from "react-i18next";
 
@@ -63,7 +64,9 @@ export function ProductFacts({ specifications, variants, compact = false }: Prod
       {facts.map(({ label, value }) => (
         <div key={label} className="flex flex-wrap gap-x-2">
           <dt className="text-white/50">{t(`productFacts.${label}`)}</dt>
-          <dd className="break-words text-white/80">{value}</dd>
+          <dd className="break-words text-white/80">
+            <CatalogText text={value} />
+          </dd>
         </div>
       ))}
     </dl>

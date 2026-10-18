@@ -1,3 +1,4 @@
+import { CatalogText } from "@/components/common/CatalogText";
 import { Price } from "@/components/common/Price";
 import { colorHex } from "@/lib/product-media";
 import { useState } from "react";
@@ -86,7 +87,9 @@ export function ProductOptionPicker({
                         style={{ background: colorHex(value) }}
                       />
                     )}
-                    <span className="block">{value}</span>
+                    <span className="block">
+                      <CatalogText text={value} />
+                    </span>
                     <Price
                       amount={
                         basePrice +
@@ -127,7 +130,7 @@ export function ProductOptionPicker({
                         disabled={match?.stock_quantity === 0}
                         onClick={() => onChange(match?.id ?? null)}
                       >
-                        {value}
+                        <CatalogText text={value} />
                       </button>
                     );
                   })}
@@ -151,7 +154,7 @@ export function ProductOptionPicker({
                 disabled={v.stock_quantity === 0}
                 onClick={() => onChange(v.id)}
               >
-                {v.variant_value}
+                <CatalogText text={v.variant_value} />
               </button>
             ))}
           </div>
