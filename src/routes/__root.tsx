@@ -13,14 +13,10 @@ import {
   type ErrorComponentProps,
 } from "@tanstack/react-router";
 import { useEffect, type ReactNode } from "react";
-import { useServerFn } from "@tanstack/react-start";
 import { Toaster } from "sonner";
-import { Analytics } from "@vercel/analytics/react";
-import { SpeedInsights } from "@vercel/speed-insights/react";
 import i18n from "@/lib/i18n";
 import { usePreferencesStore } from "@/stores/preferencesStore";
 import { StoreAssistant } from "@/components/assistant/StoreAssistant";
-import { logVisit } from "@/lib/analytics.functions";
 
 import appCss from "../styles.css?url";
 
@@ -44,7 +40,6 @@ const organizationJsonLd = {
     import.meta.env.VITE_TIKTOK_URL,
   ].filter(Boolean),
 };
-import { reportLovableError } from "../lib/lovable-error-reporting";
 
 function NotFoundComponent() {
   const { t } = useTranslation();
@@ -73,10 +68,6 @@ function ErrorComponent({ error, reset }: ErrorComponentProps) {
   const { t } = useTranslation();
   console.error(error);
   const router = useRouter();
-
-  useEffect(() => {
-    reportLovableError(error, { boundary: "tanstack_root_error_component" });
-  }, [error]);
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
@@ -126,19 +117,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "twitter:card", content: "summary_large_image" },
       { name: "twitter:site", content: "@kaptan.store" },
     ],
-    links: [
-      { rel: "stylesheet", href: appCss },
-      { rel: "preconnect", href: "https://fonts.googleapis.com" },
-      {
-        rel: "preconnect",
-        href: "https://fonts.gstatic.com",
-        crossOrigin: "anonymous",
-      },
-      {
-        rel: "stylesheet",
-        href: "https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap",
-      },
-    ],
+    links: [{ rel: "stylesheet", href: appCss }],
   }),
   shellComponent: RootShell,
   component: RootComponent,
@@ -171,7 +150,6 @@ function AuthLifecycle() {
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
-  const logVisitFn = useServerFn(logVisit);
 
   useEffect(() => {
     void useCartStore.persist.rehydrate();
@@ -185,32 +163,15 @@ function RootComponent() {
     });
   }, []);
 
-  // Log one visit per browser session (not per pageview) so the admin
-  // dashboard can compute conversion rate = orders / visits. Fire-and-forget;
-  // never blocks rendering and never surfaces errors to the shopper.
+  // Remove identifiers from the retired, non-essential visit tracking.
   useEffect(() => {
-    const FLAG = "kaptan_visit_logged";
-
-    if (sessionStorage.getItem(FLAG)) return;
-
-    let sessionId = localStorage.getItem("kaptan_session_id");
-    if (!sessionId) {
-      sessionId = crypto.randomUUID();
-      localStorage.setItem("kaptan_session_id", sessionId);
+    try {
+      localStorage.removeItem("kaptan_session_id");
+      sessionStorage.removeItem("kaptan_visit_logged");
+    } catch {
+      /* Storage may be unavailable in private browsers. */
     }
-
-    sessionStorage.setItem(FLAG, "1");
-
-    logVisitFn({
-      data: {
-        sessionId,
-        path: window.location.pathname,
-        referrer: document.referrer || undefined,
-      },
-    }).catch(() => {
-      // Analytics is best-effort — silently ignore failures.
-    });
-  }, [logVisitFn]);
+  }, []);
 
   return (
     <QueryClientProvider client={queryClient}>
@@ -228,8 +189,6 @@ function RootComponent() {
         }}
       />
 
-      <Analytics />
-      <SpeedInsights />
       <StockUpdates />
       <StoreAssistant />
     </QueryClientProvider>

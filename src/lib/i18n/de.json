@@ -1185,5 +1185,59 @@
     "confirm": "Ich habe Original, Vorgängerbeleg, Zahlung bzw. Leistung und Datum geprüft. Kein Testvorgang, noch nicht manuell gebucht.",
     "import": "Geprüften Vorgang buchen",
     "manual": "Abweichende Steuerfälle und Teilgutschriften benötigen eine gesonderte Prüfung."
+  },
+  "dataProtection": {
+    "title": "Datenschutz",
+    "account": "Kaptan verarbeitet Ihre Angaben zur Einrichtung und Verwaltung Ihres Kundenkontos (Art. 6 Abs. 1 lit. b DSGVO). Bei „Weiter mit Google“ erhalten wir die von Google freigegebenen Kontodaten. Werbung ist keine Voraussetzung für ein Konto.",
+    "checkout": "Wir verwenden Ihre Kontakt-, Adress-, Bestell- und Zahlungsdaten zur Abwicklung Ihrer Bestellung, Lieferung und Rechnung (Art. 6 Abs. 1 lit. b und c DSGVO). Erforderliche Daten gehen an Zahlungs-, Versand- und technische Dienstleister. Pflichtangaben sind für die Bestellung erforderlich. Einzelheiten und Ihre Rechte finden Sie in der Datenschutzerklärung.",
+    "rights": "Sie können Auskunft, eine Datenkopie, Berichtigung oder Löschung beantragen. Gesetzlich aufzubewahrende Rechnungs- und Buchungsdaten bleiben zweckgebunden erhalten. Schreiben Sie uns möglichst von Ihrer Konto-E-Mail-Adresse; senden Sie keine Passwörter oder Ausweiskopien unaufgefordert.",
+    "details": "Datenschutzerklärung lesen (neuer Tab)",
+    "request": "Datenschutzanfrage per E-Mail",
+    "sections": [
+      [
+        "Verantwortlicher und Kontakt",
+        "Kaptan, Inhaber Zoraiz Fazal, Bahnhofstraße 36, 35037 Marburg, Deutschland. E-Mail: kaptangrp@gmail.com. Telefon: 015216164830. Stand: 18. Oktober 2026."
+      ],
+      [
+        "Kundenkonto und Anmeldung",
+        "Wir verarbeiten E-Mail-Adresse, Namen, Anmeldedaten und die von Ihnen gespeicherten Profil- und Adressangaben, um Ihr Konto, Ihre Merkliste und Bestellübersicht bereitzustellen (Art. 6 Abs. 1 lit. b DSGVO). Optionale Angaben können Sie weglassen. Bei einer von Ihnen gewählten Google-Anmeldung werden von Google freigegebene Identitäts- und Profildaten zur Anmeldung übermittelt; Google verarbeitet dabei Daten nach seinen eigenen Datenschutzbedingungen. Ohne erforderliche Kontodaten ist eine Registrierung nicht möglich."
+      ],
+      [
+        "Bestellungen, Zahlungen und Rechnungen",
+        "Wir verarbeiten die bestellten Artikel und Varianten, Kontaktdaten, Liefer- und Rechnungsadresse, Kundentyp, gegebenenfalls Firmendaten und Leitweg-ID sowie Zahlungsstatus und Transaktionsreferenzen für Vertrag, Lieferung, Rückgabe und Kundendienst (Art. 6 Abs. 1 lit. b DSGVO). Rechnungs- und Buchungsunterlagen dienen außerdem der Erfüllung steuer- und handelsrechtlicher Pflichten (Art. 6 Abs. 1 lit. c DSGVO). Zahlungsdaten werden je nach gewählter Zahlungsart durch Stripe oder PayPal verarbeitet. Vollständige Kartendaten geben Sie beim Zahlungsdienstleister ein."
+      ],
+      [
+        "Betrieb, Sicherheit und Empfänger",
+        "Vercel stellt die Website bereit, Supabase unterstützt Datenbank, Anmeldung und Dateispeicherung; Resend wird für transaktionale E-Mails eingesetzt. Diese technischen Leistungen dienen der Bereitstellung des Shops und der Vertragsabwicklung. Technische Verbindungsdaten, beispielsweise IP-Adresse und Fehlerprotokolle, können zur sicheren Bereitstellung und Missbrauchsabwehr verarbeitet werden (Art. 6 Abs. 1 lit. f DSGVO; berechtigtes Interesse: Schutz und zuverlässiger Betrieb des Shops). Zugriff erhalten nur berechtigte Mitarbeiter und die für den jeweiligen Vorgang erforderlichen Dienstleister. Versanddienstleister erhalten erforderliche Lieferdaten; Steuerberatung und Behörden erhalten Daten, soweit für gesetzliche Pflichten erforderlich."
+      ],
+      [
+        "Verarbeitung außerhalb des EWR",
+        "Bei internationalen technischen Diensten und Zahlungsanbietern kann eine Verarbeitung außerhalb des Europäischen Wirtschaftsraums stattfinden. Dafür sind die Voraussetzungen der Art. 44 ff. DSGVO erforderlich, etwa ein anwendbarer Angemessenheitsbeschluss oder Standardvertragsklauseln mit ergänzenden Schutzmaßnahmen. Informationen zu den für Ihre Daten konkret eingesetzten Empfängern, Ländern und Schutzmaßnahmen sowie eine Kopie einschlägiger Garantien können Sie unter kaptangrp@gmail.com anfordern."
+      ],
+      [
+        "Browserspeicher und Statistik",
+        "Der Shop verwendet Browserspeicher für Anmeldung, Warenkorb und gewählte Einstellungen wie Sprache und Darstellung. Diese Funktionen unterstützen die von Ihnen angeforderten Leistungen (§ 25 Abs. 2 TDDDG). Die eigene Besucherstatistik sowie Vercel Analytics und Speed Insights sind deaktiviert. Es werden hierfür keine neuen Besucherkennungen angelegt. Schriftarten werden lokal ausgeliefert."
+      ],
+      [
+        "Kontakt und Shop-Assistent",
+        "Kontaktanfragen bearbeiten wir zur Beantwortung Ihrer Fragen bzw. zur Durchführung vorvertraglicher oder vertraglicher Maßnahmen (Art. 6 Abs. 1 lit. b DSGVO); sonstige Anfragen auf Grundlage unseres Interesses an der Kommunikation (Art. 6 Abs. 1 lit. f DSGVO). Der Shop-Assistent verwendet Produktinformationen und eine Produktsuche. Bitte geben Sie dort keine Zahlungsdaten, Passwörter oder sensiblen persönlichen Informationen ein."
+      ],
+      [
+        "Werbung",
+        "Eine Bestellung oder Registrierung ist keine Einwilligung in Werbung. Soweit Sie gesondert in E-Mail-Werbung einwilligen, ist die Rechtsgrundlage Art. 6 Abs. 1 lit. a DSGVO. Sie können eine Einwilligung jederzeit für die Zukunft widerrufen, insbesondere durch Abwahl der Marketing-Einstellung im Profil und Speichern oder per E-Mail. Die Rechtmäßigkeit der Verarbeitung bis zum Widerruf bleibt unberührt."
+      ],
+      [
+        "Speicherdauer",
+        "Kontodaten werden für die Dauer der Kontonutzung und notwendige Abwicklung verarbeitet. Bei einem Löschungsantrag prüfen wir, welche Daten gelöscht werden können und welche gesetzlichen Pflichten oder konkreten Rechtsansprüche einer Löschung entgegenstehen. Rechnungs- und Buchungsunterlagen bleiben für die jeweils geltenden gesetzlichen Aufbewahrungsfristen gespeichert; sie dürfen dann nicht für andere Zwecke weitergenutzt werden. Supportdaten und technische Protokolle werden nur so lange benötigt, wie es ihr Zweck, Sicherheitsanforderungen oder gesetzliche Pflichten erfordern."
+      ],
+      [
+        "Ihre Rechte",
+        "Nach den gesetzlichen Voraussetzungen haben Sie Rechte auf Auskunft (Art. 15), Berichtigung (Art. 16), Löschung (Art. 17), Einschränkung (Art. 18) und Datenübertragbarkeit (Art. 20 DSGVO). Gegen Verarbeitung auf Grundlage berechtigter Interessen können Sie aus Gründen Ihrer besonderen Situation Widerspruch einlegen; gegen Direktwerbung jederzeit (Art. 21 DSGVO). Schreiben Sie an kaptangrp@gmail.com. Wir prüfen Ihre Identität angemessen und beantworten Anfragen grundsätzlich innerhalb eines Monats. Eine notwendige Fristverlängerung teilen wir innerhalb dieses Monats mit. Es findet durch den Shop keine ausschließlich automatisierte Entscheidung mit rechtlicher oder ähnlich erheblicher Wirkung statt."
+      ],
+      [
+        "Beschwerderecht",
+        "Sie können sich bei einer Datenschutzaufsichtsbehörde beschweren, insbesondere am Ort Ihres gewöhnlichen Aufenthalts, Arbeitsplatzes oder des vermuteten Verstoßes. Für Kaptan in Hessen ist der Hessische Beauftragte für Datenschutz und Informationsfreiheit eine Anlaufstelle. Den Link zum Beschwerdeformular finden Sie unten."
+      ]
+    ]
   }
 }

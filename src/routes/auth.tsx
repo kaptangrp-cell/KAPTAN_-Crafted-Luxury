@@ -1,3 +1,4 @@
+import { PrivacyNotice } from "@/components/common/PrivacyNotice";
 import { useState } from "react";
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { toast } from "sonner";
@@ -100,6 +101,8 @@ function AuthPage() {
           {mode === "signup" && t("auth.signupSubtitle")}
           {mode === "forgot" && t("auth.forgotSubtitle")}
         </p>
+
+        <PrivacyNotice purpose="account" />
 
         <form onSubmit={handleSubmit} className="mt-8 w-full space-y-4">
           {mode === "signup" && (

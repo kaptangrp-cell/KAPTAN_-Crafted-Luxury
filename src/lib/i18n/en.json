@@ -1185,5 +1185,59 @@
     "confirm": "I checked the original, referenced document, payment or supply and date. This is not a test transaction and is not already posted manually.",
     "import": "Post reviewed event",
     "manual": "Other tax cases and partial credits require separate review."
+  },
+  "dataProtection": {
+    "title": "Your personal data",
+    "account": "Kaptan uses your details to create and manage your customer account (GDPR Article 6(1)(b)). Choosing “Continue with Google” shares the account details released by Google with us. Marketing is not a condition of creating an account.",
+    "checkout": "We use your contact, address, order and payment details to fulfil your order, delivery and invoice (GDPR Article 6(1)(b) and (c)). Necessary information is shared with payment, delivery and technical providers. Required fields are necessary to place an order. Our privacy policy explains the details and your rights.",
+    "rights": "You can request access, a copy, correction or deletion of your data. Invoice and accounting records subject to legal retention remain restricted to their required purposes. Please write from your account email where possible; do not send passwords or unsolicited ID copies.",
+    "details": "Read privacy policy (new tab)",
+    "request": "Email a privacy request",
+    "sections": [
+      [
+        "Controller and contact",
+        "Kaptan, proprietor Zoraiz Fazal, Bahnhofstraße 36, 35037 Marburg, Germany. Email: kaptangrp@gmail.com. Telephone: 015216164830. Updated: 18 October 2026."
+      ],
+      [
+        "Account and sign-in",
+        "We use your email, name, authentication details and the profile/address details you save to provide your account, wishlist and order history (GDPR Article 6(1)(b)). Optional information can be omitted. If you choose Google sign-in, Google shares identity and profile information for authentication and processes data under its own privacy terms. Registration requires the mandatory account information."
+      ],
+      [
+        "Orders, payments and invoices",
+        "We process items and variants ordered, contact details, shipping/billing addresses, buyer type, relevant business details and buyer references, payment status and transaction references for purchases, delivery, returns and support (Article 6(1)(b)). Accounting and invoice records also fulfil statutory obligations (Article 6(1)(c)). Stripe or PayPal processes payments according to your selected method. You enter full card details with the payment provider."
+      ],
+      [
+        "Operation, security and recipients",
+        "Vercel hosts the website; Supabase supports the database, authentication and file storage; Resend is used for transactional email. These services support the shop and contract fulfilment. Technical connection data, including IP addresses and error logs, may be processed for secure operation and abuse prevention (Article 6(1)(f); legitimate interest: protecting and reliably operating the shop). Access is limited to authorised staff and providers needed for the task. Carriers receive necessary delivery details; advisers and authorities receive information where required for legal obligations."
+      ],
+      [
+        "Processing outside the EEA",
+        "International technical services and payment providers may process data outside the European Economic Area. This requires safeguards under GDPR Articles 44 onwards, such as an applicable adequacy decision or standard contractual clauses with supplementary safeguards. Contact kaptangrp@gmail.com for the recipients, countries and safeguards applicable to your data and a copy of relevant guarantees."
+      ],
+      [
+        "Browser storage and statistics",
+        "Browser storage supports sign-in, your basket and selected language/display preferences for services you request (section 25(2) TDDDG). Our visitor tracking, Vercel Analytics and Speed Insights are disabled; no new visitor identifiers are created for them. Fonts are served locally."
+      ],
+      [
+        "Contact and shop assistant",
+        "We handle enquiries to answer questions and take contractual/pre-contractual steps (Article 6(1)(b)), or for our legitimate interest in responding to other enquiries (Article 6(1)(f)). The shop assistant uses product information and product search. Please do not enter payment information, passwords or sensitive personal details into the assistant."
+      ],
+      [
+        "Marketing",
+        "An order or registration does not constitute marketing consent. Separately agreed email marketing relies on Article 6(1)(a). You can withdraw consent for the future by deselecting and saving your profile marketing preference or emailing us. Withdrawal does not affect processing lawfully carried out beforehand."
+      ],
+      [
+        "Retention",
+        "Account information is processed while you use the account and as necessary to resolve outstanding matters. Deletion requests are assessed against statutory obligations and specific legal claims. Invoice and bookkeeping records are retained for the applicable statutory periods and restricted to their required purposes. Support records and technical logs are kept only as needed for their purpose, security or legal obligations."
+      ],
+      [
+        "Your rights",
+        "Subject to statutory conditions, you have rights to access (Article 15), correction (16), deletion (17), restriction (18) and portability (20). You may object to legitimate-interest processing on grounds relating to your situation, and to direct marketing at any time (Article 21). Contact kaptangrp@gmail.com. We verify identity proportionately and normally respond within one month, informing you within that month if an extension is necessary. The shop does not make solely automated decisions with legal or similarly significant effects."
+      ],
+      [
+        "Complaints",
+        "You may complain to a supervisory authority, especially where you live, work or believe an infringement occurred. The Hessian Commissioner for Data Protection and Freedom of Information is a contact for Kaptan in Hessen. A complaint form is linked below."
+      ]
+    ]
   }
 }

@@ -1,3 +1,4 @@
+import { PrivacyNotice } from "@/components/common/PrivacyNotice";
 import { AvatarPicker } from "@/components/account/AvatarPicker";
 import { AccountHeader } from "@/components/account/AccountHeader";
 import { useEffect, useState } from "react";
@@ -60,12 +61,10 @@ function ProfilePage() {
           email_marketing: form.email_marketing,
         },
       });
-      useAuthStore
-        .getState()
-        .setProfile({
-          ...result.profile,
-          role: result.profile.role === "admin" ? "admin" : "customer",
-        });
+      useAuthStore.getState().setProfile({
+        ...result.profile,
+        role: result.profile.role === "admin" ? "admin" : "customer",
+      });
       toast.success(t("profile.updatedToast"));
       refetch();
     } catch (err) {
@@ -79,6 +78,7 @@ function ProfilePage() {
     <PageLayout>
       <section className="mx-auto max-w-6xl px-4 py-10 md:px-6 md:py-14">
         <AccountHeader active="profile" />
+        <PrivacyNotice purpose="rights" />
 
         {isLoading ? (
           <p className="mt-10 text-white/60">{t("account.loading")}</p>

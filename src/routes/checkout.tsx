@@ -1,3 +1,4 @@
+import { PrivacyNotice } from "@/components/common/PrivacyNotice";
 import { SHIPPING_GROSS, VAT_RATE, VAT_FACTOR } from "@/lib/tax";
 import { BillingFields } from "@/components/checkout/BillingFields";
 import { BillingInputSchema, emptyBilling, type BillingInput } from "@/lib/billing";
@@ -523,6 +524,7 @@ function CheckoutPage() {
                 )}
           </p>
         )}
+        <PrivacyNotice purpose="checkout" />
         <div className="mt-8 space-y-5">
           <BillingFields
             value={billing}
@@ -845,6 +847,7 @@ function CheckoutPage() {
               </div>
             </dl>
 
+            <PrivacyNotice purpose="checkout" />
             <button
               type="submit"
               disabled={
