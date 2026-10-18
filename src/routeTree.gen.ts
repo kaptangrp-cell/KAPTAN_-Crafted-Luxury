@@ -17,6 +17,7 @@ import { Route as CartRouteImport } from './routes/cart'
 import { Route as CheckoutRouteImport } from './routes/checkout'
 import { Route as ContactRouteImport } from './routes/contact'
 import { Route as FaqRouteImport } from './routes/faq'
+import { Route as ImpressumRouteImport } from './routes/impressum'
 import { Route as JournalRouteImport } from './routes/journal'
 import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as ProductsRouteImport } from './routes/products'
@@ -82,6 +83,11 @@ const ContactRoute = ContactRouteImport.update({
 const FaqRoute = FaqRouteImport.update({
   id: '/faq',
   path: '/faq',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ImpressumRoute = ImpressumRouteImport.update({
+  id: '/impressum',
+  path: '/impressum',
   getParentRoute: () => rootRouteImport,
 } as any)
 const JournalRoute = JournalRouteImport.update({
@@ -235,6 +241,7 @@ export interface FileRoutesByFullPath {
   '/checkout': typeof CheckoutRoute
   '/contact': typeof ContactRoute
   '/faq': typeof FaqRoute
+  '/impressum': typeof ImpressumRoute
   '/journal': typeof JournalRoute
   '/privacy': typeof PrivacyRoute
   '/products': typeof ProductsRoute
@@ -271,6 +278,7 @@ export interface FileRoutesByTo {
   '/checkout': typeof CheckoutRoute
   '/contact': typeof ContactRoute
   '/faq': typeof FaqRoute
+  '/impressum': typeof ImpressumRoute
   '/journal': typeof JournalRoute
   '/privacy': typeof PrivacyRoute
   '/products': typeof ProductsRoute
@@ -308,6 +316,7 @@ export interface FileRoutesById {
   '/checkout': typeof CheckoutRoute
   '/contact': typeof ContactRoute
   '/faq': typeof FaqRoute
+  '/impressum': typeof ImpressumRoute
   '/journal': typeof JournalRoute
   '/privacy': typeof PrivacyRoute
   '/products': typeof ProductsRoute
@@ -346,6 +355,7 @@ export interface FileRouteTypes {
     | '/checkout'
     | '/contact'
     | '/faq'
+    | '/impressum'
     | '/journal'
     | '/privacy'
     | '/products'
@@ -382,6 +392,7 @@ export interface FileRouteTypes {
     | '/checkout'
     | '/contact'
     | '/faq'
+    | '/impressum'
     | '/journal'
     | '/privacy'
     | '/products'
@@ -418,6 +429,7 @@ export interface FileRouteTypes {
     | '/checkout'
     | '/contact'
     | '/faq'
+    | '/impressum'
     | '/journal'
     | '/privacy'
     | '/products'
@@ -456,6 +468,7 @@ export interface RootRouteChildren {
   CheckoutRoute: typeof CheckoutRoute
   ContactRoute: typeof ContactRoute
   FaqRoute: typeof FaqRoute
+  ImpressumRoute: typeof ImpressumRoute
   JournalRoute: typeof JournalRoute
   PrivacyRoute: typeof PrivacyRoute
   ProductsRoute: typeof ProductsRoute
@@ -525,6 +538,13 @@ declare module '@tanstack/react-router' {
       path: '/faq'
       fullPath: '/faq'
       preLoaderRoute: typeof FaqRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/impressum': {
+      id: '/impressum'
+      path: '/impressum'
+      fullPath: '/impressum'
+      preLoaderRoute: typeof ImpressumRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/journal': {
@@ -790,6 +810,7 @@ const rootRouteChildren: RootRouteChildren = {
   CheckoutRoute: CheckoutRoute,
   ContactRoute: ContactRoute,
   FaqRoute: FaqRoute,
+  ImpressumRoute: ImpressumRoute,
   JournalRoute: JournalRoute,
   PrivacyRoute: PrivacyRoute,
   ProductsRoute: ProductsRoute,

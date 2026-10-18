@@ -154,6 +154,11 @@ export function Footer() {
                   {t("footer.privacy")}
                 </Link>
               </li>
+              <li>
+                <Link to="/impressum" className="transition-colors hover:text-gold">
+                  Impressum
+                </Link>
+              </li>
             </ul>
           </div>
         </div>
