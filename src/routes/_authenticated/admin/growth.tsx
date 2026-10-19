@@ -157,6 +157,7 @@ function Planner({
   const [dirty, setDirty] = useState(false);
   const [busy, setBusy] = useState(false);
   const [tab, setTab] = useState(1);
+  const [showAllSuggestions, setShowAllSuggestions] = useState(false);
   const [editor, setEditor] = useState<{
     id: string | null;
     revision: number;
@@ -306,12 +307,12 @@ function Planner({
         </button>
       </div>
       <nav
-        className="flex gap-2 overflow-x-auto"
+        className="grid grid-cols-2 gap-2 rounded-2xl border border-gold/15 bg-black/40 p-2 lg:grid-cols-4"
         aria-label={l("Planner sections", "Planerbereiche")}
       >
         {[
-          l("Goals & Forecast", "Ziele & Prognose"),
-          l("Marketing & Sales Plan", "Marketing- & Verkaufsplan"),
+          l("Goals & settings", "Ziele & Einstellungen"),
+          l("My action plan", "Mein Maßnahmenplan"),
           l("Performance", "Leistung"),
           l("Recommendations", "Empfehlungen"),
         ].map((name, i) => (
@@ -325,12 +326,17 @@ function Planner({
           </button>
         ))}
       </nav>
-      <p className="text-xs leading-relaxed text-white/60">
-        {l(
-          "Planning figures, not accounting statements. Revenue is paid order value including shipping/tax, by order date; cancelled/unpaid/fully refunded orders are excluded. Partial refunds make affected revenue/profit unavailable. Gross profit is an estimate using current product costs and order discounts, before shipping costs, tax adjustment, fees and advertising. New buyers are first paid purchasers matched by email (account ID fallback). Traffic/social/spend are manual reviewed figures; no visitor tracking is enabled.",
-          "Planungszahlen, keine Buchhaltungsauswertung. Umsatz = bezahlter Bestellwert inklusive Versand/Steuern nach Bestelldatum; stornierte, unbezahlte und vollständig erstattete Bestellungen sind ausgeschlossen. Teilrückerstattungen machen betroffene Umsatz-/Gewinnwerte unverfügbar. Rohertrag ist eine Schätzung mit aktuellen Produktkosten und Bestellrabatten, vor Versandkosten, Steuerbereinigung, Gebühren und Werbung. Neue Käufer = erste bezahlte Bestellung, zugeordnet über E-Mail (ersatzweise Konto-ID). Traffic/Social/Ausgaben werden manuell geprüft erfasst; Besuchertracking bleibt deaktiviert.",
-        )}
-      </p>
+      <details className="text-xs leading-relaxed text-white/60">
+        <summary className="cursor-pointer text-gold">
+          {l("How these figures are calculated", "So werden die Zahlen berechnet")}
+        </summary>
+        <p className="mt-3">
+          {l(
+            "Planning figures, not accounting statements. Revenue is paid order value including shipping/tax, by order date; cancelled/unpaid/fully refunded orders are excluded. Partial refunds make affected revenue/profit unavailable. Gross profit is an estimate using current product costs and order discounts, before shipping costs, tax adjustment, fees and advertising. New buyers are first paid purchasers matched by email (account ID fallback). Traffic/social/spend are manual reviewed figures; no visitor tracking is enabled.",
+            "Planungszahlen, keine Buchhaltungsauswertung. Umsatz = bezahlter Bestellwert inklusive Versand/Steuern nach Bestelldatum; stornierte, unbezahlte und vollständig erstattete Bestellungen sind ausgeschlossen. Teilrückerstattungen machen betroffene Umsatz-/Gewinnwerte unverfügbar. Rohertrag ist eine Schätzung mit aktuellen Produktkosten und Bestellrabatten, vor Versandkosten, Steuerbereinigung, Gebühren und Werbung. Neue Käufer = erste bezahlte Bestellung, zugeordnet über E-Mail (ersatzweise Konto-ID). Traffic/Social/Ausgaben werden manuell geprüft erfasst; Besuchertracking bleibt deaktiviert.",
+          )}
+        </p>
+      </details>
       {tab === 0 && (
         <>
           <section className={box}>
@@ -605,7 +611,117 @@ function Planner({
       {tab === 1 && (
         <>
           <section className={box}>
-            <h2 className="font-serif text-2xl text-gold">
+            <div className="flex flex-wrap items-start justify-between gap-3">
+              <div>
+                <h2 className="font-serif text-2xl text-gold">
+                  {l("Your startup, one step at a time", "Ihr Start – Schritt für Schritt")}
+                </h2>
+                <p className="mt-2 text-sm text-white/60">
+                  {l(
+                    "Start with a product, a buyer and a budget. No sales history needed. Editing totals here distributes them across the plan automatically.",
+                    "Mit Produkt, Käufergruppe und Budget starten. Keine Verkaufshistorie nötig. Gesamtziele werden hier automatisch auf die Planzeiträume verteilt.",
+                  )}
+                </p>
+              </div>
+              <button className={button} onClick={() => setTab(0)}>
+                {l("Advanced settings", "Erweiterte Einstellungen")}
+              </button>
+            </div>
+            <div className="mt-5 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+              {period !== "2027" && !identity.id && (
+                <label className="text-sm">
+                  {l("Launch date", "Startdatum")}
+                  <input
+                    type="date"
+                    className={input}
+                    value={plan.start}
+                    onChange={(e) => {
+                      if (e.target.value)
+                        update(
+                          allocate({
+                            ...plan,
+                            start: e.target.value,
+                            buckets: newPlan(period, e.target.value).buckets,
+                          }),
+                        );
+                    }}
+                  />
+                </label>
+              )}
+
+              <label className="text-sm">
+                {l("Focus product", "Fokusprodukt")}
+                <select
+                  className={input}
+                  value={plan.launch.productId}
+                  onChange={(e) =>
+                    update({ ...plan, launch: { ...plan.launch, productId: e.target.value } })
+                  }
+                >
+                  <option value="">{l("Suggest from catalogue", "Aus Katalog vorschlagen")}</option>
+                  {loaded.stock
+                    .filter((p) => p.active)
+                    .map((p) => (
+                      <option key={p.id} value={p.id}>
+                        {p.name}
+                      </option>
+                    ))}
+                </select>
+              </label>
+              <label className="text-sm">
+                {l("Who is it for?", "Für wen?")}
+                <input
+                  className={input}
+                  maxLength={250}
+                  placeholder={l("e.g. gifts for home lovers", "z. B. Geschenke für Wohnliebhaber")}
+                  value={plan.launch.audience}
+                  onChange={(e) =>
+                    update({ ...plan, launch: { ...plan.launch, audience: e.target.value } })
+                  }
+                />
+              </label>
+              {(["revenue", "budget"] as const).map((key) => (
+                <label className="text-sm" key={key}>
+                  {labels[key]}
+                  <input
+                    className={input}
+                    type="number"
+                    min="0"
+                    max="100000000"
+                    step="0.01"
+                    value={plan.targets[key]}
+                    onChange={(e) =>
+                      update(
+                        allocate({
+                          ...plan,
+                          targets: { ...plan.targets, [key]: Number(e.target.value) },
+                        }),
+                      )
+                    }
+                  />
+                </label>
+              ))}
+            </div>
+            <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
+              <p className="text-sm text-white/60">
+                {l("Plan starts", "Planbeginn")}: {plan.start} ·{" "}
+                {actions.filter((a) => a.data.status === "done").length}/{actions.length}{" "}
+                {l("actions completed", "Maßnahmen erledigt")}
+              </p>
+              <button
+                className={primary}
+                disabled={busy || (!!identity.id && !dirty)}
+                onClick={() => void persist()}
+              >
+                {l("Save setup", "Einrichtung speichern")}
+              </button>
+            </div>
+          </section>
+          <details className={box}>
+            <summary className="cursor-pointer text-lg text-gold">
+              {l("Strategy & launch guidance", "Strategie & Starthilfe")}
+            </summary>
+            <h2 className="mt-4 font-serif text-2xl text-gold">
               {l(
                 "Start from zero. Build demand step by step.",
                 "Bei null starten. Nachfrage Schritt für Schritt aufbauen.",
@@ -620,8 +736,8 @@ function Planner({
             <p className="mt-3 text-sm text-white/70">
               {l("Suggested launch date", "Vorgeschlagener Start")}: {plan.start}.{" "}
               {l(
-                "Change it in Goals & Forecast before saving. First year covers 12 months from launch; 2027 remains a separate calendar plan. These are editable startup experiments, not forecasts or proven results.",
-                "Vor dem Speichern unter Ziele & Prognose ändern. Erstes Jahr umfasst 12 Monate ab Start; 2027 bleibt ein eigener Kalenderplan. Dies sind editierbare Start-Experimente, keine Prognosen oder belegten Ergebnisse.",
+                "Change it in Goals & settings before saving. First year covers 12 months from launch; 2027 remains a separate calendar plan. These are editable startup experiments, not forecasts or proven results.",
+                "Vor dem Speichern unter Ziele & Einstellungen ändern. Erstes Jahr umfasst 12 Monate ab Start; 2027 bleibt ein eigener Kalenderplan. Dies sind editierbare Start-Experimente, keine Prognosen oder belegten Ergebnisse.",
               )}
             </p>
             <button className={`${primary} mt-4`} onClick={() => setTab(0)}>
@@ -659,7 +775,7 @@ function Planner({
                 "Ohne Budget wird organisch gearbeitet. Ohne Bestand werden Vorbereitungen geplant. Bezahlte Tests brauchen Ihr Budget, bestätigten Bestand und Deckungsbeitragsrechnung; Muster, Porto und Veranstaltungsgebühren separat innerhalb des Budgets freigeben.",
               )}
             </p>
-          </section>
+          </details>
           <div className={box}>
             <div className="flex flex-wrap gap-3">
               <button
@@ -686,8 +802,8 @@ function Planner({
             </div>
             <p className="mt-3 text-sm text-white/65">
               {l(
-                "Your startup roadmap is ready below, even without sales history. Edit goals in Goals & Forecast; suggestions update immediately. Add an action to save it to your checklist. Adding also saves current goals, so distribute edited totals first. Nothing launches ads or sends email.",
-                "Ihr Startplan steht unten bereit – auch ohne Verkaufshistorie. Ziele unter Ziele & Prognose bearbeiten; Vorschläge aktualisieren sich sofort. Hinzufügen speichert die Maßnahme und aktuelle Ziele; geänderte Gesamtziele vorher verteilen. Keine Anzeigen oder E-Mails werden ausgelöst.",
+                "Your startup roadmap is ready below, even without sales history. Edit goals in Goals & settings; suggestions update immediately. Add an action to save it to your checklist. Adding also saves current goals, so distribute edited totals first. Nothing launches ads or sends email.",
+                "Ihr Startplan steht unten bereit – auch ohne Verkaufshistorie. Ziele unter Ziele & Einstellungen bearbeiten; Vorschläge aktualisieren sich sofort. Hinzufügen speichert die Maßnahme und aktuelle Ziele; geänderte Gesamtziele vorher verteilen. Keine Anzeigen oder E-Mails werden ausgelöst.",
               )}
             </p>
             <p className="mt-3">
@@ -708,9 +824,28 @@ function Planner({
           {proposals.length > 0 && (
             <section className={box}>
               <h2 className="font-serif text-xl">
-                {l("Your startup action roadmap", "Ihr Maßnahmenplan für den Start")}
+                {l("Recommended next actions", "Empfohlene nächste Schritte")}
               </h2>
-              {proposals.map((p) => (
+              <p className="mt-2 text-sm text-white/60">
+                {l(
+                  "Add a ready-written action to your checklist. No need to enter its steps, date or success measure again.",
+                  "Fertige Maßnahme zur Checkliste hinzufügen. Schritte, Termin und Erfolgskriterium müssen nicht erneut eingegeben werden.",
+                )}
+              </p>
+              {proposals.length > 3 && (
+                <button
+                  className={`${button} mt-3`}
+                  onClick={() => setShowAllSuggestions(!showAllSuggestions)}
+                >
+                  {showAllSuggestions
+                    ? l("Show next 3", "Nächste 3 anzeigen")
+                    : l(
+                        `Show all ${proposals.length} suggestions`,
+                        `Alle ${proposals.length} Vorschläge anzeigen`,
+                      )}
+                </button>
+              )}
+              {(showAllSuggestions ? proposals : proposals.slice(0, 3)).map((p) => (
                 <div key={`${p.deadline}-${p.title}`} className="mt-4 border-t border-gold/20 pt-4">
                   <h3 className="text-gold">
                     {p.deadline} · {p.title}

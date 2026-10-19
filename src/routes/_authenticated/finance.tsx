@@ -31,7 +31,7 @@ function Finance() {
   const userId = useAuthStore((s) => s.user?.id);
   const [from, setFrom] = useState("2026-01-01"),
     [to, setTo] = useState("2026-12-31"),
-    [tab, setTab] = useState("ledger"),
+    [tab, setTab] = useState("overview"),
     [busy, setBusy] = useState(false);
   const read = useServerFn(financeSnapshot),
     command = useServerFn(financeCommand),
@@ -89,15 +89,63 @@ function Finance() {
               EÜR · 2026 · {t("finance.internalAccountsMappingPending")}
             </p>
           </div>
-          <LanguageSwitcher />
+          <div className="flex items-center gap-3">
+            <Link
+              to="/admin"
+              className="rounded-lg border border-gold/25 px-3 py-2 text-sm text-gold"
+            >
+              {de ? "Zur Verwaltung" : "Back to admin"}
+            </Link>
+            <LanguageSwitcher />
+          </div>
         </header>
-        <p className="rounded-xl border border-yellow-400/30 bg-yellow-400/5 p-4 text-sm text-yellow-100">
-          {t(
-            "finance.foundationManualLedgerAndAccessControlsStoreSynchronizationDocumentUploadAndTaxReportsAreNotEnabledY",
-          )}
-        </p>
+        <details className="rounded-xl border border-yellow-400/20 bg-yellow-400/5 p-4 text-sm text-yellow-100">
+          <summary className="cursor-pointer">
+            {de ? "Umfang & Hinweise zur Buchhaltung" : "Accounting scope & notes"}
+          </summary>
+          <p className="mt-3">
+            {t(
+              "finance.foundationManualLedgerAndAccessControlsStoreSynchronizationDocumentUploadAndTaxReportsAreNotEnabledY",
+            )}
+          </p>
+        </details>
         {["ledger", "trial", "overview"].includes(tab) && (
-          <div className="flex flex-wrap gap-4">
+          <div className="flex flex-wrap items-end gap-3 rounded-2xl border border-gold/15 bg-neutral-950 p-4">
+            <div className="flex w-full flex-wrap gap-2">
+              {[
+                ["month", de ? "Dieser Monat" : "This month"],
+                ["last", de ? "Letzter Monat" : "Last month"],
+                ["year", de ? "Dieses Jahr" : "This year"],
+              ].map(([id, label]) => (
+                <button
+                  key={id}
+                  className="min-h-10 rounded-full border border-gold/25 px-4 text-sm text-gold"
+                  onClick={() => {
+                    const parts = new Intl.DateTimeFormat("en-CA", {
+                      timeZone: "Europe/Berlin",
+                      year: "numeric",
+                      month: "2-digit",
+                    }).formatToParts(new Date());
+                    const year = Number(parts.find((p) => p.type === "year")?.value),
+                      month = Number(parts.find((p) => p.type === "month")?.value) - 1;
+                    const start = new Date(
+                      Date.UTC(year, id === "year" ? 0 : month - (id === "last" ? 1 : 0), 1),
+                    );
+                    const end = new Date(
+                      Date.UTC(
+                        start.getUTCFullYear(),
+                        id === "year" ? 12 : start.getUTCMonth() + 1,
+                        0,
+                      ),
+                    );
+                    setFrom(start.toISOString().slice(0, 10));
+                    setTo(end.toISOString().slice(0, 10));
+                  }}
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
             <label>
               {t("finance.from")}
               <input
@@ -132,33 +180,93 @@ function Finance() {
         ) : (
           data && (
             <>
-              <nav className="flex flex-wrap gap-2" aria-label="Finance">
+              <nav
+                className="flex flex-wrap items-center gap-2 rounded-2xl border border-gold/15 bg-neutral-950 p-3"
+                aria-label="Finance"
+              >
                 {[
-                  ["overview", t("financeReports.title")],
-                  ["sales", t("financeSales.title")],
+                  ["overview", de ? "Überblick" : "Overview"],
+                  ["documents", de ? "Belege & Ausgaben" : "Receipts & expenses"],
                   ["banking", "Bank & PayPal"],
-                  ["costs", de ? "Inventar & Kosten" : "Inventory & costs"],
+                  ["sales", de ? "Verkäufe" : "Sales"],
                   ["tax", de ? "Steuerprüfung" : "Tax review"],
-                  ["automation", de ? "Automatik" : "Automation"],
-                  ["assets", de ? "Anlagen" : "Assets"],
-                  ["settings", de ? "Lieferanten & Jahre" : "Suppliers & years"],
-                  ["documents", t("financeDocs.title")],
-                  ["ledger", t("finance.journals")],
-                  ["trial", t("finance.trialBalance")],
-                  ["periods", t("finance.periods")],
-                  ["audit", t("finance.auditTrail")],
-                  ...(data.role === "owner" ? [["access", t("finance.access")]] : []),
                 ].map(([id, label]) => (
                   <button
                     key={id}
-                    className={tab === id ? button : "rounded-lg border border-white/20 px-4 py-2"}
-                    onClick={() => setTab(id)}
                     aria-pressed={tab === id}
+                    className={
+                      tab === id
+                        ? button
+                        : "min-h-11 rounded-lg px-4 py-2 text-white/70 hover:bg-white/5"
+                    }
+                    onClick={() => setTab(id)}
                   >
                     {label}
                   </button>
                 ))}
+                <label className="flex items-center gap-2 text-sm text-white/60">
+                  <span className="sr-only">{de ? "Weitere Werkzeuge" : "More tools"}</span>
+                  <select
+                    aria-label={de ? "Weitere Werkzeuge" : "More tools"}
+                    className="min-h-11 rounded-lg border border-white/20 bg-neutral-950 px-3 text-white"
+                    value={
+                      ["overview", "documents", "banking", "sales", "tax"].includes(tab) ? "" : tab
+                    }
+                    onChange={(e) => {
+                      if (e.target.value) setTab(e.target.value);
+                    }}
+                  >
+                    <option value="">{de ? "Weitere Werkzeuge…" : "More tools…"}</option>
+                    {[
+                      ["costs", de ? "Inventar & Kosten" : "Inventory & costs"],
+                      ["automation", de ? "Automatik" : "Automation"],
+                      ["assets", de ? "Anlagen" : "Assets"],
+                      ["settings", de ? "Lieferanten & Jahre" : "Suppliers & years"],
+                      ["ledger", t("finance.journals")],
+                      ["trial", t("finance.trialBalance")],
+                      ["periods", t("finance.periods")],
+                      ["audit", t("finance.auditTrail")],
+                      ...(data.role === "owner" ? [["access", t("finance.access")]] : []),
+                    ].map(([id, label]) => (
+                      <option key={id} value={id}>
+                        {label}
+                      </option>
+                    ))}
+                  </select>
+                </label>
               </nav>
+              {tab === "overview" && (
+                <div className="grid gap-3 sm:grid-cols-3">
+                  {[
+                    [
+                      "documents",
+                      de ? "Beleg erfassen" : "Record an expense",
+                      de
+                        ? "Beleg hochladen und Angaben prüfen"
+                        : "Upload a receipt and review its details",
+                    ],
+                    [
+                      "banking",
+                      de ? "Bankumsätze importieren" : "Import transactions",
+                      "Revolut / PayPal CSV",
+                    ],
+                    [
+                      "sales",
+                      de ? "Verkäufe prüfen" : "Review sales",
+                      de ? "Shop-Zahlungen und Zuordnung" : "Shop payments and reconciliation",
+                    ],
+                  ].map(([id, title, description]) => (
+                    <button
+                      key={id}
+                      className="rounded-2xl border border-gold/20 bg-gold/5 p-5 text-left hover:border-gold"
+                      onClick={() => setTab(id)}
+                    >
+                      <span className="block text-lg text-gold">{title} →</span>
+                      <span className="mt-2 block text-sm text-white/60">{description}</span>
+                    </button>
+                  ))}
+                </div>
+              )}
               {tab === "assets" && <FinanceAssets role={data.role} />}
               {tab === "settings" && <FinanceAdministration role={data.role} />}
               {tab === "automation" && <FinanceAutomation role={data.role} />}
