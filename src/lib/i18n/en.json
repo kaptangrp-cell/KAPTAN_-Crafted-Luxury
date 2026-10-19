@@ -559,7 +559,8 @@
     "noRevenueData": "No revenue data for this filter.",
     "revenueEurLegend": "Revenue €",
     "ordersLegend": "Orders",
-    "unitsSoldLegend": "Units Sold"
+    "unitsSoldLegend": "Units Sold",
+    "navGrowth": "Growth Planner"
   },
   "adminProducts": {
     "title": "Products",

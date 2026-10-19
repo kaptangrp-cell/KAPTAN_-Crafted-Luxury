@@ -38,6 +38,7 @@ import { Route as ProductsSlugRouteImport } from './routes/products_.$slug'
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin/index'
 import { Route as AuthenticatedAdminCategoriesRouteImport } from './routes/_authenticated/admin/categories'
 import { Route as AuthenticatedAdminCustomersRouteImport } from './routes/_authenticated/admin/customers'
+import { Route as AuthenticatedAdminGrowthRouteImport } from './routes/_authenticated/admin/growth'
 import { Route as AuthenticatedAdminInventoryRouteImport } from './routes/_authenticated/admin/inventory'
 import { Route as AuthenticatedAdminInvoicesRouteImport } from './routes/_authenticated/admin/invoices'
 import { Route as AuthenticatedAdminJournalRouteImport } from './routes/_authenticated/admin/journal'
@@ -192,6 +193,12 @@ const AuthenticatedAdminCustomersRoute =
     path: '/customers',
     getParentRoute: () => AuthenticatedAdminRouteRoute,
   } as any)
+const AuthenticatedAdminGrowthRoute =
+  AuthenticatedAdminGrowthRouteImport.update({
+    id: '/growth',
+    path: '/growth',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
+  } as any)
 const AuthenticatedAdminInventoryRoute =
   AuthenticatedAdminInventoryRouteImport.update({
     id: '/inventory',
@@ -261,6 +268,7 @@ export interface FileRoutesByFullPath {
   '/products/$slug': typeof ProductsSlugRoute
   '/admin/categories': typeof AuthenticatedAdminCategoriesRoute
   '/admin/customers': typeof AuthenticatedAdminCustomersRoute
+  '/admin/growth': typeof AuthenticatedAdminGrowthRoute
   '/admin/inventory': typeof AuthenticatedAdminInventoryRoute
   '/admin/invoices': typeof AuthenticatedAdminInvoicesRoute
   '/admin/journal': typeof AuthenticatedAdminJournalRoute
@@ -297,6 +305,7 @@ export interface FileRoutesByTo {
   '/products/$slug': typeof ProductsSlugRoute
   '/admin/categories': typeof AuthenticatedAdminCategoriesRoute
   '/admin/customers': typeof AuthenticatedAdminCustomersRoute
+  '/admin/growth': typeof AuthenticatedAdminGrowthRoute
   '/admin/inventory': typeof AuthenticatedAdminInventoryRoute
   '/admin/invoices': typeof AuthenticatedAdminInvoicesRoute
   '/admin/journal': typeof AuthenticatedAdminJournalRoute
@@ -336,6 +345,7 @@ export interface FileRoutesById {
   '/products_/$slug': typeof ProductsSlugRoute
   '/_authenticated/admin/categories': typeof AuthenticatedAdminCategoriesRoute
   '/_authenticated/admin/customers': typeof AuthenticatedAdminCustomersRoute
+  '/_authenticated/admin/growth': typeof AuthenticatedAdminGrowthRoute
   '/_authenticated/admin/inventory': typeof AuthenticatedAdminInventoryRoute
   '/_authenticated/admin/invoices': typeof AuthenticatedAdminInvoicesRoute
   '/_authenticated/admin/journal': typeof AuthenticatedAdminJournalRoute
@@ -375,6 +385,7 @@ export interface FileRouteTypes {
     | '/products/$slug'
     | '/admin/categories'
     | '/admin/customers'
+    | '/admin/growth'
     | '/admin/inventory'
     | '/admin/invoices'
     | '/admin/journal'
@@ -411,6 +422,7 @@ export interface FileRouteTypes {
     | '/products/$slug'
     | '/admin/categories'
     | '/admin/customers'
+    | '/admin/growth'
     | '/admin/inventory'
     | '/admin/invoices'
     | '/admin/journal'
@@ -449,6 +461,7 @@ export interface FileRouteTypes {
     | '/products_/$slug'
     | '/_authenticated/admin/categories'
     | '/_authenticated/admin/customers'
+    | '/_authenticated/admin/growth'
     | '/_authenticated/admin/inventory'
     | '/_authenticated/admin/invoices'
     | '/_authenticated/admin/journal'
@@ -687,6 +700,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminCustomersRouteImport
       parentRoute: typeof AuthenticatedAdminRouteRoute
     }
+    '/_authenticated/admin/growth': {
+      id: '/_authenticated/admin/growth'
+      path: '/growth'
+      fullPath: '/admin/growth'
+      preLoaderRoute: typeof AuthenticatedAdminGrowthRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
     '/_authenticated/admin/inventory': {
       id: '/_authenticated/admin/inventory'
       path: '/inventory'
@@ -742,6 +762,7 @@ declare module '@tanstack/react-router' {
 interface AuthenticatedAdminRouteRouteChildren {
   AuthenticatedAdminCategoriesRoute: typeof AuthenticatedAdminCategoriesRoute
   AuthenticatedAdminCustomersRoute: typeof AuthenticatedAdminCustomersRoute
+  AuthenticatedAdminGrowthRoute: typeof AuthenticatedAdminGrowthRoute
   AuthenticatedAdminInventoryRoute: typeof AuthenticatedAdminInventoryRoute
   AuthenticatedAdminInvoicesRoute: typeof AuthenticatedAdminInvoicesRoute
   AuthenticatedAdminJournalRoute: typeof AuthenticatedAdminJournalRoute
@@ -755,6 +776,7 @@ const AuthenticatedAdminRouteRouteChildren: AuthenticatedAdminRouteRouteChildren
   {
     AuthenticatedAdminCategoriesRoute: AuthenticatedAdminCategoriesRoute,
     AuthenticatedAdminCustomersRoute: AuthenticatedAdminCustomersRoute,
+    AuthenticatedAdminGrowthRoute: AuthenticatedAdminGrowthRoute,
     AuthenticatedAdminInventoryRoute: AuthenticatedAdminInventoryRoute,
     AuthenticatedAdminInvoicesRoute: AuthenticatedAdminInvoicesRoute,
     AuthenticatedAdminJournalRoute: AuthenticatedAdminJournalRoute,

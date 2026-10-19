@@ -559,7 +559,8 @@
     "noRevenueData": "Keine Umsatzdaten für diesen Filter.",
     "revenueEurLegend": "Umsatz €",
     "ordersLegend": "Bestellungen",
-    "unitsSoldLegend": "Verkaufte Einheiten"
+    "unitsSoldLegend": "Verkaufte Einheiten",
+    "navGrowth": "Wachstumsplaner"
   },
   "adminProducts": {
     "title": "Produkte",
