@@ -6,7 +6,7 @@ import {
   useRouterState,
   useNavigate,
 } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 import {
   LayoutDashboard,
   Package,
@@ -126,21 +126,46 @@ function AdminLayout() {
             className="hidden gap-1 lg:flex lg:flex-col"
           >
             {nav.map((item) => {
+              const section =
+                item.to === "/admin"
+                  ? de
+                    ? "Übersicht"
+                    : "Overview"
+                  : item.to === "/admin/products"
+                    ? de
+                      ? "Shop & Inhalte"
+                      : "Shop & content"
+                    : item.to === "/admin/orders"
+                      ? de
+                        ? "Verkauf & Finanzen"
+                        : "Sales & finance"
+                      : item.to === "/admin/inventory"
+                        ? de
+                          ? "Lager & Team"
+                          : "Warehouse & team"
+                        : null;
               const active = item.exact ? pathname === item.to : pathname.startsWith(item.to);
               return (
-                <Link
-                  key={item.to}
-                  to={item.to as "/admin"}
-                  aria-current={active ? "page" : undefined}
-                  className={`flex shrink-0 items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition-colors ${
-                    active
-                      ? "bg-gold/10 text-gold"
-                      : "text-white/70 hover:bg-white/5 hover:text-gold"
-                  }`}
-                >
-                  <item.icon size={16} />
-                  {t(item.labelKey)}
-                </Link>
+                <Fragment key={item.to}>
+                  {section && (
+                    <p className="px-3 pb-1 pt-3 text-[10px] uppercase tracking-widest text-white/40">
+                      {section}
+                    </p>
+                  )}
+                  <Link
+                    key={item.to}
+                    to={item.to as "/admin"}
+                    aria-current={active ? "page" : undefined}
+                    className={`flex shrink-0 items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition-colors ${
+                      active
+                        ? "bg-gold/10 text-gold"
+                        : "text-white/70 hover:bg-white/5 hover:text-gold"
+                    }`}
+                  >
+                    <item.icon size={16} />
+                    {t(item.labelKey)}
+                  </Link>
+                </Fragment>
               );
             })}
           </nav>

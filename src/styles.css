@@ -351,3 +351,35 @@
     padding: 3mm;
   }
 }
+/* Keep product management usable without sideways table scrolling on phones. */
+@media (max-width: 767px) {
+  .admin-product-table,
+  .admin-product-table tbody,
+  .admin-product-table tr,
+  .admin-product-table td {
+    display: block;
+    width: 100%;
+  }
+  .admin-product-table thead {
+    display: none;
+  }
+  .admin-product-table tr {
+    padding: 12px;
+  }
+  .admin-product-table td {
+    padding: 6px;
+  }
+  .admin-product-table td[data-label] {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+  }
+  .admin-product-table td[data-label]::before {
+    content: attr(data-label);
+    color: #999;
+    font-family: var(--font-sans);
+  }
+  .admin-product-table td:last-child > div {
+    justify-content: flex-start;
+  }
+}

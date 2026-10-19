@@ -1,3 +1,4 @@
+import { COLLECTIONS, collectionForCategory, collectionLabel } from "@/lib/catalog-collections";
 import { moveMedia } from "@/lib/media-order";
 import { ProductCard } from "@/components/product/ProductCard";
 import { mediaDetails } from "@/lib/product-media";
@@ -8,9 +9,9 @@ import type { ProductOption } from "@/lib/product-options";
 import { formatEuro } from "@/lib/currency";
 import { AdminFeedback } from "@/components/admin/AdminFeedback";
 import type { Json } from "@/integrations/supabase/types";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { AdminModal as Modal } from "@/components/admin/AdminModal";
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
@@ -125,12 +126,42 @@ function AdminProductsPage() {
   const [optionsProductId, setOptionsProductId] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [stockFilter, setStockFilter] = useState("all");
+  const [collection, setCollection] = useState("all");
+  const [sort, setSort] = useState("name");
+  const initialDraft = useRef("");
   const [batchUploading, setBatchUploading] = useState(false);
   const [draggedMedia, setDraggedMedia] = useState<number | null>(null);
   const [dropActive, setDropActive] = useState(false);
   const l = (en: string, de: string) => (i18n.language.startsWith("de") ? de : en);
   const [showPreview, setShowPreview] = useState(false);
   const [editing, setEditing] = useState<typeof empty | null>(null);
+
+  const dirty = editing !== null && JSON.stringify(editing) !== initialDraft.current;
+  useEffect(() => {
+    if (!dirty) return;
+    const warn = (event: BeforeUnloadEvent) => {
+      event.preventDefault();
+      event.returnValue = "";
+    };
+    window.addEventListener("beforeunload", warn);
+    return () => window.removeEventListener("beforeunload", warn);
+  }, [dirty]);
+  function closeEditor() {
+    if (batchUploading || upsert.isPending) return;
+    if (
+      dirty &&
+      !window.confirm(
+        l("Discard unsaved product changes?", "Ungespeicherte Produktänderungen verwerfen?"),
+      )
+    )
+      return;
+    setEditing(null);
+  }
+  function newProduct() {
+    initialDraft.current = JSON.stringify(empty);
+    setShowPreview(false);
+    setEditing({ ...empty });
+  }
 
   const upsert = useMutation({
     mutationFn: (form: typeof empty) =>
@@ -201,7 +232,7 @@ function AdminProductsPage() {
   });
 
   function startEdit(p: ProductRow) {
-    setEditing({
+    const draft: typeof empty = {
       id: p.id,
       colors: [
         ...new Set(
@@ -235,7 +266,7 @@ function AdminProductsPage() {
       stock_quantity: p.stock_quantity,
       is_available: p.is_available ?? true,
       is_featured: p.is_featured ?? false,
-      media_items: (p.product_images ?? [])
+      media_items: [...(p.product_images ?? [])]
         .sort((a, b) => Number(a.sort_order ?? 0) - Number(b.sort_order ?? 0))
         .map((m, index) => ({
           ...mediaDetails(p.specifications).find((d) => d.url === m.url),
@@ -243,7 +274,10 @@ function AdminProductsPage() {
           media_type: m.media_type === "video" ? "video" : "image",
           sort_order: index,
         })),
-    });
+    };
+    initialDraft.current = JSON.stringify(draft);
+    setShowPreview(false);
+    setEditing(draft);
   }
 
   async function uploadPhotos(files: FileList | File[] | null) {
@@ -436,16 +470,33 @@ function AdminProductsPage() {
   }
 
   const products = (prodData?.products ?? []) as never as ProductRow[];
-  const visibleProducts = products.filter(
-    (p) =>
-      `${p.name} ${p.categories?.name ?? ""}`
-        .toLowerCase()
-        .includes(searchTerm.trim().toLowerCase()) &&
-      (stockFilter === "all" ||
-        (stockFilter === "hidden"
-          ? !p.is_available
-          : p.is_available && p.stock_quantity <= (p.low_stock_threshold ?? 5))),
-  );
+  const matchesStock = (p: ProductRow, filter: string) =>
+    filter === "all" ||
+    (filter === "hidden"
+      ? !p.is_available
+      : filter === "out"
+        ? p.stock_quantity === 0
+        : filter === "featured"
+          ? !!p.is_featured
+          : p.is_available &&
+            p.stock_quantity > 0 &&
+            p.stock_quantity <= (p.low_stock_threshold ?? 5));
+  const visibleProducts = products
+    .filter(
+      (p) =>
+        `${p.name} ${p.slug} ${p.categories?.name ?? ""}`
+          .toLowerCase()
+          .includes(searchTerm.trim().toLowerCase()) &&
+        (collection === "all" || collectionForCategory(p.categories ?? {}) === collection) &&
+        matchesStock(p, stockFilter),
+    )
+    .sort((a, b) =>
+      sort === "stock"
+        ? a.stock_quantity - b.stock_quantity
+        : sort === "price"
+          ? Number(a.price) - Number(b.price)
+          : a.name.localeCompare(b.name, i18n.language),
+    );
 
   return (
     <div className="space-y-6">
@@ -454,7 +505,7 @@ function AdminProductsPage() {
 
         <div className="flex flex-wrap gap-2">
           <button
-            onClick={() => setEditing(empty)}
+            onClick={newProduct}
             className="flex items-center gap-2 bg-gold px-4 py-2 text-sm font-bold text-black hover:bg-gold-vivid"
           >
             <Plus size={16} /> {t("adminProducts.newProduct")}
@@ -499,17 +550,72 @@ function AdminProductsPage() {
           />
         </label>
         <label className="text-xs text-white/60">
-          {t("adminWorkspace.inventory")}
+          {l("Collection", "Kollektion")}
           <select
-            value={stockFilter}
-            onChange={(e) => setStockFilter(e.target.value)}
-            className="mt-2 block border border-gold/20 bg-black px-3 py-2 text-sm text-white"
+            value={collection}
+            onChange={(e) => setCollection(e.target.value)}
+            className="mt-2 block min-h-11 rounded-lg border border-gold/20 bg-black px-3 text-sm text-white"
           >
             <option value="all">{t("products.allProducts")}</option>
-            <option value="low">{t("products.lowStock")}</option>
-            <option value="hidden">{t("adminProducts.hidden")}</option>
+            {COLLECTIONS.map((value) => (
+              <option key={value} value={value}>
+                {collectionLabel(value, i18n.language.startsWith("de"))}
+              </option>
+            ))}
           </select>
         </label>
+        <label className="text-xs text-white/60">
+          {l("Sort by", "Sortieren nach")}
+          <select
+            value={sort}
+            onChange={(e) => setSort(e.target.value)}
+            className="mt-2 block min-h-11 rounded-lg border border-gold/20 bg-black px-3 text-sm text-white"
+          >
+            <option value="name">{l("Product name", "Produktname")}</option>
+            <option value="stock">{l("Lowest stock first", "Niedrigster Bestand zuerst")}</option>
+            <option value="price">{l("Lowest price first", "Niedrigster Preis zuerst")}</option>
+          </select>
+        </label>
+        <div className="flex w-full flex-wrap gap-2" aria-label={t("adminWorkspace.inventory")}>
+          {[
+            ["all", t("products.allProducts")],
+            ["low", t("products.lowStock")],
+            ["out", t("products.outOfStock")],
+            ["hidden", t("adminProducts.hidden")],
+            ["featured", t("adminProducts.featured")],
+          ].map(([value, label]) => (
+            <button
+              type="button"
+              key={value}
+              aria-pressed={stockFilter === value}
+              onClick={() => setStockFilter(value)}
+              className={`min-h-11 rounded-full border px-3 text-xs ${stockFilter === value ? "border-gold bg-gold text-black" : "border-gold/20 text-white/70 hover:border-gold"}`}
+            >
+              {label}{" "}
+              <span className="ml-1 tabular-nums">
+                {products.filter((p) => matchesStock(p, value)).length}
+              </span>
+            </button>
+          ))}
+        </div>
+        <div className="flex w-full items-center justify-between text-xs text-white/60">
+          <span aria-live="polite">
+            {visibleProducts.length} / {products.length} {t("adminProducts.title")}
+          </span>
+          {(searchTerm || collection !== "all" || stockFilter !== "all") && (
+            <button
+              type="button"
+              className="min-h-11 px-2 text-gold"
+              onClick={() => {
+                setSearchTerm("");
+                setCollection("all");
+                setStockFilter("all");
+              }}
+            >
+              {l("Clear filters", "Filter zurücksetzen")}
+            </button>
+          )}
+        </div>
         <details className="w-full text-xs text-white/50">
           <summary className="cursor-pointer text-gold">{t("adminWorkspace.importHelp")}</summary>
           <p className="mt-3">
@@ -521,7 +627,7 @@ function AdminProductsPage() {
 
       {isError && <AdminFeedback retry={() => void refetch()} />}
       <div className="overflow-x-auto rounded-2xl border border-gold/15 bg-[#0D0D0D]">
-        <table className="w-full text-sm">
+        <table className="admin-product-table w-full text-sm">
           <thead className="text-left text-xs uppercase tracking-wider text-white/50">
             <tr>
               <th className="p-3">{t("adminProducts.colProduct")}</th>
@@ -561,16 +667,31 @@ function AdminProductsPage() {
                       ) : firstImage?.url ? (
                         <img src={firstImage.url} alt="" className="h-10 w-10 object-cover" />
                       ) : null}
-                      <span className="text-white">{p.name}</span>
+                      <button
+                        type="button"
+                        onClick={() => startEdit(p)}
+                        className="text-left font-medium text-white underline-offset-4 hover:text-gold hover:underline"
+                      >
+                        {p.name}
+                      </button>
                     </div>
                   </td>
 
-                  <td className="p-3 text-white/60">{p.categories?.name ?? "—"}</td>
-                  <td className="p-3 text-white/60">{sortedMedia.length}</td>
-                  <td className="p-3 font-mono text-gold">
+                  <td data-label={t("adminProducts.colCategory")} className="p-3 text-white/60">
+                    {p.categories?.name ?? "—"}
+                  </td>
+                  <td data-label={t("adminProducts.colMedia")} className="p-3 text-white/60">
+                    {sortedMedia.length}
+                  </td>
+                  <td data-label={t("adminProducts.colPrice")} className="p-3 font-mono text-gold">
                     {formatEuro(Number(p.price), i18n.language)}
                   </td>
-                  <td className="p-3 font-mono text-white/70">{p.stock_quantity}</td>
+                  <td
+                    data-label={t("adminProducts.colStock")}
+                    className="p-3 font-mono text-white/70"
+                  >
+                    {p.stock_quantity}
+                  </td>
 
                   <td className="p-3 text-xs">
                     <span
@@ -591,12 +712,12 @@ function AdminProductsPage() {
                   </td>
 
                   <td className="p-3">
-                    <div className="flex justify-end gap-2">
+                    <div className="flex flex-wrap justify-end gap-2">
                       <button
                         onClick={() => setOptionsProductId(p.id)}
                         aria-label={t("options.manage")}
                         title={t("options.manage")}
-                        className="p-2 text-gold/70 hover:text-gold"
+                        className="flex min-h-11 items-center gap-1 rounded-lg border border-gold/20 px-3 text-gold/70 hover:text-gold"
                       >
                         <Palette size={16} />
                         <span className="ml-1 hidden text-xs lg:inline">{t("options.manage")}</span>
@@ -604,11 +725,21 @@ function AdminProductsPage() {
                       <button
                         onClick={() => startEdit(p)}
                         aria-label={t("adminWorkspace.edit")}
-                        className="p-2 text-gold/70 hover:text-gold"
+                        className="flex min-h-11 items-center gap-1 rounded-lg border border-gold/20 px-3 text-gold/70 hover:text-gold"
                       >
                         <Pencil size={14} />
+                        <span className="text-xs">{t("adminWorkspace.edit")}</span>
                       </button>
 
+                      <Link
+                        to="/products/$slug"
+                        params={{ slug: p.slug }}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex min-h-11 items-center rounded-lg border border-gold/20 px-3 text-xs text-gold"
+                      >
+                        {l("View", "Ansehen")}
+                      </Link>
                       <button
                         onClick={() =>
                           confirm(t("adminProducts.deleteConfirm", { name: p.name })) &&
@@ -650,9 +781,7 @@ function AdminProductsPage() {
 
       {editing && (
         <Modal
-          onClose={() => {
-            if (!batchUploading && !upsert.isPending) setEditing(null);
-          }}
+          onClose={closeEditor}
           title={editing.id ? t("adminProducts.editProduct") : t("adminProducts.newProduct")}
         >
           <form
@@ -1119,7 +1248,7 @@ function AdminProductsPage() {
               <button
                 type="button"
                 disabled={batchUploading || upsert.isPending}
-                onClick={() => setEditing(null)}
+                onClick={closeEditor}
                 className="border border-white/20 px-4 py-2 text-sm text-white/70"
               >
                 {t("adminProducts.cancel")}

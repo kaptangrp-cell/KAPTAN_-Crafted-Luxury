@@ -12,7 +12,8 @@ export function OptionMultiSelect({
   values: string[];
   onChange: (values: string[]) => void;
 }) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const de = i18n.language.startsWith("de");
   const [custom, setCustom] = useState("");
   const choices = [
     ...new Map([...presets, ...values].map((value) => [value.toLowerCase(), value])).values(),
@@ -31,6 +32,29 @@ export function OptionMultiSelect({
   return (
     <fieldset className="rounded-xl border border-gold/20 p-3">
       <legend className="px-1 text-xs uppercase tracking-wider text-gold/70">{label}</legend>
+      <div className="mb-3 flex items-center justify-between gap-2 text-xs">
+        <span className="text-white/50">
+          {values.length} {de ? "ausgewählt" : "selected"}
+        </span>
+        <div className="flex gap-3">
+          <button
+            type="button"
+            onClick={() => onChange([...choices])}
+            disabled={choices.length === values.length}
+            className="min-h-10 text-gold disabled:opacity-40"
+          >
+            {de ? "Alle auswählen" : "Select all"}
+          </button>
+          <button
+            type="button"
+            onClick={() => onChange([])}
+            disabled={!values.length}
+            className="min-h-10 text-white/60 disabled:opacity-40"
+          >
+            {de ? "Auswahl aufheben" : "Clear selection"}
+          </button>
+        </div>
+      </div>
       <div className="flex flex-wrap gap-2">
         {choices.map((value) => {
           const selected = values.some((v) => v.toLowerCase() === value.toLowerCase());
