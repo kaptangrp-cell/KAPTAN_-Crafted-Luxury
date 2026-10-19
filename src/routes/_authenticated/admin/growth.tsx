@@ -28,6 +28,8 @@ import {
   report,
   recommendations,
   suggestActions,
+  nextMonth,
+  launchRequirements,
   changePercent,
   addDays,
   type Plan,
@@ -71,7 +73,7 @@ function GrowthPage() {
         </p>
       </div>
       <div className="flex flex-wrap gap-3">
-        {(["60days", "2027"] as const).map((p) => (
+        {(["60days", "firstyear", "2027"] as const).map((p) => (
           <button
             key={p}
             aria-pressed={period === p}
@@ -89,7 +91,11 @@ function GrowthPage() {
               setPeriod(p);
             }}
           >
-            {p === "60days" ? l("Next 60 days", "Nächste 60 Tage") : "2027"}
+            {p === "60days"
+              ? l("First 60 days", "Erste 60 Tage")
+              : p === "firstyear"
+                ? l("First year from launch", "Erstes Jahr ab Start")
+                : "2027"}
           </button>
         ))}
         <button className={button} onClick={() => void query.refetch()} disabled={query.isFetching}>
@@ -141,14 +147,16 @@ function Planner({
   const na = l("Not available", "Nicht verfügbar");
   const pct = (n: number | null) => (n === null ? na : `${n.toFixed(1)} %`);
   const saved = loaded.plans.find((p) => p.data.period === period);
-  const [plan, setPlan] = useState<Plan>(() => saved?.data ?? newPlan(period, loaded.today));
+  const [plan, setPlan] = useState<Plan>(
+    () => saved?.data ?? newPlan(period, nextMonth(loaded.today)),
+  );
   const [identity, setIdentity] = useState({
     id: saved?.id ?? null,
     revision: saved?.revision ?? 0,
   });
   const [dirty, setDirty] = useState(false);
   const [busy, setBusy] = useState(false);
-  const [tab, setTab] = useState(0);
+  const [tab, setTab] = useState(1);
   const [editor, setEditor] = useState<{
     id: string | null;
     revision: number;
@@ -166,7 +174,14 @@ function Planner({
     window.addEventListener("beforeunload", warn);
     return () => window.removeEventListener("beforeunload", warn);
   }, [dirty, editor, onUnsavedChange]);
-  const [proposals, setProposals] = useState<Action[]>([]);
+  const proposals = suggestActions(plan, loaded.stock, de).filter(
+    (p) =>
+      !loaded.actions.some(
+        (a) =>
+          a.plan_id === identity.id && a.data.title === p.title && a.data.deadline === p.deadline,
+      ),
+  );
+  const requirements = launchRequirements(plan);
   const savePlan = useServerFn(growthSavePlan),
     saveAction = useServerFn(growthSaveAction),
     deleteAction = useServerFn(growthDeleteAction);
@@ -203,14 +218,18 @@ function Planner({
     }
   }
   async function persistAction(data: Action, id: string | null = null, revision = 0) {
-    if (!identity.id) return;
     setBusy(true);
     try {
+      let parent = identity;
+      if (!parent.id || dirty) {
+        parent = await savePlan({ data: { ...identity, plan: PlanSchema.parse(plan) } });
+        setIdentity(parent);
+        setDirty(false);
+      }
       await saveAction({
-        data: { id, revision, planId: identity.id, action: ActionSchema.parse(data) },
+        data: { id, revision, planId: parent.id!, action: ActionSchema.parse(data) },
       });
       setEditor(null);
-      setProposals((p) => p.filter((a) => a !== data));
       await refresh();
       toast.success(l("Action saved", "Maßnahme gespeichert"));
     } catch (e) {
@@ -255,8 +274,8 @@ function Planner({
               )
             : !identity.id
               ? l(
-                  "New plan — save to enable actions",
-                  "Neuer Plan – zum Aktivieren der Maßnahmen speichern",
+                  "Draft strategy ready — adding an action also saves your goals",
+                  "Strategieentwurf bereit – Maßnahme hinzufügen speichert auch Ihre Ziele",
                 )
               : l("Saved", "Gespeichert")}
         </span>
@@ -274,11 +293,10 @@ function Planner({
               )
             )
               return;
-            setPlan(saved?.data ?? newPlan(period, loaded.today));
+            setPlan(saved?.data ?? newPlan(period, nextMonth(loaded.today)));
             setIdentity({ id: saved?.id ?? null, revision: saved?.revision ?? 0 });
             setDirty(false);
             setEditor(null);
-            setProposals([]);
           }}
         >
           {l("Reload saved plan", "Gespeicherten Plan laden")}
@@ -317,7 +335,7 @@ function Planner({
         <>
           <section className={box}>
             <h2 className="mb-4 font-serif text-xl">{l("Set your goals", "Ziele festlegen")}</h2>
-            {period === "60days" && !identity.id && (
+            {period !== "2027" && !identity.id && (
               <label className="mb-4 block text-sm">
                 {l("Start date (fixed once saved)", "Startdatum (nach Speichern fest)")}
                 <input
@@ -326,12 +344,111 @@ function Planner({
                   value={plan.start}
                   onChange={(e) => {
                     if (e.target.value)
-                      update({ ...newPlan(period, e.target.value), targets: plan.targets });
+                      update(
+                        allocate({
+                          ...plan,
+                          start: e.target.value,
+                          buckets: newPlan(period, e.target.value).buckets,
+                        }),
+                      );
                   }}
                 />
               </label>
             )}
             {targetFields(plan.targets, (t) => update({ ...plan, targets: t }))}
+            <div className="my-4 rounded-xl border border-gold/20 p-4">
+              <h3 className="text-gold">
+                {l(
+                  "Startup goal feasibility — your assumptions",
+                  "Machbarkeit der Startziele – Ihre Annahmen",
+                )}
+              </h3>
+              <p className="my-2 text-sm">
+                {l(
+                  "No history is required. Enter an assumed order value and purchase conversion rate to work backwards from your goal. These inputs do not change recorded sales or forecast scenarios.",
+                  "Keine Historie nötig. Angenommenen Bestellwert und Kauf-Conversion-Rate eingeben, um vom Ziel rückwärts zu rechnen. Diese Eingaben ändern weder Ist-Verkäufe noch Prognoseszenarien.",
+                )}
+              </p>
+              <div className="grid gap-3 sm:grid-cols-2">
+                <label>
+                  {l("Hero product", "Leitprodukt")}
+                  <select
+                    className={input}
+                    value={plan.launch.productId}
+                    onChange={(e) =>
+                      update({ ...plan, launch: { ...plan.launch, productId: e.target.value } })
+                    }
+                  >
+                    <option value="">
+                      {l("Suggest from available catalogue", "Aus verfügbarem Katalog vorschlagen")}
+                    </option>
+                    {loaded.stock
+                      .filter((p) => p.active)
+                      .map((p) => (
+                        <option key={p.id} value={p.id}>
+                          {p.name} · {p.stock}
+                        </option>
+                      ))}
+                  </select>
+                </label>
+                <label>
+                  {l("Target buyer / use case", "Zielkäufer / Anwendungsfall")}
+                  <input
+                    className={input}
+                    maxLength={250}
+                    value={plan.launch.audience}
+                    placeholder={l(
+                      "Define after buyer interviews",
+                      "Nach Käufergesprächen festlegen",
+                    )}
+                    onChange={(e) =>
+                      update({ ...plan, launch: { ...plan.launch, audience: e.target.value } })
+                    }
+                  />
+                </label>
+                {(["aov", "conversion"] as const).map((k) => (
+                  <label key={k}>
+                    {k === "aov"
+                      ? l("Assumed order value (€)", "Angenommener Bestellwert (€)")
+                      : l("Assumed purchase conversion (%)", "Angenommene Kauf-Conversion (%)")}
+                    <input
+                      type="number"
+                      min="0.01"
+                      max={k === "conversion" ? 100 : 100000000}
+                      step="0.01"
+                      className={input}
+                      value={plan.launch[k] ?? ""}
+                      onChange={(e) =>
+                        update({
+                          ...plan,
+                          launch: {
+                            ...plan.launch,
+                            [k]: e.target.value === "" ? null : Number(e.target.value),
+                          },
+                        })
+                      }
+                    />
+                  </label>
+                ))}
+              </div>
+              <p className="mt-3">
+                {l("Orders needed", "Benötigte Bestellungen")}: {requirements.orders ?? na} ·{" "}
+                {l(
+                  "Visits needed at your assumed conversion",
+                  "Benötigte Besuche bei Ihrer Conversion-Annahme",
+                )}
+                : {requirements.visits ?? na}
+              </p>
+              <p className="mt-2 text-sm">
+                {l("Order goal × assumed order value", "Bestellziel × angenommener Bestellwert")}:{" "}
+                {money(requirements.revenue)} · {l("Revenue goal", "Umsatzziel")}:{" "}
+                {money(plan.targets.revenue)}.{" "}
+                {l(
+                  "If these differ, reconcile your goals. No rate is supplied as an industry benchmark.",
+                  "Bei Abweichung Ziele abstimmen. Es wird kein Satz als Branchenbenchmark vorgegeben.",
+                )}
+              </p>
+            </div>
             <button className={`${button} mt-4`} onClick={() => update(allocate(plan))}>
               {l("Distribute total targets across periods", "Gesamtziele auf Zeiträume verteilen")}
             </button>
@@ -487,26 +604,66 @@ function Planner({
       )}
       {tab === 1 && (
         <>
+          <section className={box}>
+            <h2 className="font-serif text-2xl text-gold">
+              {l(
+                "Start from zero. Build demand step by step.",
+                "Bei null starten. Nachfrage Schritt für Schritt aufbauen.",
+              )}
+            </h2>
+            <p className="mt-3">
+              {l(
+                "Strategy: focus on one buyer group and a clear product offer, make the shop trustworthy, then test discovery through useful content, search and local partnerships. Improve the offer from buyer feedback before expanding spending.",
+                "Strategie: Eine Käufergruppe und ein klares Produktangebot wählen, Vertrauen im Shop schaffen und dann hilfreiche Inhalte, Suche und lokale Partnerschaften testen. Angebot anhand von Käuferfeedback verbessern, bevor Ausgaben steigen.",
+              )}
+            </p>
+            <p className="mt-3 text-sm text-white/70">
+              {l("Suggested launch date", "Vorgeschlagener Start")}: {plan.start}.{" "}
+              {l(
+                "Change it in Goals & Forecast before saving. First year covers 12 months from launch; 2027 remains a separate calendar plan. These are editable startup experiments, not forecasts or proven results.",
+                "Vor dem Speichern unter Ziele & Prognose ändern. Erstes Jahr umfasst 12 Monate ab Start; 2027 bleibt ein eigener Kalenderplan. Dies sind editierbare Start-Experimente, keine Prognosen oder belegten Ergebnisse.",
+              )}
+            </p>
+            <button className={`${primary} mt-4`} onClick={() => setTab(0)}>
+              {l("Set launch date, goals & assumptions", "Startdatum, Ziele & Annahmen festlegen")}
+            </button>
+            <div className="mt-4 grid gap-4 sm:grid-cols-3">
+              <p>
+                {l("1 · Validate", "1 · Prüfen")}
+                <br />
+                {l(
+                  "Buyer interviews, positioning, product facts and checkout readiness.",
+                  "Käufergespräche, Positionierung, Produktdaten und Checkout-Bereitschaft.",
+                )}
+              </p>
+              <p>
+                {l("2 · Launch & learn", "2 · Starten & lernen")}
+                <br />
+                {l(
+                  "Content, search visibility, small partnerships and one controlled acquisition experiment.",
+                  "Inhalte, Suchpräsenz, kleine Partnerschaften und ein kontrollierter Akquiseversuch.",
+                )}
+              </p>
+              <p>
+                {l("3 · Improve & grow", "3 · Verbessern & wachsen")}
+                <br />
+                {l(
+                  "Bundles, genuine reviews, repeat customers and scaling only after profitable evidence.",
+                  "Bundles, echte Bewertungen, Wiederkäufer und Ausbau erst nach Profitabilitätsnachweis.",
+                )}
+              </p>
+            </div>
+            <p className="mt-4 text-sm text-amber-200">
+              {l(
+                "Zero budget uses organic work. No stock uses preparation tasks. Optional paid tests require your budget, confirmed stock and a contribution calculation; sampling, postage and event fees require separate approval within your budget.",
+                "Ohne Budget wird organisch gearbeitet. Ohne Bestand werden Vorbereitungen geplant. Bezahlte Tests brauchen Ihr Budget, bestätigten Bestand und Deckungsbeitragsrechnung; Muster, Porto und Veranstaltungsgebühren separat innerhalb des Budgets freigeben.",
+              )}
+            </p>
+          </section>
           <div className={box}>
             <div className="flex flex-wrap gap-3">
               <button
-                disabled={!identity.id || dirty || busy}
-                className={primary}
-                onClick={() =>
-                  setProposals(
-                    suggestActions(plan, loaded.stock, de).filter(
-                      (p) =>
-                        !actions.some(
-                          (a) => a.data.title === p.title && a.data.deadline === p.deadline,
-                        ),
-                    ),
-                  )
-                }
-              >
-                {l("Generate tailored proposals", "Passende Vorschläge erstellen")}
-              </button>
-              <button
-                disabled={!identity.id || busy}
+                disabled={busy}
                 className={button}
                 onClick={() =>
                   setEditor({
@@ -529,8 +686,8 @@ function Planner({
             </div>
             <p className="mt-3 text-sm text-white/65">
               {l(
-                "Proposals use saved targets, period budgets, stocked products and categories. Review each before adding. Nothing launches ads or sends email.",
-                "Vorschläge verwenden gespeicherte Ziele, Periodenbudgets, verfügbare Produkte und Kategorien. Vor dem Hinzufügen prüfen. Es werden keine Anzeigen gestartet oder E-Mails versendet.",
+                "Your startup roadmap is ready below, even without sales history. Edit goals in Goals & Forecast; suggestions update immediately. Add an action to save it to your checklist. Adding also saves current goals, so distribute edited totals first. Nothing launches ads or sends email.",
+                "Ihr Startplan steht unten bereit – auch ohne Verkaufshistorie. Ziele unter Ziele & Prognose bearbeiten; Vorschläge aktualisieren sich sofort. Hinzufügen speichert die Maßnahme und aktuelle Ziele; geänderte Gesamtziele vorher verteilen. Keine Anzeigen oder E-Mails werden ausgelöst.",
               )}
             </p>
             <p className="mt-3">
@@ -551,10 +708,10 @@ function Planner({
           {proposals.length > 0 && (
             <section className={box}>
               <h2 className="font-serif text-xl">
-                {l("Review proposed actions", "Vorgeschlagene Maßnahmen prüfen")}
+                {l("Your startup action roadmap", "Ihr Maßnahmenplan für den Start")}
               </h2>
               {proposals.map((p) => (
-                <div key={p.deadline} className="mt-4 border-t border-gold/20 pt-4">
+                <div key={`${p.deadline}-${p.title}`} className="mt-4 border-t border-gold/20 pt-4">
                   <h3 className="text-gold">
                     {p.deadline} · {p.title}
                   </h3>

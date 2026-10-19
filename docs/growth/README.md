@@ -6,6 +6,21 @@ Apply `supabase/migrations/20261019090000_growth_planner.sql` to the Kaptan Supa
 
 Application entry: **Admin → Growth Planner** (`/admin/growth`). Both German and English interfaces are available. The new module requires the existing `is_admin()` function and auth schema.
 
+## Startup planning (October 2026 update)
+
+Apply `20261019100000_growth_startup_year.sql` before releasing this update. It extends the existing period constraint without changing saved plans, actions or store records. Legacy plans default to blank launch assumptions.
+
+The planner now opens on **Marketing & Sales Plan**, with a visible strategy and editable roadmap even before saving, with no historical sales, and with no catalogue/stock. New drafts start on the first day of next month (editable before saving). **First year from launch** covers twelve months from that date; **2027** remains separate. First 60 days has nine periods, with a four-day final period.
+
+- The roadmap provides two actions per period (18 weekly or 24 monthly), including practical steps, editable suggested workloads, deadline, KPI, budget and explicitly hypothetical benefit.
+- A missing/out-of-stock catalogue produces preparation tasks instead of an empty screen. Promotions remain conditional on receiving and checking stock.
+- Action previews use current draft goals immediately. Adding an action validates and saves the goals if needed, then saves the action. It does not send messages or start spending. Existing actions are never regenerated or overwritten automatically.
+- Optional paid acquisition appears only in period 5 with available inventory and a positive period budget. Other spend is unallocated, not silently committed. Zero budget has an organic alternative. No sample, event or postage cost is assumed to be free.
+- Enter **assumed order value** and **assumed purchase conversion** under Goals & Forecast to calculate required orders/visits. These are user inputs, not benchmarks. If an explicit order target exists it takes precedence; implied revenue is shown alongside the revenue goal to expose inconsistencies. Forecasts and actual sales stay separate.
+- First-year phases progress from positioning and shop readiness to acquisition, partnerships, retention, review, gifting, evidence-gated scaling and year-two planning. Task counts are suggested workload, not performance promises.
+
+Reference resources reviewed: [Google Merchant Center free listings](https://business.google.com/us/merchant-center/?content_language=English), [Meta Reels creative guidance](https://www.facebook.com/business/ads/facebook-instagram-reels-ads). These inform discovery/content options; the roadmap and workloads are Kaptan planning suggestions, not provider-endorsed sales forecasts.
+
 ## Use
 
 1. Choose **Next 60 days** or **2027**. A 60-day plan starts on the selected date and stays anchored after saving; 2027 contains twelve calendar months.
@@ -25,12 +40,12 @@ Application entry: **Admin → Growth Planner** (`/admin/growth`). Both German a
 - Overall growth compares elapsed plan days with the immediately preceding equal number of days. Period tables compare against the full preceding week/month; a running period is explicitly labelled incomplete. Do not infer deterioration from a partial-period comparison alone.
 - Required average revenue per remaining planning period divides remaining revenue by remaining buckets, not by an invented fixed month length. Required daily orders uses the plan-to-date AOV, otherwise unavailable.
 - Marketing spend/traffic/social actuals are explicitly manual; no advertising integrations, email dispatch, tracking scripts or payment actions are introduced. The marketing budget is a ceiling/plan, not an expense entry. Planned action-budget overrun is flagged, not automatically spent.
-- Suggestions use stocked product/category data, saved order/customer targets, period budgets and (for Q4 2027) gifting timing. Benefits are hypotheses. No-stock catalogues generate no proposals. Email requires independently evidenced consent; no email campaign is sent by this module.
+- Suggestions use stocked product/category data, saved order/customer targets, period budgets and (for Q4 2027) gifting timing. Benefits are hypotheses. No-stock catalogues generate gated preparation proposals. Email requires independently evidenced consent; no email campaign is sent by this module.
 - Product performance ranks active products by recorded item sales and highlights zero sales without inferring demand or exposure. Stock cover uses current stock / last-28-day unit sales rate; supplier lead time and variant availability require human review.
 - No automatic campaign attribution, causal claims, tax reporting, statistical confidence interval, social-platform integration or autonomous spending is included.
 
 ## Verification
 
-`node --test tests/growth-planner.test.mjs tests/localization.test.mjs` exercises allocation, schemas, forecast assumptions, null handling, exclusions, stock-sensitive proposals, recommendations, Berlin date boundaries and a PostgreSQL-compatible database migration/RLS/revision test. Also run typecheck, changed-file lint and the production build. Browser verification against a signed-in production admin and live Supabase installation remains a release check; automated test fixtures never enter production.
+`node --test tests/growth-planner.test.mjs tests/localization.test.mjs` exercises allocation, schemas, forecast assumptions, null handling, exclusions, stock-sensitive proposals, recommendations, Berlin date boundaries and a PostgreSQL-compatible database migration/RLS/revision test. Also run typecheck, changed-file lint and the production build. Production release of the original planner was verified on 19 October 2026; the startup update needs its own release verification; automated test fixtures never enter production.
 
 Local browser check completed in an isolated, write-disabled preview: goal entry and day-weighted distribution updated period tables and the revenue chart; empty-data recommendations correctly avoided an unsupported diagnosis. The preview used no orders or product records and is removed from deployable assets.

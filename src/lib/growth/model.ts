@@ -24,8 +24,11 @@ export const ScenarioSchema = z.object({
 });
 export const PlanSchema = z
   .object({
-    period: z.enum(["60days", "2027"]),
+    period: z.enum(["60days", "firstyear", "2027"]),
     start: z.string().date(),
+    launch: z
+      .object({ aov: amount.nullable(), conversion: z.number().min(0.01).max(100).nullable() })
+      .default({ productId: "", audience: "", aov: null, conversion: null }),
     targets: MetricsSchema,
     buckets: z
       .array(
@@ -92,16 +95,32 @@ export function berlinDay(date = new Date()) {
     day: "2-digit",
   }).format(date);
 }
+export function addMonths(date: string, months: number) {
+  const d = new Date(date + "T12:00:00Z");
+  const day = d.getUTCDate();
+  d.setUTCDate(1);
+  d.setUTCMonth(d.getUTCMonth() + months);
+  const last = new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth() + 1, 0)).getUTCDate();
+  d.setUTCDate(Math.min(day, last));
+  return d.toISOString().slice(0, 10);
+}
+export const nextMonth = (today: string) => addMonths(today.slice(0, 8) + "01", 1);
 export function makeBuckets(period: Plan["period"], start: string): Bucket[] {
-  return Array.from({ length: period === "2027" ? 12 : 9 }, (_, i) => {
+  return Array.from({ length: period !== "60days" ? 12 : 9 }, (_, i) => {
     const from =
-      period === "2027" ? `2027-${String(i + 1).padStart(2, "0")}-01` : addDays(start, i * 7);
+      period === "2027"
+        ? `2027-${String(i + 1).padStart(2, "0")}-01`
+        : period === "firstyear"
+          ? addMonths(start, i)
+          : addDays(start, i * 7);
     const end =
       period === "2027"
         ? i === 11
           ? "2028-01-01"
           : `2027-${String(i + 2).padStart(2, "0")}-01`
-        : addDays(start, Math.min((i + 1) * 7, 60));
+        : period === "firstyear"
+          ? addMonths(start, i + 1)
+          : addDays(start, Math.min((i + 1) * 7, 60));
     return {
       start: from,
       end,
@@ -116,6 +135,7 @@ export function newPlan(period: Plan["period"], today: string): Plan {
   return {
     period,
     start,
+    launch: { productId: "", audience: "", aov: null, conversion: null },
     targets: emptyMetrics(),
     buckets: makeBuckets(period, start),
     scenarios: { conservative: scenario(), expected: scenario(), optimistic: scenario() },
@@ -367,39 +387,4 @@ export function recommendations(
     });
   return result.slice(0, 3);
 }
-/** Deterministic proposals derived from the actual catalogue and saved goal; benefits are hypotheses. */
-export function suggestActions(plan: Plan, stock: Stock[], de = false): Action[] {
-  const available = stock.filter((p) => p.active && p.stock > 0).sort((a, b) => b.stock - a.stock);
-  if (!available.length) return [];
-  return plan.buckets.map((b, i) => {
-    const p = available[i % available.length];
-    const category = p.category || p.name;
-    const paid = b.targets.budget > 0 && i % 3 === 1;
-    const seasonal = plan.period === "2027" && i >= 9;
-    return {
-      title: paid
-        ? de
-          ? `Kleinen Werbetest für ${category} planen`
-          : `Plan a small advertising test for ${category}`
-        : seasonal
-          ? de
-            ? `Firmengeschenke mit ${p.name} vorbereiten`
-            : `Prepare corporate gifting with ${p.name}`
-          : de
-            ? `${p.name}: Produktseite und Instagram-Beitrag verbessern`
-            : `Improve ${p.name} page and Instagram content`,
-      steps: de
-        ? `Bestand (${p.stock}) und Varianten vor Start prüfen. ${paid ? "Zielgruppe und Ausgabenlimit festlegen; nach halbem Budget Ergebnisse prüfen und bei ausbleibenden Bestellungen stoppen." : seasonal ? "Passendes Geschenkangebot mit Lieferfrist kalkulieren und bei bestehenden Geschäftskontakten bzw. lokalen Partnern vorstellen; keine unerlaubte Werbeansprache." : "Bilder, deutsche/englische Beschreibung und Nutzen prüfen. Ein Reel zur Anwendung erstellen und auf die Produktseite verlinken."} Periodenziel: ${b.targets.orders} Bestellungen und ${b.targets.customers} neue Käufer. Keine E-Mail-Kampagne ohne nachgewiesene Einwilligung.`
-        : `Check stock (${p.stock}) and variants before launch. ${paid ? "Set audience and spending cap; review at half the budget and stop if orders do not materialise." : seasonal ? "Cost a gift offer with a delivery deadline; discuss with existing business contacts or local partners, without unsolicited marketing." : "Review images, German/English copy and benefits. Create a usage Reel linking to the product page."} Period goal: ${b.targets.orders} orders and ${b.targets.customers} new buyers. Do not email without evidenced consent.`,
-      benefit: de
-        ? `Hypothese: Bessere Sichtbarkeit von ${category} könnte qualifizierte Besuche und Käufe erhöhen. Keine garantierte Wirkung.`
-        : `Hypothesis: better visibility for ${category} may increase qualified visits and purchases. No guaranteed outcome.`,
-      budget: paid ? Math.round(b.targets.budget * 100) / 100 : 0,
-      deadline: addDays(b.end, -1),
-      kpi: de
-        ? `Bestellungen gegenüber Periodenziel ${b.targets.orders}; Ausgaben höchstens ${b.targets.budget} EUR; Link-Klicks nur bei verfügbarer Messung.`
-        : `Orders versus period target ${b.targets.orders}; spend no more than EUR ${b.targets.budget}; link clicks only where measurement exists.`,
-      status: "todo",
-    };
-  });
-}
+export { suggestActions, launchRequirements } from "./startup.ts";
