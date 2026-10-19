@@ -27,7 +27,12 @@ export const PlanSchema = z
     period: z.enum(["60days", "firstyear", "2027"]),
     start: z.string().date(),
     launch: z
-      .object({ aov: amount.nullable(), conversion: z.number().min(0.01).max(100).nullable() })
+      .object({
+        productId: z.string().max(100).default(""),
+        audience: z.string().max(250).default(""),
+        aov: amount.nullable(),
+        conversion: z.number().min(0.01).max(100).nullable(),
+      })
       .default({ productId: "", audience: "", aov: null, conversion: null }),
     targets: MetricsSchema,
     buckets: z
