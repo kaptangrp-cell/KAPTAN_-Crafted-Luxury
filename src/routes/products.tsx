@@ -1,3 +1,4 @@
+import { COLLECTIONS, collectionLabel } from "@/lib/catalog-collections";
 import { motion, useReducedMotion } from "framer-motion";
 import { CatalogText } from "@/components/common/CatalogText";
 import { useState } from "react";
@@ -6,7 +7,7 @@ import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
 import type { z } from "zod";
 import { CatalogSearchSchema } from "@/lib/catalog-filters";
 import { colorHex } from "@/lib/product-media";
-import { SlidersHorizontal, X, Check, Search } from "lucide-react";
+import { SlidersHorizontal, X, Search } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { getProducts, getCategories, getCatalogColors } from "@/lib/products.functions";
 import { PageLayout } from "@/components/layout/PageLayout";
@@ -25,6 +26,7 @@ function productsQueryOptions(search: ProductsSearch) {
           search: search.q,
           colors: search.colors,
           categorySlug: search.category,
+          collection: search.collection,
           sort: search.sort,
           minPrice: search.minPrice,
           maxPrice: search.maxPrice,
@@ -77,7 +79,7 @@ const SORT_OPTIONS: { value: NonNullable<ProductsSearch["sort"]>; labelKey: stri
 ];
 
 function ProductsPage() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const reducedMotion = useReducedMotion();
   const search = Route.useSearch();
   const filtering = useRouterState({ select: (state) => state.isLoading });
@@ -93,30 +95,19 @@ function ProductsPage() {
 
   const activeCategory = categories.find((c) => c.slug === search.category);
 
-  const leatherCategories = categories.filter((c) => c.slug.toLowerCase().includes("leather"));
-
-  const saltCategories = categories.filter((c) => c.slug.toLowerCase().includes("salt"));
-
-  const otherCategories = categories.filter(
-    (c) => !c.slug.toLowerCase().includes("leather") && !c.slug.toLowerCase().includes("salt"),
-  );
-
-  function selectCategory(slug?: string) {
-    navigate({
-      resetScroll: false,
-      search: {
-        ...search,
-        category: slug,
-        page: undefined,
-      },
-    });
-  }
-
   function updateFilter(patch: Partial<ProductsSearch>) {
     navigate({ resetScroll: false, search: { ...search, page: undefined, ...patch } });
   }
 
   const chips = [
+    ...(search.collection
+      ? [
+          {
+            label: collectionLabel(search.collection, i18n.language.startsWith("de")),
+            patch: { collection: undefined },
+          },
+        ]
+      : []),
     ...(search.q ? [{ label: `“${search.q}”`, patch: { q: undefined } }] : []),
     ...(search.category
       ? [{ label: activeCategory?.name ?? search.category, patch: { category: undefined } }]
@@ -217,6 +208,28 @@ function ProductsPage() {
           </div>
         </div>
 
+        <nav
+          aria-label={t("products.filters")}
+          className="mb-5 flex flex-wrap gap-2 rounded-2xl border border-gold/15 bg-[#0D0D0D] p-2"
+        >
+          <button
+            onClick={() => updateFilter({ collection: undefined, category: undefined })}
+            aria-pressed={!search.collection && !search.category}
+            className={`min-h-11 rounded-xl px-5 py-2 text-sm ${!search.collection && !search.category ? "bg-gold text-black" : "text-white/75 hover:bg-white/5"}`}
+          >
+            {t("products.allProducts")}
+          </button>
+          {COLLECTIONS.map((value) => (
+            <button
+              key={value}
+              onClick={() => updateFilter({ collection: value, category: undefined })}
+              aria-pressed={search.collection === value}
+              className={`min-h-11 rounded-xl px-5 py-2 text-sm ${search.collection === value ? "bg-gold text-black" : "text-white/75 hover:bg-white/5"}`}
+            >
+              {collectionLabel(value, i18n.language.startsWith("de"))}
+            </button>
+          ))}
+        </nav>
         <button
           type="button"
           aria-expanded={filtersOpen}
@@ -274,38 +287,6 @@ function ProductsPage() {
                 </button>
               )}
             </div>
-            <button
-              onClick={() => selectCategory(undefined)}
-              className={`mb-6 text-left text-sm font-semibold ${
-                !search.category ? "text-gold" : "text-white/70 hover:text-gold"
-              }`}
-            >
-              {t("products.allProducts")}
-            </button>
-
-            <CategoryGroup
-              title={t("products.leatherProducts")}
-              categories={leatherCategories}
-              activeCategory={search.category}
-              onSelect={selectCategory}
-            />
-
-            <CategoryGroup
-              title={t("products.saltLamps")}
-              categories={saltCategories}
-              activeCategory={search.category}
-              onSelect={selectCategory}
-            />
-
-            {otherCategories.length > 0 && (
-              <CategoryGroup
-                title={t("products.other")}
-                categories={otherCategories}
-                activeCategory={search.category}
-                onSelect={selectCategory}
-              />
-            )}
-
             <details open className="mb-6 border-t border-gold/10 pt-4">
               <summary className="cursor-pointer text-sm font-medium text-gold">
                 {t("products.priceRange")}
@@ -341,11 +322,11 @@ function ProductsPage() {
                   {t("options.color")}
                 </summary>
                 <p className="mt-2 text-xs text-white/50">{t("filters.colorHelp")}</p>
-                <div className="mt-3 max-h-64 space-y-1 overflow-y-auto">
+                <div className="mt-3 flex max-h-64 flex-wrap gap-2 overflow-y-auto">
                   {colorData.colors.map((color) => (
                     <label
                       key={color.value}
-                      className="flex cursor-pointer items-center gap-3 rounded-lg px-2 py-2 text-sm text-white/80 hover:bg-gold/5"
+                      className={`flex min-h-11 cursor-pointer items-center gap-2 rounded-full border px-3 py-2 text-sm ${search.colors?.includes(color.value) ? "border-gold bg-gold/10 text-gold" : "border-white/15 text-white/80 hover:bg-gold/5"}`}
                     >
                       <input
                         type="checkbox"
@@ -359,7 +340,7 @@ function ProductsPage() {
                         className="h-5 w-5 rounded-full border border-white/30"
                         style={{ background: colorHex(color.label) }}
                       />
-                      <span>{color.label}</span>
+                      <CatalogText text={color.label} />
                     </label>
                   ))}
                 </div>
@@ -440,46 +421,6 @@ function ProductsPage() {
         )}
       </section>
     </PageLayout>
-  );
-}
-
-function CategoryGroup({
-  title,
-  categories,
-  activeCategory,
-  onSelect,
-}: {
-  title: string;
-  categories: { id: string; name: string; slug: string }[];
-  activeCategory?: string;
-  onSelect: (slug: string) => void;
-}) {
-  if (categories.length === 0) return null;
-
-  return (
-    <details
-      open={categories.some((category) => category.slug === activeCategory)}
-      className="mb-5 border-t border-gold/10 pt-4"
-    >
-      <summary className="mb-3 cursor-pointer text-sm font-medium text-gold">{title}</summary>
-
-      <ul className="space-y-2 text-sm">
-        {categories.map((c) => (
-          <li key={c.id}>
-            <button
-              aria-pressed={activeCategory === c.slug}
-              onClick={() => onSelect(c.slug)}
-              className={`flex w-full items-center justify-between gap-2 rounded-lg px-2 py-2 text-left ${
-                activeCategory === c.slug ? "bg-gold/10 text-gold" : "text-white/70 hover:text-gold"
-              }`}
-            >
-              <CatalogText text={c.name} />
-              {activeCategory === c.slug && <Check size={14} className="shrink-0" />}
-            </button>
-          </li>
-        ))}
-      </ul>
-    </details>
   );
 }
 

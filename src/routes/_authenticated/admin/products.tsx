@@ -1,3 +1,4 @@
+import { moveMedia } from "@/lib/media-order";
 import { ProductCard } from "@/components/product/ProductCard";
 import { mediaDetails } from "@/lib/product-media";
 import { OptionMultiSelect } from "@/components/admin/OptionMultiSelect";
@@ -125,6 +126,9 @@ function AdminProductsPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [stockFilter, setStockFilter] = useState("all");
   const [batchUploading, setBatchUploading] = useState(false);
+  const [draggedMedia, setDraggedMedia] = useState<number | null>(null);
+  const [dropActive, setDropActive] = useState(false);
+  const l = (en: string, de: string) => (i18n.language.startsWith("de") ? de : en);
   const [showPreview, setShowPreview] = useState(false);
   const [editing, setEditing] = useState<typeof empty | null>(null);
 
@@ -242,8 +246,16 @@ function AdminProductsPage() {
     });
   }
 
-  async function uploadPhotos(files: FileList | null) {
-    if (!files?.length) return;
+  async function uploadPhotos(files: FileList | File[] | null) {
+    if (!files?.length || batchUploading) return;
+    if (
+      Array.from(files).some(
+        (file) => !file.type.startsWith("image/") || file.size > 10 * 1024 * 1024,
+      )
+    ) {
+      toast.error(t("catalog.fileLimit"));
+      return;
+    }
     setBatchUploading(true);
     try {
       for (const file of Array.from(files)) {
@@ -649,8 +661,31 @@ function AdminProductsPage() {
               if (!batchUploading) upsert.mutate(editing);
             }}
             className="grid gap-3 md:grid-cols-2"
+            id="product-editor-form"
           >
-            <div className="rounded-lg border border-gold/25 bg-gold/5 p-4 md:col-span-2">
+            <nav
+              aria-label={l("Product form sections", "Produktformular-Bereiche")}
+              className="sticky top-12 z-10 flex flex-wrap gap-2 bg-[#1A1A1A] py-2 md:col-span-2"
+            >
+              {[
+                ["product-basics", l("Details & price", "Details & Preis")],
+                ["product-options-editor", l("Colours & sizes", "Farben & Größen")],
+                ["product-media", l("Photos & video", "Fotos & Video")],
+              ].map(([id, label]) => (
+                <button
+                  key={id}
+                  type="button"
+                  className="rounded-full border border-gold/30 px-3 py-2 text-xs text-gold"
+                  onClick={() => document.getElementById(id)?.scrollIntoView({ block: "start" })}
+                >
+                  {label}
+                </button>
+              ))}
+            </nav>
+            <div
+              id="product-basics"
+              className="scroll-mt-32 rounded-lg border border-gold/25 bg-gold/5 p-4 md:col-span-2"
+            >
               <p className="font-medium text-gold">{t("catalog.adminGuide")}</p>
               <p className="mt-2 text-sm leading-relaxed text-white/65">{t("catalog.adminHelp")}</p>
               <div className="mt-3 flex flex-wrap gap-3 text-xs text-white/70">
@@ -791,7 +826,10 @@ function AdminProductsPage() {
               />
             </label>
 
-            <div className="grid gap-3 md:col-span-2 md:grid-cols-2">
+            <div
+              id="product-options-editor"
+              className="scroll-mt-32 grid gap-3 md:col-span-2 md:grid-cols-2"
+            >
               <OptionMultiSelect
                 label={t("options.color")}
                 presets={["Black", "Brown", "Tan", "White", "Beige", "Blue", "Red", "Green"]}
@@ -872,7 +910,23 @@ function AdminProductsPage() {
                 </div>
               </div>
 
-              <label className="mb-4 block cursor-pointer rounded-lg border border-dashed border-gold/40 bg-gold/5 p-4 text-sm text-gold">
+              <label
+                id="product-media"
+                onDragOver={(e) => {
+                  e.preventDefault();
+                  if (!batchUploading) setDropActive(true);
+                }}
+                onDragLeave={() => setDropActive(false)}
+                onDrop={(e) => {
+                  e.preventDefault();
+                  setDropActive(false);
+                  void uploadPhotos(e.dataTransfer.files);
+                }}
+                className={`scroll-mt-32 mb-4 block cursor-pointer rounded-lg border border-dashed p-4 text-sm text-gold ${dropActive ? "border-gold bg-gold/20" : "border-gold/40 bg-gold/5"}`}
+              >
+                <span className="mb-2 block font-medium">
+                  {l("Drop photos here, or choose files", "Fotos hier ablegen oder Dateien wählen")}
+                </span>
                 {batchUploading ? t("adminProducts.uploading") : t("catalog.uploadMany")}
                 <input
                   type="file"
@@ -894,25 +948,86 @@ function AdminProductsPage() {
                 )}
 
                 {editing.media_items.map((item, index) => (
-                  <MediaUpload
-                    key={index}
-                    colors={editing.colors}
-                    onMove={(direction) =>
-                      setEditing((current) => {
-                        if (!current) return current;
-                        const media = [...current.media_items];
-                        const target = index + direction;
-                        if (target < 0 || target >= media.length) return current;
-                        [media[index], media[target]] = [media[target], media[index]];
-                        return { ...current, media_items: media };
-                      })
-                    }
-                    isLast={index === editing.media_items.length - 1}
-                    item={item}
-                    index={index}
-                    onChange={(patch) => updateMedia(index, patch)}
-                    onRemove={() => removeMedia(index)}
-                  />
+                  <div
+                    key={`${index}-${item.url}`}
+                    onDragOver={(e) => {
+                      if (draggedMedia !== null) e.preventDefault();
+                    }}
+                    onDrop={(e) => {
+                      if (draggedMedia === null) return;
+                      e.preventDefault();
+                      setEditing((current) =>
+                        current
+                          ? {
+                              ...current,
+                              media_items: moveMedia(current.media_items, draggedMedia, index),
+                            }
+                          : current,
+                      );
+                      setDraggedMedia(null);
+                    }}
+                    className={draggedMedia === index ? "opacity-50" : ""}
+                  >
+                    <div className="flex items-center justify-between gap-2 border border-gold/20 bg-black px-3 py-2 text-xs text-gold">
+                      <span
+                        draggable={!batchUploading}
+                        onDragStart={(e) => {
+                          setDraggedMedia(index);
+                          e.dataTransfer.effectAllowed = "move";
+                          e.dataTransfer.setData("text/plain", String(index));
+                        }}
+                        onDragEnd={() => setDraggedMedia(null)}
+                        className="cursor-grab"
+                        title={l(
+                          "Drag to reorder; use arrow buttons on touch or keyboard",
+                          "Zum Sortieren ziehen; alternativ Pfeiltasten nutzen",
+                        )}
+                      >
+                        {l("Drag to reorder", "Zum Sortieren ziehen")} · {index + 1}
+                      </span>
+                      <button
+                        type="button"
+                        disabled={index === 0 || batchUploading}
+                        onClick={() =>
+                          setEditing((current) =>
+                            current
+                              ? {
+                                  ...current,
+                                  media_items: moveMedia(current.media_items, index, 0),
+                                }
+                              : current,
+                          )
+                        }
+                        className="min-h-9 rounded px-2 hover:bg-gold/10 disabled:opacity-40"
+                      >
+                        {index === 0
+                          ? l("Cover photo", "Titelbild")
+                          : l("Make cover", "Als Titelbild")}
+                      </button>
+                    </div>
+                    <MediaUpload
+                      colors={editing.colors}
+                      onMove={(direction) =>
+                        setEditing((current) =>
+                          current
+                            ? {
+                                ...current,
+                                media_items: moveMedia(
+                                  current.media_items,
+                                  index,
+                                  index + direction,
+                                ),
+                              }
+                            : current,
+                        )
+                      }
+                      isLast={index === editing.media_items.length - 1}
+                      item={item}
+                      index={index}
+                      onChange={(patch) => updateMedia(index, patch)}
+                      onRemove={() => removeMedia(index)}
+                    />
+                  </div>
                 ))}
               </div>
             </div>
@@ -1000,7 +1115,7 @@ function AdminProductsPage() {
                 </div>
               )}
             </div>
-            <div className="flex justify-end gap-2 md:col-span-2">
+            <div className="sticky bottom-0 z-20 -mx-1 flex justify-end gap-2 border-t border-gold/20 bg-[#1A1A1A] px-1 py-3 md:col-span-2">
               <button
                 type="button"
                 disabled={batchUploading || upsert.isPending}

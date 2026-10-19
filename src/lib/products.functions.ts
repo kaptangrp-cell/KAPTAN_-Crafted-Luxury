@@ -1,3 +1,4 @@
+import { collectionForCategory } from "@/lib/catalog-collections";
 import { consumerProduct, VAT_FACTOR } from "./tax";
 import { CatalogRequestSchema, colorVariantFilter, literalPattern } from "@/lib/catalog-filters";
 import { optionParts } from "@/lib/product-options";
@@ -18,6 +19,15 @@ export const getCategories = createServerFn({ method: "GET" }).handler(async () 
 export const getProducts = createServerFn({ method: "POST" })
   .inputValidator((input: unknown) => CatalogRequestSchema.parse(input))
   .handler(async ({ data }) => {
+    let collectionIds: string[] | null = null;
+    if (data.collection) {
+      const result = await supabase.from("categories").select("id,name,slug");
+      if (result.error) throw new Error(result.error.message);
+      collectionIds = result.data
+        .filter((c) => collectionForCategory(c) === data.collection)
+        .map((c) => c.id);
+      if (!collectionIds.length) return { products: [], total: 0 };
+    }
     let categoryId: string | null = null;
 
     if (data.categorySlug) {
@@ -67,6 +77,7 @@ export const getProducts = createServerFn({ method: "POST" })
         query = query.order("created_at", { ascending: false });
     }
 
+    if (collectionIds) query = query.in("category_id", collectionIds);
     if (categoryId) {
       query = query.eq("category_id", categoryId);
     }
@@ -288,4 +299,37 @@ export const getCatalogColors = createServerFn({ method: "GET" }).handler(async 
       .map(([value, label]) => ({ value, label }))
       .sort((a, b) => a.label.localeCompare(b.label)),
   };
+});
+
+/** Lightweight public media manifest: all published product photos, no artificial featured-only limit. */
+export const getHeroSlides = createServerFn({ method: "GET" }).handler(async () => {
+  const slides: { url: string; name: string; slug: string; price: number; available: boolean }[] =
+    [];
+  for (let offset = 0; ; offset += 100) {
+    const { data, error } = await supabase
+      .from("products")
+      .select("id,name,slug,price,stock_quantity,product_images(url,sort_order,media_type)")
+      .eq("is_available", true)
+      .order("id")
+      .range(offset, offset + 99);
+    if (error) throw new Error(error.message);
+    for (const product of data ?? []) {
+      const seen = new Set<string>();
+      for (const media of [...product.product_images].sort(
+        (a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0),
+      )) {
+        if (media.media_type === "video" || !media.url || seen.has(media.url)) continue;
+        seen.add(media.url);
+        slides.push({
+          url: media.url,
+          name: product.name,
+          slug: product.slug,
+          price: consumerProduct(product).price,
+          available: product.stock_quantity > 0,
+        });
+      }
+    }
+    if ((data?.length ?? 0) < 100) break;
+  }
+  return { slides };
 });

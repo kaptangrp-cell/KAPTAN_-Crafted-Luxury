@@ -1,4 +1,11 @@
-import { createFileRoute, Outlet, Link, redirect, useRouterState } from "@tanstack/react-router";
+import {
+  createFileRoute,
+  Outlet,
+  Link,
+  redirect,
+  useRouterState,
+  useNavigate,
+} from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import {
   LayoutDashboard,
@@ -50,7 +57,9 @@ const nav: { to: string; labelKey: string; icon: typeof LayoutDashboard; exact?:
 ];
 
 function AdminLayout() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const navigate = useNavigate();
+  const de = i18n.language.startsWith("de");
   const { theme, toggleTheme } = usePreferencesStore();
   const { isAdmin } = useAuthStore();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
@@ -61,7 +70,7 @@ function AdminLayout() {
   return (
     <div className="admin-workspace min-h-screen bg-black text-white">
       <header className="sticky top-0 z-30 border-b border-gold/15 bg-black px-4 md:px-8">
-        <div className="mx-auto flex h-20 max-w-[1600px] items-center justify-between gap-3">
+        <div className="mx-auto flex h-16 max-w-[1600px] items-center justify-between gap-3">
           <Link to="/admin" className="flex items-center gap-3 text-gold">
             <img src="/kaptan-logo.png" alt="" className="h-10 w-10 object-contain" />
             <span className="font-serif text-xl tracking-[0.15em]">KAPTAN</span>
@@ -89,13 +98,32 @@ function AdminLayout() {
         </div>
       </header>
       <div className="mx-auto grid grid-cols-1 max-w-[1600px] gap-6 px-4 py-6 lg:grid-cols-[210px_minmax(0,1fr)] lg:gap-8 lg:px-8">
-        <aside className="min-w-0 h-fit rounded-2xl border border-gold/15 bg-[#0D0D0D] p-3 lg:sticky lg:top-26">
-          <p className="mb-4 font-serif text-xs uppercase tracking-[0.2em] text-gold">
+        <aside className="min-w-0 h-fit rounded-2xl border border-gold/15 bg-[#0D0D0D] p-3 lg:sticky lg:top-20">
+          <label className="flex items-center gap-3 text-sm text-gold lg:hidden">
+            {de ? "Bereich" : "Workspace"}
+            <select
+              aria-label={t("adminWorkspace.navigation")}
+              className="min-h-11 min-w-0 flex-1 rounded-lg border border-gold/25 bg-black px-3 text-white"
+              value={
+                nav.find((item) =>
+                  item.exact ? pathname === item.to : pathname.startsWith(item.to),
+                )?.to ?? "/admin"
+              }
+              onChange={(e) => navigate({ to: e.target.value as "/admin" })}
+            >
+              {nav.map((item) => (
+                <option key={item.to} value={item.to}>
+                  {t(item.labelKey)}
+                </option>
+              ))}
+            </select>
+          </label>
+          <p className="mb-3 hidden font-serif text-xs uppercase tracking-[0.2em] text-gold lg:block">
             {t("admin.navSectionLabel")}
           </p>
           <nav
             aria-label={t("adminWorkspace.navigation")}
-            className="flex gap-1 overflow-x-auto lg:flex-col"
+            className="hidden gap-1 lg:flex lg:flex-col"
           >
             {nav.map((item) => {
               const active = item.exact ? pathname === item.to : pathname.startsWith(item.to);
@@ -104,7 +132,7 @@ function AdminLayout() {
                   key={item.to}
                   to={item.to as "/admin"}
                   aria-current={active ? "page" : undefined}
-                  className={`flex shrink-0 items-center gap-3 rounded-lg px-3 py-3 text-sm transition-colors ${
+                  className={`flex shrink-0 items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition-colors ${
                     active
                       ? "bg-gold/10 text-gold"
                       : "text-white/70 hover:bg-white/5 hover:text-gold"

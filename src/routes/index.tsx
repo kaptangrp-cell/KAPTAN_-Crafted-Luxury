@@ -1,3 +1,6 @@
+import { PhotoCarousel } from "@/components/media/PhotoCarousel";
+import { translateCatalogText } from "@/lib/catalog-translation";
+import { COLLECTIONS, collectionLabel } from "@/lib/catalog-collections";
 import { CatalogText } from "@/components/common/CatalogText";
 import { useEffect, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
@@ -7,8 +10,8 @@ import { toast } from "sonner";
 import { ArrowUpRight, ShieldCheck, Gem, ShoppingBag, Sparkles } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import {
+  getHeroSlides,
   getFeaturedProducts,
-  getCategories,
   getProductsByIds,
   getRecommendedProducts,
 } from "@/lib/products.functions";
@@ -20,14 +23,14 @@ import { PageLayout } from "@/components/layout/PageLayout";
 import { Price } from "@/components/common/Price";
 import { Reveal } from "@/components/motion/Reveal";
 
+const heroQueryOptions = queryOptions({
+  queryKey: ["home-product-slides"],
+  queryFn: () => getHeroSlides(),
+});
+
 const featuredQueryOptions = queryOptions({
   queryKey: ["featured-products"],
   queryFn: () => getFeaturedProducts(),
-});
-
-const categoriesQueryOptions = queryOptions({
-  queryKey: ["categories"],
-  queryFn: () => getCategories(),
 });
 
 const featuredReviewsQueryOptions = queryOptions({
@@ -65,31 +68,21 @@ export const Route = createFileRoute("/")({
   loader: ({ context }) =>
     Promise.all([
       context.queryClient.ensureQueryData(featuredQueryOptions),
-      context.queryClient.ensureQueryData(categoriesQueryOptions),
+      context.queryClient.ensureQueryData(heroQueryOptions),
     ]),
   component: HomePage,
 });
 
 function HomePage() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const { data: heroData } = useSuspenseQuery(heroQueryOptions);
   const { data: featuredData } = useSuspenseQuery(featuredQueryOptions);
-  const { data: categoryData } = useSuspenseQuery(categoriesQueryOptions);
   const { data: featuredReviewsData } = useQuery(featuredReviewsQueryOptions);
 
   const subscribeFn = useServerFn(subscribeNewsletter);
   const [newsletterEmail, setNewsletterEmail] = useState("");
   const [subscribing, setSubscribing] = useState(false);
   const featuredProducts = featuredData?.products ?? [];
-  const heroProduct = featuredProducts.find(
-    (p) =>
-      p.is_available &&
-      p.stock_quantity > 0 &&
-      p.product_images?.some((image) => image.media_type !== "video"),
-  );
-  const heroImage = heroProduct?.product_images
-    ?.filter((image) => image.media_type !== "video")
-    .sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0))[0]?.url;
-
   const [recentIds, setRecentIds] = useState<string[]>([]);
 
   useEffect(() => {
@@ -172,45 +165,33 @@ function HomePage() {
             </div>
           </div>
           <div className="overflow-hidden rounded-2xl border border-gold/15 bg-[#1A1A1A]">
-            {heroProduct && heroImage ? (
-              <>
-                <Link
-                  to="/products/$slug"
-                  params={{ slug: heroProduct.slug }}
-                  className="block bg-[#f3f0eb]"
-                >
-                  <img
-                    src={heroImage}
-                    alt={heroProduct.name}
-                    width={700}
-                    height={520}
-                    fetchPriority="high"
-                    className="aspect-[4/3] w-full object-contain p-6 transition-transform duration-500 motion-safe:hover:scale-[1.03]"
-                  />
-                </Link>
-                <div className="flex items-center justify-between gap-4 p-5">
-                  <Link
-                    to="/products/$slug"
-                    params={{ slug: heroProduct.slug }}
-                    className="font-serif text-lg text-white hover:text-gold"
-                  >
-                    <CatalogText text={heroProduct.name} />
-                  </Link>
-                  <Price amount={heroProduct.price} className="shrink-0 font-semibold text-gold" />
-                </div>
-              </>
-            ) : (
-              <Link to="/products" className="block">
-                <img
-                  src="/banners/leather-bags.webp"
-                  alt={t("home.leatherProducts")}
-                  width={700}
-                  height={520}
-                  fetchPriority="high"
-                  className="aspect-[4/3] w-full object-cover"
-                />
-              </Link>
-            )}
+            <PhotoCarousel
+              slides={heroData.slides.map((s) => ({
+                url: s.url,
+                alt: translateCatalogText(s.name, i18n.language),
+                slug: s.slug,
+              }))}
+              className="aspect-[4/3]"
+              priority
+              footer={(index) => {
+                const slide = heroData.slides[index];
+                return slide ? (
+                  <div className="flex flex-wrap items-center justify-between gap-3 p-5">
+                    <Link
+                      to="/products/$slug"
+                      params={{ slug: slide.slug }}
+                      className="font-serif text-lg text-white hover:text-gold"
+                    >
+                      <CatalogText text={slide.name} />
+                    </Link>
+                    <Price amount={slide.price} className="font-semibold text-gold" />
+                    {!slide.available && (
+                      <span className="text-xs text-white/65">{t("products.outOfStock")}</span>
+                    )}
+                  </div>
+                ) : null;
+              }}
+            />
           </div>
         </div>
       </section>
@@ -223,28 +204,23 @@ function HomePage() {
             <ArrowUpRight size={16} />
           </Link>
         </div>
-        <nav
-          aria-label={t("home.collectionsTitle")}
-          className="mb-8 flex gap-2 overflow-x-auto pb-2 [&>a]:shrink-0"
-        >
+        <nav aria-label={t("home.collectionsTitle")} className="mb-8 flex flex-wrap gap-2">
           <Link
             to="/products"
             className="rounded-full bg-gold px-4 py-2 text-sm font-medium text-black"
           >
             {t("footer.allProducts")}
           </Link>
-          {(categoryData?.categories ?? [])
-            .filter((category) => !category.parent_id)
-            .map((category) => (
-              <Link
-                key={category.id}
-                to="/products"
-                search={{ category: category.slug }}
-                className="rounded-full border border-gold/25 px-4 py-2 text-sm text-white/70 transition-colors hover:border-gold hover:text-gold"
-              >
-                <CatalogText text={category.name} />
-              </Link>
-            ))}
+          {COLLECTIONS.map((collection) => (
+            <Link
+              key={collection}
+              to="/products"
+              search={{ collection }}
+              className="rounded-full border border-gold/30 px-4 py-2 text-sm text-gold"
+            >
+              {collectionLabel(collection, i18n.language.startsWith("de"))}
+            </Link>
+          ))}
         </nav>
         <div className="grid grid-cols-2 gap-3 sm:gap-6 lg:grid-cols-4">
           {featuredProducts.map((product, index) => (

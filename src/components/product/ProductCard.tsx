@@ -1,3 +1,4 @@
+import { PhotoCarousel } from "@/components/media/PhotoCarousel";
 import { translateCatalogText } from "@/lib/catalog-translation";
 import { useState } from "react";
 import { optionParts } from "@/lib/product-options";
@@ -45,6 +46,7 @@ export function ProductCard({ product }: ProductCardProps) {
   const [saved, setSaved] = useState(false);
   const [savingWishlist, setSavingWishlist] = useState(false);
   const [color, setColor] = useState("");
+  const [optionId, setOptionId] = useState("");
   const colors = [
     ...new Set(
       (product.product_variants ?? [])
@@ -59,10 +61,12 @@ export function ProductCard({ product }: ProductCardProps) {
         .filter((v): v is string => !!v),
     ),
   ];
-  const imageUrl =
-    galleryForColor(product.product_images ?? [], product.specifications, color)?.filter(
-      (image) => image.media_type !== "video",
-    )[0]?.url ?? "/product-placeholder.svg";
+  const photos = galleryForColor(
+    product.product_images ?? [],
+    product.specifications,
+    color,
+  ).filter((image) => image.media_type !== "video");
+  const imageUrl = photos[0]?.url ?? "/product-placeholder.svg";
 
   const selectedOptions = (product.product_variants ?? []).filter(
     (v) =>
@@ -71,12 +75,18 @@ export function ProductCard({ product }: ProductCardProps) {
         optionParts({ variant_type: v.variant_type ?? "", variant_value: v.variant_value ?? "" })
           .color === color),
   );
+  const purchasable = selectedOptions.filter((v) => v.stock_quantity !== 0);
+  const quickOption =
+    purchasable.find((v) => v.id === optionId) ??
+    (purchasable.length === 1 ? purchasable[0] : null);
+  const needsOption = !!product.product_variants?.length && !quickOption;
   const displayPrice =
     Number(product.price) +
-    (selectedOptions.length
-      ? Math.min(...selectedOptions.map((v) => Number(v.price_modifier ?? 0)))
-      : 0);
-  const categoryName = product.categories?.name ?? t("products.defaultCategory");
+    (quickOption
+      ? Number(quickOption.price_modifier ?? 0)
+      : selectedOptions.length
+        ? Math.min(...selectedOptions.map((v) => Number(v.price_modifier ?? 0)))
+        : 0);
 
   function openProduct() {
     navigate({
@@ -87,11 +97,11 @@ export function ProductCard({ product }: ProductCardProps) {
 
   function handleAddToCart(e: React.MouseEvent) {
     e.stopPropagation();
-    if (product.product_variants?.length) {
+    if (needsOption) {
       openProduct();
       return;
     }
-    addItem(product, null, 1, imageUrl);
+    addItem(product, quickOption as never, 1, imageUrl);
     setAdded(true);
     toast.success(t("products.addedToCartToast", { name: product.name }));
   }
@@ -125,27 +135,14 @@ export function ProductCard({ product }: ProductCardProps) {
 
   return (
     <div className="kaptan-product-card group relative flex h-full flex-col overflow-hidden rounded-xl border border-gold/15 bg-[#1A1A1A] transition-colors duration-300 hover:border-gold/40">
-      <div className="media-hero relative block aspect-square overflow-hidden bg-[#f3f0eb]">
-        <Link
-          to="/products/$slug"
-          params={{ slug: product.slug }}
-          className="block h-full"
-          tabIndex={-1}
-          aria-hidden="true"
-        >
-          <img
-            key={imageUrl}
-            src={imageUrl}
-            alt={translateCatalogText(product.name, i18n.language)}
-            loading="lazy"
-            className="kaptan-image-fade h-full w-full object-contain p-4 transition-transform duration-500 motion-safe:group-hover:scale-105"
-          />
-        </Link>
-
-        <span className="absolute bottom-2 left-2 max-w-[90%] rounded-full bg-black/80 px-2.5 py-1 text-[10px] font-medium text-white">
-          <CatalogText text={categoryName} />
-        </span>
-
+      <PhotoCarousel
+        key={`${product.id}-${color}`}
+        slides={photos.map((image) => ({
+          url: image.url,
+          alt: translateCatalogText(product.name, i18n.language),
+          slug: product.slug,
+        }))}
+      >
         <button
           disabled={savingWishlist}
           onClick={handleWishlist}
@@ -154,7 +151,7 @@ export function ProductCard({ product }: ProductCardProps) {
         >
           <Heart key={String(saved)} size={17} className={saved ? "kaptan-pop fill-gold" : ""} />
         </button>
-      </div>
+      </PhotoCarousel>
 
       <div className="flex flex-1 flex-col p-3 sm:p-4">
         {!!colors.length && (
@@ -166,7 +163,10 @@ export function ProductCard({ product }: ProductCardProps) {
                 title={translateCatalogText(value, i18n.language)}
                 aria-label={translateCatalogText(value, i18n.language)}
                 aria-pressed={color === value}
-                onClick={() => setColor(value)}
+                onClick={() => {
+                  setColor(value);
+                  setOptionId("");
+                }}
                 className={`h-8 w-8 rounded-full border-2 p-0.5 ${color === value ? "border-gold" : "border-white/30"}`}
               >
                 <span
@@ -244,6 +244,24 @@ export function ProductCard({ product }: ProductCardProps) {
         <Link to="/shipping" className="mt-3 text-xs text-white/55 hover:text-gold">
           {t("catalog.delivery")}
         </Link>
+        {!!product.product_variants?.length && (
+          <label className="mt-3 text-xs text-white/70">
+            {t("options.choose")}
+            <select
+              aria-label={`${t("options.choose")}: ${translateCatalogText(product.name, i18n.language)}`}
+              value={quickOption?.id ?? ""}
+              onChange={(e) => setOptionId(e.target.value)}
+              className="mt-1 min-h-11 w-full rounded-lg border border-gold/30 bg-black px-3 text-sm text-white"
+            >
+              <option value="">{t("options.choose")}</option>
+              {purchasable.map((v) => (
+                <option key={v.id} value={v.id}>
+                  {translateCatalogText(v.variant_value ?? "", i18n.language)}
+                </option>
+              ))}
+            </select>
+          </label>
+        )}
         <button
           onClick={handleAddToCart}
           disabled={!product.is_available || product.stock_quantity <= 0}
@@ -260,11 +278,11 @@ export function ProductCard({ product }: ProductCardProps) {
         </button>
         <button
           onClick={() => {
-            if (product.product_variants?.length) {
+            if (needsOption) {
               openProduct();
               return;
             }
-            addItem(product, null, 1, imageUrl);
+            addItem(product, quickOption as never, 1, imageUrl);
             navigate({ to: "/checkout" });
           }}
           disabled={!product.is_available || product.stock_quantity <= 0}
@@ -272,8 +290,12 @@ export function ProductCard({ product }: ProductCardProps) {
         >
           {t("buyer.checkout")}
         </button>
-        {!!product.product_variants?.length && (
-          <p className="mt-2 text-center text-xs text-white/60">{t("buyer.optionsNext")}</p>
+        {needsOption && (
+          <p className="mt-2 text-center text-xs text-white/60">
+            {i18n.language.startsWith("de")
+              ? "Bitte oben eine Variante wählen."
+              : "Choose an option above."}
+          </p>
         )}
       </div>
     </div>

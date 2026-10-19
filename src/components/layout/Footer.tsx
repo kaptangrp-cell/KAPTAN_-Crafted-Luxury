@@ -1,3 +1,4 @@
+import { COLLECTIONS, collectionLabel } from "@/lib/catalog-collections";
 import { Link } from "@tanstack/react-router";
 import { Instagram, Facebook } from "lucide-react";
 import { useTranslation } from "react-i18next";
@@ -11,7 +12,7 @@ function TikTokIcon({ size = 20 }: { size?: number }) {
 }
 
 export function Footer() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
 
   return (
     <footer className="border-t border-gold/20 bg-black">
@@ -72,42 +73,17 @@ export function Footer() {
                   {t("footer.allProducts")}
                 </Link>
               </li>
-              <li>
-                <Link
-                  to="/products"
-                  search={{ category: "leather-wallets" }}
-                  className="transition-colors hover:text-gold"
-                >
-                  {t("footer.leatherWallets")}
-                </Link>
-              </li>
-              <li>
-                <Link
-                  to="/products"
-                  search={{ category: "leather-bags" }}
-                  className="transition-colors hover:text-gold"
-                >
-                  {t("footer.leatherBags")}
-                </Link>
-              </li>
-              <li>
-                <Link
-                  to="/products"
-                  search={{ category: "salt-lamp-natural" }}
-                  className="transition-colors hover:text-gold"
-                >
-                  {t("footer.saltLamps")}
-                </Link>
-              </li>
-              <li>
-                <Link
-                  to="/products"
-                  search={{ category: "gift-sets" }}
-                  className="transition-colors hover:text-gold"
-                >
-                  {t("footer.giftSets")}
-                </Link>
-              </li>
+              {COLLECTIONS.map((collection) => (
+                <li key={collection}>
+                  <Link
+                    to="/products"
+                    search={{ collection }}
+                    className="transition-colors hover:text-gold"
+                  >
+                    {collectionLabel(collection, i18n.language.startsWith("de"))}
+                  </Link>
+                </li>
+              ))}
             </ul>
           </div>
 

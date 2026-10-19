@@ -12,6 +12,7 @@ export const CatalogSearchSchema = z
   .object({
     page: z.coerce.number().int().min(1).max(10000).optional().catch(undefined),
     q: z.string().trim().max(200).optional().catch(undefined),
+    collection: z.enum(["leather", "salt"]).optional().catch(undefined),
     category: z.string().max(200).optional().catch(undefined),
     colors: colors.optional().catch(undefined),
     sort: z.enum(["newest", "price_asc", "price_desc", "popular"]).optional().catch(undefined),
@@ -29,6 +30,7 @@ export const CatalogSearchSchema = z
   );
 
 export const CatalogRequestSchema = z.object({
+  collection: z.enum(["leather", "salt"]).optional(),
   categorySlug: z.string().max(200).optional(),
   search: z.string().trim().max(200).optional(),
   colors: colors.optional(),
