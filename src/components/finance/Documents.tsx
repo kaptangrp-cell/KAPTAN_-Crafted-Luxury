@@ -4,7 +4,7 @@ import type { InvoiceHints } from "@/lib/finance/invoice-hints";
 import { financeExtractInvoice } from "@/lib/finance-extraction.functions";
 import { useEffect, useState, type FormEvent } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { useServerFn } from "@tanstack/react-start";
+import { createClientOnlyFn, useServerFn } from "@tanstack/react-start";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import { useAuthStore } from "@/stores/authStore";
@@ -13,6 +13,7 @@ import {
   uploadFinanceDocument,
   readFinanceDocument,
   financeExpenseCommand,
+  financeInvoiceIntake,
   type FinanceDocument,
   type FinanceExpense,
   type ExpenseCommand,
@@ -20,6 +21,10 @@ import {
 import { cents, euros } from "@/lib/finance/money";
 const field = "mt-1 w-full rounded-lg border border-white/20 bg-neutral-950 p-3 text-white";
 const button = "rounded-lg bg-[#FFD700] px-4 py-2 font-semibold text-black disabled:opacity-40";
+const readLocally = createClientOnlyFn(async (base64: string, mime: string) => {
+  const { readInvoiceLocally } = await import("@/lib/finance/read-invoice.client");
+  return readInvoiceLocally(base64, mime);
+});
 function today() {
   return new Intl.DateTimeFormat("en-CA", {
     timeZone: "Europe/Berlin",
@@ -55,34 +60,40 @@ export function FinanceDocuments({
     read = useServerFn(readFinanceDocument),
     command = useServerFn(financeExpenseCommand);
   const extract = useServerFn(financeExtractInvoice);
+  const intake = useServerFn(financeInvoiceIntake);
   const [reading, setReading] = useState(false);
   const [readingNote, setReadingNote] = useState("");
   async function readInvoice(id: string) {
     setReading(true);
     setReadingNote(t("financeDocs.reading"));
     try {
-      const original = await read({data:{id}});
+      const original = await read({ data: { id } });
       if (["application/pdf", "application/xml"].includes(original.document.mime)) {
         try {
-          const {result} = await extract({data:{id}});
-          if (result.kind !== "invoice" || result.currency !== "EUR" || result.arithmetic !== "consistent") {
+          const { result } = await extract({ data: { id } });
+          if (
+            result.kind !== "invoice" ||
+            result.currency !== "EUR" ||
+            result.arithmetic !== "consistent"
+          ) {
             setReadingNote(t("financeDocs.specialReview"));
             return;
           }
-          setSuggestion({document:id,value:result,nonce:crypto.randomUUID()});
+          setSuggestion({ document: id, value: result, nonce: crypto.randomUUID() });
           setReadingNote(t("financeDocs.readReady"));
           return;
         } catch (error) {
           if (original.document.mime === "application/xml") throw error;
         }
       }
-      const {readInvoiceLocally} = await import("@/lib/finance/read-invoice.client");
-      const result = await readInvoiceLocally(original.base64, original.document.mime);
-      setSuggestion({document:id,value:result.hints,nonce:crypto.randomUUID()});
+      const result = await readLocally(original.base64, original.document.mime);
+      setSuggestion({ document: id, value: result.hints, nonce: crypto.randomUUID() });
       setReadingNote(t("financeDocs.readReady"));
     } catch {
       setReadingNote(t("financeDocs.readFallback"));
-    } finally {setReading(false);}
+    } finally {
+      setReading(false);
+    }
   }
   const [search, setSearch] = useState(""),
     [page, setPage] = useState(0),
@@ -104,6 +115,13 @@ export function FinanceDocuments({
     retry: false,
     gcTime: 0,
   });
+  const accounting = useQuery({
+    queryKey: ["finance-intake", user, query.data?.documents.map((d) => d.id)],
+    queryFn: () => intake({ data: { ids: query.data?.documents.map((d) => d.id) ?? [] } }),
+    enabled: !!user && !!query.data,
+  });
+  const currentExpense =
+    accounting.data?.documents.find((d) => d.document_id === selected)?.expense ?? null;
   const [url, setUrl] = useState<string | null>(null);
   useEffect(() => {
     if (!preview.data) {
@@ -119,10 +137,13 @@ export function FinanceDocuments({
     await Promise.all([
       qc.invalidateQueries({ queryKey: ["finance-documents"] }),
       qc.invalidateQueries({ queryKey: ["finance"] }),
+      qc.invalidateQueries({ queryKey: ["finance-intake"] }),
+      qc.invalidateQueries({ queryKey: ["finance-reports"] }),
+      qc.invalidateQueries({ queryKey: ["finance-tax"] }),
     ]);
   }
   async function files(files: FileList | File[]) {
-    if (busy) return;
+    if (busy || reading) return;
     setBusy(true);
     setProgress([]);
     const uploaded: string[] = [];
@@ -136,7 +157,8 @@ export function FinanceDocuments({
           reader.readAsDataURL(file);
         });
         const result = await upload({ data: { name: file.name, base64 } });
-        if (!result.duplicate && !file.name.toLowerCase().endsWith('.csv')) uploaded.push(result.id);
+        if (!result.duplicate && !file.name.toLowerCase().endsWith(".csv"))
+          uploaded.push(result.id);
         setProgress((p) => [
           ...p,
           `${file.name}: ${t(result.duplicate ? "financeDocs.duplicate" : "financeDocs.uploaded")}`,
@@ -148,7 +170,9 @@ export function FinanceDocuments({
     await refresh();
     setBusy(false);
     if (uploaded.length) {
-      setSelected(uploaded[0]); setReview(null); setPayment(null);
+      setSelected(uploaded[0]);
+      setReview(null);
+      setPayment(null);
       await readInvoice(uploaded[0]);
     }
   }
@@ -218,6 +242,7 @@ export function FinanceDocuments({
         />
       </label>
       {query.error && <p role="alert">{query.error.message}</p>}
+      {accounting.error && <p role="alert">{accounting.error.message}</p>}
       {query.isPending && <p role="status">{t("finance.loading")}</p>}
       <div className="space-y-6">
         <details open={!selected && !payment}>
@@ -227,11 +252,19 @@ export function FinanceDocuments({
               <button
                 key={d.id}
                 className={`block w-full rounded-xl border p-4 text-left ${selected === d.id ? "border-yellow-400" : "border-white/20"}`}
-                disabled={d.state !== "ready" || busy}
+                disabled={d.state !== "ready" || busy || reading}
                 onClick={() => {
                   setSelected(d.id);
                   setReview(null);
                   setPayment(null);
+                  setReadingNote("");
+                  if (
+                    role !== "auditor" &&
+                    accounting.data &&
+                    d.mime !== "text/csv" &&
+                    !accounting.data.documents.find((x) => x.document_id === d.id)?.expense
+                  )
+                    void readInvoice(d.id);
                 }}
               >
                 <span className="block break-all">{d.filename}</span>
@@ -239,7 +272,26 @@ export function FinanceDocuments({
                   {d.created_at.slice(0, 10)} ·{" "}
                   {d.state === "ready" ? t("financeDocs.preserved") : t("financeDocs.retryUpload")}
                 </span>
-                <span className="mt-2 block text-sm text-yellow-200">{t("financeDocs.openToRecord")}</span>
+                <span className="mt-2 block text-sm text-yellow-200">
+                  {(() => {
+                    const e = accounting.data?.documents.find(
+                      (x) => x.document_id === d.id,
+                    )?.expense;
+                    return !accounting.data
+                      ? t("finance.loading")
+                      : !e
+                        ? t("financeDocs.needsReview")
+                        : e.reversed
+                          ? t("financeDocs.reversed")
+                          : !e.journal_id
+                            ? t("finance.draft")
+                            : t(
+                                BigInt(e.paid) >= BigInt(e.gross)
+                                  ? "financeDocs.paid"
+                                  : "financeDocs.recordedUnpaid",
+                              );
+                  })()}
+                </span>
               </button>
             ))}
             {query.data?.documents.length === 0 && (
@@ -253,10 +305,20 @@ export function FinanceDocuments({
           {preview.data && url && (
             <>
               <div className="min-w-0 space-y-4">
-                {role !== "auditor" && <div className="rounded-xl border border-yellow-400/30 p-4">
-                  <button className={button} disabled={busy || reading} onClick={() => void readInvoice(preview.data.document.id)}>{t("financeDocs.readInvoice")}</button>
-                  <p role="status" className="mt-2 text-sm text-neutral-300">{readingNote || t("financeDocs.localRead")}</p>
-                </div>}
+                {role !== "auditor" && (
+                  <div className="rounded-xl border border-yellow-400/30 p-4">
+                    <button
+                      className={button}
+                      disabled={busy || reading}
+                      onClick={() => void readInvoice(preview.data.document.id)}
+                    >
+                      {t("financeDocs.readInvoice")}
+                    </button>
+                    <p role="status" className="mt-2 text-sm text-neutral-300">
+                      {readingNote || t("financeDocs.localRead")}
+                    </p>
+                  </div>
+                )}
                 <div className="flex items-center justify-between gap-3">
                   <h3 className="break-all">{preview.data.document.filename}</h3>
                   <a
@@ -305,9 +367,10 @@ export function FinanceDocuments({
                   SHA-256: {preview.data.document.sha256}
                 </p>
               </div>
-              {role !== "auditor" && !payment && (
+              {role !== "auditor" && !payment && accounting.data && (
                 <ExpenseForm
                   key={
+                    currentExpense?.id ??
                     review?.id ??
                     (suggestion?.document === preview.data.document.id
                       ? suggestion.nonce
@@ -317,7 +380,11 @@ export function FinanceDocuments({
                     suggestion?.document === preview.data.document.id ? suggestion.value : null
                   }
                   document={preview.data.document}
-                  previous={query.data?.expenses.find((e) => e.id === review?.id) ?? review}
+                  previous={
+                    currentExpense ??
+                    query.data?.expenses.find((e) => e.id === review?.id) ??
+                    review
+                  }
                   canPost={canPost}
                   busy={busy || reading}
                   submit={act}
@@ -468,7 +535,9 @@ function ExpenseForm({
   const [supplier, setSupplier] = useState(previous?.supplier ?? suggestion?.supplier ?? ""),
     [number, setNumber] = useState(previous?.invoice_number ?? suggestion?.number ?? ""),
     [date, setDate] = useState(previous?.invoice_date ?? suggestion?.date ?? ""),
-    [description, setDescription] = useState(previous?.description ?? document.filename.replace(/\.[^.]+$/, "")),
+    [description, setDescription] = useState(
+      previous?.description ?? document.filename.replace(/\.[^.]+$/, ""),
+    ),
     [gross, setGross] = useState(
       previous
         ? `${BigInt(previous.gross) / 100n}.${(BigInt(previous.gross) % 100n).toString().padStart(2, "0")}`

@@ -1,4 +1,5 @@
 import { FinanceAssets } from "@/components/finance/Assets";
+import { InvoiceInbox } from "@/components/finance/InvoiceInbox";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -274,7 +275,12 @@ function Finance() {
               {tab === "costs" && <FinanceCosts accounts={data.accounts} role={data.role} />}
               {tab === "banking" && <FinanceBanking role={data.role} />}
               {tab === "sales" && <FinanceSales accounts={data.accounts} role={data.role} />}
-              {tab === "overview" && <FinanceReports from={from} to={to} />}
+              {tab === "overview" && (
+                <>
+                  <InvoiceInbox navigate={setTab} />
+                  <FinanceReports from={from} to={to} />
+                </>
+              )}
               {tab === "documents" && (
                 <FinanceDocuments accounts={data.accounts} role={data.role} />
               )}

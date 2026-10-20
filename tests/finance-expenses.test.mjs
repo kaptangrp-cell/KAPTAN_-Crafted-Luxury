@@ -40,6 +40,7 @@ test("private evidence, immutable reviews, duplicates, partial payments and role
     for (const migration of [
       "20261015100000_finance_foundation.sql",
       "20261015110000_finance_documents_expenses.sql",
+      "20261020120000_finance_invoice_intake.sql",
     ])
       await db.exec(
         await readFile(new URL("../supabase/migrations/" + migration, import.meta.url), "utf8"),
@@ -127,11 +128,47 @@ test("private evidence, immutable reviews, duplicates, partial payments and role
     await db.query("SELECT finance_reverse($1,'2026-10-17','Payment correction')", [pj]);
     result = (await db.query("SELECT finance_documents_list('',0) d")).rows[0].d;
     assert.equal(result.expenses.find((e) => e.id === replacement).paid, "6900");
+    const inbox = (
+      await db.query("SELECT finance_invoice_intake($1) d", [[document.id, paymentDoc.id]])
+    ).rows[0].d;
+    assert.equal(inbox.documents.find((d) => d.document_id === document.id).expense.paid, "6900");
+    assert.equal(inbox.unassigned, 0); // payment evidence is not an unrecorded invoice
+    const failedId = randomUUID();
+    await assert.rejects(
+      db.query(
+        "SELECT finance_expense_record($1,$2,'Supplier GmbH','INV-1','2026-10-15','Duplicate','11900',null)",
+        [failedId, document.id],
+      ),
+      /duplicate key/,
+    );
+    assert.equal(
+      (await db.query("SELECT id FROM finance_expenses WHERE id=$1", [failedId])).rows.length,
+      0,
+    );
+    const newId = randomUUID();
+    const record = () =>
+      db.query(
+        "SELECT finance_expense_record($1,$2,'Other Supplier','INV-2','2026-10-15','Permit fee','2000',null)",
+        [newId, paymentDoc.id],
+      );
+    await record();
+    await record();
+    assert.equal(
+      (
+        await db.query("SELECT id FROM finance_expenses WHERE id=$1 AND journal_id IS NOT NULL", [
+          newId,
+        ])
+      ).rows.length,
+      1,
+    );
+    await login(staff);
+    await assert.rejects(record(), /Forbidden/);
     await login(auditor);
     await db.query("SELECT finance_document_access($1)", [document.id]);
     await assert.rejects(reserve("c".repeat(64)), /Forbidden/);
     await login(customer);
     assert.equal((await db.query("SELECT * FROM finance_documents")).rows.length, 0);
+    await assert.rejects(db.query("SELECT finance_invoice_intake()"), /Forbidden/);
     await assert.rejects(
       db.query("SELECT finance_document_access($1)", [document.id]),
       /Forbidden/,

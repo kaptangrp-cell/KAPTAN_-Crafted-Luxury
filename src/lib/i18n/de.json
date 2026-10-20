@@ -1145,7 +1145,10 @@
     "readInvoice": "Rechnung automatisch lesen",
     "localRead": "PDF-Text und Scans werden auf Ihrem Gerät gelesen – ohne kostenpflichtigen OCR-Dienst.",
     "saveAndPost": "Prüfung bestätigen & Ausgabe buchen",
-    "openToRecord": "Beleg öffnen → Buchung prüfen"
+    "openToRecord": "Beleg öffnen → Buchung prüfen",
+    "needsReview": "Noch nicht gebucht · Prüfen & erfassen",
+    "paid": "Gebucht · Bezahlt",
+    "recordedUnpaid": "Gebucht · Zahlung offen / teilweise bezahlt"
   },
   "financeReports": {
     "title": "Finanzübersicht",

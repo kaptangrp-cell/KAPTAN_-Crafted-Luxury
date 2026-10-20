@@ -1145,7 +1145,10 @@
     "readInvoice": "Read invoice automatically",
     "localRead": "PDF text and scans are read on your device, without a paid OCR service.",
     "saveAndPost": "Confirm review & record expense",
-    "openToRecord": "Open document → review accounting"
+    "openToRecord": "Open document → review accounting",
+    "needsReview": "Not recorded yet · Review & record",
+    "paid": "Recorded · Paid",
+    "recordedUnpaid": "Recorded · Unpaid or partially paid"
   },
   "financeReports": {
     "title": "Financial overview",
