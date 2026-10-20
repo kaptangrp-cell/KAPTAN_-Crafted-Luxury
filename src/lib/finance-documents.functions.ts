@@ -127,6 +127,7 @@ const Command = z.discriminatedUnion("action", [
     gross: amount,
     replaces: z.string().uuid().nullable(),
     confirmed: z.literal(true),
+    postNow: z.boolean().default(false),
   }),
   z.object({ action: z.literal("post"), id: z.string().uuid() }),
   z.object({
@@ -147,7 +148,11 @@ export const financeExpenseCommand = createServerFn({ method: "POST" })
   .handler(async ({ context, data }) => {
     const client = context.supabase as SupabaseClient;
     let r;
-    if (data.action === "draft")
+    if (data.action === "draft") {
+      if (data.postNow) {
+        const role = await client.rpc("finance_role");
+        if (role.error || !["owner", "accountant"].includes(role.data)) throw new Error("Forbidden");
+      }
       r = await client.rpc("finance_expense_draft", {
         p_id: data.id,
         p_document: data.document,
@@ -158,6 +163,11 @@ export const financeExpenseCommand = createServerFn({ method: "POST" })
         p_gross: data.gross,
         p_replaces: data.replaces,
       });
+      if (!r.error && data.postNow) {
+        const posted = await client.rpc("finance_expense_post", { p_id: data.id });
+        if (posted.error) throw new Error(`Review saved, but not posted: ${posted.error.message}. Open the saved review to retry.`);
+      }
+    }
     else if (data.action === "post")
       r = await client.rpc("finance_expense_post", { p_id: data.id });
     else

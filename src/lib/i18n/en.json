@@ -1120,7 +1120,7 @@
     "next": "Next",
     "immutable": "This review is immutable. Posted entries can be reversed in the ledger. Any recorded payments must also be reviewed.",
     "expenseReview": "Review expense",
-    "manualReview": "Complete fields against the original. No automatic OCR or e-invoice validation. Changes are saved as a new review.",
+    "manualReview": "Check extracted details and complete missing fields. Confirm to record the expense. Record the actual payment separately for EÜR reporting.",
     "supplier": "Supplier (full name)",
     "invoiceNumber": "Invoice number",
     "description": "Description",
@@ -1137,7 +1137,15 @@
     "bank": "Bank",
     "cash": "Cash",
     "confirmPayment": "The selected evidence supports this amount and date. This payment has not already been recorded.",
-    "saveChangesFirst": "Save changed fields as a new review first, then open that review to post it."
+    "saveChangesFirst": "Save changed fields as a new review first, then open that review to post it.",
+    "reading": "Reading invoice…",
+    "readReady": "Recognized details are filled in. Check against the original and complete missing fields. Payment is never assumed.",
+    "readFallback": "Automatic reading could not complete. Your original is preserved. Enter its details below.",
+    "specialReview": "Credit note, foreign currency or inconsistent amounts: separate review required.",
+    "readInvoice": "Read invoice automatically",
+    "localRead": "PDF text and scans are read on your device, without a paid OCR service.",
+    "saveAndPost": "Confirm review & record expense",
+    "openToRecord": "Open document → review accounting"
   },
   "financeReports": {
     "title": "Financial overview",

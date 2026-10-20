@@ -1,6 +1,7 @@
 import { financeAdministration } from "@/lib/finance-administration.functions";
 import { DocumentTools } from "./DocumentTools";
-import type { Extraction } from "@/lib/finance/extraction";
+import type { InvoiceHints } from "@/lib/finance/invoice-hints";
+import { financeExtractInvoice } from "@/lib/finance-extraction.functions";
 import { useEffect, useState, type FormEvent } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
@@ -46,13 +47,43 @@ export function FinanceDocuments({
     qc = useQueryClient();
   const [suggestion, setSuggestion] = useState<{
     document: string;
-    value: Extraction;
+    value: InvoiceHints;
     nonce: string;
   } | null>(null);
   const list = useServerFn(listFinanceDocuments),
     upload = useServerFn(uploadFinanceDocument),
     read = useServerFn(readFinanceDocument),
     command = useServerFn(financeExpenseCommand);
+  const extract = useServerFn(financeExtractInvoice);
+  const [reading, setReading] = useState(false);
+  const [readingNote, setReadingNote] = useState("");
+  async function readInvoice(id: string) {
+    setReading(true);
+    setReadingNote(t("financeDocs.reading"));
+    try {
+      const original = await read({data:{id}});
+      if (["application/pdf", "application/xml"].includes(original.document.mime)) {
+        try {
+          const {result} = await extract({data:{id}});
+          if (result.kind !== "invoice" || result.currency !== "EUR" || result.arithmetic !== "consistent") {
+            setReadingNote(t("financeDocs.specialReview"));
+            return;
+          }
+          setSuggestion({document:id,value:result,nonce:crypto.randomUUID()});
+          setReadingNote(t("financeDocs.readReady"));
+          return;
+        } catch (error) {
+          if (original.document.mime === "application/xml") throw error;
+        }
+      }
+      const {readInvoiceLocally} = await import("@/lib/finance/read-invoice.client");
+      const result = await readInvoiceLocally(original.base64, original.document.mime);
+      setSuggestion({document:id,value:result.hints,nonce:crypto.randomUUID()});
+      setReadingNote(t("financeDocs.readReady"));
+    } catch {
+      setReadingNote(t("financeDocs.readFallback"));
+    } finally {setReading(false);}
+  }
   const [search, setSearch] = useState(""),
     [page, setPage] = useState(0),
     [busy, setBusy] = useState(false),
@@ -94,6 +125,7 @@ export function FinanceDocuments({
     if (busy) return;
     setBusy(true);
     setProgress([]);
+    const uploaded: string[] = [];
     for (const file of Array.from(files)) {
       try {
         if (file.size > 3 * 1024 * 1024) throw new Error(t("financeDocs.fileLimit"));
@@ -104,6 +136,7 @@ export function FinanceDocuments({
           reader.readAsDataURL(file);
         });
         const result = await upload({ data: { name: file.name, base64 } });
+        if (!result.duplicate && !file.name.toLowerCase().endsWith('.csv')) uploaded.push(result.id);
         setProgress((p) => [
           ...p,
           `${file.name}: ${t(result.duplicate ? "financeDocs.duplicate" : "financeDocs.uploaded")}`,
@@ -114,6 +147,10 @@ export function FinanceDocuments({
     }
     await refresh();
     setBusy(false);
+    if (uploaded.length) {
+      setSelected(uploaded[0]); setReview(null); setPayment(null);
+      await readInvoice(uploaded[0]);
+    }
   }
   async function act(data: ExpenseCommand) {
     setBusy(true);
@@ -123,6 +160,7 @@ export function FinanceDocuments({
       toast.success(t("finance.saved"));
       return true;
     } catch (e) {
+      await refresh();
       toast.error(e instanceof Error ? e.message : String(e));
       return false;
     } finally {
@@ -152,7 +190,7 @@ export function FinanceDocuments({
               type="file"
               multiple
               accept=".pdf,.png,.jpg,.jpeg,.xml,.csv"
-              disabled={busy}
+              disabled={busy || reading}
               onChange={(e) => {
                 if (e.target.files) void files(e.target.files);
                 e.target.value = "";
@@ -201,6 +239,7 @@ export function FinanceDocuments({
                   {d.created_at.slice(0, 10)} ·{" "}
                   {d.state === "ready" ? t("financeDocs.preserved") : t("financeDocs.retryUpload")}
                 </span>
+                <span className="mt-2 block text-sm text-yellow-200">{t("financeDocs.openToRecord")}</span>
               </button>
             ))}
             {query.data?.documents.length === 0 && (
@@ -214,6 +253,10 @@ export function FinanceDocuments({
           {preview.data && url && (
             <>
               <div className="min-w-0 space-y-4">
+                {role !== "auditor" && <div className="rounded-xl border border-yellow-400/30 p-4">
+                  <button className={button} disabled={busy || reading} onClick={() => void readInvoice(preview.data.document.id)}>{t("financeDocs.readInvoice")}</button>
+                  <p role="status" className="mt-2 text-sm text-neutral-300">{readingNote || t("financeDocs.localRead")}</p>
+                </div>}
                 <div className="flex items-center justify-between gap-3">
                   <h3 className="break-all">{preview.data.document.filename}</h3>
                   <a
@@ -276,7 +319,7 @@ export function FinanceDocuments({
                   document={preview.data.document}
                   previous={query.data?.expenses.find((e) => e.id === review?.id) ?? review}
                   canPost={canPost}
-                  busy={busy}
+                  busy={busy || reading}
                   submit={act}
                 />
               )}
@@ -406,7 +449,7 @@ function ExpenseForm({
   busy,
   submit,
 }: {
-  suggestion: Extraction | null;
+  suggestion: InvoiceHints | null;
   canPost: boolean;
   document: FinanceDocument;
   previous: FinanceExpense | null;
@@ -424,8 +467,8 @@ function ExpenseForm({
   const [id, setId] = useState(() => crypto.randomUUID());
   const [supplier, setSupplier] = useState(previous?.supplier ?? suggestion?.supplier ?? ""),
     [number, setNumber] = useState(previous?.invoice_number ?? suggestion?.number ?? ""),
-    [date, setDate] = useState(previous?.invoice_date ?? suggestion?.date ?? today()),
-    [description, setDescription] = useState(previous?.description ?? ""),
+    [date, setDate] = useState(previous?.invoice_date ?? suggestion?.date ?? ""),
+    [description, setDescription] = useState(previous?.description ?? document.filename.replace(/\.[^.]+$/, "")),
     [gross, setGross] = useState(
       previous
         ? `${BigInt(previous.gross) / 100n}.${(BigInt(previous.gross) % 100n).toString().padStart(2, "0")}`
@@ -462,6 +505,7 @@ function ExpenseForm({
         gross: cents(gross),
         replaces: previous?.id ?? null,
         confirmed: true,
+        postNow: canPost,
       });
       if (ok) {
         setId(crypto.randomUUID());
@@ -543,7 +587,7 @@ function ExpenseForm({
         {t("financeDocs.confirmDomestic")}
       </label>
       <button disabled={busy || !confirmed} className={button}>
-        {t("financeDocs.saveReview")}
+        {t(canPost ? "financeDocs.saveAndPost" : "financeDocs.saveReview")}
       </button>
       {canPost && previous && (
         <button

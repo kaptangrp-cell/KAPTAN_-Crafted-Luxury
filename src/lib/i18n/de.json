@@ -1120,7 +1120,7 @@
     "next": "Weiter",
     "immutable": "Diese Prüfung ist unveränderbar. Gebuchte Einträge können im Hauptbuch storniert werden. Bei bereits erfassten Zahlungen müssen auch diese geprüft werden.",
     "expenseReview": "Ausgabe prüfen",
-    "manualReview": "Felder anhand des Originals ausfüllen. Keine automatische OCR oder E-Rechnungsvalidierung. Änderungen werden als neue Prüfung gespeichert.",
+    "manualReview": "Erkannte Angaben prüfen und fehlende Felder ergänzen. Nach Bestätigung wird die Ausgabe gebucht. Eine tatsächliche Zahlung separat erfassen, damit sie in der EÜR erscheint.",
     "supplier": "Lieferant (vollständiger Name)",
     "invoiceNumber": "Rechnungsnummer",
     "description": "Beschreibung",
@@ -1137,7 +1137,15 @@
     "bank": "Bank",
     "cash": "Kasse",
     "confirmPayment": "Betrag und Datum sind durch den gewählten Zahlungsnachweis belegt. Diese Zahlung wurde noch nicht erfasst.",
-    "saveChangesFirst": "Geänderte Felder zuerst als neue Prüfung speichern. Dann diese Prüfung zum Buchen öffnen."
+    "saveChangesFirst": "Geänderte Felder zuerst als neue Prüfung speichern. Dann diese Prüfung zum Buchen öffnen.",
+    "reading": "Rechnung wird gelesen …",
+    "readReady": "Erkannte Angaben sind vorausgefüllt. Bitte mit dem Original vergleichen und fehlende Felder ergänzen. Zahlung wird nicht automatisch angenommen.",
+    "readFallback": "Automatisches Lesen nicht möglich. Das Original ist sicher gespeichert. Bitte Angaben aus dem Beleg unten eingeben.",
+    "specialReview": "Gutschrift, Fremdwährung oder widersprüchliche Beträge: gesonderte Prüfung erforderlich.",
+    "readInvoice": "Rechnung automatisch lesen",
+    "localRead": "PDF-Text und Scans werden auf Ihrem Gerät gelesen – ohne kostenpflichtigen OCR-Dienst.",
+    "saveAndPost": "Prüfung bestätigen & Ausgabe buchen",
+    "openToRecord": "Beleg öffnen → Buchung prüfen"
   },
   "financeReports": {
     "title": "Finanzübersicht",
