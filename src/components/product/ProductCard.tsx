@@ -1,3 +1,4 @@
+import { productBenefitKey } from "@/lib/brand-product";
 import { PhotoCarousel } from "@/components/media/PhotoCarousel";
 import { translateCatalogText } from "@/lib/catalog-translation";
 import { useState } from "react";
@@ -191,7 +192,7 @@ export function ProductCard({ product }: ProductCardProps) {
         </h3>
 
         <p className="mt-1 line-clamp-2 text-sm text-white/70">
-          <CatalogText text={product.short_description} />
+          {t(productBenefitKey(product.name))}
         </p>
 
         <Link

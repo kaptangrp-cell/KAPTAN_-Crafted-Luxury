@@ -1,3 +1,5 @@
+import { productBenefitKey } from "@/lib/brand-product";
+import { collectionForCategory } from "@/lib/catalog-collections";
 import { galleryForColor, mediaDetails } from "@/lib/product-media";
 import { optionParts } from "@/lib/product-options";
 import { ProductOptionPicker } from "@/components/product/ProductOptionPicker";
@@ -205,7 +207,15 @@ function ProductDetailPage() {
     openCart();
   }
 
-  const careInstructions = t("pdp.careInstructions", { returnObjects: true }) as string[];
+  const family = collectionForCategory(product.categories ?? {});
+  const careInstructions = t(
+    family === "salt"
+      ? "brand.saltCare"
+      : family === "leather"
+        ? "pdp.careInstructions"
+        : "brand.generalCare",
+    { returnObjects: true },
+  ) as string[];
 
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [zoomActive, setZoomActive] = useState(false);
@@ -469,6 +479,9 @@ function ProductDetailPage() {
             </h1>
 
             <p className="mt-3 text-sm leading-relaxed text-white/60">
+              <span className="mb-2 block font-serif text-xl text-gold">
+                {t(productBenefitKey(product.name))}
+              </span>
               <CatalogText text={product.short_description} />
             </p>
 
@@ -632,6 +645,15 @@ function ProductDetailPage() {
               </div>
             </div>
 
+            {family === "leather" && (
+              <div className="mt-6 rounded-xl border border-gold/20 p-5">
+                <h3 className="font-serif text-xl text-gold">{t("brand.ageTitle")}</h3>
+                <p className="mt-3 text-sm leading-relaxed text-white/65">{t("brand.ageBody")}</p>
+                <Link to="/contact" className="mt-3 inline-block text-sm text-gold underline">
+                  {t("brand.support")}
+                </Link>
+              </div>
+            )}
             {product.full_description && (
               <div className="mt-8">
                 <h3 className="mb-2 font-serif text-lg text-white">

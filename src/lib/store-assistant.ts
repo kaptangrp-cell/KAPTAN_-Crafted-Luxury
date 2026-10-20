@@ -1,4 +1,5 @@
 export type AssistantIntent =
+  | "brand"
   | "returns"
   | "shipping"
   | "tracking"
@@ -10,6 +11,12 @@ export type AssistantIntent =
   | "products";
 export function assistantIntent(question: string): AssistantIntent {
   const q = question.toLowerCase();
+  if (
+    /why kaptan|warum kaptan|made to age|patina|product passport|produktpass|personalization|personalisierung|repair|reparatur|craftsmanship|herkunft/.test(
+      q,
+    )
+  )
+    return "brand";
   if (
     /\b(return|returns|refund|refunds|exchange|rückgabe|rücksendung|rücksendungen|erstattung|umtausch|retoure)\b/.test(
       q,

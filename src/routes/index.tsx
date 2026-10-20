@@ -1,3 +1,4 @@
+import { BrandStory } from "@/components/common/BrandStory";
 import { PhotoCarousel } from "@/components/media/PhotoCarousel";
 import { translateCatalogText } from "@/lib/catalog-translation";
 import { COLLECTIONS, collectionLabel } from "@/lib/catalog-collections";
@@ -5,8 +6,6 @@ import { CatalogText } from "@/components/common/CatalogText";
 import { useEffect, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { queryOptions, useSuspenseQuery, useQuery } from "@tanstack/react-query";
-import { useServerFn } from "@tanstack/react-start";
-import { toast } from "sonner";
 import { ArrowUpRight, ShieldCheck, Gem, ShoppingBag, Sparkles } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import {
@@ -16,7 +15,6 @@ import {
   getRecommendedProducts,
 } from "@/lib/products.functions";
 import { getFeaturedReviews } from "@/lib/reviews.functions";
-import { subscribeNewsletter } from "@/lib/newsletter.functions";
 import { getRecentlyViewedIds } from "@/lib/recentlyViewed";
 import { ProductCard } from "@/components/product/ProductCard";
 import { PageLayout } from "@/components/layout/PageLayout";
@@ -57,11 +55,11 @@ function recommendedQueryOptions(categoryIds: string[], excludeIds: string[]) {
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "KAPTAN — Everyday Elegance. Lasting Style." },
+      { title: "KAPTAN — Made for the journey. Built to become yours." },
       {
         name: "description",
         content:
-          "Discover quality leather accessories and warm home lighting. Refined style, practical details and everyday elegance.",
+          "Leather essentials with everyday purpose, personal support and care. Discover KAPTAN leather and salt collections.",
       },
     ],
   }),
@@ -79,9 +77,6 @@ function HomePage() {
   const { data: featuredData } = useSuspenseQuery(featuredQueryOptions);
   const { data: featuredReviewsData } = useQuery(featuredReviewsQueryOptions);
 
-  const subscribeFn = useServerFn(subscribeNewsletter);
-  const [newsletterEmail, setNewsletterEmail] = useState("");
-  const [subscribing, setSubscribing] = useState(false);
   const featuredProducts = featuredData?.products ?? [];
   const [recentIds, setRecentIds] = useState<string[]>([]);
 
@@ -121,21 +116,6 @@ function HomePage() {
     }));
 
   const testimonials = realTestimonials;
-
-  async function handleNewsletterSubmit(e: React.FormEvent) {
-    e.preventDefault();
-
-    try {
-      setSubscribing(true);
-      await subscribeFn({ data: { email: newsletterEmail } });
-      toast.success(t("home.subscribedToast"));
-      setNewsletterEmail("");
-    } catch (err) {
-      toast.error(err instanceof Error ? err.message : t("home.subscriptionFailedToast"));
-    } finally {
-      setSubscribing(false);
-    }
-  }
 
   return (
     <PageLayout>
@@ -258,6 +238,8 @@ function HomePage() {
         </div>
       </section>
 
+      <BrandStory compact />
+
       {recommendedProducts.length > 0 && (
         <section className="bg-black px-4 py-20 md:px-6">
           <div className="mx-auto max-w-7xl">
@@ -348,25 +330,12 @@ function HomePage() {
           <h2 className="font-serif text-3xl font-bold text-white">{t("home.newsletterTitle")}</h2>
           <p className="mt-3 text-white/60">{t("home.newsletterSubtitle")}</p>
 
-          <form onSubmit={handleNewsletterSubmit} className="mt-6 flex flex-col gap-3 sm:flex-row">
-            <input
-              type="email"
-              required
-              value={newsletterEmail}
-              onChange={(e) => setNewsletterEmail(e.target.value)}
-              placeholder={t("home.emailPlaceholder")}
-              aria-label={t("home.emailPlaceholder")}
-              className="flex-1 border border-gold/40 bg-[#1A1A1A] px-4 py-3 text-sm text-white placeholder:text-white/30 focus:border-gold focus:outline-none"
-            />
-
-            <button
-              type="submit"
-              disabled={subscribing}
-              className="bg-gold px-6 py-3 text-sm font-bold text-black transition-colors hover:bg-gold-vivid disabled:opacity-50"
-            >
-              {subscribing ? t("home.subscribing") : t("home.subscribe")}
-            </button>
-          </form>
+          <Link
+            to="/contact"
+            className="mt-6 inline-flex rounded-lg bg-gold px-6 py-3 font-semibold text-black"
+          >
+            {t("brand.support")}
+          </Link>
         </Reveal>
       </section>
     </PageLayout>

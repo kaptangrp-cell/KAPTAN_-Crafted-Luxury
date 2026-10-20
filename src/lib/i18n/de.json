@@ -1,6 +1,6 @@
 {
   "header": {
-    "craftedTag": "Qualität bis ins Detail · Eleganz im Alltag"
+    "craftedTag": "Für deinen Weg. Mit der Zeit ganz dein."
   },
   "nav": {
     "home": "Startseite",
@@ -28,7 +28,7 @@
     "de": "Deutsch"
   },
   "footer": {
-    "tagline": "Stilvolle Lederaccessoires und warmes Licht für Ihr Zuhause. Qualität, Charakter und Eleganz im Alltag.",
+    "tagline": "Für deinen Weg. Mit der Zeit ganz dein. Lederaccessoires mit praktischem Nutzen und Salzprodukte für ein gemütliches Zuhause.",
     "shop": "Shop",
     "allProducts": "Alle Produkte",
     "leatherWallets": "Lederbörsen",
@@ -43,13 +43,13 @@
     "shipping": "Versandinfo",
     "returns": "Rücksendungen",
     "privacy": "Datenschutz",
-    "copyright": "© {{year}} KAPTAN. Alle Rechte vorbehalten. Mit Handwerk gefertigt, mit Sorgfalt versendet.",
+    "copyright": "© {{year}} KAPTAN. Alle Rechte vorbehalten. Bewusst wählen. Gut pflegen.",
     "followUs": "Folge uns"
   },
   "home": {
-    "heroLine1": "Eleganz im Alltag.",
-    "heroLine2": "Stil, der bleibt.",
-    "heroSubtitle": "Entdecken Sie Lederaccessoires und Wohnakzente, die stilvolles Design mit praktischen Details verbinden.",
+    "heroLine1": "Für deinen Weg.",
+    "heroLine2": "Mit der Zeit ganz dein.",
+    "heroSubtitle": "Für Menschen, die weniger, aber bewusster wählen. Entdecke Lederaccessoires mit praktischem Nutzen, persönlichem Service und einer Geschichte, die mit dem Gebrauch wächst.",
     "shopLeather": "Leder entdecken",
     "discoverSaltLamps": "Salzlampen entdecken",
     "secureCheckout": "Sicherer Checkout",
@@ -64,25 +64,19 @@
     "leatherProducts": "Lederwaren",
     "himalayanSaltLamps": "Salzlampen",
     "shopNow": "Jetzt entdecken →",
-    "bestSellers": "Die Kollektion entdecken",
-    "storyTitle": "Stil mit Substanz",
-    "storyP1": "Stilvolle Accessoires und warme Wohnakzente für Ihren Alltag.",
-    "storyP2": "Entdecken Sie Materialien, Oberflächen und praktische Details auf jeder Produktseite.",
-    "storyP3": "Unser Fokus: Qualität, Langlebigkeit und mühelose Eleganz.",
-    "learnMore": "Mehr erfahren →",
-    "testimonialsTitle": "Was unsere Kunden sagen",
-    "newsletterTitle": "Werde Teil des KAPTAN-Kreises",
-    "newsletterSubtitle": "Exklusive Angebote, Neuheiten und Pflegetipps direkt in dein Postfach.",
+    "bestSellers": "Was verdient einen Platz in deinem Alltag?",
+    "storyTitle": "Weniger Dinge. Mehr Bedeutung.",
+    "storyP1": "Wähle ein Stück danach, was es für dich tut – nicht nur danach, wie es aussieht.",
+    "storyP2": "Vergleiche Materialien, Maße und praktische Details. Frag uns, wenn etwas unklar ist.",
+    "storyP3": "Unser Anspruch: Produkte, die man gerne nutzt, pflegt und behält.",
+    "learnMore": "Warum KAPTAN →",
+    "testimonialsTitle": "Geschichten aus dem Alltag",
+    "newsletterTitle": "Deine Geschichte hinterlässt Spuren.",
+    "newsletterSubtitle": "Fragen zu einem Produkt, seinem Material oder der Pflege? Sprich mit KAPTAN – vor dem Kauf und auch danach.",
     "emailPlaceholder": "E-Mail-Adresse eingeben",
     "subscribe": "Abonnieren",
-    "t1Quote": "Die Qualität meiner KAPTAN-Geldbörse ist mit nichts vergleichbar. Sie fühlt sich an, als würde sie ewig halten.",
-    "t1Product": "Heritage Bifold Geldbörse",
-    "t2Quote": "Die Salzlampe schafft die beruhigendste Atmosphäre in meinem Wohnzimmer. Absolut wunderschöne Handwerkskunst.",
-    "t2Product": "Natürliche Salzlampe — Medium",
-    "t3Quote": "Schneller Versand und die Ledertasche hat meine Erwartungen übertroffen. Der Geruch von echtem Leder ist berauschend.",
-    "t3Product": "Weekender Reisetasche",
     "manifestoEyebrow": "Unsere Philosophie",
-    "manifestoLine": "Qualität, zeitloser Stil und die Details, die im Alltag zählen.",
+    "manifestoLine": "Sorgfältig gefertigt. Funktional. Persönlich. Nachvollziehbar. Langlebig. Diese Werte leiten unsere Entwicklung.",
     "journeyEyebrow": "Unser Handwerk",
     "step1Label": "Qualität",
     "step2Label": "Stil",
@@ -95,7 +89,7 @@
     "heroSlide3Subtitle": "Langlebig und mit erstklassigem Komfort.",
     "heroSlide4Title": "Lederjacken",
     "heroSlide4Subtitle": "Mutiger Stil für jede Jahreszeit.",
-    "heroShopNow": "Jetzt einkaufen",
+    "heroShopNow": "Deinen Alltagsbegleiter finden",
     "goToSlideAriaLabel": "Zu Folie {{number}} wechseln",
     "fullGrainLeather": "Leder für den Alltag",
     "handCarvedKhewraSalt": "Warmes Licht · Natürlicher Charakter",
@@ -108,10 +102,10 @@
     "subscriptionFailedToast": "Anmeldung fehlgeschlagen",
     "availableCollection": "Entdecken Sie die aktuell verfügbaren Stücke unserer Kollektion.",
     "exploreCollection": "KAPTAN entdecken",
-    "collectionEyebrow": "Die KAPTAN Kollektion",
-    "qualityLabel": "Qualität bis ins Detail",
-    "styleLabel": "Ihr persönlicher Stil",
-    "durabilityLabel": "Für den Alltag gemacht",
+    "collectionEyebrow": "KAPTAN · Charakter im Alltag",
+    "qualityLabel": "Durchdachte Details",
+    "styleLabel": "Praktisch im Alltag",
+    "durabilityLabel": "Pflege über den Kauf hinaus",
     "subscribedToast": "Vielen Dank! Ihre Newsletter-Anmeldung ist bestätigt."
   },
   "faq": {
@@ -122,12 +116,12 @@
         "a": "Wir liefern derzeit ausschließlich innerhalb Deutschlands. Aktuelle Lieferzeiten erfahren Sie auf Anfrage."
       },
       {
-        "q": "Sind eure Salzlampen echt?",
-        "a": "Ja — jede Lampe wird aus Salz handgeschnitzt, das direkt im Khewra-Bergwerk in Pakistan abgebaut wird, dem zweitgrößten Salzbergwerk der Welt."
+        "q": "Woher kommen eure Produkte?",
+        "a": "Prüfe die Angaben zum konkreten Produkt oder frage uns nach verfügbaren Herkunfts- und Materialinformationen. Wir machen keine pauschale Herkunfts- oder Lederqualitätsaussage für die gesamte Kollektion."
       },
       {
         "q": "Wie pflege ich mein Leder?",
-        "a": "Mit einem weichen, trockenen Tuch abwischen. Alle 3–6 Monate mit hochwertigem Lederbalsam pflegen und vor langer Sonneneinstrahlung schützen."
+        "a": "Beachte die Pflegehinweise für dein Material und seine Oberfläche. Frage KAPTAN vor der Anwendung von Pflegemitteln, wenn du unsicher bist."
       },
       {
         "q": "Kann ich einen Artikel zurückgeben?",
@@ -154,14 +148,14 @@
     "p3": "Du kannst die Löschung deines Kontos und deiner Daten jederzeit per Kontaktanfrage verlangen."
   },
   "about": {
-    "kicker": "Der KAPTAN Anspruch",
-    "titlePart1": "Qualität mit Sinn.",
-    "titlePart2": "Stil mit Charakter.",
-    "intro": "KAPTAN verbindet eleganten Stil, praktisches Design und einen Fokus auf Langlebigkeit. Entdecken Sie Stücke für Ihre Garderobe und Ihr Zuhause.",
-    "leatherTitle": "Ihr Stil im Alltag",
-    "leatherBody": "Entdecken Sie Lederaccessoires für Arbeit, Reisen und den Alltag. Vergleichen Sie Materialien, Farben und Details und finden Sie Ihr passendes Stück.",
-    "saltTitle": "Ein Zuhause mit Wärme",
-    "saltBody": "Sanftes Licht und natürliche Struktur für Ihren Lieblingsplatz. Entdecken Sie Größen und Ausführungen, die zu Ihrem Zuhause passen.",
+    "kicker": "Warum KAPTAN",
+    "titlePart1": "Weniger, bewusster wählen.",
+    "titlePart2": "Mehr von deiner Geschichte.",
+    "intro": "Die besten Alltagsbegleiter verdienen ihren Platz: praktisch in deiner Routine, passend zu deinem Stil und die Pflege wert. KAPTAN verbindet diesen Gedanken mit Lederaccessoires, klaren Produktinformationen und einem persönlichen Ansprechpartner.",
+    "leatherTitle": "Funktion statt Überfluss",
+    "leatherBody": "Eine Geldbörse für das Wesentliche. Ein Gürtel, der dein Outfit ergänzt. Beginne bei deinem Alltag und prüfe dann Maße, Materialien und Varianten. Wähle das Stück, das zu deinem Leben passt.",
+    "saltTitle": "Ein anderer Begleiter für den Alltag",
+    "saltBody": "Kaptan Salzlampen bringt natürliche Struktur und eine warme Atmosphäre in dein Zuhause. Eine eigene Kollektion mit eigenen Materialien und Pflegehinweisen – kein Lederprodukt und kein Gesundheitsversprechen.",
     "statHappy": "Zufriedene Kunden",
     "statYears": "Jahre Handwerk",
     "statAuthentic": "Authentisch",
@@ -173,15 +167,15 @@
     "durabilityBody": "Praktisch im Alltag, mit Pflegehinweisen für Ihre neuen Lieblingsstücke."
   },
   "contact": {
-    "kicker": "Kontakt",
-    "title": "Kontaktiere uns",
-    "subtitle": "Fragen, Sonderbestellungen, Großhandel — wir freuen uns auf deine Nachricht.",
+    "kicker": "Persönlicher Service",
+    "title": "Finden wir das passende Stück.",
+    "subtitle": "Fragen zu Maßen, Materialien, Pflege oder einer Bestellung? Melde dich. Bei Wünschen zur Personalisierung oder Reparatur klären wir zuerst gemeinsam, was möglich ist.",
     "email": "E-Mail",
     "phone": "Telefon",
-    "workshop": "Werkstatt",
+    "workshop": "Unser Standort",
     "name": "Name",
     "subject": "Betreff",
-    "message": "Deine Nachricht...",
+    "message": "Wobei können wir dir helfen?",
     "send": "Nachricht senden",
     "sending": "Wird gesendet...",
     "success": "Nachricht gesendet. Wir melden uns bald.",
@@ -195,7 +189,7 @@
   "cart": {
     "title": "Dein Warenkorb",
     "titleWithCount": "Dein Warenkorb ({{count}} Artikel)",
-    "empty": "Dein Warenkorb ist leer.",
+    "empty": "Dein nächster Alltagsbegleiter wartet darauf, entdeckt zu werden.",
     "continueShopping": "Weiter einkaufen",
     "shopNow": "Jetzt einkaufen",
     "clearCart": "Warenkorb leeren",
@@ -207,7 +201,7 @@
     "total": "Gesamt",
     "proceedToCheckout": "Zur Kasse",
     "secureCheckoutBadge": "Sicherer Checkout · Karte & PayPal",
-    "drawerDescription": "Prüfen Sie Ihre Artikel und fahren Sie zur sicheren Kasse fort.",
+    "drawerDescription": "Prüfe deine Auswahl, Farben und Größen vor dem Bezahlen.",
     "decreaseQuantity": "Menge verringern",
     "increaseQuantity": "Menge erhöhen",
     "titleWithCount_one": "Ihr Warenkorb ({{count}} Artikel)",
@@ -287,11 +281,11 @@
     "contactSupport": "Support kontaktieren"
   },
   "journal": {
-    "eyebrow": "Das Atelier",
+    "eyebrow": "Das KAPTAN Notizbuch",
     "titlePrefix": "Das",
     "titleHighlight": "Journal",
-    "subtitle": "Notizen über Handwerk, Herkunft und Pflege — von den Menschen, die machen, was du trägst.",
-    "empty": "Neue Geschichten sind bald verfügbar. Schau später wieder vorbei.",
+    "subtitle": "Alltag, bewusste Entscheidungen und Pflege für die Dinge, die bleiben.",
+    "empty": "Wir bereiten praktische Ratgeber und Produktgeschichten vor. Für Pflegefragen erreichst du KAPTAN schon jetzt.",
     "backToJournal": "Zurück zum Journal",
     "moreFromJournal": "Mehr aus dem Journal"
   },
@@ -355,16 +349,16 @@
     "buyNow": "Jetzt kaufen / Zur Kasse",
     "savedToWishlist": "Zur Wunschliste hinzugefügt",
     "saveForLater": "Für später speichern",
-    "authentic": "Authentisch",
-    "fastShipping": "Schneller Versand",
-    "handcrafted": "Handgefertigt",
-    "descriptionDetails": "Beschreibung & Details",
+    "authentic": "Klare Produktdetails",
+    "fastShipping": "Lieferinformationen",
+    "handcrafted": "Persönlicher Service",
+    "descriptionDetails": "So passt es in deinen Alltag",
     "careInstructionsTitle": "Pflegehinweise",
     "careInstructions": [
-      "Nach jedem Gebrauch mit einem weichen, trockenen Tuch abwischen, um Staub und Rückstände zu entfernen.",
-      "Von direkter Sonneneinstrahlung, Hitzequellen und anhaltender Feuchtigkeit fernhalten.",
-      "Alle 2–3 Monate mit einem hochwertigen Lederbalsam pflegen, um die Geschmeidigkeit zu erhalten.",
-      "Bei Nichtgebrauch im mitgelieferten Staubbeutel aufbewahren, um Kratzer und Austrocknung zu vermeiden."
+      "Beachte die Pflegehinweise für dieses Produkt und seine konkrete Lederoberfläche.",
+      "Entferne Staub vorsichtig mit einem weichen, trockenen Tuch. Vermeide Durchnässen und direkte Hitze.",
+      "Frage vor der Pflege nach einem geeigneten Mittel und teste es zuerst an einer verdeckten Stelle.",
+      "Trocken und vor längerem Sonnenlicht geschützt aufbewahren. Bei Unsicherheit hilft dir KAPTAN weiter."
     ],
     "paymentMethodsTitle": "Zahlungsmethoden",
     "paymentMethodsBody": "An der Kasse stehen Karte und PayPal zur Verfügung.",
@@ -379,7 +373,7 @@
     "starLabel_other": "{{count}} Sterne",
     "writeAReview": "Bewertung schreiben",
     "noReviewsYet": "Noch keine Bewertungen.",
-    "beFirstReview": "Sei die erste Person, die ihre Erfahrung teilt.",
+    "beFirstReview": "Erzähle, wie dieses Stück in deinen Alltag passt.",
     "verifiedPurchase": "Verifizierter Kauf",
     "youMayAlsoLike": "Das könnte dir auch gefallen",
     "recentlyViewed": "Zuletzt angesehen",
@@ -387,7 +381,7 @@
     "titleOptional": "Titel (optional)",
     "titlePlaceholder": "Fasse deine Erfahrung zusammen",
     "reviewOptional": "Bewertung (optional)",
-    "reviewPlaceholder": "Was hat dir gefallen oder nicht gefallen? Wie hast du es genutzt?",
+    "reviewPlaceholder": "Wie passt das Stück in deinen Alltag? Erzähle von Nutzung, Komfort und wichtigen Details.",
     "submitting": "Wird gesendet...",
     "submitReview": "Bewertung abschicken",
     "closeAriaLabel": "Schließen",
@@ -413,8 +407,8 @@
     "statusCancelled": "Storniert"
   },
   "wishlist": {
-    "title": "Meine Wunschliste",
-    "empty": "Noch keine gespeicherten Artikel.",
+    "title": "Stücke zum Merken",
+    "empty": "Merke dir die Stücke, die Teil deines Alltags werden könnten.",
     "browseProducts": "Produkte entdecken",
     "removeAriaLabel": "Entfernen",
     "removedToast": "Von der Wunschliste entfernt"
@@ -462,8 +456,8 @@
     "welcomeBack": "Willkommen zurück",
     "createAccount": "Konto erstellen",
     "recoverAccount": "Konto wiederherstellen",
-    "signinSubtitle": "Melde dich an, um fortzufahren.",
-    "signupSubtitle": "Werde Teil der KAPTAN-Familie.",
+    "signinSubtitle": "Deine Bestellungen, Lieblingsstücke und dein nächstes Kapitel.",
+    "signupSubtitle": "Lieblingsstücke und Bestelldetails an einem Ort behalten.",
     "forgotSubtitle": "Gib deine E-Mail-Adresse ein, um dein Passwort zurückzusetzen.",
     "fullNameLabel": "Vollständiger Name",
     "emailLabel": "E-Mail",
@@ -1239,6 +1233,47 @@
         "Beschwerderecht",
         "Sie können sich bei einer Datenschutzaufsichtsbehörde beschweren, insbesondere am Ort Ihres gewöhnlichen Aufenthalts, Arbeitsplatzes oder des vermuteten Verstoßes. Für Kaptan in Hessen ist der Hessische Beauftragte für Datenschutz und Informationsfreiheit eine Anlaufstelle. Den Link zum Beschwerdeformular finden Sie unten."
       ]
+    ]
+  },
+  "brand": {
+    "why": "Warum KAPTAN",
+    "valuesIntro": "Die Maßstäbe, an denen wir arbeiten",
+    "craftedTitle": "Sorgfältig gefertigt",
+    "craftedBody": "Schau auf die Details. Material, Verarbeitung und Oberfläche sollten für jedes Stück erklärt werden.",
+    "functionalTitle": "Funktional",
+    "functionalBody": "Ein nützliches Stück beginnt mit einem echten Bedarf. Wähle für deinen Alltag, nicht nur nach dem Foto.",
+    "personalTitle": "Persönlich",
+    "personalBody": "Deine Fragen verdienen eine persönliche Antwort – vor und nach der Bestellung.",
+    "traceableTitle": "Nachvollziehbar",
+    "traceableBody": "Transparenz braucht Belege. Frage uns nach Herkunft und Materialien des konkreten Produkts, das dich interessiert.",
+    "lastingTitle": "Langlebig",
+    "lastingBody": "Unser Ziel: bewusst wählen, gut pflegen und das Vorhandene lange nutzen.",
+    "ageTitle": "Made to Age · Mit der Zeit Charakter gewinnen",
+    "ageBody": "Leder verändert sich beim Gebrauch. Je nach Lederart und Oberfläche können Farbe und Struktur eine Patina entwickeln. Wie es altert, hängt von Material, Pflege und deinem Alltag ab.",
+    "ageNote": "Eine Geschichte zum Dokumentieren, keine Fünfjahresgarantie. Simulierte Alterung zeigen wir nicht als Kundenerfahrung.",
+    "day": "Am Anfang · Dein Stück kennenlernen",
+    "year": "Beim Nutzen · Charakter entdecken",
+    "future": "Mit der Zeit · Pflegen und behalten",
+    "dayBody": "Prüfe Passform, Haptik und praktische Details.",
+    "yearBody": "Beobachte, wie sich dein eigenes Stück durch Gebrauch verändert.",
+    "futureBody": "Beachte die Pflegehinweise und frage bei Bedarf nach Hilfe.",
+    "support": "Mit KAPTAN sprechen",
+    "story": "Unseren Ansatz entdecken",
+    "wallet": "Alles, was du brauchst. Nicht mehr als nötig.",
+    "belt": "Das Detail, das deinen Alltag zusammenbringt.",
+    "bag": "Vom ersten Termin bis zum Heimweg.",
+    "salt": "Eine gemütliche Ecke. Ein Moment zum Ankommen.",
+    "generic": "Finde das Stück, das zu deinem Alltag passt.",
+    "productNote": "Prüfe Materialien, Maße und Varianten unten, damit das Stück zu deinen Bedürfnissen passt.",
+    "saltCare": [
+      "Beachte die mitgelieferte Anleitung deiner Lampe oder deines Kerzenhalters.",
+      "Salzprodukte trocken und von Wasser fernhalten. Nicht waschen und keine Lederpflegemittel verwenden.",
+      "Elektrische Lampen vor dem Reinigen vom Strom trennen und abkühlen lassen; Sicherheitshinweise beachten.",
+      "Kerzenhalter mit einer passenden Kerze auf eine stabile, hitzebeständige Fläche stellen. Brennende Kerzen nie unbeaufsichtigt lassen."
+    ],
+    "generalCare": [
+      "Beachte die mitgelieferten Pflegehinweise für dieses Produkt.",
+      "KAPTAN hilft bei Fragen zu Material und Oberfläche."
     ]
   }
 }

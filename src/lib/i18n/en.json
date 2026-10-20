@@ -1,6 +1,6 @@
 {
   "header": {
-    "craftedTag": "Quality in every detail · Everyday elegance"
+    "craftedTag": "Made for the journey. Built to become yours."
   },
   "nav": {
     "home": "Home",
@@ -28,7 +28,7 @@
     "de": "Deutsch"
   },
   "footer": {
-    "tagline": "Refined leather accessories and warm home lighting. Quality, character and everyday elegance.",
+    "tagline": "Made for the journey. Built to become yours. Leather essentials for everyday purpose, and salt accents for a warmer home.",
     "shop": "Shop",
     "allProducts": "All Products",
     "leatherWallets": "Leather Wallets",
@@ -43,13 +43,13 @@
     "shipping": "Shipping Info",
     "returns": "Returns",
     "privacy": "Privacy Policy",
-    "copyright": "© {{year}} KAPTAN. All rights reserved. Made with craft, shipped with care.",
+    "copyright": "© {{year}} KAPTAN. All rights reserved. Choose thoughtfully. Care well.",
     "followUs": "Follow us"
   },
   "home": {
-    "heroLine1": "Everyday elegance.",
-    "heroLine2": "Lasting style.",
-    "heroSubtitle": "Discover leather essentials and home accents that bring refined style and practical detail to your everyday.",
+    "heroLine1": "Made for the journey.",
+    "heroLine2": "Built to become yours.",
+    "heroSubtitle": "For people who want fewer, better things. Discover leather essentials with everyday purpose, personal support and a story that grows with use.",
     "shopLeather": "Shop Leather",
     "discoverSaltLamps": "Discover Salt Lamps",
     "secureCheckout": "Secure Checkout",
@@ -64,25 +64,19 @@
     "leatherProducts": "Leather Products",
     "himalayanSaltLamps": "Salt lamps",
     "shopNow": "Shop Now →",
-    "bestSellers": "Discover the collection",
-    "storyTitle": "Style with substance",
-    "storyP1": "Refined accessories and warm home accents, chosen for everyday living.",
-    "storyP2": "Explore materials, finishes and practical details on each product page.",
-    "storyP3": "Our focus: quality, durability and effortless elegance.",
-    "learnMore": "Learn More →",
-    "testimonialsTitle": "What Our Customers Say",
-    "newsletterTitle": "Join the KAPTAN Circle",
-    "newsletterSubtitle": "Exclusive offers, new arrivals, and care tips delivered to your inbox.",
+    "bestSellers": "Choose what earns its place",
+    "storyTitle": "Fewer things. More meaning.",
+    "storyP1": "Choose a piece for what it helps you do, not just how it looks.",
+    "storyP2": "Compare materials, dimensions and practical details before deciding. Ask us when something is unclear.",
+    "storyP3": "Our ambition is simple: products worth using, looking after and keeping.",
+    "learnMore": "Why KAPTAN →",
+    "testimonialsTitle": "Stories from everyday use",
+    "newsletterTitle": "Your story leaves a mark.",
+    "newsletterSubtitle": "Have a question about a piece, its materials or its care? Talk to KAPTAN before you choose—and after it becomes yours.",
     "emailPlaceholder": "Enter your email",
     "subscribe": "Subscribe",
-    "t1Quote": "The quality of my KAPTAN wallet is unlike anything I've owned. It feels like it will last forever.",
-    "t1Product": "Heritage Bifold Wallet",
-    "t2Quote": "The salt lamp creates the most calming atmosphere in my living room. Absolutely beautiful craftsmanship.",
-    "t2Product": "Natural Salt Lamp — Medium",
-    "t3Quote": "Fast shipping and the leather bag exceeded my expectations. The smell of real leather is intoxicating.",
-    "t3Product": "Weekender Duffel Bag",
     "manifestoEyebrow": "Our Philosophy",
-    "manifestoLine": "A focus on quality, lasting style and the details you use every day.",
+    "manifestoLine": "Crafted. Functional. Personal. Traceable. Long-lasting. These are the values guiding what we build.",
     "journeyEyebrow": "Our Craft",
     "step1Label": "Quality",
     "step2Label": "Style",
@@ -95,7 +89,7 @@
     "heroSlide3Subtitle": "Built to last with premium comfort.",
     "heroSlide4Title": "Leather Jackets",
     "heroSlide4Subtitle": "Bold style for every season.",
-    "heroShopNow": "Shop Now",
+    "heroShopNow": "Find your everyday companion",
     "goToSlideAriaLabel": "Go to slide {{number}}",
     "fullGrainLeather": "Leather essentials",
     "handCarvedKhewraSalt": "Warm light · Natural character",
@@ -108,10 +102,10 @@
     "subscriptionFailedToast": "Subscription failed",
     "availableCollection": "Discover the pieces currently available in our collection.",
     "exploreCollection": "Discover KAPTAN",
-    "collectionEyebrow": "The KAPTAN collection",
-    "qualityLabel": "Quality in the details",
-    "styleLabel": "Your signature style",
-    "durabilityLabel": "Made for everyday life",
+    "collectionEyebrow": "KAPTAN · Character in everyday life",
+    "qualityLabel": "Considered details",
+    "styleLabel": "Practical by purpose",
+    "durabilityLabel": "Care beyond checkout",
     "subscribedToast": "Thank you! Your newsletter subscription is confirmed."
   },
   "faq": {
@@ -122,12 +116,12 @@
         "a": "We currently deliver within Germany only. Contact us for current delivery estimates."
       },
       {
-        "q": "Are your salt lamps authentic?",
-        "a": "Yes — every lamp is hand-carved from salt mined directly at the Khewra mine in Pakistan, the world's second-largest salt mine."
+        "q": "Where do your products come from?",
+        "a": "Check the details for the specific product, or ask us for available origin and material information. We do not use one origin or leather-grade claim for the whole collection."
       },
       {
         "q": "How do I care for my leather?",
-        "a": "Wipe with a soft, dry cloth. Condition every 3–6 months with a quality leather balm and keep away from prolonged sunlight."
+        "a": "Follow the care guidance for your particular material and finish. Ask KAPTAN before using a conditioner if you are unsure."
       },
       {
         "q": "Can I return an item?",
@@ -154,14 +148,14 @@
     "p3": "You can request deletion of your account and data at any time by contacting us."
   },
   "about": {
-    "kicker": "The KAPTAN standard",
-    "titlePart1": "Quality with purpose.",
-    "titlePart2": "Style with character.",
-    "intro": "KAPTAN brings together refined style, practical design and a focus on durability. Discover pieces that complement your wardrobe and your home.",
-    "leatherTitle": "Your everyday signature",
-    "leatherBody": "Explore leather accessories for work, travel and daily essentials. Compare materials, colours and details to find the piece that fits your routine.",
-    "saltTitle": "A warmer space",
-    "saltBody": "Bring a soft glow and natural texture to your favourite corner. Explore sizes and finishes to find the right accent for your home.",
+    "kicker": "Why KAPTAN",
+    "titlePart1": "Fewer, better things.",
+    "titlePart2": "More of your story.",
+    "intro": "We believe the best everyday pieces earn their place: useful in your routine, personal in your style and worth looking after. KAPTAN brings that idea to leather essentials, with clear product information and a human point of contact.",
+    "leatherTitle": "Function before excess",
+    "leatherBody": "A wallet for the essentials. A belt that brings an outfit together. Start with your everyday needs, then check the dimensions, materials and available options. Buy the piece that fits your life.",
+    "saltTitle": "A different kind of everyday companion",
+    "saltBody": "Kaptan Salt Lamps brings natural texture and warm atmosphere to your home. This is a separate collection with its own materials and care needs—not a leather product or a wellness promise.",
     "statHappy": "Happy Customers",
     "statYears": "Years of Craft",
     "statAuthentic": "Authentic",
@@ -173,15 +167,15 @@
     "durabilityBody": "Everyday function, with care information to help you look after your purchase."
   },
   "contact": {
-    "kicker": "Contact",
-    "title": "Get in Touch",
-    "subtitle": "Questions, custom orders, wholesale — we'd love to hear from you.",
+    "kicker": "Personal service",
+    "title": "Let’s find the right piece.",
+    "subtitle": "Ask about dimensions, materials, care or an existing order. For personalization or repair enquiries, contact us first to discuss what is possible.",
     "email": "Email",
     "phone": "Phone",
-    "workshop": "Workshop",
+    "workshop": "Based in",
     "name": "Name",
     "subject": "Subject",
-    "message": "Your message...",
+    "message": "Tell us what you need help with…",
     "send": "Send Message",
     "sending": "Sending...",
     "success": "Message sent. We'll be in touch soon.",
@@ -195,7 +189,7 @@
   "cart": {
     "title": "Your Cart",
     "titleWithCount": "Your Cart ({{count}} items)",
-    "empty": "Your cart is empty.",
+    "empty": "Your next everyday companion is waiting to be discovered.",
     "continueShopping": "Continue Shopping",
     "shopNow": "Shop Now",
     "clearCart": "Clear cart",
@@ -207,7 +201,7 @@
     "total": "Total",
     "proceedToCheckout": "Proceed to Checkout",
     "secureCheckoutBadge": "Secure checkout · Card & PayPal",
-    "drawerDescription": "Review your items and continue to secure checkout.",
+    "drawerDescription": "Check your chosen pieces, colours and sizes before checkout.",
     "decreaseQuantity": "Decrease quantity",
     "increaseQuantity": "Increase quantity",
     "titleWithCount_one": "Your Cart ({{count}} item)",
@@ -287,11 +281,11 @@
     "contactSupport": "Contact Support"
   },
   "journal": {
-    "eyebrow": "The Atelier",
+    "eyebrow": "The KAPTAN notebook",
     "titlePrefix": "The",
     "titleHighlight": "Journal",
-    "subtitle": "Notes on craftsmanship, origin, and care — from the people who make what you carry.",
-    "empty": "New stories are on their way. Check back soon.",
+    "subtitle": "Everyday use, thoughtful choices and caring for the pieces you keep.",
+    "empty": "We’re preparing practical guides and product stories. For care advice now, contact KAPTAN.",
     "backToJournal": "Back to Journal",
     "moreFromJournal": "More from the Journal"
   },
@@ -355,16 +349,16 @@
     "buyNow": "Buy Now / Checkout",
     "savedToWishlist": "Saved to wishlist",
     "saveForLater": "Save for later",
-    "authentic": "Authentic",
-    "fastShipping": "Fast Shipping",
-    "handcrafted": "Handcrafted",
-    "descriptionDetails": "Description & Details",
+    "authentic": "Clear product details",
+    "fastShipping": "Delivery information",
+    "handcrafted": "Personal support",
+    "descriptionDetails": "How it fits your everyday",
     "careInstructionsTitle": "Care Instructions",
     "careInstructions": [
-      "Wipe clean with a soft, dry cloth after each use to remove dust and surface residue.",
-      "Keep away from direct sunlight, heat sources, and prolonged moisture exposure.",
-      "Apply a quality leather conditioner every 2–3 months to preserve suppleness.",
-      "Store in the provided dust bag when not in use to prevent scratches and dryness."
+      "Follow the care information for this product and its specific leather finish.",
+      "Remove surface dust gently with a soft, dry cloth. Avoid soaking and direct heat.",
+      "Ask about a suitable care product before conditioning; test it on a hidden area first.",
+      "Store dry, away from prolonged sunlight. Contact KAPTAN if you are unsure how to care for your piece."
     ],
     "paymentMethodsTitle": "Payment Methods",
     "paymentMethodsBody": "Card and PayPal are available at checkout.",
@@ -379,7 +373,7 @@
     "starLabel_other": "{{count}} stars",
     "writeAReview": "Write a Review",
     "noReviewsYet": "No reviews yet.",
-    "beFirstReview": "Be the first to share your experience.",
+    "beFirstReview": "Share how this piece fits your everyday.",
     "verifiedPurchase": "Verified Purchase",
     "youMayAlsoLike": "You May Also Like",
     "recentlyViewed": "Recently Viewed",
@@ -387,7 +381,7 @@
     "titleOptional": "Title (optional)",
     "titlePlaceholder": "Sum up your experience",
     "reviewOptional": "Review (optional)",
-    "reviewPlaceholder": "What did you like or dislike? How did you use it?",
+    "reviewPlaceholder": "How does it fit your everyday life? Tell us about use, comfort and the details that matter.",
     "submitting": "Submitting...",
     "submitReview": "Submit Review",
     "closeAriaLabel": "Close",
@@ -413,8 +407,8 @@
     "statusCancelled": "Cancelled"
   },
   "wishlist": {
-    "title": "My Wishlist",
-    "empty": "No saved items yet.",
+    "title": "Pieces worth considering",
+    "empty": "Save the pieces that could become part of your everyday.",
     "browseProducts": "Browse Products",
     "removeAriaLabel": "Remove",
     "removedToast": "Removed from wishlist"
@@ -462,8 +456,8 @@
     "welcomeBack": "Welcome Back",
     "createAccount": "Create Account",
     "recoverAccount": "Recover Account",
-    "signinSubtitle": "Sign in to continue your journey.",
-    "signupSubtitle": "Join the KAPTAN family.",
+    "signinSubtitle": "Your orders, saved pieces and next chapter.",
+    "signupSubtitle": "Keep your favourite pieces and order details in one place.",
     "forgotSubtitle": "Enter your email to reset your password.",
     "fullNameLabel": "Full Name",
     "emailLabel": "Email",
@@ -1239,6 +1233,47 @@
         "Complaints",
         "You may complain to a supervisory authority, especially where you live, work or believe an infringement occurred. The Hessian Commissioner for Data Protection and Freedom of Information is a contact for Kaptan in Hessen. A complaint form is linked below."
       ]
+    ]
+  },
+  "brand": {
+    "why": "Why KAPTAN",
+    "valuesIntro": "The standards we are building towards",
+    "craftedTitle": "Crafted",
+    "craftedBody": "Look closely at the details. Materials, construction and finish should be explained for each piece.",
+    "functionalTitle": "Functional",
+    "functionalBody": "A useful piece starts with a real need. Choose for your routine, not just the photograph.",
+    "personalTitle": "Personal",
+    "personalBody": "Your questions deserve a human answer, before and after your order.",
+    "traceableTitle": "Traceable",
+    "traceableBody": "Transparency needs evidence. Ask us about the origin and materials of the specific product you are considering.",
+    "lastingTitle": "Long-lasting",
+    "lastingBody": "Our aim is to help you choose thoughtfully, care well and keep using what you own.",
+    "ageTitle": "Made to Age",
+    "ageBody": "Leather changes with use. Depending on its type and finish, colour and texture may develop a patina. How it ages depends on the material, care and your everyday habits.",
+    "ageNote": "A story to document, not a five-year guarantee. We do not present simulated ageing as customer evidence.",
+    "day": "Day 1 · Make it yours",
+    "year": "With use · Notice the character",
+    "future": "Over time · Care and keep",
+    "dayBody": "Check the fit, feel and practical details.",
+    "yearBody": "Notice how your own piece changes through use.",
+    "futureBody": "Follow its care guidance and ask for help when needed.",
+    "support": "Talk to KAPTAN",
+    "story": "Explore our approach",
+    "wallet": "Everything you need. Nothing you don’t.",
+    "belt": "The detail that brings your everyday together.",
+    "bag": "From the morning meeting to the journey home.",
+    "salt": "A warmer corner. A moment to feel at home.",
+    "generic": "Find the piece that fits your everyday.",
+    "productNote": "Check the materials, dimensions and options below to make sure this piece fits your needs.",
+    "saltCare": [
+      "Follow the instructions supplied with your specific lamp or candle holder.",
+      "Keep salt products dry and away from water. Do not wash or apply leather-care products.",
+      "For electrical lamps, unplug and let the product cool before cleaning; follow its electrical safety instructions.",
+      "For candle holders, use a suitable candle on a stable, heat-resistant surface and never leave a burning candle unattended."
+    ],
+    "generalCare": [
+      "Follow the care instructions supplied with this product.",
+      "Contact KAPTAN for advice specific to its materials and finish."
     ]
   }
 }

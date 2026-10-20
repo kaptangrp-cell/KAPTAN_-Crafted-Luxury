@@ -26,7 +26,8 @@ const organizationJsonLd = {
   name: "KAPTAN",
   url: "https://kaptangrp.com",
   logo: "https://kaptangrp.com/kaptan-logo.png",
-  description: "Quality leather accessories and home lighting. Everyday elegance, lasting style.",
+  description:
+    "Leather essentials with everyday purpose, personal support and care. Discover KAPTAN leather and salt collections.",
   email: "contact@kaptangrp.com",
   telephone: "+491757134333",
   address: {
@@ -103,15 +104,17 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "KAPTAN — Everyday Elegance. Lasting Style." },
+      { title: "KAPTAN — Made for the journey. Built to become yours." },
       {
         name: "description",
-        content: "Quality leather accessories and home lighting. Everyday elegance, lasting style.",
+        content:
+          "Leather essentials with everyday purpose, personal support and care. Discover KAPTAN leather and salt collections.",
       },
-      { property: "og:title", content: "KAPTAN — Everyday Elegance. Lasting Style." },
+      { property: "og:title", content: "KAPTAN — Made for the journey. Built to become yours." },
       {
         property: "og:description",
-        content: "Quality leather accessories and home lighting. Everyday elegance, lasting style.",
+        content:
+          "Leather essentials with everyday purpose, personal support and care. Discover KAPTAN leather and salt collections.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },

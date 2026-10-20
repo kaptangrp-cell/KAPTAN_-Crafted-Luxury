@@ -67,7 +67,11 @@ export function StoreAssistant() {
     const intent = assistantIntent(query);
     try {
       const faq = t("faq.items", { returnObjects: true }) as { q: string; a: string }[];
-      if (intent === "returns") {
+      if (intent === "brand") {
+        answer.text = [t("about.intro"), t("brand.ageBody"), t("contact.subtitle")];
+        answer.link = "/contact";
+        answer.label = t("brand.support");
+      } else if (intent === "returns") {
         answer.text = [t("returns.p1"), t("returns.p2"), t("returns.p3")];
         answer.link = "/returns";
         answer.label = t("returns.title");
@@ -92,7 +96,7 @@ export function StoreAssistant() {
           intent === "care"
             ? faq.filter((item) => /care|pflege/i.test(item.q))
             : intent === "authenticity"
-              ? faq.filter((item) => /authentic|echt/i.test(item.q))
+              ? faq.filter((item) => /authentic|echt|come from|woher/i.test(item.q))
               : faq;
         answer.text = (selected.length ? selected : faq).map((item) => `${item.q}\n${item.a}`);
         answer.link = "/faq";
