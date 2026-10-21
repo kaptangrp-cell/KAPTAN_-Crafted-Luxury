@@ -5,12 +5,10 @@ import { useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Camera, ScanLine, PackageCheck, Truck, RotateCcw, ClipboardCheck } from "lucide-react";
 import { getWarehouseDashboard, scanWarehouseUnit } from "@/lib/warehouse.functions";
-import {
-  parseUnitCode,
-  type ScanInput,
-  type ScanResult,
-  type WarehousePermission,
-} from "@/lib/warehouse";
+import { type ScanInput, type ScanResult, type WarehousePermission } from "@/lib/warehouse";
+import { lookupUnit } from "@/lib/operations.functions";
+import { FestivalBasket } from "@/components/warehouse/FestivalBasket";
+import { OperationsDesk } from "@/components/warehouse/OperationsDesk";
 import { QrCamera } from "@/components/warehouse/QrCamera";
 import { useAuthStore } from "@/stores/authStore";
 export const Route = createFileRoute("/_authenticated/warehouse")({ component: WarehousePage });
@@ -19,6 +17,7 @@ function WarehousePage() {
   const user = useAuthStore((s) => s.user);
   const dashboard = useServerFn(getWarehouseDashboard);
   const scan = useServerFn(scanWarehouseUnit);
+  const lookup = useServerFn(lookupUnit);
   const access = useQuery({
     queryKey: ["warehouse", user?.id],
     queryFn: () => dashboard({ data: { admin: false } }),
@@ -48,11 +47,13 @@ function WarehousePage() {
   });
   async function submit(raw: string) {
     if (running.current) return;
+    running.current = true;
+    setBusy(true);
     setCamera(false);
     setError("");
     setLastResult(null);
     try {
-      const unit = parseUnitCode(raw);
+      const unit = (await lookup({ data: { code: raw } })).id;
       if (!navigator.onLine) throw new Error(t("warehouse.offline"));
       const body = { unit, action, order: order.trim(), reason: reason.trim() };
       if (
@@ -103,6 +104,11 @@ function WarehousePage() {
         </p>
       ) : (
         <>
+          <OperationsDesk
+            admin={access.data?.admin ?? false}
+            canMove={access.data?.permissions.includes("receive") ?? false}
+          />
+          {access.data?.permissions.includes("sell") && <FestivalBasket />}
           <p className="mb-5 text-sm text-white/60">{t("warehouse.intro")}</p>
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
             {modes

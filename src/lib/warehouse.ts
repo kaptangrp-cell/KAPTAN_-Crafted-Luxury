@@ -21,6 +21,7 @@ export interface WarehouseAccess {
 }
 export interface UnitLabel {
   id: string;
+  unit_number?: string;
   name: string;
   variant: string;
   sku: string;

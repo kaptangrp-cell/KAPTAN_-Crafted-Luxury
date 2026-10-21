@@ -50,6 +50,7 @@ export function LabelSheet({ labels }: { labels: UnitLabel[] }) {
             {images[l.id] && (
               <img src={images[l.id]} alt={unitCode(l.id)} className="mx-auto h-28 w-28" />
             )}
+            <b className="block font-mono text-sm">{l.unit_number}</b>
             <b className="block text-xs">{l.name}</b>
             <span className="block text-xs">
               {l.variant} · {l.location}
