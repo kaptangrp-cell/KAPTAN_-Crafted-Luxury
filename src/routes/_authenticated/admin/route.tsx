@@ -18,6 +18,7 @@ import {
   Sun,
   Moon,
   ShieldCheck,
+  Store,
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { supabase } from "@/integrations/supabase/client";
@@ -48,6 +49,7 @@ const nav: { to: string; labelKey: string; icon: typeof LayoutDashboard; exact?:
   { to: "/admin/products", labelKey: "admin.navProducts", icon: Package },
   { to: "/admin/categories", labelKey: "admin.navCategories", icon: FolderTree },
   { to: "/admin/journal", labelKey: "admin.navJournal", icon: Newspaper },
+  { to: "/admin/festival", labelKey: "admin.navFestival", icon: Store },
   { to: "/admin/orders", labelKey: "admin.navOrders", icon: ShoppingCart },
   { to: "/finance", labelKey: "finance.title", icon: LayoutDashboard },
   { to: "/admin/invoices", labelKey: "invoices.title", icon: Newspaper },

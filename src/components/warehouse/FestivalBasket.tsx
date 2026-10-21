@@ -8,7 +8,7 @@ import {
   type TracedUnit,
 } from "@/lib/operations.functions";
 import { QrCamera } from "./QrCamera";
-export function FestivalBasket() {
+export function FestivalBasket({ expanded = false }: { expanded?: boolean }) {
   const { i18n } = useTranslation();
   const de = i18n.resolvedLanguage?.startsWith("de");
   const tr = (en: string, deText: string) => (de ? deText : en);
@@ -65,7 +65,7 @@ export function FestivalBasket() {
     });
   }
   return (
-    <details className="mb-6 rounded-2xl border border-primary/30 p-5">
+    <details open={expanded || undefined} className="mb-6 rounded-2xl border border-primary/30 p-5">
       <summary className="cursor-pointer font-serif text-2xl">
         {tr("Festival scan basket", "Festival-Scanwarenkorb")}
       </summary>

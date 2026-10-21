@@ -554,7 +554,8 @@
     "revenueEurLegend": "Revenue €",
     "ordersLegend": "Orders",
     "unitsSoldLegend": "Units Sold",
-    "navGrowth": "Growth Planner"
+    "navGrowth": "Growth Planner",
+    "navFestival": "Festival sales"
   },
   "adminProducts": {
     "title": "Products",

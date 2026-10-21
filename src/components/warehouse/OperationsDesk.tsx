@@ -18,7 +18,15 @@ import { QrCamera } from "./QrCamera";
 import type { UnitLabel } from "@/lib/warehouse";
 import { useAuthStore } from "@/stores/authStore";
 
-export function OperationsDesk({ admin, canMove }: { admin: boolean; canMove: boolean }) {
+export function OperationsDesk({
+  admin,
+  canMove,
+  initialTab = "history",
+}: {
+  admin: boolean;
+  canMove: boolean;
+  initialTab?: "history" | "purchase";
+}) {
   const { i18n } = useTranslation();
   const de = i18n.resolvedLanguage?.startsWith("de");
   const tr = (en: string, german: string) => (de ? german : en);
@@ -31,7 +39,7 @@ export function OperationsDesk({ admin, canMove }: { admin: boolean; canMove: bo
     upload = useServerFn(uploadFinanceDocument),
     attach = useServerFn(attachPurchaseDocument),
     dashboard = useServerFn(getWarehouseDashboard);
-  const [tab, setTab] = useState<"history" | "purchase">("history");
+  const [tab, setTab] = useState<"history" | "purchase">(initialTab);
   const [code, setCode] = useState(""),
     [unit, setUnit] = useState<TracedUnit | null>(null),
     [camera, setCamera] = useState(false);

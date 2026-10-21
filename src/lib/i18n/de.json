@@ -554,7 +554,8 @@
     "revenueEurLegend": "Umsatz €",
     "ordersLegend": "Bestellungen",
     "unitsSoldLegend": "Verkaufte Einheiten",
-    "navGrowth": "Wachstumsplaner"
+    "navGrowth": "Wachstumsplaner",
+    "navFestival": "Festivalverkauf"
   },
   "adminProducts": {
     "title": "Produkte",

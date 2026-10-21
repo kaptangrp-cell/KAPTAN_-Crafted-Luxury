@@ -2,7 +2,9 @@
 
 ## Available in this release
 
-Open `/warehouse` while signed in. Existing staff permissions remain authoritative.
+Admins: open **Admin → Festival sales** (`/admin/festival`). The dedicated workspace has Sell, Purchases, Unit history and Setup tabs.
+
+Warehouse employees continue to use `/warehouse`; adding the admin tab does not give employees access to other admin pages. Existing staff permissions remain authoritative.
 
 - **Purchases & labels** (admin): upload the original supplier order/advance invoice, select each colour/size and ordered quantity, save. Uploading preserves evidence; it does not assert payment or book expenditure.
 - When goods arrive, create labels against the purchase line (maximum 200 per batch). Repeated requests return the same batch; total labels cannot exceed the ordered quantity.

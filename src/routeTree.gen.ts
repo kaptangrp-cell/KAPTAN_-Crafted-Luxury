@@ -38,6 +38,7 @@ import { Route as ProductsSlugRouteImport } from './routes/products_.$slug'
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin/index'
 import { Route as AuthenticatedAdminCategoriesRouteImport } from './routes/_authenticated/admin/categories'
 import { Route as AuthenticatedAdminCustomersRouteImport } from './routes/_authenticated/admin/customers'
+import { Route as AuthenticatedAdminFestivalRouteImport } from './routes/_authenticated/admin/festival'
 import { Route as AuthenticatedAdminGrowthRouteImport } from './routes/_authenticated/admin/growth'
 import { Route as AuthenticatedAdminInventoryRouteImport } from './routes/_authenticated/admin/inventory'
 import { Route as AuthenticatedAdminInvoicesRouteImport } from './routes/_authenticated/admin/invoices'
@@ -193,6 +194,12 @@ const AuthenticatedAdminCustomersRoute =
     path: '/customers',
     getParentRoute: () => AuthenticatedAdminRouteRoute,
   } as any)
+const AuthenticatedAdminFestivalRoute =
+  AuthenticatedAdminFestivalRouteImport.update({
+    id: '/festival',
+    path: '/festival',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
+  } as any)
 const AuthenticatedAdminGrowthRoute =
   AuthenticatedAdminGrowthRouteImport.update({
     id: '/growth',
@@ -268,6 +275,7 @@ export interface FileRoutesByFullPath {
   '/products/$slug': typeof ProductsSlugRoute
   '/admin/categories': typeof AuthenticatedAdminCategoriesRoute
   '/admin/customers': typeof AuthenticatedAdminCustomersRoute
+  '/admin/festival': typeof AuthenticatedAdminFestivalRoute
   '/admin/growth': typeof AuthenticatedAdminGrowthRoute
   '/admin/inventory': typeof AuthenticatedAdminInventoryRoute
   '/admin/invoices': typeof AuthenticatedAdminInvoicesRoute
@@ -305,6 +313,7 @@ export interface FileRoutesByTo {
   '/products/$slug': typeof ProductsSlugRoute
   '/admin/categories': typeof AuthenticatedAdminCategoriesRoute
   '/admin/customers': typeof AuthenticatedAdminCustomersRoute
+  '/admin/festival': typeof AuthenticatedAdminFestivalRoute
   '/admin/growth': typeof AuthenticatedAdminGrowthRoute
   '/admin/inventory': typeof AuthenticatedAdminInventoryRoute
   '/admin/invoices': typeof AuthenticatedAdminInvoicesRoute
@@ -345,6 +354,7 @@ export interface FileRoutesById {
   '/products_/$slug': typeof ProductsSlugRoute
   '/_authenticated/admin/categories': typeof AuthenticatedAdminCategoriesRoute
   '/_authenticated/admin/customers': typeof AuthenticatedAdminCustomersRoute
+  '/_authenticated/admin/festival': typeof AuthenticatedAdminFestivalRoute
   '/_authenticated/admin/growth': typeof AuthenticatedAdminGrowthRoute
   '/_authenticated/admin/inventory': typeof AuthenticatedAdminInventoryRoute
   '/_authenticated/admin/invoices': typeof AuthenticatedAdminInvoicesRoute
@@ -385,6 +395,7 @@ export interface FileRouteTypes {
     | '/products/$slug'
     | '/admin/categories'
     | '/admin/customers'
+    | '/admin/festival'
     | '/admin/growth'
     | '/admin/inventory'
     | '/admin/invoices'
@@ -422,6 +433,7 @@ export interface FileRouteTypes {
     | '/products/$slug'
     | '/admin/categories'
     | '/admin/customers'
+    | '/admin/festival'
     | '/admin/growth'
     | '/admin/inventory'
     | '/admin/invoices'
@@ -461,6 +473,7 @@ export interface FileRouteTypes {
     | '/products_/$slug'
     | '/_authenticated/admin/categories'
     | '/_authenticated/admin/customers'
+    | '/_authenticated/admin/festival'
     | '/_authenticated/admin/growth'
     | '/_authenticated/admin/inventory'
     | '/_authenticated/admin/invoices'
@@ -700,6 +713,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminCustomersRouteImport
       parentRoute: typeof AuthenticatedAdminRouteRoute
     }
+    '/_authenticated/admin/festival': {
+      id: '/_authenticated/admin/festival'
+      path: '/festival'
+      fullPath: '/admin/festival'
+      preLoaderRoute: typeof AuthenticatedAdminFestivalRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
     '/_authenticated/admin/growth': {
       id: '/_authenticated/admin/growth'
       path: '/growth'
@@ -762,6 +782,7 @@ declare module '@tanstack/react-router' {
 interface AuthenticatedAdminRouteRouteChildren {
   AuthenticatedAdminCategoriesRoute: typeof AuthenticatedAdminCategoriesRoute
   AuthenticatedAdminCustomersRoute: typeof AuthenticatedAdminCustomersRoute
+  AuthenticatedAdminFestivalRoute: typeof AuthenticatedAdminFestivalRoute
   AuthenticatedAdminGrowthRoute: typeof AuthenticatedAdminGrowthRoute
   AuthenticatedAdminInventoryRoute: typeof AuthenticatedAdminInventoryRoute
   AuthenticatedAdminInvoicesRoute: typeof AuthenticatedAdminInvoicesRoute
@@ -776,6 +797,7 @@ const AuthenticatedAdminRouteRouteChildren: AuthenticatedAdminRouteRouteChildren
   {
     AuthenticatedAdminCategoriesRoute: AuthenticatedAdminCategoriesRoute,
     AuthenticatedAdminCustomersRoute: AuthenticatedAdminCustomersRoute,
+    AuthenticatedAdminFestivalRoute: AuthenticatedAdminFestivalRoute,
     AuthenticatedAdminGrowthRoute: AuthenticatedAdminGrowthRoute,
     AuthenticatedAdminInventoryRoute: AuthenticatedAdminInventoryRoute,
     AuthenticatedAdminInvoicesRoute: AuthenticatedAdminInvoicesRoute,
