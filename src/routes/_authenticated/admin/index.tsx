@@ -116,6 +116,7 @@ function AdminDashboard() {
         ].map((item) => (
           <Link
             key={item.to}
+            search={item.to === "/admin/orders" ? { prepare: true } : {}}
             to={item.to as "/admin"}
             className="flex items-center gap-3 rounded-xl border border-gold/15 bg-[#0D0D0D] p-4 transition-colors hover:border-gold/50"
           >

@@ -15,7 +15,8 @@ import type { TFunction } from "i18next";
 import { adminListOrders, adminUpdateOrderStatus, adminExportOrders } from "@/lib/admin.functions";
 
 export const Route = createFileRoute("/_authenticated/admin/orders")({
-  validateSearch: z.object({ orderNumber: z.string().optional() }).parse,
+  validateSearch: z.object({ orderNumber: z.string().optional(), prepare: z.boolean().optional() })
+    .parse,
   component: AdminOrdersPage,
 });
 
@@ -34,15 +35,17 @@ function AdminOrdersPage() {
   const search = Route.useSearch();
   const [orderNumber, setOrderNumber] = useState(search.orderNumber ?? "");
   useEffect(() => setOrderNumber(search.orderNumber ?? ""), [search.orderNumber]);
-  const [filter, setFilter] = useState("all");
+  const [filter, setFilter] = useState(search.prepare ? "prepare" : "all");
+  useEffect(() => setFilter(search.prepare ? "prepare" : "all"), [search.prepare]);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const listFn = useServerFn(adminListOrders);
   const updateFn = useServerFn(adminUpdateOrderStatus);
   const exportFn = useServerFn(adminExportOrders);
 
   const { data, isLoading, isError, refetch } = useQuery({
-    queryKey: ["admin-orders", userId, orderNumber],
-    queryFn: () => listFn({ data: { orderNumber: orderNumber || undefined } }),
+    queryKey: ["admin-orders", userId, orderNumber, filter === "prepare"],
+    queryFn: () =>
+      listFn({ data: { orderNumber: orderNumber || undefined, prepare: filter === "prepare" } }),
   });
 
   const updateStatus = useMutation({
@@ -143,7 +146,7 @@ function AdminOrdersPage() {
 
   const selected = data?.orders.find((order) => order.id === selectedId);
   const visibleOrders = (data?.orders ?? []).filter(
-    (order) => filter === "all" || order.status === filter,
+    (order) => filter === "all" || filter === "prepare" || order.status === filter,
   );
   return (
     <div className="space-y-6">
@@ -198,6 +201,7 @@ function AdminOrdersPage() {
             className="border border-gold/30 bg-black p-2"
           >
             <option value="all">{t("admin.allStatuses")}</option>
+            <option value="prepare">{t("adminWorkspace.fulfil")}</option>
             {STATUSES.map((status) => (
               <option key={status.value} value={status.value}>
                 {t(status.labelKey)}
@@ -206,7 +210,13 @@ function AdminOrdersPage() {
           </select>
         </label>
       </form>
-      <p className="text-sm text-white/60">{t("adminOrders.listScope")}</p>
+      <p className="text-sm text-white/60">
+        {filter === "prepare"
+          ? i18n.language.startsWith("de")
+            ? "Alle bezahlten Bestellungen bis zum Versand, einschließlich Verpackung. Automatische Aktualisierung."
+            : "All paid orders awaiting dispatch, including packing. Updates automatically."
+          : t("adminOrders.listScope")}
+      </p>
       {isError && <AdminFeedback retry={() => void refetch()} />}
       <div className="overflow-x-auto border border-gold/15 bg-[#1A1A1A]">
         <table className="w-full text-sm">

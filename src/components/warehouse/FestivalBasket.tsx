@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { useTranslation } from "react-i18next";
 import {
@@ -23,9 +23,20 @@ export function FestivalBasket({ expanded = false }: { expanded?: boolean }) {
     [saved, setSaved] = useState(""),
     [busy, setBusy] = useState(false),
     [camera, setCamera] = useState(false);
+  useEffect(() => {
+    try {
+      setEvent(sessionStorage.getItem("kaptan-festival-event") ?? "");
+    } catch {
+      /* Storage may be disabled. */
+    }
+    if (expanded) input.current?.focus();
+  }, [expanded]);
   const lock = useRef(false),
     input = useRef<HTMLInputElement>(null),
     pending = useRef<{ body: string; id: string } | null>(null);
+  useEffect(() => {
+    if (!busy && expanded) input.current?.focus();
+  }, [busy, expanded]);
   const money = (n: string) =>
     new Intl.NumberFormat(de ? "de-DE" : "en-GB", { style: "currency", currency: "EUR" }).format(
       Number(n) / 100,
@@ -61,14 +72,45 @@ export function FestivalBasket({ expanded = false }: { expanded?: boolean }) {
         );
       if (items.length >= 100) throw new Error(tr("Maximum 100 items.", "Maximal 100 Artikel."));
       setItems((old) => [...old, unit]);
+      setSaved("");
       setCode("");
     });
   }
   return (
-    <details open={expanded || undefined} className="mb-6 rounded-2xl border border-primary/30 p-5">
-      <summary className="cursor-pointer font-serif text-2xl">
-        {tr("Festival scan basket", "Festival-Scanwarenkorb")}
-      </summary>
+    <section className="mb-6 rounded-2xl border border-primary/30 p-5 sm:p-7">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <h2 className="font-serif text-2xl">
+          {tr("New customer basket", "Neuer Kundenwarenkorb")}
+        </h2>
+        <button
+          type="button"
+          className="warehouse-button"
+          disabled={busy || !items.length}
+          onClick={() => {
+            if (
+              !saved &&
+              !window.confirm(
+                tr("Clear this unsaved basket?", "Diesen ungespeicherten Warenkorb leeren?"),
+              )
+            )
+              return;
+            setItems([]);
+            setCode("");
+            setSaved("");
+            setError("");
+            pending.current = null;
+            input.current?.focus();
+          }}
+        >
+          {tr("Next customer", "Nächster Kunde")}
+        </button>
+      </div>
+      <p className="my-3 text-sm text-muted-foreground">
+        {tr(
+          "You operate this screen for the customer. Scan each product label; names, variants and prices fill in automatically. No customer login needed to prepare a basket.",
+          "Sie bedienen diese Ansicht für den Kunden. Produktetiketten scannen; Namen, Varianten und Preise erscheinen automatisch. Für die Vorbereitung ist keine Kundenanmeldung nötig.",
+        )}
+      </p>
       <p className="my-3 text-sm text-amber-200">
         {tr(
           "Preparation only: saving a basket does not sell, reserve stock, take payment or issue an invoice. Checkout awaits the payment / fiscal receipt setup.",
@@ -118,12 +160,17 @@ export function FestivalBasket({ expanded = false }: { expanded?: boolean }) {
           value={event}
           onChange={(e) => {
             setEvent(e.target.value);
+            try {
+              sessionStorage.setItem("kaptan-festival-event", e.target.value);
+            } catch {
+              /* Keep the event in memory. */
+            }
             setSaved("");
           }}
         />
       </label>
       <form
-        className="my-4 flex gap-2"
+        className="my-4 flex flex-wrap gap-2"
         onSubmit={(e) => {
           e.preventDefault();
           scan(code);
@@ -136,7 +183,9 @@ export function FestivalBasket({ expanded = false }: { expanded?: boolean }) {
           value={code}
           onChange={(e) => setCode(e.target.value)}
           required
-          placeholder="KPLWB-123"
+          placeholder={tr("Scan QR or enter unit number", "QR scannen oder Artikelnummer eingeben")}
+          autoComplete="off"
+          disabled={busy}
         />
         <button className="warehouse-button" disabled={busy}>
           {tr("Add", "Hinzufügen")}
@@ -150,6 +199,17 @@ export function FestivalBasket({ expanded = false }: { expanded?: boolean }) {
         <p role="alert" className="text-red-300">
           {error}
         </p>
+      )}
+      {!items.length && (
+        <div className="rounded-xl border border-dashed border-primary/30 p-8 text-center">
+          <p className="text-xl">{tr("Scan the first item", "Ersten Artikel scannen")}</p>
+          <p className="mt-2 text-sm text-muted-foreground">
+            {tr(
+              "Use a USB scanner, the camera button, or type the number printed below the QR code.",
+              "USB-Scanner oder Kamerataste verwenden oder die Nummer unter dem QR-Code eingeben.",
+            )}
+          </p>
+        </div>
       )}
       {items.map((i) => (
         <div
@@ -176,7 +236,7 @@ export function FestivalBasket({ expanded = false }: { expanded?: boolean }) {
         </div>
       ))}
       <p className="my-4 text-xl">
-        {tr("Total", "Gesamt")}:{" "}
+        {items.length} {tr("items", "Artikel")} · {tr("Total", "Gesamt")}:{" "}
         {money(items.reduce((sum, i) => sum + BigInt(i.price), 0n).toString())}
       </p>
       <button
@@ -193,7 +253,7 @@ export function FestivalBasket({ expanded = false }: { expanded?: boolean }) {
           })
         }
       >
-        {tr("Save preparation", "Vorbereitung speichern")}
+        {tr("Save basket for later", "Warenkorb für später speichern")}
       </button>
       {saved && (
         <p role="status" className="mt-3 break-all text-sm">
@@ -201,6 +261,17 @@ export function FestivalBasket({ expanded = false }: { expanded?: boolean }) {
           {saved}
         </p>
       )}
-    </details>
+      <div className="mt-6 rounded-xl border border-amber-500/30 p-4 text-sm">
+        <h3 className="font-semibold">
+          {tr("Payment checkout is not available yet", "Zahlungsabschluss noch nicht verfügbar")}
+        </h3>
+        <p className="mt-2 text-muted-foreground">
+          {tr(
+            "Cash, PayPal and Revolut checkout, optional customer accounts, receipts and automatic Finance posting still need integration. Saving here does not complete a sale.",
+            "Bargeld-, PayPal- und Revolut-Abschluss, optionale Kundenkonten, Belege und automatische Finanzbuchungen müssen noch angebunden werden. Speichern schließt keinen Verkauf ab.",
+          )}
+        </p>
+      </div>
+    </section>
   );
 }

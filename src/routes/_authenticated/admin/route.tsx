@@ -1,3 +1,4 @@
+import { OrderUpdates } from "@/components/admin/OrderUpdates";
 import {
   createFileRoute,
   Outlet,
@@ -177,7 +178,14 @@ function AdminLayout() {
           </div>
         </aside>
         <section className="min-w-0">
-          {ready && !isAdmin ? <p className="text-white/60">{t("admin.notAdmin")}</p> : <Outlet />}
+          {ready && !isAdmin ? (
+            <p className="text-white/60">{t("admin.notAdmin")}</p>
+          ) : (
+            <>
+              <OrderUpdates />
+              <Outlet />
+            </>
+          )}
         </section>
       </div>
     </div>

@@ -1,3 +1,4 @@
+import { needsPreparation, preparationStatuses } from "@/lib/order-preparation";
 import {
   OptionSelectionsSchema,
   optionCombinations,
@@ -101,8 +102,7 @@ export const getAdminStats = createServerFn({ method: "POST" })
       ),
       lowStockCount: lowStock.length,
       lowStockProducts: lowStock.sort((a, b) => a.stock_quantity - b.stock_quantity).slice(0, 5),
-      pendingOrdersCount: paid.filter((o) => o.status === "ordered" || o.status === "pending")
-        .length,
+      pendingOrdersCount: orders.filter(needsPreparation).length,
     };
   });
 
@@ -507,7 +507,12 @@ export const adminDeleteCategory = createServerFn({ method: "POST" })
 export const adminListOrders = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: unknown) =>
-    z.object({ orderNumber: z.string().trim().max(100).optional() }).parse(input ?? {}),
+    z
+      .object({
+        orderNumber: z.string().trim().max(100).optional(),
+        prepare: z.boolean().optional(),
+      })
+      .parse(input ?? {}),
   )
   .handler(async ({ context, data: input }) => {
     await assertAdmin(context.supabase, context.userId);
@@ -523,6 +528,26 @@ export const adminListOrders = createServerFn({ method: "POST" })
       .limit(100);
 
     if (input.orderNumber) query = query.eq("order_number", input.orderNumber);
+    if (input.prepare) {
+      // Read the full open queue: an older paid order must not disappear behind newer sales.
+      const orders = await readAllRows((from, to) =>
+        supabaseAdmin
+          .from("orders")
+          .select(
+            "id, order_number, customer_name, customer_email, total, status, payment_status, created_at, shipping_address, order_items(id, product_name, quantity, line_total)",
+          )
+          .eq("payment_status", "paid")
+          .or(`status.in.(${preparationStatuses.join(",")}),status.is.null`)
+          .order("created_at")
+          .order("id")
+          .range(from, to),
+      );
+      return {
+        orders: input.orderNumber
+          ? orders.filter((o) => o.order_number === input.orderNumber)
+          : orders,
+      };
+    }
     const { data, error } = await query;
     if (error) throw new Error(error.message);
 

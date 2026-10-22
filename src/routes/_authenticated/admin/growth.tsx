@@ -157,6 +157,7 @@ function Planner({
   const [dirty, setDirty] = useState(false);
   const [busy, setBusy] = useState(false);
   const [tab, setTab] = useState(1);
+  const [simple, setSimple] = useState(true);
   const [showAllSuggestions, setShowAllSuggestions] = useState(false);
   const [editor, setEditor] = useState<{
     id: string | null;
@@ -260,8 +261,258 @@ function Planner({
   );
   const requiredOrders =
     r.requiredPerDay !== null && r.total.aov ? Math.ceil(r.requiredPerDay / r.total.aov) : null;
+  if (simple)
+    return (
+      <div className="space-y-6">
+        <section className={box}>
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <h2 className="font-serif text-2xl">
+                {l("1. Choose your goal", "1. Ziel festlegen")}
+              </h2>
+              <p className="mt-2 text-sm text-white/65">
+                {l(
+                  "No sales history needed. Set a goal for the selected period; your shop results update automatically.",
+                  "Keine Verkaufshistorie nötig. Ziel für den gewählten Zeitraum festlegen; Shop-Ergebnisse werden automatisch aktualisiert.",
+                )}
+              </p>
+            </div>
+            <button className={button} onClick={() => setSimple(false)}>
+              {l("Advanced planner", "Erweiterter Planer")}
+            </button>
+          </div>
+          <form
+            className="mt-5"
+            onSubmit={(event) => {
+              event.preventDefault();
+              void persist();
+            }}
+          >
+            <div className="grid gap-4 sm:grid-cols-2">
+              {!identity.id && period !== "2027" && (
+                <label>
+                  {l("Start date", "Startdatum")}
+                  <input
+                    required
+                    type="date"
+                    className={input}
+                    value={plan.start}
+                    onChange={(e) => {
+                      if (e.target.value)
+                        update(
+                          allocate({
+                            ...plan,
+                            start: e.target.value,
+                            buckets: newPlan(period, e.target.value).buckets,
+                          }),
+                        );
+                    }}
+                  />
+                </label>
+              )}
+              <label>
+                {l("Product to promote", "Produkt bewerben")}
+                <select
+                  className={input}
+                  value={plan.launch.productId}
+                  onChange={(e) =>
+                    update({ ...plan, launch: { ...plan.launch, productId: e.target.value } })
+                  }
+                >
+                  <option value="">
+                    {l("Suggest from my products", "Aus meinen Produkten vorschlagen")}
+                  </option>
+                  {loaded.stock
+                    .filter((p) => p.active)
+                    .map((p) => (
+                      <option key={p.id} value={p.id}>
+                        {p.name}
+                      </option>
+                    ))}
+                </select>
+              </label>
+              {(["revenue", "budget"] as const).map((key) => (
+                <label key={key}>
+                  {labels[key]}
+                  <input
+                    required
+                    type="number"
+                    min="0"
+                    max="100000000"
+                    step="0.01"
+                    className={input}
+                    value={plan.targets[key]}
+                    onChange={(e) =>
+                      update(
+                        allocate({
+                          ...plan,
+                          targets: { ...plan.targets, [key]: Number(e.target.value) },
+                        }),
+                      )
+                    }
+                  />
+                </label>
+              ))}
+            </div>
+            <p className="mt-3 text-sm text-white/60">
+              {l(
+                "Example: €1,000 sales and €100 marketing budget over your first 60 days. These are your targets, not a sales prediction.",
+                "Beispiel: 1.000 € Umsatz und 100 € Marketingbudget in den ersten 60 Tagen. Das sind Ziele, keine Umsatzprognose.",
+              )}
+            </p>
+            <button className={`${primary} mt-4`} disabled={busy}>
+              {l("Save my goal", "Mein Ziel speichern")}
+            </button>
+            <span role="status" className="ml-3 text-sm text-white/60">
+              {dirty
+                ? l("Unsaved changes", "Ungespeicherte Änderungen")
+                : identity.id
+                  ? l("Saved", "Gespeichert")
+                  : l("Draft", "Entwurf")}
+            </span>
+          </form>
+        </section>
+        <section className={box}>
+          <h2 className="font-serif text-2xl">
+            {l("2. Your next three actions", "2. Ihre nächsten drei Schritte")}
+          </h2>
+          <p className="mt-2 text-sm text-white/65">
+            {l(
+              "Add a suggestion, follow its steps, then mark it done. More suggestions appear as you finish. Dates follow your launch date.",
+              "Vorschlag hinzufügen, Schritte ausführen und abhaken. Nach Abschluss erscheinen weitere Vorschläge. Termine richten sich nach Ihrem Startdatum.",
+            )}
+          </p>
+          <div className="mt-4 space-y-4">
+            {actions
+              .filter((a) => a.data.status !== "done")
+              .slice(0, 3)
+              .map((a) => (
+                <article className="rounded-xl border border-gold/25 p-4" key={a.id}>
+                  <h3 className="font-medium text-gold">{a.data.title}</h3>
+                  <p className="my-2 whitespace-pre-line text-sm">{a.data.steps}</p>
+                  <p className="mb-3 text-sm text-white/60">
+                    {a.data.deadline} · {money(a.data.budget)} · {a.data.kpi}
+                  </p>
+                  <button
+                    disabled={busy}
+                    className={primary}
+                    onClick={() =>
+                      void persistAction({ ...a.data, status: "done" }, a.id, a.revision)
+                    }
+                  >
+                    {l("Mark done", "Erledigt")}
+                  </button>
+                </article>
+              ))}
+            {proposals
+              .slice(0, Math.max(0, 3 - actions.filter((a) => a.data.status !== "done").length))
+              .map((p) => (
+                <article className="rounded-xl border border-gold/15 p-4" key={p.title}>
+                  <p className="text-xs text-white/50">
+                    {l("Suggested action", "Vorgeschlagene Maßnahme")} · {p.deadline}
+                  </p>
+                  <h3 className="mt-1 font-medium text-gold">{p.title}</h3>
+                  <p className="my-2 whitespace-pre-line text-sm">{p.steps}</p>
+                  <p className="mb-3 text-sm text-white/60">
+                    {money(p.budget)} · {p.kpi}
+                  </p>
+                  <button disabled={busy} className={primary} onClick={() => void persistAction(p)}>
+                    {l("Add to my plan", "Zu meinem Plan hinzufügen")}
+                  </button>
+                </article>
+              ))}
+            {!proposals.length && !actions.some((a) => a.data.status !== "done") && (
+              <p>
+                {l(
+                  "All suggested actions are complete. Review your results or open the advanced planner to add your own action.",
+                  "Alle vorgeschlagenen Maßnahmen erledigt. Ergebnisse prüfen oder im erweiterten Planer eigene Maßnahmen hinzufügen.",
+                )}
+              </p>
+            )}
+          </div>
+          <details className="mt-4 text-sm">
+            <summary className="cursor-pointer text-gold">
+              {l(
+                "All my actions / undo completion",
+                "Alle Maßnahmen / Abschluss rückgängig machen",
+              )}{" "}
+              ({actions.length})
+            </summary>
+            {actions.map((a) => (
+              <div
+                key={a.id}
+                className="flex flex-wrap items-center justify-between gap-3 border-b border-gold/15 py-3"
+              >
+                <span>{a.data.title}</span>
+                <select
+                  aria-label={a.data.title}
+                  disabled={busy}
+                  className={button}
+                  value={a.data.status}
+                  onChange={(e) =>
+                    void persistAction(
+                      { ...a.data, status: e.target.value as Action["status"] },
+                      a.id,
+                      a.revision,
+                    )
+                  }
+                >
+                  <option value="todo">{l("To do", "Offen")}</option>
+                  <option value="progress">{l("In progress", "In Arbeit")}</option>
+                  <option value="done">{l("Done", "Erledigt")}</option>
+                </select>
+              </div>
+            ))}
+          </details>
+        </section>
+        <section className={box}>
+          <h2 className="font-serif text-2xl">
+            {l("3. Check your progress", "3. Fortschritt prüfen")}
+          </h2>
+          <p className="mt-2 text-sm text-white/60">
+            {plan.start} – {addDays(plan.buckets.at(-1)!.end, -1)} ·{" "}
+            {l(
+              "Paid shop orders; planning figures, not accounting statements.",
+              "Bezahlte Shopbestellungen; Planungswerte, keine Buchhaltungsauswertung.",
+            )}
+          </p>
+          <div className="mt-4 grid gap-4 sm:grid-cols-3">
+            <div>
+              {l("Sales goal", "Umsatzziel")}
+              <p className="mt-2 text-2xl text-gold">{money(plan.targets.revenue)}</p>
+            </div>
+            <div>
+              {l("Recorded sales", "Erfasster Umsatz")}
+              <p className="mt-2 text-2xl text-gold">{money(r.total.revenue)}</p>
+            </div>
+            <div>
+              {l("Actions completed", "Maßnahmen erledigt")}
+              <p className="mt-2 text-2xl text-gold">
+                {actions.filter((a) => a.data.status === "done").length} / {actions.length}
+              </p>
+            </div>
+          </div>
+        </section>
+      </div>
+    );
   return (
     <div className="space-y-5">
+      <button
+        className={primary}
+        onClick={() => {
+          if (
+            editor &&
+            !window.confirm(
+              l("Discard unsaved action edits?", "Ungespeicherte Maßnahmenänderungen verwerfen?"),
+            )
+          )
+            return;
+          setEditor(null);
+          setSimple(true);
+        }}
+      >
+        {l("Back to simple view", "Zurück zur einfachen Ansicht")}
+      </button>
       <div className="flex flex-wrap items-center gap-3">
         <p className="mr-auto text-sm text-white/65">
           {plan.start} – {addDays(plan.buckets.at(-1)!.end, -1)} ·{" "}
