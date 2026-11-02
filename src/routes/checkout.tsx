@@ -1,5 +1,5 @@
 import { PrivacyNotice } from "@/components/common/PrivacyNotice";
-import { SHIPPING_GROSS, VAT_RATE, VAT_FACTOR } from "@/lib/tax";
+import { SHIPPING_GROSS } from "@/lib/tax";
 import { BillingFields } from "@/components/checkout/BillingFields";
 import { BillingInputSchema, emptyBilling, type BillingInput } from "@/lib/billing";
 import { useCartHydrated } from "@/hooks/useCartHydrated";
@@ -251,12 +251,6 @@ function CheckoutPage() {
   const total = subtotal();
   const shipping = total > 50 ? 0 : SHIPPING_GROSS;
   const grandTotal = total + shipping;
-  const netCents =
-    items.reduce(
-      (sum, item) => sum + Math.round((Math.round(item.price * 100) * item.quantity) / VAT_FACTOR),
-      0,
-    ) + Math.round(Math.round(shipping * 100) / VAT_FACTOR);
-  const includedVat = Math.round((netCents * VAT_RATE) / 100) / 100;
 
   const { data: addressesData } = useQuery({
     queryKey: ["my-addresses", user?.id],
@@ -840,10 +834,6 @@ function CheckoutPage() {
               <div className="mt-3 flex justify-between border-t border-gold/10 pt-3 text-base text-white">
                 <dt>{t("cart.total")}</dt>
                 <dd className="font-mono text-gold">€{grandTotal.toFixed(2)}</dd>
-              </div>
-              <div className="flex justify-between text-xs text-white/60">
-                <dt>{t("billing.vatIncluded")}</dt>
-                {VAT_RATE > 0 && <dd>€{includedVat.toFixed(2)}</dd>}
               </div>
             </dl>
 

@@ -132,7 +132,7 @@
   "shipping": {
     "title": "Shipping Info",
     "p1": "We currently deliver within Germany only. Contact us for current delivery estimates.",
-    "p2": "Delivery costs €5.99. Delivery is free when the product subtotal exceeds €50. No VAT is charged under §19 UStG.",
+    "p2": "Delivery costs €5.99. Delivery is free when the product subtotal exceeds €50.",
     "p3": "International delivery is not available at checkout yet."
   },
   "returns": {
@@ -778,7 +778,7 @@
   "catalog": {
     "colorCount": "{{count}} colours",
     "noReviews": "No reviews yet",
-    "delivery": "VAT exempt under §19 UStG (Kleinunternehmer). · Delivery €5.99, free over €50",
+    "delivery": "Delivery €5.99, free over €50",
     "view": "Product view",
     "allColors": "All colours / shared photo",
     "viewExample": "Front, back, interior, on model…",
@@ -991,9 +991,7 @@
     "city": "Billing city",
     "germany": "Billing country: Germany",
     "consent": "I agree to receive invoices electronically at the email address entered for this order. Contact us before ordering if you need another delivery method.",
-    "invalid": "Please complete the required billing fields and confirm electronic delivery.",
-    "vatIncluded": "VAT exempt under §19 UStG (Kleinunternehmer).",
-    "grossNotice": "VAT exempt under §19 UStG (Kleinunternehmer)."
+    "invalid": "Please complete the required billing fields and confirm electronic delivery."
   },
   "invoices": {
     "title": "Invoices",

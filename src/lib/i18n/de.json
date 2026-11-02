@@ -132,7 +132,7 @@
   "shipping": {
     "title": "Versandinformationen",
     "p1": "Wir liefern derzeit ausschließlich innerhalb Deutschlands. Aktuelle Lieferzeiten erfahren Sie auf Anfrage.",
-    "p2": "Der Versand kostet 5,99 €. Ab einem Warenwert von über 50 € ist der Versand kostenlos. Gemäß § 19 UStG wird keine Umsatzsteuer berechnet.",
+    "p2": "Der Versand kostet 5,99 €. Ab einem Warenwert von über 50 € ist der Versand kostenlos.",
     "p3": "Internationale Lieferungen sind im Checkout noch nicht verfügbar."
   },
   "returns": {
@@ -778,7 +778,7 @@
   "catalog": {
     "colorCount": "{{count}} Farben",
     "noReviews": "Noch keine Bewertungen",
-    "delivery": "Steuerbefreit gemäß § 19 UStG (Kleinunternehmer). · Versand 5,99 €, über 50 € kostenlos",
+    "delivery": "Versand 5,99 €, über 50 € kostenlos",
     "view": "Produktansicht",
     "allColors": "Alle Farben / gemeinsames Foto",
     "viewExample": "Vorne, hinten, innen, am Model…",
@@ -991,9 +991,7 @@
     "city": "Ort der Rechnungsadresse",
     "germany": "Rechnungsland: Deutschland",
     "consent": "Ich stimme dem elektronischen Rechnungsversand an die für diese Bestellung angegebene E-Mail-Adresse zu. Für einen anderen Versandweg kontaktieren Sie uns bitte vor der Bestellung.",
-    "invalid": "Bitte vervollständigen Sie die Rechnungsangaben und stimmen Sie dem elektronischen Versand zu.",
-    "vatIncluded": "Steuerbefreit gemäß § 19 UStG (Kleinunternehmer).",
-    "grossNotice": "Steuerbefreit gemäß § 19 UStG (Kleinunternehmer)."
+    "invalid": "Bitte vervollständigen Sie die Rechnungsangaben und stimmen Sie dem elektronischen Versand zu."
   },
   "invoices": {
     "title": "Rechnungen",

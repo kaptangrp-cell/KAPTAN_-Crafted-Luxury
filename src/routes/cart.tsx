@@ -113,7 +113,6 @@ function CartPage() {
                   </dd>
                 </div>
               </dl>
-              <p className="mt-2 text-xs text-white/60">{t("billing.grossNotice")}</p>
               <Link
                 to="/checkout"
                 className="mt-6 block w-full bg-gold py-3 text-center text-sm font-bold uppercase tracking-wider text-black transition-colors hover:bg-gold-vivid"
