@@ -167,3 +167,12 @@ export const listFestivalBaskets = createServerFn({ method: "GET" })
       "festival_baskets_list",
     ),
   );
+
+export const adminManageRecord = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((x: unknown) => z.object({
+    action: z.enum(["variant_delete", "label_delete", "batch_delete", "label_edit", "purchase_edit", "purchase_delete", "basket_delete"]),
+    id: z.string().uuid(),
+    values: z.object({ location: z.string().trim().min(1).max(80).optional(), supplier: z.string().trim().min(1).max(200).optional(), reference: z.string().trim().min(1).max(100).optional(), date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(), lines: z.array(z.object({id: z.string().uuid(), quantity: z.number().int().min(1).max(10000)})).max(100).optional() }).default({}),
+  }).parse(x))
+  .handler(({context,data}) => rpc<{saved?: boolean; deleted?: number}>(context.supabase,"admin_manage_record",{p_action:data.action,p_id:data.id,p_data:data.values}));

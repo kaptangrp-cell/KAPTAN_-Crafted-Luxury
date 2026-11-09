@@ -1,0 +1,15 @@
+KAPTAN 25 s Reel — voiceover script (record and lay over the finished video)
+Voice: warm, confident, unhurried male voice; slight smile; no hype. Leave music at -18 dB under the voice.
+
+0.9 – 4.6   Hello, I'm KAPTAN. Welcome to my world.
+5.3 – 11.7  Discover timeless leather essentials, crafted for style, comfort and everyday adventures.
+12.4 – 17.7 And natural Himalayan salt décor, bringing warmth and character to your spaces.
+18.4 – 24.6 I'm KAPTAN. Your story deserves something special. Explore our collection and place your first order today.
+
+Mix the recording in without re-rendering:
+ffmpeg -i KAPTAN-Reel-Brand-Intro-25s.mp4 -i voice.wav -filter_complex "[0:a]volume=0.45[m];[m][1:a]amix=inputs=2:duration=first:normalize=0[a]" -map 0:v -map "[a]" -c:v copy -c:a aac KAPTAN-Reel-with-VO.mp4
+
+Instagram caption
+Hello, I'm KAPTAN. ✦ Leather essentials for work, travel and every day — and natural Himalayan salt décor for a warmer home.
+Explore the collection and place your first order: kaptangrp.com (link in bio)
+#KAPTAN #LeatherGoods #LaptopBag #LeatherBelt #HimalayanSalt #SaltLamp #GiftIdeas #MadeForTheJourney

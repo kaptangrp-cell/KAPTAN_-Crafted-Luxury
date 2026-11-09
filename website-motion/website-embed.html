@@ -1,0 +1,52 @@
+<!-- KAPTAN website motion graphics — embed snippets.
+     Upload the MP4s and posters to /public/videos/ on your site. All loops are silent and seamless.
+     prefers-reduced-motion: visitors who turn off motion see the poster image instead. -->
+
+<style>
+  .kp-motion{display:block;width:100%;height:auto;background:#000}
+  @media (prefers-reduced-motion: reduce){ .kp-motion{display:none} .kp-still{display:block!important} }
+</style>
+
+<!-- 1. Announcement bar (top of every page) · 1920×140 -->
+<video class="kp-motion" autoplay muted loop playsinline preload="metadata" aria-hidden="true"
+  src="/videos/KAPTAN-05-announcement-bar.mp4" poster="/videos/KAPTAN-05-announcement-bar-poster.jpg"></video>
+
+<!-- 2. Homepage hero · 1920×1080 (put the real headline/button as HTML on top or below for SEO) -->
+<video class="kp-motion" autoplay muted loop playsinline preload="metadata"
+  aria-label="KAPTAN: Made for the journey. Built to become yours."
+  src="/videos/KAPTAN-02-hero-banner.mp4" poster="/videos/KAPTAN-02-hero-banner-poster.jpg"></video>
+
+<!-- 3. Collections section · 1920×1080 · link the two halves to /products?collection=leather and ?collection=salt -->
+<video class="kp-motion" autoplay muted loop playsinline preload="metadata"
+  aria-label="KAPTAN Leather and KAPTAN Salt Lamps collections"
+  src="/videos/KAPTAN-03-collections.mp4" poster="/videos/KAPTAN-03-collections-poster.jpg"></video>
+
+<!-- 4. "Why KAPTAN" strip · 1920×640 -->
+<video class="kp-motion" autoplay muted loop playsinline preload="metadata"
+  aria-label="Considered details. Practical by purpose. Care beyond checkout."
+  src="/videos/KAPTAN-04-brand-promises.mp4" poster="/videos/KAPTAN-04-brand-promises-poster.jpg"></video>
+
+<!-- 5. Logo reveal · 1080×1080 · About page, footer or page-loader -->
+<video class="kp-motion" autoplay muted loop playsinline preload="metadata" aria-label="KAPTAN logo"
+  style="max-width:420px;margin:0 auto" src="/videos/KAPTAN-01-logo-reveal.mp4"
+  poster="/videos/KAPTAN-01-logo-reveal-poster.jpg"></video>
+
+<!-- ===== Set 2 (with brand music) =====
+     Browsers only autoplay MUTED video. Use autoplay+muted with controls so visitors can unmute,
+     or leave out autoplay and let the visitor press play to hear the music. -->
+
+<!-- 6. Penny Cube spotlight · 1920×1080 · 12 s -->
+<video class="kp-motion" autoplay muted loop playsinline controls preload="metadata" aria-label="KAPTAN Penny Cube Salt Lamp"
+  src="/videos/KAPTAN-06-penny-cube-spotlight.mp4" poster="/videos/KAPTAN-06-penny-cube-spotlight-poster.jpg"></video>
+
+<!-- 7. Salt lamp collection · 1920×1080 · 16 s -->
+<video class="kp-motion" autoplay muted loop playsinline controls preload="metadata" aria-label="KAPTAN Salt Lamps collection"
+  src="/videos/KAPTAN-07-salt-lamp-collection.mp4" poster="/videos/KAPTAN-07-salt-lamp-collection-poster.jpg"></video>
+
+<!-- 8. Belt details · 1920×1080 · 14 s · product page of the Classic Leather Belt -->
+<video class="kp-motion" autoplay muted loop playsinline controls preload="metadata" aria-label="KAPTAN Classic Leather Belt details"
+  src="/videos/KAPTAN-08-belt-details.mp4" poster="/videos/KAPTAN-08-belt-details-poster.jpg"></video>
+
+<!-- 9. Talk to KAPTAN · 1920×1080 · 12 s · contact page / above footer, wrap in <a href="/contact"> -->
+<a href="/contact"><video class="kp-motion" autoplay muted loop playsinline preload="metadata" aria-label="Talk to KAPTAN"
+  src="/videos/KAPTAN-09-talk-to-kaptan.mp4" poster="/videos/KAPTAN-09-talk-to-kaptan-poster.jpg"></video></a>
