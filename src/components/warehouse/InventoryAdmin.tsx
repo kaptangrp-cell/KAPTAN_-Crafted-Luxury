@@ -1,7 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { z } from "zod";
 import {
@@ -17,11 +17,20 @@ import {
 } from "@/lib/warehouse";
 import { LabelSheet } from "./LabelSheet";
 import { useAuthStore } from "@/stores/authStore";
-export function InventoryAdmin({ staffOnly = false }: { staffOnly?: boolean }) {
+export function InventoryAdmin({
+  staffOnly = false,
+  setupRequest = 0,
+}: {
+  staffOnly?: boolean;
+  setupRequest?: number;
+}) {
   const { t, i18n } = useTranslation();
   const cache = useQueryClient();
   const tr = (en: string, de: string) => (i18n.resolvedLanguage?.startsWith("de") ? de : en);
   const [section, setSection] = useState("overview");
+  useEffect(() => {
+    if (setupRequest > 0) setSection("setup");
+  }, [setupRequest]);
   const [search, setSearch] = useState("");
   const user = useAuthStore((s) => s.user);
   const load = useServerFn(getWarehouseDashboard);

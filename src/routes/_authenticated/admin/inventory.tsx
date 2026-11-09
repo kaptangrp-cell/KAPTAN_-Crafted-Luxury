@@ -8,6 +8,7 @@ function StockPage() {
   const { i18n } = useTranslation();
   const de = i18n.resolvedLanguage?.startsWith("de");
   const [view, setView] = useState("stock");
+  const [setupRequest, setSetupRequest] = useState(0);
   return (
     <div className="warehouse-workspace mx-auto max-w-5xl">
       <p className="mb-4 text-sm text-muted-foreground">
@@ -35,10 +36,19 @@ function StockPage() {
         ))}
       </nav>
       <div hidden={view !== "stock"}>
-        <InventoryAdmin />
+        <InventoryAdmin setupRequest={setupRequest} />
       </div>
       <div hidden={view !== "add"}>
-        <OperationsDesk admin canMove initialTab="purchase" hideNavigation />
+        <OperationsDesk
+          admin
+          canMove
+          initialTab="purchase"
+          hideNavigation
+          onSetup={() => {
+            setView("stock");
+            setSetupRequest((value) => value + 1);
+          }}
+        />
       </div>
       {view === "find" && (
         <div>

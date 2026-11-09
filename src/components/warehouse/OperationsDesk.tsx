@@ -25,11 +25,13 @@ export function OperationsDesk({
   canMove,
   initialTab = "history",
   hideNavigation = false,
+  onSetup,
 }: {
   admin: boolean;
   canMove: boolean;
   initialTab?: "history" | "purchase";
   hideNavigation?: boolean;
+  onSetup?: () => void;
 }) {
   const { i18n } = useTranslation();
   const cache = useQueryClient();
@@ -508,12 +510,28 @@ export function OperationsDesk({
                   )}
                 </p>
               )}
-              <Link to="/admin/inventory" className="mt-3 inline-block text-sm text-gold underline">
-                {tr(
-                  "Product missing? Set up stock tracking",
-                  "Produkt fehlt? Bestandsverfolgung einrichten",
-                )}
-              </Link>
+              {onSetup ? (
+                <button
+                  type="button"
+                  onClick={onSetup}
+                  className="mt-3 inline-block text-sm text-gold underline"
+                >
+                  {tr(
+                    "Product missing? Set up stock tracking",
+                    "Produkt fehlt? Bestandsverfolgung einrichten",
+                  )}
+                </button>
+              ) : (
+                <Link
+                  to="/admin/inventory"
+                  className="mt-3 inline-block text-sm text-gold underline"
+                >
+                  {tr(
+                    "Product missing? Set up stock tracking",
+                    "Produkt fehlt? Bestandsverfolgung einrichten",
+                  )}
+                </Link>
+              )}
             </>
           )}
           {step === 2 && (
