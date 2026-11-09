@@ -874,7 +874,7 @@
   "warehouse": {
     "title": "Warehouse",
     "store": "Back to store",
-    "inventoryTitle": "QR Inventory",
+    "inventoryTitle": "Stock & labels",
     "staffTitle": "Staff & Permissions",
     "openScanner": "Open scanner",
     "intro": "Choose an action, then scan each unit. Stock changes only after a confirmed scan.",

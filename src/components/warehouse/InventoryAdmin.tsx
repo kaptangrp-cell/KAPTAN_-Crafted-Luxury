@@ -1,6 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { z } from "zod";
@@ -18,7 +18,11 @@ import {
 import { LabelSheet } from "./LabelSheet";
 import { useAuthStore } from "@/stores/authStore";
 export function InventoryAdmin({ staffOnly = false }: { staffOnly?: boolean }) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const cache = useQueryClient();
+  const tr = (en: string, de: string) => (i18n.resolvedLanguage?.startsWith("de") ? de : en);
+  const [section, setSection] = useState("overview");
+  const [search, setSearch] = useState("");
   const user = useAuthStore((s) => s.user);
   const load = useServerFn(getWarehouseDashboard);
   const manage = useServerFn(manageWarehouse);
@@ -71,6 +75,7 @@ export function InventoryAdmin({ staffOnly = false }: { staffOnly?: boolean }) {
       setMessage(t("warehouse.saved"));
       setAck(false);
       await query.refetch();
+      await cache.invalidateQueries({ queryKey: ["operations-catalog"] });
     } catch (e) {
       setError(e instanceof Error ? e.message : t("warehouse.failed"));
       if (command.action === "enable") void blockers.refetch();
@@ -177,15 +182,107 @@ export function InventoryAdmin({ staffOnly = false }: { staffOnly?: boolean }) {
             </>
           ) : (
             <>
-              <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-                {Object.entries(query.data.counts ?? {}).map(([state, count]) => (
-                  <div key={state} className="rounded-xl border border-gold/20 p-4">
-                    <b className="block text-2xl text-gold">{count}</b>
-                    <span className="text-sm">{t(`warehouse.state.${state}`)}</span>
-                  </div>
+              <nav
+                aria-label={tr("Inventory tasks", "Bestandsaufgaben")}
+                className="flex flex-wrap gap-2"
+              >
+                {[
+                  ["overview", tr("Stock overview", "Bestandsübersicht")],
+                  ["setup", tr("Product setup", "Produkte einrichten")],
+                  ["labels", tr("Reprint labels", "Etiketten nachdrucken")],
+                  ["history", tr("Activity", "Aktivitäten")],
+                ].map(([id, label]) => (
+                  <button
+                    key={id}
+                    disabled={busy}
+                    aria-pressed={section === id}
+                    onClick={() => setSection(id)}
+                    className={`rounded-xl border px-4 py-2 ${section === id ? "border-gold bg-gold text-black" : "border-gold/30 text-gold"}`}
+                  >
+                    {label}
+                  </button>
                 ))}
+              </nav>
+              <div hidden={section !== "overview"} className="space-y-4">
+                <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+                  {Object.entries(query.data.counts ?? {}).map(([state, count]) => (
+                    <div key={state} className="rounded-xl border border-gold/20 p-4">
+                      <b className="block text-2xl text-gold">{count}</b>
+                      <span className="text-sm">{t(`warehouse.state.${state}`)}</span>
+                    </div>
+                  ))}
+                </div>
+                <label className="block">
+                  {tr("Search products", "Produkte suchen")}
+                  <input
+                    className="warehouse-input"
+                    value={search}
+                    onChange={(e) => setSearch(e.target.value)}
+                    placeholder={tr(
+                      "Product name or colour / size",
+                      "Produktname oder Farbe / Größe",
+                    )}
+                  />
+                </label>
+                <div className="space-y-3">
+                  {query.data.products
+                    ?.filter((p) =>
+                      `${p.name} ${p.variants.map((v) => v.name).join(" ")}`
+                        .toLocaleLowerCase()
+                        .includes(search.toLocaleLowerCase()),
+                    )
+                    .map((p) => (
+                      <article key={p.id} className="rounded-xl border border-gold/20 p-4">
+                        <div className="flex flex-wrap items-center justify-between gap-2">
+                          <h2 className="font-semibold">{p.name}</h2>
+                          <span className="text-gold">
+                            {p.stock} {tr("available", "verfügbar")}
+                          </span>
+                        </div>
+                        <p className="my-2 text-sm text-white/60">
+                          {p.managed
+                            ? tr("Item tracking enabled", "Artikelverfolgung aktiv")
+                            : tr(
+                                "Item tracking not set up",
+                                "Artikelverfolgung noch nicht eingerichtet",
+                              )}
+                        </p>
+                        <div className="flex flex-wrap gap-2">
+                          {p.variants.map((v) => (
+                            <span key={v.id} className="rounded-lg bg-white/5 px-3 py-2 text-sm">
+                              {v.name}: {v.stock ?? 0}
+                            </span>
+                          ))}
+                        </div>
+                        {!p.managed && (
+                          <button
+                            className="mt-3 text-sm text-gold underline"
+                            onClick={() => {
+                              setProductId(p.id);
+                              setAck(false);
+                              setSection("setup");
+                            }}
+                          >
+                            {tr("Set up tracking", "Verfolgung einrichten")}
+                          </button>
+                        )}
+                      </article>
+                    ))}
+                  {!query.data.products?.some((p) =>
+                    `${p.name} ${p.variants.map((v) => v.name).join(" ")}`
+                      .toLocaleLowerCase()
+                      .includes(search.toLocaleLowerCase()),
+                  ) && (
+                    <p className="text-white/60">
+                      {tr("No matching products.", "Keine passenden Produkte.")}
+                    </p>
+                  )}
+                </div>
               </div>
-              <section className="space-y-4 rounded-2xl border border-gold/20 p-5">
+              <section
+                hidden={section !== "setup"}
+                className="space-y-4 rounded-2xl border border-gold/20 p-5"
+              >
                 <label className="block">
                   {t("warehouse.product")}
                   <select
@@ -311,7 +408,19 @@ export function InventoryAdmin({ staffOnly = false }: { staffOnly?: boolean }) {
                   </>
                 )}
                 {product?.managed && (
-                  <>
+                  <details>
+                    <summary className="cursor-pointer text-gold">
+                      {tr(
+                        "Advanced: labels without a purchase record",
+                        "Erweitert: Etiketten ohne Einkaufsbeleg",
+                      )}
+                    </summary>
+                    <p className="my-3 text-sm text-white/60">
+                      {tr(
+                        "For new deliveries, use Add stock so every item stays linked to its supplier document.",
+                        "Nutzen Sie für neue Lieferungen Bestand hinzufügen, damit jeder Artikel mit seinem Lieferantenbeleg verknüpft bleibt.",
+                      )}
+                    </p>
                     <p className="text-sm text-white/60">{t("warehouse.labelsHelp")}</p>
                     <label className="block">
                       {t("warehouse.variant")}
@@ -361,11 +470,25 @@ export function InventoryAdmin({ staffOnly = false }: { staffOnly?: boolean }) {
                     >
                       {t("warehouse.createLabels")}
                     </button>
-                  </>
+                  </details>
                 )}
               </section>
-              <LabelSheet labels={labels} />
-              <section>
+              {(section === "setup" || section === "labels") && <LabelSheet labels={labels} />}
+              <section hidden={section !== "labels"}>
+                <p className="mb-4 text-sm text-white/60">
+                  {tr(
+                    "Choose a batch to print the same labels again. Reprinting does not increase stock.",
+                    "Wählen Sie einen Stapel für den Nachdruck. Der Bestand wird dadurch nicht erhöht.",
+                  )}
+                </p>
+                {!query.data.batches?.length && (
+                  <p>
+                    {tr(
+                      "No labels yet. Start with Add stock.",
+                      "Noch keine Etiketten. Beginnen Sie mit Bestand hinzufügen.",
+                    )}
+                  </p>
+                )}
                 <h2 className="mb-3 font-serif text-xl">{t("warehouse.batches")}</h2>
                 <div className="max-h-64 space-y-2 overflow-auto">
                   {query.data.batches?.map((b) => (
@@ -381,7 +504,7 @@ export function InventoryAdmin({ staffOnly = false }: { staffOnly?: boolean }) {
                   ))}
                 </div>
               </section>
-              <section>
+              <section hidden={section !== "history"}>
                 <h2 className="mb-3 font-serif text-xl">{t("warehouse.audit")}</h2>
                 <div className="max-h-80 space-y-2 overflow-auto">
                   {query.data.events?.map((e) => (

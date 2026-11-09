@@ -13,7 +13,9 @@ import { QrCamera } from "@/components/warehouse/QrCamera";
 import { useAuthStore } from "@/stores/authStore";
 export const Route = createFileRoute("/_authenticated/warehouse")({ component: WarehousePage });
 function WarehousePage() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const tr = (en: string, de: string) => (i18n.resolvedLanguage?.startsWith("de") ? de : en);
+  const [workspace, setWorkspace] = useState("scan");
   const user = useAuthStore((s) => s.user);
   const dashboard = useServerFn(getWarehouseDashboard);
   const scan = useServerFn(scanWarehouseUnit);
@@ -104,72 +106,132 @@ function WarehousePage() {
         </p>
       ) : (
         <>
-          <OperationsDesk
-            admin={access.data?.admin ?? false}
-            canMove={access.data?.permissions.includes("receive") ?? false}
-          />
-          {access.data?.permissions.includes("sell") && <FestivalBasket />}
-          <p className="mb-5 text-sm text-white/60">{t("warehouse.intro")}</p>
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-            {modes
-              .filter((m) => access.data?.permissions.includes(m.id))
-              .map((m) => (
-                <button
-                  key={m.id}
-                  disabled={busy}
-                  onClick={() => {
-                    setMode(m.id);
-                    setAction(m.id === "dispatch" ? "pack" : m.id === "inspect" ? "pass" : m.id);
-                    setError("");
-                    setLastResult(null);
-                    setCamera(false);
-                    setCode("");
-                    pending.current = null;
-                  }}
-                  className={`flex min-h-24 flex-col items-center justify-center gap-2 rounded-2xl border ${mode === m.id ? "border-gold bg-gold/15 text-gold" : "border-white/15"}`}
-                >
-                  <m.icon size={25} />
-                  {t(`warehouse.${m.id}`)}
-                </button>
-              ))}
-          </div>
-          {!permitted ? (
-            <p className="mt-6">{t("warehouse.choose")}</p>
-          ) : (
-            <section className="mt-6 space-y-4 rounded-2xl border border-gold/20 bg-white/[0.03] p-5">
-              <h2 className="font-serif text-xl text-gold">{t(`warehouse.${mode}`)}</h2>
-              {mode === "dispatch" && (
-                <>
-                  <label className="block">
-                    {t("warehouse.order")}
-                    <input
-                      value={order}
-                      onChange={(e) => setOrder(e.target.value)}
-                      className="warehouse-input"
-                      placeholder="KPT-…"
-                    />
-                  </label>
+          <p className="mb-5 text-sm text-white/60">
+            {tr(
+              "Choose one task. Scan an item to update stock, or find it to see its history.",
+              "Wählen Sie eine Aufgabe. Scannen Sie einen Artikel zur Bestandsänderung oder suchen Sie seinen Verlauf.",
+            )}
+          </p>
+          <nav
+            aria-label={tr("Warehouse tasks", "Lageraufgaben")}
+            className="mb-6 flex flex-wrap gap-2"
+          >
+            {[
+              ["scan", tr("Scan & update", "Scannen & bearbeiten")],
+              ["find", tr("Find an item", "Artikel finden")],
+              ...(access.data?.permissions.includes("sell")
+                ? [["sell", tr("In-person sale", "Verkauf vor Ort")]]
+                : []),
+            ].map(([id, label]) => (
+              <button
+                key={id}
+                disabled={busy}
+                aria-pressed={workspace === id}
+                className={`rounded-xl border px-4 py-3 ${workspace === id ? "border-gold bg-gold text-black" : "border-gold/30 text-gold"}`}
+                onClick={() => {
+                  setWorkspace(id);
+                  setCamera(false);
+                }}
+              >
+                {label}
+              </button>
+            ))}
+            {access.data?.admin && (
+              <Link to="/admin/inventory" className="warehouse-button">
+                {tr("Stock & labels", "Bestand & Etiketten")}
+              </Link>
+            )}
+          </nav>
+          {workspace === "find" && (
+            <div>
+              <OperationsDesk
+                admin={false}
+                canMove={access.data?.permissions.includes("receive") ?? false}
+                hideNavigation
+              />
+            </div>
+          )}
+          {access.data?.permissions.includes("sell") && (
+            <div hidden={workspace !== "sell"}>
+              <FestivalBasket />
+            </div>
+          )}
+          <div hidden={workspace !== "scan"}>
+            <p className="mb-5 text-sm text-white/60">{t("warehouse.intro")}</p>
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+              {modes
+                .filter((m) => access.data?.permissions.includes(m.id))
+                .map((m) => (
                   <button
-                    onClick={() => setOrderLookup(order.trim())}
-                    className="text-gold underline"
+                    key={m.id}
+                    disabled={busy}
+                    onClick={() => {
+                      setMode(m.id);
+                      setAction(m.id === "dispatch" ? "pack" : m.id === "inspect" ? "pass" : m.id);
+                      setError("");
+                      setLastResult(null);
+                      setCamera(false);
+                      setCode("");
+                      pending.current = null;
+                    }}
+                    className={`flex min-h-24 flex-col items-center justify-center gap-2 rounded-2xl border ${mode === m.id ? "border-gold bg-gold/15 text-gold" : "border-white/15"}`}
                   >
-                    {t("warehouse.loadOrder")}
+                    <m.icon size={25} />
+                    {t(`warehouse.${m.id}`)}
                   </button>
-                  {orderInfo.error && <p role="alert">{orderInfo.error.message}</p>}
-                  {orderInfo.data &&
-                    (orderInfo.data.order ? (
-                      <div className="rounded-xl bg-black p-3 text-sm">
-                        <b>{orderInfo.data.order.number}</b>
-                        {orderInfo.data.order.units.map((u, i) => (
-                          <p key={i}>
-                            {u.name} · {u.variant} · {t(`warehouse.state.${u.state}`)} ·{" "}
-                            {u.location}
-                          </p>
-                        ))}
-                      </div>
-                    ) : (
-                      <p>{t("warehouse.noOrder")}</p>
-                    ))}
+                ))}
+            </div>
+            {!permitted ? (
+              <p className="mt-6">{t("warehouse.choose")}</p>
+            ) : (
+              <section className="mt-6 space-y-4 rounded-2xl border border-gold/20 bg-white/[0.03] p-5">
+                <h2 className="font-serif text-xl text-gold">{t(`warehouse.${mode}`)}</h2>
+                {mode === "dispatch" && (
+                  <>
+                    <label className="block">
+                      {t("warehouse.order")}
+                      <input
+                        value={order}
+                        onChange={(e) => setOrder(e.target.value)}
+                        className="warehouse-input"
+                        placeholder="KPT-…"
+                      />
+                    </label>
+                    <button
+                      onClick={() => setOrderLookup(order.trim())}
+                      className="text-gold underline"
+                    >
+                      {t("warehouse.loadOrder")}
+                    </button>
+                    {orderInfo.error && <p role="alert">{orderInfo.error.message}</p>}
+                    {orderInfo.data &&
+                      (orderInfo.data.order ? (
+                        <div className="rounded-xl bg-black p-3 text-sm">
+                          <b>{orderInfo.data.order.number}</b>
+                          {orderInfo.data.order.units.map((u, i) => (
+                            <p key={i}>
+                              {u.name} · {u.variant} · {t(`warehouse.state.${u.state}`)} ·{" "}
+                              {u.location}
+                            </p>
+                          ))}
+                        </div>
+                      ) : (
+                        <p>{t("warehouse.noOrder")}</p>
+                      ))}
+                    <label className="block">
+                      {t("warehouse.action")}
+                      <select
+                        className="warehouse-input"
+                        value={action}
+                        onChange={(e) => setAction(e.target.value as ScanInput["action"])}
+                      >
+                        <option value="pack">{t("warehouse.pack")}</option>
+                        <option value="dispatch">{t("warehouse.handoff")}</option>
+                      </select>
+                    </label>
+                  </>
+                )}
+                {mode === "inspect" && (
                   <label className="block">
                     {t("warehouse.action")}
                     <select
@@ -177,109 +239,98 @@ function WarehousePage() {
                       value={action}
                       onChange={(e) => setAction(e.target.value as ScanInput["action"])}
                     >
-                      <option value="pack">{t("warehouse.pack")}</option>
-                      <option value="dispatch">{t("warehouse.handoff")}</option>
+                      <option value="pass">{t("warehouse.pass")}</option>
+                      <option value="reject">{t("warehouse.reject")}</option>
+                      <option value="unpack">{t("warehouse.unpack")}</option>
                     </select>
                   </label>
-                </>
-              )}
-              {mode === "inspect" && (
-                <label className="block">
-                  {t("warehouse.action")}
-                  <select
-                    className="warehouse-input"
-                    value={action}
-                    onChange={(e) => setAction(e.target.value as ScanInput["action"])}
-                  >
-                    <option value="pass">{t("warehouse.pass")}</option>
-                    <option value="reject">{t("warehouse.reject")}</option>
-                    <option value="unpack">{t("warehouse.unpack")}</option>
-                  </select>
-                </label>
-              )}
-              {(mode === "inspect" || mode === "sell") && (
-                <label className="block">
-                  {t(mode === "sell" ? "warehouse.saleReference" : "warehouse.reason")}
-                  <input
-                    className="warehouse-input"
-                    value={reason}
-                    maxLength={300}
-                    onChange={(e) => setReason(e.target.value)}
-                  />
-                </label>
-              )}
-              <p className="text-sm text-white/60">{t(`warehouse.help.${mode}`)}</p>
-              <form
-                onSubmit={(e) => {
-                  e.preventDefault();
-                  void submit(code);
-                }}
-                className="space-y-3"
-              >
-                <label className="block">
-                  {t("warehouse.scanLabel")}
-                  <input
-                    ref={input}
-                    autoComplete="off"
-                    className="warehouse-input font-mono"
-                    value={code}
-                    onChange={(e) => setCode(e.target.value)}
-                    placeholder="KPT:UNIT:1:…"
-                    disabled={busy}
-                  />
-                </label>
-                <div className="flex flex-wrap gap-3">
-                  <button disabled={busy || !code.trim()} className="warehouse-button">
-                    {t(busy ? "warehouse.saving" : "warehouse.confirmScan")}
-                  </button>
-                  <button
-                    type="button"
-                    disabled={busy}
-                    onClick={() => setCamera(!camera)}
-                    className="flex items-center gap-2 rounded-xl border border-gold/30 px-4 py-3 text-gold"
-                  >
-                    <Camera size={18} />
-                    {t("warehouse.camera")}
-                  </button>
-                </div>
-              </form>
-              {camera && (
-                <QrCamera
-                  onScan={(value) => {
-                    setCode(value);
-                    void submit(value);
+                )}
+                {(mode === "inspect" || mode === "sell") && (
+                  <label className="block">
+                    {t(mode === "sell" ? "warehouse.saleReference" : "warehouse.reason")}
+                    <input
+                      className="warehouse-input"
+                      value={reason}
+                      maxLength={300}
+                      onChange={(e) => setReason(e.target.value)}
+                    />
+                  </label>
+                )}
+                <p className="text-sm text-white/60">{t(`warehouse.help.${mode}`)}</p>
+                <form
+                  onSubmit={(e) => {
+                    e.preventDefault();
+                    void submit(code);
                   }}
-                  onClose={() => setCamera(false)}
-                />
-              )}
-              {error && (
-                <p role="alert" className="rounded-xl border border-red-400/40 p-3 text-red-300">
-                  {error}
-                </p>
-              )}
-              {lastResult && !error && !busy && (
-                <div
-                  role="status"
-                  className="rounded-xl border border-green-400/30 bg-green-400/10 p-4"
+                  className="space-y-3"
                 >
-                  <b>{t("warehouse.confirmed")}</b>
-                  <p>
-                    {lastResult.name} · {lastResult.variant}
+                  <label className="block">
+                    {t("warehouse.scanLabel")}
+                    <input
+                      ref={input}
+                      autoComplete="off"
+                      className="warehouse-input font-mono"
+                      value={code}
+                      onChange={(e) => setCode(e.target.value)}
+                      placeholder="KPT:UNIT:1:…"
+                      disabled={busy}
+                    />
+                  </label>
+                  <div className="flex flex-wrap gap-3">
+                    <button disabled={busy || !code.trim()} className="warehouse-button">
+                      {t(busy ? "warehouse.saving" : "warehouse.confirmScan")}
+                    </button>
+                    <button
+                      type="button"
+                      disabled={busy}
+                      onClick={() => setCamera(!camera)}
+                      className="flex items-center gap-2 rounded-xl border border-gold/30 px-4 py-3 text-gold"
+                    >
+                      <Camera size={18} />
+                      {t("warehouse.camera")}
+                    </button>
+                  </div>
+                </form>
+                {camera && (
+                  <QrCamera
+                    onScan={(value) => {
+                      setCode(value);
+                      void submit(value);
+                    }}
+                    onClose={() => setCamera(false)}
+                  />
+                )}
+                {error && (
+                  <p role="alert" className="rounded-xl border border-red-400/40 p-3 text-red-300">
+                    {error}
                   </p>
-                  <p>
-                    {t(`warehouse.state.${lastResult.state}`)} · {lastResult.location}
-                  </p>
-                </div>
-              )}
-            </section>
-          )}
-          <h2 className="mb-3 mt-8 font-serif text-xl">{t("warehouse.recent")}</h2>
-          {results.map((r, i) => (
-            <p key={`${r.id}-${i}`} className="border-b border-white/10 py-3 text-sm">
-              {r.name} · {r.variant}{" "}
-              <span className="text-gold">{t(`warehouse.state.${r.state}`)}</span>
-            </p>
-          ))}
+                )}
+                {lastResult && !error && !busy && (
+                  <div
+                    role="status"
+                    className="rounded-xl border border-green-400/30 bg-green-400/10 p-4"
+                  >
+                    <b>{t("warehouse.confirmed")}</b>
+                    <p>
+                      {lastResult.name} · {lastResult.variant}
+                    </p>
+                    <p>
+                      {t(`warehouse.state.${lastResult.state}`)} · {lastResult.location}
+                    </p>
+                  </div>
+                )}
+              </section>
+            )}
+            {results.length > 0 && (
+              <h2 className="mb-3 mt-8 font-serif text-xl">{t("warehouse.recent")}</h2>
+            )}
+            {results.map((r, i) => (
+              <p key={`${r.id}-${i}`} className="border-b border-white/10 py-3 text-sm">
+                {r.name} · {r.variant}{" "}
+                <span className="text-gold">{t(`warehouse.state.${r.state}`)}</span>
+              </p>
+            ))}
+          </div>
         </>
       )}
     </main>

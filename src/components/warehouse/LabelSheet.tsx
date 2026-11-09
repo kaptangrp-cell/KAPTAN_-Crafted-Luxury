@@ -1,9 +1,10 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import QRCode from "qrcode";
 import { useTranslation } from "react-i18next";
 import { unitCode, type UnitLabel } from "@/lib/warehouse";
 export function LabelSheet({ labels }: { labels: UnitLabel[] }) {
   const { t } = useTranslation();
+  const printSheet = useRef<HTMLDivElement>(null);
   const [images, setImages] = useState<Record<string, string>>({});
   const [error, setError] = useState(false);
   useEffect(() => {
@@ -35,13 +36,22 @@ export function LabelSheet({ labels }: { labels: UnitLabel[] }) {
     <section>
       <button
         disabled={Object.keys(images).length !== labels.length}
-        onClick={() => window.print()}
+        onClick={() => {
+          const sheet = printSheet.current;
+          if (!sheet) return;
+          sheet.id = "warehouse-labels";
+          try {
+            window.print();
+          } finally {
+            sheet.removeAttribute("id");
+          }
+        }}
         className="warehouse-button my-4"
       >
         {t("warehouse.print", { count: labels.length })}
       </button>
       {error && <p role="alert">{t("warehouse.labelError")}</p>}
-      <div id="warehouse-labels" className="grid grid-cols-2 gap-3 md:grid-cols-3">
+      <div ref={printSheet} className="grid grid-cols-2 gap-3 md:grid-cols-3">
         {labels.map((l) => (
           <article
             key={l.id}

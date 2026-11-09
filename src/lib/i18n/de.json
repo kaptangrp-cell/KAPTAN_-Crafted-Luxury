@@ -874,7 +874,7 @@
   "warehouse": {
     "title": "Lager",
     "store": "Zurück zum Shop",
-    "inventoryTitle": "QR-Bestand",
+    "inventoryTitle": "Bestand & Etiketten",
     "staffTitle": "Mitarbeiter & Rechte",
     "openScanner": "Scanner öffnen",
     "intro": "Aktion auswählen und jede Einheit scannen. Der Bestand ändert sich erst nach bestätigtem Scan.",
