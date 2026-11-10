@@ -79,6 +79,7 @@ BEGIN
  ELSIF p_action IN ('purchase_edit','purchase_delete') THEN
   SELECT to_jsonb(p) INTO before FROM inventory_purchases p WHERE id=p_id FOR UPDATE;
   IF before IS NULL THEN RAISE EXCEPTION 'Purchase not found'; END IF;
+  before=before||jsonb_build_object('lines',(SELECT jsonb_agg(to_jsonb(l)) FROM inventory_purchase_lines l WHERE purchase_id=p_id));
   IF p_action='purchase_delete' THEN
    IF EXISTS(SELECT 1 FROM inventory_units u JOIN inventory_purchase_lines l ON l.id=u.purchase_line_id WHERE l.purchase_id=p_id)
     OR EXISTS(SELECT 1 FROM inventory_purchase_links WHERE purchase_id=p_id)

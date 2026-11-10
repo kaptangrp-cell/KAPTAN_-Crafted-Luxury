@@ -668,3 +668,68 @@ export const adminSaveProductOption = createServerFn({ method: "POST" })
       throw new Error("Could not save option / Option konnte nicht gespeichert werden");
     return { success: true };
   });
+
+/** Customer profile corrections never change roles or historic order snapshots. */
+export const adminManageCustomer = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) =>
+    z
+      .object({
+        id: z.string().uuid(),
+        action: z.enum(["edit", "delete"]),
+        name: z.string().trim().max(200).default(""),
+        phone: z.string().trim().max(40).default(""),
+      })
+      .parse(input),
+  )
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context.supabase, context.userId);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: profile, error } = await supabaseAdmin
+      .from("profiles")
+      .select("id,role")
+      .eq("id", data.id)
+      .single();
+    if (error || !profile) throw new Error("Customer not found / Kunde nicht gefunden");
+    if (profile.role !== "customer" || data.id === context.userId)
+      throw new Error("Use staff management for staff accounts / Mitarbeiterverwaltung verwenden");
+    if (data.action === "edit") {
+      const { error } = await supabaseAdmin
+        .from("profiles")
+        .update({ full_name: data.name, phone: data.phone })
+        .eq("id", data.id)
+        .eq("role", "customer");
+      if (error) throw new Error(error.message);
+    } else {
+      const checks = await Promise.all([
+        supabaseAdmin
+          .from("orders")
+          .select("id", { head: true, count: "exact" })
+          .eq("user_id", data.id),
+        (supabaseAdmin as SupabaseClient)
+          .from("warehouse_staff")
+          .select("user_id", { head: true, count: "exact" })
+          .eq("user_id", data.id),
+        (supabaseAdmin as SupabaseClient)
+          .from("finance_members")
+          .select("user_id", { head: true, count: "exact" })
+          .eq("user_id", data.id),
+      ]);
+      const drafts = await supabaseAdmin
+        .from("checkout_drafts")
+        .select("id", { head: true, count: "exact" })
+        .contains("order_data", { user_id: data.id });
+      checks.push(drafts);
+      if (checks.some((result) => result.error || result.count !== 0))
+        throw new Error(
+          "This account has orders or staff access and cannot be deleted / Dieses Konto hat Bestellungen oder Mitarbeiterrechte und kann nicht gelöscht werden",
+        );
+      // Auth deletion is atomic; database foreign keys also retain any newly linked history.
+      const { error } = await supabaseAdmin.auth.admin.deleteUser(data.id);
+      if (error)
+        throw new Error(
+          "Account could not be deleted; linked records may need review / Konto konnte nicht gelöscht werden; verknüpfte Datensätze prüfen",
+        );
+    }
+    return { ok: true };
+  });

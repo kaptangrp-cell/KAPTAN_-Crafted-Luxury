@@ -52,7 +52,7 @@ function StockPage() {
       </div>
       {view === "find" && (
         <div>
-          <OperationsDesk admin={false} canMove hideNavigation />
+          <OperationsDesk admin canMove hideNavigation />
         </div>
       )}
     </div>

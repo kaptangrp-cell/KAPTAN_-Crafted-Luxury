@@ -1,3 +1,4 @@
+import { adminManageRecord } from "@/lib/operations.functions";
 import { Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -34,6 +35,7 @@ export function InventoryAdmin({
   const [search, setSearch] = useState("");
   const user = useAuthStore((s) => s.user);
   const load = useServerFn(getWarehouseDashboard);
+  const manageRecord = useServerFn(adminManageRecord);
   const manage = useServerFn(manageWarehouse);
   const query = useQuery({
     queryKey: ["warehouse-admin", user?.id],
@@ -63,6 +65,31 @@ export function InventoryAdmin({
     refetchOnWindowFocus: true,
   });
   const hasBlockers = Boolean(blockers.data?.orders.length || blockers.data?.holds.length);
+  async function removeRecord(action: "variant_delete" | "batch_delete", id: string) {
+    if (
+      running.current ||
+      !window.confirm(
+        tr(
+          "Permanently delete this unused record? Records with stock or history are protected.",
+          "Diesen ungenutzten Datensatz dauerhaft löschen? Datensätze mit Bestand oder Verlauf sind geschützt.",
+        ),
+      )
+    )
+      return;
+    running.current = true;
+    setBusy(true);
+    setError("");
+    try {
+      await manageRecord({ data: { action, id, values: {} } });
+      setLabels([]);
+      await cache.invalidateQueries();
+    } catch (e) {
+      setError(e instanceof Error ? e.message : String(e));
+    } finally {
+      running.current = false;
+      setBusy(false);
+    }
+  }
   async function run(command: Omit<z.infer<typeof WarehouseAdminSchema>, "operation">) {
     if (running.current) return;
     setError("");
@@ -260,9 +287,23 @@ export function InventoryAdmin({
                           {p.variants.map((v) => (
                             <span key={v.id} className="rounded-lg bg-white/5 px-3 py-2 text-sm">
                               {v.name}: {v.stock ?? 0}
+                              <button
+                                className="ml-3 text-red-300"
+                                aria-label={tr("Delete variant ", "Variante löschen ") + v.name}
+                                disabled={busy}
+                                onClick={() => void removeRecord("variant_delete", v.id)}
+                              >
+                                ×
+                              </button>
                             </span>
                           ))}
                         </div>
+                        <Link
+                          to="/admin/products"
+                          className="mt-3 mr-4 inline-block text-sm text-gold underline"
+                        >
+                          {tr("Edit product & options", "Produkt & Optionen bearbeiten")}
+                        </Link>
                         {!p.managed && (
                           <button
                             className="mt-3 text-sm text-gold underline"
@@ -501,15 +542,23 @@ export function InventoryAdmin({
                 <h2 className="mb-3 font-serif text-xl">{t("warehouse.batches")}</h2>
                 <div className="max-h-64 space-y-2 overflow-auto">
                   {query.data.batches?.map((b) => (
-                    <button
-                      disabled={busy}
-                      key={b.batch_id}
-                      onClick={() => void reprint(b.batch_id)}
-                      className="block w-full rounded-xl border border-white/10 p-3 text-left text-sm"
-                    >
-                      {new Date(b.created_at).toLocaleString()} · {b.quantity} ·{" "}
-                      {t("warehouse.reprint")}
-                    </button>
+                    <div key={b.batch_id} className="flex gap-2">
+                      <button
+                        disabled={busy}
+                        onClick={() => void reprint(b.batch_id)}
+                        className="block w-full rounded-xl border border-white/10 p-3 text-left text-sm"
+                      >
+                        {new Date(b.created_at).toLocaleString()} · {b.quantity} ·{" "}
+                        {t("warehouse.reprint")}
+                      </button>
+                      <button
+                        className="warehouse-button text-red-300"
+                        disabled={busy}
+                        onClick={() => void removeRecord("batch_delete", b.batch_id)}
+                      >
+                        {tr("Delete unused batch", "Ungenutzte Charge löschen")}
+                      </button>
+                    </div>
                   ))}
                 </div>
               </section>

@@ -5,6 +5,7 @@ import { useTranslation } from "react-i18next";
 import { useServerFn } from "@tanstack/react-start";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
+import { adminManageRecord } from "@/lib/operations.functions";
 import { adminSaveProductOption } from "@/lib/admin.functions";
 import { optionParts, type ProductOption } from "@/lib/product-options";
 
@@ -15,7 +16,9 @@ export function ProductOptionsEditor({
   productId: string;
   options: ProductOption[];
 }) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const de = i18n.resolvedLanguage?.startsWith("de");
+  const manage = useServerFn(adminManageRecord);
   const qc = useQueryClient();
   const save = useServerFn(adminSaveProductOption);
   const blank = {
@@ -38,6 +41,15 @@ export function ProductOptionsEditor({
       });
       setForm(blank);
       toast.success(t("options.saved"));
+    },
+    onError: (error: Error) => toast.error(error.message),
+  });
+  const removal = useMutation({
+    mutationFn: (id: string) => manage({ data: { action: "variant_delete", id, values: {} } }),
+    onSuccess: async () => {
+      setForm(blank);
+      await qc.invalidateQueries();
+      toast.success(de ? "Variante gelöscht" : "Variant deleted");
     },
     onError: (error: Error) => toast.error(error.message),
   });
@@ -137,7 +149,10 @@ export function ProductOptionsEditor({
             <option value="Color / Size">{t("options.colorSize")}</option>
             <option value="Color">{t("options.color")}</option>
             <option value="Size">{t("options.size")}</option>
-            {!["Color / Size", "Color", "Size"].includes(form.type) && (
+            <option value="Standard">
+              {de ? "Standard (ohne Farbe / Größe)" : "Standard (no colour / size)"}
+            </option>
+            {!["Color / Size", "Color", "Size", "Standard"].includes(form.type) && (
               <option value={form.type}>{form.type}</option>
             )}
           </select>
@@ -222,6 +237,25 @@ export function ProductOptionsEditor({
         >
           {t(mutation.isPending ? "adminProducts.saving" : "options.save")}
         </button>
+        {form.id && (
+          <button
+            type="button"
+            disabled={removal.isPending || mutation.isPending}
+            className="text-sm text-red-300 underline sm:col-span-2"
+            onClick={() => {
+              if (
+                window.confirm(
+                  de
+                    ? "Diese ungenutzte Variante dauerhaft löschen? Varianten mit Bestand oder Verlauf bleiben geschützt."
+                    : "Permanently delete this unused variant? Variants with stock or history remain protected.",
+                )
+              )
+                removal.mutate(form.id!);
+            }}
+          >
+            {de ? "Variante löschen" : "Delete variant"}
+          </button>
+        )}
       </form>
     </div>
   );

@@ -170,9 +170,82 @@ export const listFestivalBaskets = createServerFn({ method: "GET" })
 
 export const adminManageRecord = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((x: unknown) => z.object({
-    action: z.enum(["variant_delete", "label_delete", "batch_delete", "label_edit", "purchase_edit", "purchase_delete", "basket_delete"]),
-    id: z.string().uuid(),
-    values: z.object({ location: z.string().trim().min(1).max(80).optional(), supplier: z.string().trim().min(1).max(200).optional(), reference: z.string().trim().min(1).max(100).optional(), date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(), lines: z.array(z.object({id: z.string().uuid(), quantity: z.number().int().min(1).max(10000)})).max(100).optional() }).default({}),
-  }).parse(x))
-  .handler(({context,data}) => rpc<{saved?: boolean; deleted?: number}>(context.supabase,"admin_manage_record",{p_action:data.action,p_id:data.id,p_data:data.values}));
+  .inputValidator((x: unknown) =>
+    z
+      .object({
+        action: z.enum([
+          "variant_delete",
+          "label_delete",
+          "batch_delete",
+          "label_edit",
+          "purchase_edit",
+          "purchase_delete",
+          "basket_delete",
+        ]),
+        id: z.string().uuid(),
+        values: z
+          .object({
+            location: z.string().trim().min(1).max(80).optional(),
+            supplier: z.string().trim().min(1).max(200).optional(),
+            reference: z.string().trim().min(1).max(100).optional(),
+            date: z
+              .string()
+              .regex(/^\d{4}-\d{2}-\d{2}$/)
+              .optional(),
+            lines: z
+              .array(
+                z.object({ id: z.string().uuid(), quantity: z.number().int().min(1).max(10000) }),
+              )
+              .max(100)
+              .optional(),
+          })
+          .default({}),
+      })
+      .parse(x),
+  )
+  .handler(({ context, data }) =>
+    rpc<{ saved?: boolean; deleted?: number }>(context.supabase, "admin_manage_record", {
+      p_action: data.action,
+      p_id: data.id,
+      p_data: data.values,
+    }),
+  );
+
+export interface FestivalSale {
+  id: string;
+  event: string;
+  total: string;
+  created_at: string;
+  payment_method: "cash" | "card_terminal";
+  payment_reference: string;
+  items: Pick<TracedUnit, "id" | "unit_number" | "name" | "variant" | "price">[];
+}
+export const completeFestivalSale = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((x: unknown) =>
+    z
+      .object({
+        id: z.string().uuid(),
+        event: z.string().trim().min(1).max(120),
+        units: z.array(z.string().uuid()).min(1).max(100),
+        method: z.enum(["cash", "card_terminal"]),
+        reference: z.string().trim().max(120),
+        total: z.string().regex(/^\d+$/),
+        received: z.literal(true),
+      })
+      .parse(x),
+  )
+  .handler(({ context, data }) =>
+    rpc<FestivalSale>(context.supabase, "festival_complete", {
+      p_id: data.id,
+      p_event: data.event,
+      p_units: data.units,
+      p_method: data.method,
+      p_reference: data.reference,
+      p_total: data.total,
+      p_received: data.received,
+    }),
+  );
+export const listFestivalSales = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(({ context }) => rpc<FestivalSale[]>(context.supabase, "festival_sales_list"));
