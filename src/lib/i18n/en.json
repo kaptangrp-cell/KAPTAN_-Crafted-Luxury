@@ -106,7 +106,11 @@
     "qualityLabel": "Considered details",
     "styleLabel": "Practical by purpose",
     "durabilityLabel": "Care beyond checkout",
-    "subscribedToast": "Thank you! Your newsletter subscription is confirmed."
+    "subscribedToast": "Thank you! Your newsletter subscription is confirmed.",
+    "splitLeatherLine": "Leather essentials for everyday purpose.",
+    "splitLeatherCta": "Explore leather",
+    "splitSaltLine": "Salt accents for a warmer home.",
+    "splitSaltCta": "Explore salt lamps"
   },
   "faq": {
     "title": "Frequently Asked Questions",
