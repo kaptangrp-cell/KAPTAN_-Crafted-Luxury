@@ -4,7 +4,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
-import { adminListCustomers } from "@/lib/admin.functions";
+import { adminManageCustomer, adminListCustomers } from "@/lib/admin.functions";
 
 export const Route = createFileRoute("/_authenticated/admin/customers")({
   component: AdminCustomersPage,
@@ -12,6 +12,24 @@ export const Route = createFileRoute("/_authenticated/admin/customers")({
 
 function AdminCustomersPage() {
   const { t, i18n } = useTranslation();
+  const de = i18n.resolvedLanguage?.startsWith("de");
+  const manage = useServerFn(adminManageCustomer);
+  const [editing, setEditing] = useState<{ id: string; name: string; phone: string } | null>(null);
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState("");
+  async function apply(action: "edit" | "delete", id: string, name = "", phone = "") {
+    setBusy(true);
+    setError("");
+    try {
+      await manage({ data: { action, id, name, phone } });
+      setEditing(null);
+      await refetch();
+    } catch (e) {
+      setError(e instanceof Error ? e.message : String(e));
+    } finally {
+      setBusy(false);
+    }
+  }
   const [search, setSearch] = useState("");
   const fn = useServerFn(adminListCustomers);
   const { data, isLoading, isError, refetch } = useQuery({
@@ -37,6 +55,50 @@ function AdminCustomersPage() {
         />
       </label>
       <p className="text-xs text-white/50">{t("adminWorkspace.customerScope")}</p>
+      {error && (
+        <p role="alert" className="text-red-300">
+          {error}
+        </p>
+      )}
+      {editing && (
+        <form
+          className="space-y-3 rounded-xl border border-gold/30 p-4"
+          onSubmit={(e) => {
+            e.preventDefault();
+            void apply("edit", editing.id, editing.name, editing.phone);
+          }}
+        >
+          <label className="block">
+            {de ? "Name" : "Name"}
+            <input
+              className="warehouse-input w-full"
+              maxLength={200}
+              value={editing.name}
+              onChange={(e) => setEditing({ ...editing, name: e.target.value })}
+            />
+          </label>
+          <label className="block">
+            {de ? "Telefon" : "Phone"}
+            <input
+              className="warehouse-input w-full"
+              maxLength={40}
+              value={editing.phone}
+              onChange={(e) => setEditing({ ...editing, phone: e.target.value })}
+            />
+          </label>
+          <button disabled={busy} className="warehouse-button">
+            {de ? "Speichern" : "Save"}
+          </button>{" "}
+          <button
+            type="button"
+            disabled={busy}
+            className="warehouse-button"
+            onClick={() => setEditing(null)}
+          >
+            {de ? "Abbrechen" : "Cancel"}
+          </button>
+        </form>
+      )}
       {isError && <AdminFeedback retry={() => void refetch()} />}
       <div className="overflow-x-auto rounded-2xl border border-gold/15 bg-[#0D0D0D]">
         <table className="w-full text-sm">
@@ -46,12 +108,13 @@ function AdminCustomersPage() {
               <th className="p-3">{t("adminCustomers.colPhone")}</th>
               <th className="p-3">{t("adminCustomers.colRole")}</th>
               <th className="p-3">{t("adminCustomers.colJoined")}</th>
+              <th className="p-3">{de ? "Aktionen" : "Actions"}</th>
             </tr>
           </thead>
           <tbody>
             {isLoading && (
               <tr>
-                <td colSpan={4} className="p-6 text-center text-white/50">
+                <td colSpan={5} className="p-6 text-center text-white/50">
                   {t("adminProducts.loading")}
                 </td>
               </tr>
@@ -74,11 +137,42 @@ function AdminCustomersPage() {
                     i18n.language === "de" ? "de-DE" : "en-GB",
                   )}
                 </td>
+                <td className="p-3">
+                  {c.role === "customer" && (
+                    <div className="flex gap-3">
+                      <button
+                        disabled={busy}
+                        className="text-gold underline"
+                        onClick={() =>
+                          setEditing({ id: c.id, name: c.full_name ?? "", phone: c.phone ?? "" })
+                        }
+                      >
+                        {de ? "Bearbeiten" : "Edit"}
+                      </button>
+                      <button
+                        disabled={busy}
+                        className="text-red-300 underline"
+                        onClick={() => {
+                          if (
+                            window.confirm(
+                              de
+                                ? "Kundenkonto und persönliche Kontodaten dauerhaft löschen? Konten mit Bestellungen oder Mitarbeiterrechten bleiben geschützt."
+                                : "Permanently delete this customer account and its personal account data? Accounts with orders or staff access remain protected.",
+                            )
+                          )
+                            void apply("delete", c.id);
+                        }}
+                      >
+                        {de ? "Löschen" : "Delete"}
+                      </button>
+                    </div>
+                  )}
+                </td>
               </tr>
             ))}
             {!isLoading && !isError && !visibleCustomers.length && (
               <tr>
-                <td colSpan={4} className="py-8 text-center text-white/60">
+                <td colSpan={5} className="py-8 text-center text-white/60">
                   {t("adminWorkspace.noMatches")}
                 </td>
               </tr>

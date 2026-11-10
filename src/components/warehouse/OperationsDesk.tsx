@@ -5,6 +5,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import {
+  adminManageRecord,
   lookupUnit,
   moveUnit,
   listPurchases,
@@ -38,6 +39,8 @@ export function OperationsDesk({
   const de = i18n.resolvedLanguage?.startsWith("de");
   const tr = (en: string, german: string) => (de ? german : en);
   const user = useAuthStore((s) => s.user);
+  const manageRecord = useServerFn(adminManageRecord);
+  const [editingPurchase, setEditingPurchase] = useState<string | null>(null);
   const receive = useServerFn(scanWarehouseUnit);
   const [step, setStep] = useState<1 | 2 | 3>(1);
   const [selectedPurchase, setSelectedPurchase] = useState("");
@@ -237,6 +240,60 @@ export function OperationsDesk({
                   {unit.state} · {unit.location}
                 </p>
               </div>
+              {admin && (
+                <div className="my-3 flex flex-wrap gap-3">
+                  <label>
+                    {tr("Shelf location", "Lagerplatz")}
+                    <input
+                      className="warehouse-input"
+                      value={location}
+                      onChange={(e) => setLocation(e.target.value)}
+                      maxLength={80}
+                    />
+                  </label>
+                  <button
+                    className="warehouse-button"
+                    disabled={busy}
+                    onClick={() =>
+                      void run(async () => {
+                        await manageRecord({
+                          data: { action: "label_edit", id: unit.id, values: { location } },
+                        });
+                        setUnit(await lookup({ data: { code: unit.unit_number } }));
+                        await cache.invalidateQueries();
+                      })
+                    }
+                  >
+                    {tr("Save location", "Lagerplatz speichern")}
+                  </button>
+                  {unit.state === "expected" && (
+                    <button
+                      className="warehouse-button text-red-300"
+                      disabled={busy}
+                      onClick={() => {
+                        if (
+                          !window.confirm(
+                            tr(
+                              "Delete this unused label permanently?",
+                              "Dieses ungenutzte Etikett dauerhaft löschen?",
+                            ),
+                          )
+                        )
+                          return;
+                        void run(async () => {
+                          await manageRecord({
+                            data: { action: "label_delete", id: unit.id, values: {} },
+                          });
+                          setUnit(null);
+                          await cache.invalidateQueries();
+                        });
+                      }}
+                    >
+                      {tr("Delete unused label", "Ungenutztes Etikett löschen")}
+                    </button>
+                  )}
+                </div>
+              )}
               {unit.purchase ? (
                 <p>
                   {tr("Purchased", "Eingekauft")}: {unit.purchase.date} · {unit.purchase.supplier} ·{" "}
@@ -579,6 +636,116 @@ export function OperationsDesk({
                       {p.reference} · {p.supplier}
                     </h3>
                     <p className="text-sm text-muted-foreground">{p.ordered_on}</p>
+                    <div className="my-3 flex gap-3">
+                      <button
+                        className="warehouse-button"
+                        disabled={busy}
+                        onClick={() => setEditingPurchase(editingPurchase === p.id ? null : p.id)}
+                      >
+                        {tr("Edit purchase", "Einkauf bearbeiten")}
+                      </button>
+                      <button
+                        className="warehouse-button text-red-300"
+                        disabled={busy}
+                        onClick={() => {
+                          if (
+                            !window.confirm(
+                              tr(
+                                "Delete this purchase? Linked labels and documents must be resolved first.",
+                                "Diesen Einkauf löschen? Verknüpfte Etiketten und Belege müssen zuerst geklärt werden.",
+                              ),
+                            )
+                          )
+                            return;
+                          void run(async () => {
+                            await manageRecord({
+                              data: { action: "purchase_delete", id: p.id, values: {} },
+                            });
+                            setSelectedPurchase("");
+                            await cache.invalidateQueries();
+                          });
+                        }}
+                      >
+                        {tr("Delete purchase", "Einkauf löschen")}
+                      </button>
+                    </div>
+                    {editingPurchase === p.id && (
+                      <form
+                        className="my-4 space-y-3 rounded-xl border border-primary/30 p-4"
+                        onSubmit={(e) => {
+                          e.preventDefault();
+                          const data = new FormData(e.currentTarget);
+                          void run(async () => {
+                            await manageRecord({
+                              data: {
+                                action: "purchase_edit",
+                                id: p.id,
+                                values: {
+                                  supplier: String(data.get("supplier")),
+                                  reference: String(data.get("reference")),
+                                  date: String(data.get("date")),
+                                  lines: p.lines.map((l) => ({
+                                    id: l.id,
+                                    quantity: Number(data.get(l.id)),
+                                  })),
+                                },
+                              },
+                            });
+                            setEditingPurchase(null);
+                            await cache.invalidateQueries();
+                          });
+                        }}
+                      >
+                        <label className="block">
+                          {tr("Supplier", "Lieferant")}
+                          <input
+                            className={input}
+                            name="supplier"
+                            required
+                            maxLength={200}
+                            defaultValue={p.supplier}
+                          />
+                        </label>
+                        <label className="block">
+                          {tr("Reference", "Referenz")}
+                          <input
+                            className={input}
+                            name="reference"
+                            required
+                            maxLength={100}
+                            defaultValue={p.reference}
+                          />
+                        </label>
+                        <label className="block">
+                          {tr("Date", "Datum")}
+                          <input
+                            className={input}
+                            type="date"
+                            name="date"
+                            required
+                            defaultValue={p.ordered_on}
+                          />
+                        </label>
+                        {p.lines.map((l) => (
+                          <label className="block" key={l.id}>
+                            {l.name} · {l.variant}
+                            <input
+                              aria-label={tr("Quantity", "Menge")}
+                              className={input}
+                              type="number"
+                              required
+                              min={Math.max(1, l.labelled)}
+                              max={10000}
+                              name={l.id}
+                              defaultValue={l.quantity}
+                            />
+                          </label>
+                        ))}
+                        <button className="warehouse-button" disabled={busy}>
+                          {tr("Save changes", "Änderungen speichern")}
+                        </button>
+                      </form>
+                    )}
                     {p.lines.map((l) => (
                       <div key={l.id} className="my-3 space-y-2">
                         <p>
