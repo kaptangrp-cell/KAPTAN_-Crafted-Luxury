@@ -20,6 +20,13 @@ import { ProductCard } from "@/components/product/ProductCard";
 import { PageLayout } from "@/components/layout/PageLayout";
 import { Price } from "@/components/common/Price";
 import { Reveal } from "@/components/motion/Reveal";
+import { HeroVideo } from "@/components/media/HeroVideo";
+import { motion, useReducedMotion, type Variants } from "framer-motion";
+
+const heroItem: Variants = {
+  hidden: { opacity: 0, y: 18 },
+  show: { opacity: 1, y: 0, transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1] } },
+};
 
 const heroQueryOptions = queryOptions({
   queryKey: ["home-product-slides"],
@@ -73,6 +80,7 @@ export const Route = createFileRoute("/")({
 
 function HomePage() {
   const { t, i18n } = useTranslation();
+  const heroMotion = !useReducedMotion();
   const { data: heroData } = useSuspenseQuery(heroQueryOptions);
   const { data: featuredData } = useSuspenseQuery(featuredQueryOptions);
   const { data: featuredReviewsData } = useQuery(featuredReviewsQueryOptions);
@@ -119,32 +127,73 @@ function HomePage() {
 
   return (
     <PageLayout>
-      <section className="border-b border-gold/15 bg-[#0D0D0D]">
-        <div className="mx-auto grid max-w-7xl items-center gap-8 px-4 py-10 md:grid-cols-2 md:px-6 md:py-14">
-          <div className="max-w-lg">
-            <p className="text-xs font-semibold uppercase tracking-[0.3em] text-gold">
-              {t("home.collectionEyebrow")}
-            </p>
-            <h1 className="mt-4 font-serif text-4xl leading-tight text-white md:text-6xl">
-              {t("home.heroLine1")} <span className="text-gold">{t("home.heroLine2")}</span>
-            </h1>
-            <p className="mt-5 max-w-md text-base leading-relaxed text-white/70">
-              {t("home.heroSubtitle")}
-            </p>
-            <Link
-              to="/products"
-              className="mt-7 inline-flex items-center gap-4 bg-gold px-7 py-3.5 font-semibold text-black transition-colors hover:bg-gold-vivid"
+      <section className="media-hero relative isolate overflow-hidden border-b border-gold/15 bg-[#0D0D0D]">
+        <HeroVideo />
+        {/* Scrims keep the copy legible over the moving footage. */}
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-0 bg-gradient-to-b from-[#0D0D0D]/70 via-[#0D0D0D]/55 to-[#0D0D0D] md:bg-gradient-to-r md:from-[#0D0D0D] md:via-[#0D0D0D]/75 md:to-[#0D0D0D]/10"
+        />
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-[#0D0D0D] to-transparent"
+        />
+        <motion.div
+          initial={heroMotion ? "hidden" : false}
+          animate="show"
+          variants={{ show: { transition: { staggerChildren: 0.12, delayChildren: 0.1 } } }}
+          className="relative mx-auto grid min-h-[78svh] max-w-7xl items-center gap-10 px-4 py-14 md:grid-cols-[1.15fr_0.85fr] md:px-6 md:py-20"
+        >
+          <div className="max-w-2xl">
+            <motion.p
+              variants={heroItem}
+              className="text-xs font-semibold uppercase tracking-[0.34em] text-gold"
             >
-              {t("home.heroShopNow")}
-              <ArrowUpRight size={18} />
-            </Link>
-            <div className="mt-8 flex flex-wrap gap-x-5 gap-y-2 text-xs text-white/60">
+              {t("home.collectionEyebrow")}
+            </motion.p>
+            <motion.h1
+              variants={heroItem}
+              className="mt-5 font-serif text-5xl leading-[1.02] tracking-tight text-white sm:text-6xl lg:text-7xl xl:text-8xl"
+            >
+              {t("home.heroLine1")} <span className="text-gold">{t("home.heroLine2")}</span>
+            </motion.h1>
+            <motion.p
+              variants={heroItem}
+              className="mt-6 max-w-md text-base leading-relaxed text-white/75 md:text-lg"
+            >
+              {t("home.heroSubtitle")}
+            </motion.p>
+            <motion.div variants={heroItem}>
+              <Link
+                to="/products"
+                className="group mt-8 inline-flex items-center gap-4 bg-gold px-8 py-4 font-semibold text-black transition-colors hover:bg-gold-vivid"
+              >
+                {t("home.heroShopNow")}
+                <ArrowUpRight
+                  size={18}
+                  className="transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5"
+                />
+              </Link>
+            </motion.div>
+            <motion.div
+              variants={heroItem}
+              className="mt-9 flex flex-wrap gap-x-5 gap-y-2 text-xs uppercase tracking-[0.18em] text-white/65"
+            >
               <span>{t("home.qualityLabel")}</span>
+              <span aria-hidden="true" className="hidden text-gold/60 sm:inline">
+                ✦
+              </span>
               <span>{t("home.styleLabel")}</span>
+              <span aria-hidden="true" className="hidden text-gold/60 sm:inline">
+                ✦
+              </span>
               <span>{t("home.durabilityLabel")}</span>
-            </div>
+            </motion.div>
           </div>
-          <div className="overflow-hidden rounded-2xl border border-gold/15 bg-[#1A1A1A]">
+          <motion.div
+            variants={heroItem}
+            className="overflow-hidden rounded-2xl border border-gold/20 bg-[#1A1A1A]/80 shadow-2xl shadow-black/60 backdrop-blur-md"
+          >
             <PhotoCarousel
               slides={heroData.slides.map((s) => ({
                 url: s.url,
@@ -172,8 +221,8 @@ function HomePage() {
                 ) : null;
               }}
             />
-          </div>
-        </div>
+          </motion.div>
+        </motion.div>
       </section>
 
       <section className="mx-auto max-w-7xl px-4 py-10 md:px-6">
