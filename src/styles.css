@@ -383,3 +383,27 @@
     justify-content: flex-start;
   }
 }
+
+/* Product media always preserves its aspect ratio, including portrait video. */
+.product-media-stage {
+  width: 100%;
+  height: clamp(220px, 65vh, 640px);
+  height: clamp(220px, 65svh, 640px);
+}
+.product-lightbox {
+  width: 100vw;
+  height: 100vh;
+  height: 100dvh;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  padding: max(12px, env(safe-area-inset-top)) max(12px, env(safe-area-inset-right))
+    max(12px, env(safe-area-inset-bottom)) max(12px, env(safe-area-inset-left));
+}
+.product-lightbox > button:last-child {
+  top: max(4px, env(safe-area-inset-top));
+  right: max(4px, env(safe-area-inset-right));
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}

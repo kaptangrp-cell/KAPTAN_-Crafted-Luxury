@@ -5,7 +5,7 @@ import { optionParts } from "@/lib/product-options";
 import { ProductOptionPicker } from "@/components/product/ProductOptionPicker";
 import { CatalogText } from "@/components/common/CatalogText";
 import { ProductFacts } from "@/components/product/ProductFacts";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { createFileRoute, notFound, Link, useNavigate } from "@tanstack/react-router";
 import { queryOptions, useSuspenseQuery, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
@@ -24,7 +24,6 @@ import {
   BadgeCheck,
   PenLine,
   ZoomIn,
-  X,
   ChevronLeft,
   ChevronRight,
   Flame,
@@ -218,14 +217,12 @@ function ProductDetailPage() {
   ) as string[];
 
   const [lightboxOpen, setLightboxOpen] = useState(false);
-  const [zoomActive, setZoomActive] = useState(false);
-  const [zoomOrigin, setZoomOrigin] = useState("50% 50%");
-
-  function handleImageMouseMove(e: React.MouseEvent<HTMLDivElement>) {
-    const rect = e.currentTarget.getBoundingClientRect();
-    const x = ((e.clientX - rect.left) / rect.width) * 100;
-    const y = ((e.clientY - rect.top) / rect.height) * 100;
-    setZoomOrigin(`${x}% ${y}%`);
+  const inlineVideo = useRef<HTMLVideoElement>(null);
+  const mediaOpener = useRef<HTMLButtonElement | null>(null);
+  function openMedia(event: React.MouseEvent<HTMLButtonElement>) {
+    mediaOpener.current = event.currentTarget;
+    inlineVideo.current?.pause();
+    setLightboxOpen(true);
   }
 
   const { data: reviewsData } = useQuery(reviewsQueryOptions(product.id));
@@ -392,45 +389,47 @@ function ProductDetailPage() {
           )}
         </nav>
 
-        <div className="grid gap-10 md:grid-cols-2">
-          <div>
-            <div
-              className="group relative aspect-square cursor-zoom-in overflow-hidden border border-gold/10 bg-[#1A1A1A]"
-              onMouseMove={active.media_type !== "video" ? handleImageMouseMove : undefined}
-              onMouseEnter={() => active.media_type !== "video" && setZoomActive(true)}
-              onMouseLeave={() => setZoomActive(false)}
-              onClick={() => active.media_type !== "video" && setLightboxOpen(true)}
-            >
+        <div className="grid min-w-0 gap-10 md:grid-cols-2">
+          <div className="min-w-0">
+            <div className="product-media-stage relative overflow-hidden border border-gold/10 bg-[#151515]">
               {active.media_type === "video" ? (
                 <video
-                  src={active.url}
-                  controls
-                  playsInline
-                  className="h-full w-full cursor-auto object-cover"
-                  onClick={(e) => e.stopPropagation()}
-                />
-              ) : (
-                <img
+                  ref={inlineVideo}
                   key={active.url}
                   src={active.url}
-                  alt={
-                    details.find((d) => d.url === active.url)?.alt ||
-                    active.alt_text ||
-                    product.name
-                  }
-                  className="kaptan-image-fade h-full w-full bg-[#f3f0eb] object-contain transition-transform duration-200 ease-out"
-                  style={{
-                    transform: zoomActive ? "scale(2)" : "scale(1)",
-                    transformOrigin: zoomOrigin,
-                  }}
+                  poster={media.find((item) => item.media_type !== "video")?.url}
+                  controls
+                  playsInline
+                  preload="metadata"
+                  className="h-full w-full object-contain"
                 />
+              ) : (
+                <button
+                  type="button"
+                  className="block h-full w-full cursor-zoom-in"
+                  onClick={openMedia}
+                  aria-label={t("pdp.openMedia")}
+                >
+                  <img
+                    key={active.url}
+                    src={active.url}
+                    alt={
+                      details.find((d) => d.url === active.url)?.alt ||
+                      active.alt_text ||
+                      product.name
+                    }
+                    className="h-full w-full object-contain"
+                  />
+                </button>
               )}
-
-              {active.media_type !== "video" && (
-                <span className="media-hero pointer-events-none absolute right-3 top-3 flex h-9 w-9 items-center justify-center rounded-full border border-gold/40 bg-black/70 text-gold opacity-0 transition-opacity group-hover:opacity-100">
-                  <ZoomIn size={16} />
-                </span>
-              )}
+              <button
+                type="button"
+                onClick={openMedia}
+                aria-label={t("pdp.openMedia")}
+                className="absolute right-3 top-3 flex h-11 w-11 items-center justify-center rounded-full border border-gold/40 bg-black/80 text-gold focus-visible:outline focus-visible:outline-2 focus-visible:outline-gold"
+              >
+                <ZoomIn size={20} />
+              </button>
             </div>
 
             {details.find((d) => d.url === active.url)?.view && (
@@ -439,7 +438,7 @@ function ProductDetailPage() {
               </p>
             )}
             {media.length > 1 && (
-              <div className="mt-3 flex gap-2 overflow-x-auto">
+              <div className="mt-3 flex max-w-full gap-2 overflow-x-auto pb-2">
                 {media.map((item, i) => (
                   <button
                     key={item.id ?? item.url}
@@ -455,13 +454,19 @@ function ProductDetailPage() {
                   >
                     {item.media_type === "video" ? (
                       <>
-                        <video src={item.url} className="h-full w-full object-cover" muted />
+                        <video
+                          src={item.url}
+                          className="h-full w-full object-contain"
+                          muted
+                          playsInline
+                          preload="metadata"
+                        />
                         <span className="media-hero absolute inset-0 flex items-center justify-center bg-black/40 text-gold">
                           <Play size={18} />
                         </span>
                       </>
                     ) : (
-                      <img src={item.url} alt="" className="h-full w-full object-cover" />
+                      <img src={item.url} alt="" className="h-full w-full object-contain" />
                     )}
                   </button>
                 ))}
@@ -988,52 +993,71 @@ function ProductDetailPage() {
         </DialogContent>
       </Dialog>
 
-      {lightboxOpen && active.media_type !== "video" && (
-        <div
-          className="fixed inset-0 z-[60] flex items-center justify-center bg-black/95 p-4"
-          onClick={() => setLightboxOpen(false)}
+      <Dialog open={lightboxOpen} onOpenChange={setLightboxOpen}>
+        <DialogContent
+          aria-describedby={undefined}
+          onCloseAutoFocus={(event) => {
+            event.preventDefault();
+            mediaOpener.current?.focus();
+          }}
+          className="media-hero product-lightbox left-0 top-0 z-[100] max-w-none translate-x-0 translate-y-0 gap-3 rounded-none border-0 bg-black text-white sm:rounded-none"
+          onKeyDown={(e) => {
+            if (e.target instanceof HTMLVideoElement) return;
+            if (e.key === "ArrowLeft" || e.key === "ArrowRight") {
+              e.preventDefault();
+              setActiveMedia(
+                (activeMedia + (e.key === "ArrowRight" ? 1 : -1) + media.length) % media.length,
+              );
+            }
+          }}
         >
-          <button
-            onClick={() => setLightboxOpen(false)}
-            aria-label={t("pdp.closeAriaLabel")}
-            className="absolute right-4 top-4 flex h-10 w-10 items-center justify-center rounded-full border border-gold/40 text-gold hover:bg-gold hover:text-black"
-          >
-            <X size={20} />
-          </button>
-
-          {media.length > 1 && (
-            <>
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setActiveMedia((activeMedia - 1 + media.length) % media.length);
-                }}
-                aria-label={t("pdp.previousImageAriaLabel")}
-                className="absolute left-4 flex h-10 w-10 items-center justify-center rounded-full border border-gold/40 text-gold hover:bg-gold hover:text-black"
-              >
-                <ChevronLeft size={20} />
-              </button>
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setActiveMedia((activeMedia + 1) % media.length);
-                }}
-                aria-label={t("pdp.nextImageAriaLabel")}
-                className="absolute right-4 flex h-10 w-10 items-center justify-center rounded-full border border-gold/40 text-gold hover:bg-gold hover:text-black"
-              >
-                <ChevronRight size={20} />
-              </button>
-            </>
-          )}
-
-          <img
-            src={active.url}
-            alt={details.find((d) => d.url === active.url)?.alt || active.alt_text || product.name}
-            onClick={(e) => e.stopPropagation()}
-            className="max-h-[90vh] max-w-[90vw] object-contain"
-          />
-        </div>
-      )}
+          <DialogTitle className="truncate pr-14 text-base leading-6">{product.name}</DialogTitle>
+          <div className="min-h-0 min-w-0 overflow-hidden">
+            {active.media_type === "video" ? (
+              <video
+                key={active.url}
+                src={active.url}
+                poster={media.find((item) => item.media_type !== "video")?.url}
+                controls
+                playsInline
+                preload="metadata"
+                className="block h-full w-full object-contain"
+              />
+            ) : (
+              <img
+                src={active.url}
+                alt={
+                  details.find((d) => d.url === active.url)?.alt || active.alt_text || product.name
+                }
+                className="block h-full w-full object-contain"
+              />
+            )}
+          </div>
+          <div className="flex items-center justify-center gap-6">
+            <button
+              type="button"
+              disabled={media.length < 2}
+              onClick={() => setActiveMedia((activeMedia - 1 + media.length) % media.length)}
+              aria-label={t("pdp.previousImageAriaLabel")}
+              className="flex h-11 w-11 items-center justify-center rounded-full border border-gold/40 text-gold disabled:opacity-30"
+            >
+              <ChevronLeft size={22} />
+            </button>
+            <span aria-live="polite" className="text-sm tabular-nums">
+              {activeMedia + 1} / {media.length}
+            </span>
+            <button
+              type="button"
+              disabled={media.length < 2}
+              onClick={() => setActiveMedia((activeMedia + 1) % media.length)}
+              aria-label={t("pdp.nextImageAriaLabel")}
+              className="flex h-11 w-11 items-center justify-center rounded-full border border-gold/40 text-gold disabled:opacity-30"
+            >
+              <ChevronRight size={22} />
+            </button>
+          </div>
+        </DialogContent>
+      </Dialog>
 
       <script
         type="application/ld+json"
