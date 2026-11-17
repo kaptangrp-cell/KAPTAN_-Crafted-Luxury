@@ -1,4 +1,3 @@
-import { productBenefitKey } from "@/lib/brand-product";
 import { PhotoCarousel } from "@/components/media/PhotoCarousel";
 import { translateCatalogText } from "@/lib/catalog-translation";
 import { useState } from "react";
@@ -8,14 +7,13 @@ import { CatalogText } from "@/components/common/CatalogText";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useQueryClient } from "@tanstack/react-query";
-import { Heart, ShoppingBag, Star, Check } from "lucide-react";
+import { Heart, ShoppingBag, Check } from "lucide-react";
 import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
 import { useCartStore } from "@/stores/cartStore";
 import { useAuthStore } from "@/stores/authStore";
 import { toggleWishlist } from "@/lib/wishlist.functions";
 import { Price } from "@/components/common/Price";
-import { ProductFacts } from "./ProductFacts";
 import type { Product } from "@/types";
 
 interface ProductCardProps {
@@ -185,37 +183,13 @@ export function ProductCard({ product }: ProductCardProps) {
             </span>
           </div>
         )}
-        <h3 className="font-serif text-base font-medium text-white transition-colors group-hover:text-gold">
+        <h3 className="line-clamp-2 font-serif text-base font-medium leading-snug text-white transition-colors group-hover:text-gold">
           <Link to="/products/$slug" params={{ slug: product.slug }}>
             <CatalogText text={product.name} />
           </Link>
         </h3>
 
-        <p className="mt-1 line-clamp-2 text-sm text-white/70">
-          {t(productBenefitKey(product.name))}
-        </p>
-
-        <Link
-          to="/products/$slug"
-          params={{ slug: product.slug }}
-          hash="reviews"
-          className="mt-3 flex items-center gap-1.5 text-xs text-white/70"
-        >
-          <Star
-            size={14}
-            className={product.review_count ? "fill-gold text-gold" : "text-white/40"}
-          />
-          {product.review_count
-            ? `${Number(product.average_rating ?? 0).toFixed(1)} (${product.review_count})`
-            : t("catalog.noReviews")}
-        </Link>
-        <ProductFacts
-          specifications={product.specifications}
-          variants={product.product_variants}
-          compact
-        />
-
-        <div className="mt-auto flex flex-wrap items-center justify-between gap-2 pt-4">
+        <div className="mt-2 flex flex-wrap items-center justify-between gap-2">
           <Price amount={displayPrice} className="font-mono text-lg font-bold text-gold" />
 
           {product.compare_at_price != null && product.compare_at_price > displayPrice && (
@@ -242,9 +216,6 @@ export function ProductCard({ product }: ProductCardProps) {
         {product.stock_quantity > (product.low_stock_threshold ?? 5) && (
           <p className="mt-2 text-xs text-green-400">{t("pdp.inStock")}</p>
         )}
-        <Link to="/shipping" className="mt-3 text-xs text-white/55 hover:text-gold">
-          {t("catalog.delivery")}
-        </Link>
         {!!product.product_variants?.length && (
           <label className="mt-3 text-xs text-white/70">
             {t("options.choose")}
@@ -266,7 +237,7 @@ export function ProductCard({ product }: ProductCardProps) {
         <button
           onClick={handleAddToCart}
           disabled={!product.is_available || product.stock_quantity <= 0}
-          className="mt-4 flex w-full rounded-full items-center justify-center gap-2 bg-gold py-2.5 text-sm font-bold text-black transition-colors hover:bg-gold-vivid disabled:opacity-50"
+          className="mt-3 flex min-h-11 w-full rounded-full items-center justify-center gap-2 bg-gold py-2.5 text-sm font-bold text-black transition-colors hover:bg-gold-vivid disabled:opacity-50"
         >
           {added ? (
             <Check size={16} className="kaptan-pop" onAnimationEnd={() => setAdded(false)} />
@@ -287,7 +258,7 @@ export function ProductCard({ product }: ProductCardProps) {
             navigate({ to: "/checkout" });
           }}
           disabled={!product.is_available || product.stock_quantity <= 0}
-          className="mt-2 flex min-h-10 w-full items-center justify-center rounded-full border border-gold/50 text-sm font-semibold text-gold hover:bg-gold/10 disabled:opacity-50"
+          className="mt-2 flex min-h-11 w-full items-center justify-center rounded-full border border-gold/50 text-sm font-semibold text-gold hover:bg-gold/10 disabled:opacity-50"
         >
           {t("buyer.checkout")}
         </button>
