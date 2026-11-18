@@ -221,7 +221,10 @@ export function FestivalBasket({ expanded = false }: { expanded?: boolean }) {
           value={code}
           onChange={(e) => setCode(e.target.value)}
           required
-          placeholder={tr("Scan QR or enter unit number", "QR scannen oder Artikelnummer eingeben")}
+          placeholder={tr(
+            "Scan barcode or enter unit number",
+            "Barcode scannen oder Artikelnummer eingeben",
+          )}
           autoComplete="off"
           disabled={busy}
         />
@@ -248,8 +251,8 @@ export function FestivalBasket({ expanded = false }: { expanded?: boolean }) {
           <p className="text-xl">{tr("Scan the first item", "Ersten Artikel scannen")}</p>
           <p className="mt-2 text-sm text-muted-foreground">
             {tr(
-              "Use a USB scanner, the camera button, or type the number printed below the QR code.",
-              "USB-Scanner oder Kamerataste verwenden oder die Nummer unter dem QR-Code eingeben.",
+              "Use a USB scanner, the camera button, or type the number printed below the barcode.",
+              "USB-Scanner oder Kamerataste verwenden oder die Nummer unter dem Barcode eingeben.",
             )}
           </p>
         </div>

@@ -7,6 +7,7 @@ import { useTranslation } from "react-i18next";
 import { z } from "zod";
 import {
   getWarehouseDashboard,
+  createInventoryDefaultVariant,
   manageWarehouse,
   getQrActivationBlockers,
 } from "@/lib/warehouse.functions";
@@ -37,6 +38,7 @@ export function InventoryAdmin({
   const load = useServerFn(getWarehouseDashboard);
   const manageRecord = useServerFn(adminManageRecord);
   const manage = useServerFn(manageWarehouse);
+  const defaultVariant = useServerFn(createInventoryDefaultVariant);
   const query = useQuery({
     queryKey: ["warehouse-admin", user?.id],
     queryFn: () => load({ data: { admin: true } }),
@@ -304,6 +306,19 @@ export function InventoryAdmin({
                         >
                           {tr("Edit product & options", "Produkt & Optionen bearbeiten")}
                         </Link>
+                        {p.managed && (
+                          <button
+                            className="mt-3 text-sm text-gold underline"
+                            onClick={() => {
+                              setProductId(p.id);
+                              setVariantId(p.variants[0]?.id ?? "");
+                              setLabels([]);
+                              setSection("setup");
+                            }}
+                          >
+                            {tr("Generate barcodes", "Barcodes erstellen")}
+                          </button>
+                        )}
                         {!p.managed && (
                           <button
                             className="mt-3 text-sm text-gold underline"
@@ -348,7 +363,7 @@ export function InventoryAdmin({
                     <option value="">{t("warehouse.selectProduct")}</option>
                     {query.data.products?.map((p) => (
                       <option key={p.id} value={p.id}>
-                        {p.name} · {p.stock} · {p.managed ? "QR" : "—"}
+                        {p.name} · {p.stock} · {p.managed ? "Barcode" : "—"}
                       </option>
                     ))}
                   </select>
@@ -456,6 +471,27 @@ export function InventoryAdmin({
                       {t("warehouse.enable")}
                     </button>
                   </>
+                )}
+                {product?.managed && product.variants.length === 0 && (
+                  <button
+                    className="warehouse-button"
+                    disabled={busy}
+                    onClick={async () => {
+                      setBusy(true);
+                      setError("");
+                      try {
+                        await defaultVariant({ data: { productId: product.id } });
+                        await query.refetch();
+                        await cache.invalidateQueries({ queryKey: ["operations-catalog"] });
+                      } catch (e) {
+                        setError(e instanceof Error ? e.message : String(e));
+                      } finally {
+                        setBusy(false);
+                      }
+                    }}
+                  >
+                    {tr("Create one-size option", "Einheitsgröße anlegen")}
+                  </button>
                 )}
                 {product?.managed && (
                   <details>
