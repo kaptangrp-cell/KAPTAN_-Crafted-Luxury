@@ -17,9 +17,9 @@ export function QrCamera({
     let stop: (() => void) | undefined;
     let accepted = false;
     void import("@zxing/browser")
-      .then(async ({ BrowserQRCodeReader }) => {
+      .then(async ({ BrowserMultiFormatReader }) => {
         if (disposed || !video.current) return;
-        const controls = await new BrowserQRCodeReader().decodeFromConstraints(
+        const controls = await new BrowserMultiFormatReader().decodeFromConstraints(
           { video: { facingMode: "environment" }, audio: false },
           video.current,
           (result) => {

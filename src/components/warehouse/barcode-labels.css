@@ -1,0 +1,105 @@
+.barcode-sheet {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 340px), 1fr));
+  gap: 16px;
+}
+.barcode-label {
+  aspect-ratio: 76/51;
+  background: #fff;
+  color: #000;
+  border: 2px solid #000;
+  border-radius: 12px;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  font-family: Inter, Arial, sans-serif;
+}
+.barcode-label-heading {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border-bottom: 2px solid #000;
+  padding-bottom: 7px;
+  min-height: 32%;
+}
+.barcode-brand {
+  width: 19%;
+  flex-shrink: 0;
+  filter: grayscale(1) invert(1) contrast(10);
+}
+.barcode-label-heading div {
+  min-width: 0;
+}
+.barcode-label h3 {
+  font-family: "Playfair Display", Georgia, serif;
+  font-size: clamp(14px, 1.5vw, 22px);
+  line-height: 1.15;
+  margin: 0 0 4px;
+}
+.barcode-label-heading b,
+.barcode-label-heading p {
+  display: block;
+  font-size: 10px;
+  line-height: 1.3;
+  letter-spacing: 1px;
+  margin: 2px 0;
+}
+.barcode-bars {
+  display: block;
+  width: 100%;
+  min-height: 0;
+  flex: 1;
+  object-fit: fill;
+}
+.barcode-number {
+  text-align: center;
+  font-family: monospace;
+  font-size: clamp(12px, 1.4vw, 20px);
+  letter-spacing: 1px;
+  white-space: nowrap;
+}
+.barcode-label footer {
+  text-align: center;
+  font-size: 9px;
+  letter-spacing: 2px;
+  margin-top: 3px;
+}
+@media print {
+  #warehouse-labels.barcode-sheet {
+    display: grid;
+    grid-template-columns: 76mm 76mm;
+    gap: 3mm;
+    width: 155mm;
+  }
+  #warehouse-labels .barcode-label {
+    width: 76mm;
+    height: 51mm;
+    box-sizing: border-box;
+    padding: 2mm;
+    border: 0.3mm solid black;
+    border-radius: 2mm;
+    break-inside: avoid;
+    print-color-adjust: exact;
+  }
+  #warehouse-labels .barcode-label h3 {
+    font-size: 12pt;
+  }
+  #warehouse-labels .barcode-label-heading {
+    gap: 2mm;
+    padding-bottom: 1mm;
+  }
+  #warehouse-labels .barcode-label-heading b,
+  #warehouse-labels .barcode-label-heading p {
+    font-size: 6pt;
+    letter-spacing: 0.2mm;
+  }
+  #warehouse-labels .barcode-number {
+    font-size: 10pt;
+    letter-spacing: 0.3mm;
+  }
+  #warehouse-labels .barcode-label footer {
+    font-size: 6pt;
+    margin-top: 0.5mm;
+  }
+}

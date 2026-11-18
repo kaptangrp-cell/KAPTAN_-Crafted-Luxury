@@ -85,3 +85,13 @@ export const getQrActivationBlockers = createServerFn({ method: "POST" })
     const { readQrActivationBlockers } = await import("./warehouse-activation.server");
     return readQrActivationBlockers(data.productId);
   });
+
+/** Restore a standard option for a tracked product whose unused options were removed. */
+export const createInventoryDefaultVariant = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) => z.object({ productId: z.string().uuid() }).parse(input))
+  .handler(({ context, data }) =>
+    rpc<{ saved: boolean }>(context.supabase, "inventory_default_variant", {
+      p_product: data.productId,
+    }),
+  );

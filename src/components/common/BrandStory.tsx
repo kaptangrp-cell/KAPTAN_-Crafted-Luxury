@@ -6,11 +6,19 @@ export function BrandStory({ compact = false }: { compact?: boolean }) {
   return (
     <section className="border-y border-gold/15 bg-[#0D0D0D] px-4 py-16 md:px-6">
       <div className="mx-auto max-w-7xl">
-        <p className="text-xs uppercase tracking-[0.25em] text-gold">{t("brand.why")}</p>
-        <h2 className="mt-3 font-serif text-3xl text-white">{t("brand.valuesIntro")}</h2>
+        <p data-scroll-reveal className="text-xs uppercase tracking-[0.25em] text-gold">
+          {t("brand.why")}
+        </p>
+        <h2 data-scroll-reveal className="mt-3 font-serif text-3xl text-white">
+          {t("brand.valuesIntro")}
+        </h2>
         <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
           {["crafted", "functional", "personal", "traceable", "lasting"].map((value) => (
-            <div key={value} className="rounded-xl border border-gold/15 p-5">
+            <div
+              data-scroll-reveal
+              key={value}
+              className="collection-value rounded-xl border border-gold/15 p-5"
+            >
               <h3 className="font-serif text-xl text-gold">{t(`brand.${value}Title`)}</h3>
               <p className="mt-3 text-sm leading-relaxed text-white/65">
                 {t(`brand.${value}Body`)}

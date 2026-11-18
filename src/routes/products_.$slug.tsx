@@ -996,7 +996,11 @@ function ProductDetailPage() {
       <Dialog open={lightboxOpen} onOpenChange={setLightboxOpen}>
         <DialogContent
           aria-describedby={undefined}
-          className="product-lightbox left-0 top-0 z-[100] max-w-none translate-x-0 translate-y-0 gap-3 rounded-none border-0 bg-black text-white sm:rounded-none"
+          onCloseAutoFocus={(event) => {
+            event.preventDefault();
+            mediaOpener.current?.focus();
+          }}
+          className="media-hero product-lightbox left-0 top-0 z-[100] max-w-none translate-x-0 translate-y-0 gap-3 rounded-none border-0 bg-black text-white sm:rounded-none"
           onKeyDown={(e) => {
             if (e.target instanceof HTMLVideoElement) return;
             if (e.key === "ArrowLeft" || e.key === "ArrowRight") {
@@ -1013,6 +1017,7 @@ function ProductDetailPage() {
               <video
                 key={active.url}
                 src={active.url}
+                poster={media.find((item) => item.media_type !== "video")?.url}
                 controls
                 playsInline
                 preload="metadata"

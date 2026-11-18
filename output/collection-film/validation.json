@@ -1,0 +1,9 @@
+{
+  "frames": 7200,
+  "duration_seconds": 300.0,
+  "resolution": "1920x1080",
+  "fps": 24,
+  "full_decode": "passed",
+  "audio": "silent",
+  "file_bytes": 25988375
+}

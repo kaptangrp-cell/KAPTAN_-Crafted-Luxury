@@ -207,7 +207,10 @@ export function OperationsDesk({
             }}
           >
             <label className="flex-1">
-              {tr("Scan QR or enter unit number", "QR scannen oder Artikelnummer eingeben")}
+              {tr(
+                "Scan barcode or enter unit number",
+                "Barcode scannen oder Artikelnummer eingeben",
+              )}
               <input
                 className={input}
                 value={code}
@@ -502,11 +505,18 @@ export function OperationsDesk({
                       >
                         <option value="">{tr("Choose product", "Produkt wählen")}</option>
                         {catalog.data?.products?.flatMap((p) =>
-                          p.variants.map((v) => (
-                            <option key={v.id} value={v.id}>
-                              {p.name} · {v.name}
-                            </option>
-                          )),
+                          p.variants.length
+                            ? p.variants.map((v) => (
+                                <option key={v.id} value={v.id}>
+                                  {p.name} · {v.name}
+                                </option>
+                              ))
+                            : [
+                                <option key={p.id} disabled>
+                                  {p.name} ·{" "}
+                                  {tr("Set up tracking first", "Zuerst Verfolgung einrichten")}
+                                </option>,
+                              ],
                         )}
                       </select>
                     </label>

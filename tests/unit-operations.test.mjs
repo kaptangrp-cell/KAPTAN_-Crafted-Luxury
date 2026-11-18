@@ -18,6 +18,7 @@ test("purchase labels retain identities, enforce quantities and permissions, and
       "docs/APPLY-PAYMENT-FIRST.sql",
       "supabase/migrations/20261014090000_qr_warehouse.sql",
       "supabase/migrations/20261021100000_unit_operations.sql",
+      "supabase/migrations/20261118100000_inventory_barcodes.sql",
     ])
       await db.exec(await readFile(new URL("../" + file, import.meta.url), "utf8"));
     const admin = randomUUID(),
@@ -67,7 +68,10 @@ test("purchase labels retain identities, enforce quantities and permissions, and
       create = () => db.query("SELECT operations_labels($1,$2,2,'Main') result", [operation, line]);
     const result = (await create()).rows[0].result;
     assert.equal(result.length, 2);
-    assert.match(result[0].unit_number, /^KPLWB-\d+$/);
+    assert.deepEqual(result.map((x) => x.unit_number).sort(), [
+      "KP-PLW-BK-S-0001",
+      "KP-PLW-BK-S-0002",
+    ]);
     assert.notEqual(result[0].unit_number, result[1].unit_number);
     assert.deepEqual((await create()).rows[0].result, result);
     await assert.rejects(
@@ -144,6 +148,80 @@ test("purchase labels retain identities, enforce quantities and permissions, and
     assert.equal(
       (await trace(result[0].unit_number)).rows[0].result.unit_number,
       result[0].unit_number,
+    );
+    const next = (
+      await db.query("SELECT warehouse_admin('labels',$1,$2) result", [
+        JSON.stringify({ variantId: variant, quantity: 1, location: "Main" }),
+        randomUUID(),
+      ])
+    ).rows[0].result;
+    assert.equal(next[0].unit_number, "KP-PLW-BK-S-0003");
+    const other = randomUUID(),
+      otherVariant = randomUUID();
+    await db.query(
+      "INSERT INTO products(id,name,price,stock_quantity) VALUES($1,'Ball Shape Salt Lamp',50,0)",
+      [other],
+    );
+    const overview = (await db.query("SELECT warehouse_dashboard(true) result")).rows[0].result;
+    assert.ok(
+      overview.products.some((p) => p.id === other && p.variants.length === 0),
+      "Products without variants are visible",
+    );
+    await db.query(
+      "INSERT INTO product_variants(id,product_id,variant_type,variant_value,stock_quantity,is_available) VALUES($1,$2,'Color / Size','Pink / One size',0,true)",
+      [otherVariant, other],
+    );
+    await db.query("SELECT warehouse_admin('enable',$1,$2)", [
+      JSON.stringify({ productId: other }),
+      randomUUID(),
+    ]);
+    const lampBatch = randomUUID();
+    const lampArgs = [
+      JSON.stringify({ variantId: otherVariant, quantity: 2, location: "Main" }),
+      lampBatch,
+    ];
+    const lamps = (await db.query("SELECT warehouse_admin('labels',$1,$2) result", lampArgs))
+      .rows[0].result;
+    assert.deepEqual(lamps.map((x) => x.unit_number).sort(), [
+      "KP-BSL-PK-OS-0001",
+      "KP-BSL-PK-OS-0002",
+    ]);
+    assert.deepEqual(
+      (await db.query("SELECT warehouse_admin('labels',$1,$2) result", lampArgs)).rows[0].result,
+      lamps,
+      "Retry does not allocate more units",
+    );
+    assert.equal((await trace(lamps[0].unit_number)).rows[0].result.id, lamps[0].id);
+    await db.query("UPDATE inventory_barcode_series SET last_number=9999 WHERE product_id=$1", [
+      other,
+    ]);
+    const large = (
+      await db.query("SELECT warehouse_admin('labels',$1,$2) result", [
+        JSON.stringify({ variantId: otherVariant, quantity: 1, location: "Main" }),
+        randomUUID(),
+      ])
+    ).rows[0].result;
+    assert.equal(large[0].unit_number, "KP-BSL-PK-OS-10000");
+    const emptyProduct = randomUUID();
+    await db.query(
+      "INSERT INTO products(id,name,price,stock_quantity,qr_inventory) VALUES($1,'Empty tracked product',5,0,true)",
+      [emptyProduct],
+    );
+    await login(outsider);
+    await assert.rejects(
+      db.query("SELECT inventory_default_variant($1)", [emptyProduct]),
+      /Forbidden/,
+    );
+    await login(admin);
+    await db.query("SELECT inventory_default_variant($1)", [emptyProduct]);
+    await db.query("SELECT inventory_default_variant($1)", [emptyProduct]);
+    assert.equal(
+      (
+        await db.query("SELECT count(*)::int AS n FROM product_variants WHERE product_id=$1", [
+          emptyProduct,
+        ])
+      ).rows[0].n,
+      1,
     );
     const reprint = (await db.query("SELECT warehouse_dashboard(true,NULL,$1) result", [operation]))
       .rows[0].result.labels;
