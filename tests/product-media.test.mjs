@@ -15,7 +15,17 @@ const specifications = {
   ],
 };
 test("catalogue colours have distinct swatches instead of the beige placeholder", () => {
-  const colours = ["Plum", "Coffee", "Cognac", "Blue", "Black", "Brown", "Gray", "White", "Pink Natural"];
+  const colours = [
+    "Plum",
+    "Coffee",
+    "Cognac",
+    "Blue",
+    "Black",
+    "Brown",
+    "Gray",
+    "White",
+    "Pink Natural",
+  ];
   const swatches = colours.map(colorHex);
   assert.ok(swatches.every((swatch) => /^#[0-9a-f]{6}$/i.test(swatch)));
   assert.equal(new Set(swatches).size, colours.length);
@@ -57,4 +67,11 @@ test("legacy products retain their ordered gallery; malformed metadata is ignore
     ).length,
     0,
   );
+});
+
+test("Jet Black and Lemon swatches support merchant names and German labels", () => {
+  assert.equal(colorHex("Black Jet"), "#0a0a0a");
+  assert.equal(colorHex("Jet Black"), colorHex("Tiefschwarz"));
+  assert.equal(colorHex("Lemon"), "#f4e64b");
+  assert.equal(colorHex("Lemon Yellow"), colorHex("Zitronengelb"));
 });

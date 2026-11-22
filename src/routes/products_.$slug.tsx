@@ -1,3 +1,4 @@
+import { translateCatalogText } from "@/lib/catalog-translation";
 import { productBenefitKey } from "@/lib/brand-product";
 import { collectionForCategory } from "@/lib/catalog-collections";
 import { galleryForColor, mediaDetails } from "@/lib/product-media";
@@ -335,7 +336,9 @@ function ProductDetailPage() {
   function handleAdd() {
     if (cannotPurchase) return;
     addItem(product as never, variant as never, qty, firstImage.url);
-    toast.success(t("products.addedToCartToast", { name: product.name }));
+    toast.success(
+      t("products.addedToCartToast", { name: translateCatalogText(product.name, i18n.language) }),
+    );
     openCart();
   }
 
@@ -363,7 +366,9 @@ function ProductDetailPage() {
   function handleBuyNow() {
     if (cannotPurchase) return;
     addItem(product as never, variant as never, qty, firstImage.url);
-    toast.success(t("products.addedToCartToast", { name: product.name }));
+    toast.success(
+      t("products.addedToCartToast", { name: translateCatalogText(product.name, i18n.language) }),
+    );
     navigate({ to: "/checkout" });
   }
 
@@ -1011,7 +1016,9 @@ function ProductDetailPage() {
             }
           }}
         >
-          <DialogTitle className="truncate pr-14 text-base leading-6">{product.name}</DialogTitle>
+          <DialogTitle className="truncate pr-14 text-base leading-6">
+            <CatalogText text={product.name} />
+          </DialogTitle>
           <div className="min-h-0 min-w-0 overflow-hidden">
             {active.media_type === "video" ? (
               <video

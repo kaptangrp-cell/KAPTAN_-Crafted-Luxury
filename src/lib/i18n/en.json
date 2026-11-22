@@ -1286,5 +1286,21 @@
       "Follow the care instructions supplied with this product.",
       "Contact KAPTAN for advice specific to its materials and finish."
     ]
+  },
+  "legalNotice": {
+    "title": "Legal notice",
+    "intro": "Information pursuant to Section 5 of the German Digital Services Act (DDG)",
+    "provider": "Provider",
+    "owner": "Owner: Zoraiz Fazal",
+    "business": "Sole proprietorship",
+    "country": "Germany",
+    "contact": "Contact",
+    "email": "Email",
+    "phone": "Phone",
+    "vatTitle": "VAT identification number",
+    "vatText": "VAT identification number pursuant to Section 27a of the German VAT Act:",
+    "privacy": "Privacy",
+    "privacyText": "Information about the processing of personal data and your rights can be found in our",
+    "privacyLink": "privacy policy"
   }
 }

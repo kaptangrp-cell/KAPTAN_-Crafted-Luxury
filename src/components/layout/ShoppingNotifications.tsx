@@ -1,3 +1,4 @@
+import { CatalogText } from "@/components/common/CatalogText";
 import { useState } from "react";
 import { Link, useRouterState } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
@@ -98,8 +99,12 @@ export function ShoppingNotifications() {
                       className="h-14 w-14 rounded-lg bg-[#f3f0eb] object-contain"
                     />
                     <div className="min-w-0 flex-1">
-                      <p className="truncate text-sm">{item.name}</p>
-                      <p className="text-xs text-white/60">{item.variantLabel}</p>
+                      <p className="truncate text-sm">
+                        <CatalogText text={item.name} />
+                      </p>
+                      <p className="text-xs text-white/60">
+                        <CatalogText text={item.variantLabel} />
+                      </p>
                       <p className="mt-1 text-xs text-gold">
                         {item.quantity} × <Price amount={item.price} />
                       </p>

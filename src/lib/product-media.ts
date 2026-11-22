@@ -35,6 +35,12 @@ export function colorHex(color: string) {
   const palette: Record<string, string> = {
     black: "#202020",
     schwarz: "#202020",
+    "jet black": "#0a0a0a",
+    "black jet": "#0a0a0a",
+    tiefschwarz: "#0a0a0a",
+    lemon: "#f4e64b",
+    "lemon yellow": "#f4e64b",
+    zitronengelb: "#f4e64b",
     brown: "#75452e",
     braun: "#75452e",
     tan: "#bb8957",

@@ -1,3 +1,4 @@
+import { CatalogText } from "@/components/common/CatalogText";
 import { PrivacyNotice } from "@/components/common/PrivacyNotice";
 import { SHIPPING_GROSS } from "@/lib/tax";
 import { BillingFields } from "@/components/checkout/BillingFields";
@@ -779,9 +780,11 @@ function CheckoutPage() {
                 <li key={i.id} className="flex items-start justify-between gap-2 text-xs">
                   <div className="flex-1">
                     <span className="text-white/80">
-                      {i.name}
+                      <CatalogText text={i.name} />
                       {i.variantLabel && (
-                        <span className="block text-gold-dark">{i.variantLabel}</span>
+                        <span className="block text-gold-dark">
+                          <CatalogText text={i.variantLabel} />
+                        </span>
                       )}
                     </span>
 

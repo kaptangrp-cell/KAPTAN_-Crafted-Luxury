@@ -51,7 +51,9 @@ function CartPage() {
                         <CatalogText text={item.name} />
                       </h3>
                       {item.variantLabel && (
-                        <p className="text-xs text-gold-dark">{item.variantLabel}</p>
+                        <p className="text-xs text-gold-dark">
+                          <CatalogText text={item.variantLabel} />
+                        </p>
                       )}
                       <p className="mt-1 font-mono text-gold">
                         <Price amount={item.price} />

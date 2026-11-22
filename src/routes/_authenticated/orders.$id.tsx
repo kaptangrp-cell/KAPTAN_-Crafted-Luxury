@@ -163,7 +163,9 @@ function OrderDetailPage() {
                   <td className="p-3 text-white">
                     <CatalogText text={item.product_name} />
                     {item.variant_info && (
-                      <span className="block text-xs text-gold-dark">{item.variant_info}</span>
+                      <span className="block text-xs text-gold-dark">
+                        <CatalogText text={item.variant_info} />
+                      </span>
                     )}
                   </td>
                   <td className="p-3 text-center text-white/70">{item.quantity}</td>

@@ -132,7 +132,7 @@ export function Footer() {
               </li>
               <li>
                 <Link to="/impressum" className="transition-colors hover:text-gold">
-                  Impressum
+                  {t("legalNotice.title")}
                 </Link>
               </li>
             </ul>

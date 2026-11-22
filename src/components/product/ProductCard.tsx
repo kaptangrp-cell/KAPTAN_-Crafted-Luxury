@@ -102,7 +102,9 @@ export function ProductCard({ product }: ProductCardProps) {
     }
     addItem(product, quickOption as never, 1, imageUrl);
     setAdded(true);
-    toast.success(t("products.addedToCartToast", { name: product.name }));
+    toast.success(
+      t("products.addedToCartToast", { name: translateCatalogText(product.name, i18n.language) }),
+    );
   }
 
   async function handleWishlist(e: React.MouseEvent) {

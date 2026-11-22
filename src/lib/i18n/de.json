@@ -1286,5 +1286,21 @@
       "Beachte die mitgelieferten Pflegehinweise für dieses Produkt.",
       "KAPTAN hilft bei Fragen zu Material und Oberfläche."
     ]
+  },
+  "legalNotice": {
+    "title": "Impressum",
+    "intro": "Angaben gemäß § 5 Digitale-Dienste-Gesetz (DDG)",
+    "provider": "Anbieter",
+    "owner": "Inhaber: Zoraiz Fazal",
+    "business": "Einzelunternehmen",
+    "country": "Deutschland",
+    "contact": "Kontakt",
+    "email": "E-Mail",
+    "phone": "Telefon",
+    "vatTitle": "Umsatzsteuer-Identifikationsnummer",
+    "vatText": "Umsatzsteuer-Identifikationsnummer gemäß § 27a Umsatzsteuergesetz:",
+    "privacy": "Datenschutz",
+    "privacyText": "Informationen zur Verarbeitung personenbezogener Daten und zu Ihren Rechten finden Sie in unserer",
+    "privacyLink": "Datenschutzerklärung"
   }
 }

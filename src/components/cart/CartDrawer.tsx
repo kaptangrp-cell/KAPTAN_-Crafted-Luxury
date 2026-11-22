@@ -61,7 +61,9 @@ export function CartDrawer() {
                           <CatalogText text={item.name} />
                         </p>
                         {item.variantLabel && (
-                          <p className="text-xs text-gold-dark">{item.variantLabel}</p>
+                          <p className="text-xs text-gold-dark">
+                            <CatalogText text={item.variantLabel} />
+                          </p>
                         )}
                         <p className="mt-1 font-mono text-sm text-gold">
                           <Price amount={item.price} />
