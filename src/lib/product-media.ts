@@ -38,13 +38,18 @@ export function colorHex(color: string) {
     brown: "#75452e",
     braun: "#75452e",
     tan: "#bb8957",
-    cognac: "#a86032",
+    // Leather shades matched to the catalogue product photography.
+    cognac: "#c58b3e",
+    plum: "#701d46",
+    pflaume: "#701d46",
+    coffee: "#65432e",
+    kaffee: "#65432e",
     taupe: "#a69a8d",
     beige: "#d9c7a8",
     white: "#f4f1e9",
     weiß: "#f4f1e9",
-    blue: "#34566c",
-    blau: "#34566c",
+    blue: "#253578",
+    blau: "#253578",
     navy: "#26334c",
     red: "#973e3e",
     rot: "#973e3e",
@@ -56,7 +61,8 @@ export function colorHex(color: string) {
     grau: "#868686",
     cream: "#eee4d1",
     pink: "#c695a0",
+    "pink natural": "#e5b49e",
     gold: "#bd9c53",
   };
-  return palette[color.trim().toLowerCase()] ?? "linear-gradient(135deg, #b5a48e, #63594c)";
+  return palette[color.trim().toLowerCase().replace(/\s+/g, " ")] ?? "transparent";
 }
