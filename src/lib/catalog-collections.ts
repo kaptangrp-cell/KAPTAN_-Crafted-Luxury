@@ -13,7 +13,9 @@ export function collectionForCategory(category: {
 }
 export function collectionLabel(collection: Collection, de = false) {
   return collection === "leather"
-    ? "Kaptan Leather"
+    ? de
+      ? "Kaptan Lederwaren"
+      : "Kaptan Leather"
     : de
       ? "Kaptan Salzlampen"
       : "Kaptan Salt Lamps";

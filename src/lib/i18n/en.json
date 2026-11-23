@@ -791,7 +791,9 @@
     "adminHelp": "Add the essentials, choose colours and sizes, then upload photos. Assign each photo to a colour and a view; move your cover photo to the top. Save the product, then use Manage options to set stock and price adjustments per combination.",
     "preview": "Preview product card",
     "uploadMany": "Upload several product photos at once (up to 10 MB each)",
-    "fileLimit": "Choose image files up to 10 MB each."
+    "fileLimit": "Choose image files up to 10 MB each.",
+    "colorCount_one": "{{count}} colour",
+    "colorCount_other": "{{count}} colours"
   },
   "accountStyle": {
     "preferences": "Preferences",

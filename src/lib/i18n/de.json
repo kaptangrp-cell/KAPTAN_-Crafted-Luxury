@@ -791,7 +791,9 @@
     "adminHelp": "Grunddaten eingeben, Farben und Größen wählen und Fotos hochladen. Jedem Foto eine Farbe und Ansicht zuweisen; das Titelbild nach oben verschieben. Produkt speichern und dann über Optionen verwalten Bestand und Preisaufschläge je Kombination festlegen.",
     "preview": "Produktkarte als Vorschau",
     "uploadMany": "Mehrere Produktfotos hochladen (jeweils bis zu 10 MB)",
-    "fileLimit": "Bitte Bilddateien bis zu 10 MB auswählen."
+    "fileLimit": "Bitte Bilddateien bis zu 10 MB auswählen.",
+    "colorCount_one": "{{count}} Farbe",
+    "colorCount_other": "{{count}} Farben"
   },
   "accountStyle": {
     "preferences": "Einstellungen",
