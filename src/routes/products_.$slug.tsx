@@ -711,7 +711,7 @@ function ProductDetailPage() {
                   <div className="h-20 w-20 overflow-hidden border border-gold/30 bg-[#1A1A1A]">
                     <img
                       src={firstImage.url}
-                      alt={product.name}
+                      alt={translateCatalogText(product.name, i18n.language)}
                       className="h-full w-full object-cover"
                     />
                   </div>
