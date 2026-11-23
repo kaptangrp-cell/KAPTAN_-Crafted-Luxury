@@ -9,7 +9,7 @@ function translateLine(line: string): string {
   const translated = dictionary[line.trim()] ?? normalizedDictionary.get(line.trim().toLowerCase());
   if (translated !== undefined) return translated;
   // Translate compound option labels without changing sizes, SKUs or unknown copy.
-  const parts = line.split(/(\s+\/\s+|,\s*|\s+·\s+)/);
+  const parts = line.split(/(\s+\/\s+|,\s*|:\s*|\s+·\s+)/);
   if (parts.length > 1) {
     return parts
       .map((part, index) =>

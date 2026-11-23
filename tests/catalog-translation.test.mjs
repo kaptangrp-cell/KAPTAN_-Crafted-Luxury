@@ -62,3 +62,10 @@ test("English and German UI resources have matching keys and interpolation varia
     );
   }
 });
+
+test("cart option summaries translate their type prefix and selected values", () => {
+  assert.equal(
+    translateCatalogText("Color / Size: Lemon / One size", "de"),
+    "Farbe / Größe: Zitronengelb / Einheitsgröße",
+  );
+});
