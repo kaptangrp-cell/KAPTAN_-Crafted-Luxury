@@ -476,7 +476,8 @@
     "welcomeBackToast": "Welcome back!",
     "resetLinkSentToast": "Password reset link sent. Please check your email.",
     "authFailedToast": "Authentication failed",
-    "googleSignInFailedToast": "Google sign-in failed"
+    "googleSignInFailedToast": "Google sign-in failed",
+    "idleSignedOut": "You have been signed out after 60 seconds of inactivity. Your basket is saved."
   },
   "resetPassword": {
     "title": "Reset Password",
@@ -1304,5 +1305,15 @@
     "privacy": "Privacy",
     "privacyText": "Information about the processing of personal data and your rights can be found in our",
     "privacyLink": "privacy policy"
+  },
+  "brandFilms": {
+    "logo": "The KAPTAN signature",
+    "collections": "Discover our collections",
+    "promises": "Our promise to you",
+    "salt": "Salt lamps for a warmer home",
+    "contact": "Talk to KAPTAN",
+    "fireBowl": "The fire-bowl salt lamp",
+    "play": "Play {{title}}",
+    "pause": "Pause {{title}}"
   }
 }

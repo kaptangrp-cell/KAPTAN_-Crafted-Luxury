@@ -1,3 +1,4 @@
+import { BrandMotionVideo } from "@/components/media/BrandMotionVideo";
 import { BrandStory } from "@/components/common/BrandStory";
 import { PhotoCarousel } from "@/components/media/PhotoCarousel";
 import { translateCatalogText } from "@/lib/catalog-translation";
@@ -224,6 +225,31 @@ function HomePage() {
               {t("home.exploreCollection")} →
             </Link>
           )}
+        </section>
+
+        <section
+          className="mx-auto grid max-w-7xl gap-6 px-4 pb-12 md:grid-cols-2 md:px-6"
+          aria-label={t("home.collectionsTitle")}
+        >
+          <div>
+            <BrandMotionVideo name="03-collections" title={t("brandFilms.collections")} />
+            <Link
+              to="/products"
+              className="mt-3 inline-flex min-h-11 items-center text-gold underline"
+            >
+              {t("home.exploreCollection")}
+            </Link>
+          </div>
+          <div>
+            <BrandMotionVideo name="07-salt-lamp-collection" title={t("brandFilms.salt")} />
+            <Link
+              to="/products"
+              search={{ collection: "salt" }}
+              className="mt-3 inline-flex min-h-11 items-center text-gold underline"
+            >
+              {collectionLabel("salt", i18n.language.startsWith("de"))}
+            </Link>
+          </div>
         </section>
 
         <section className="border-y border-gold/10 bg-[#0D0D0D]">

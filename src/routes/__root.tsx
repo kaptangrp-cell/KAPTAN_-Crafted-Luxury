@@ -1,3 +1,4 @@
+import { useIdleSignOut } from "@/hooks/useIdleSignOut";
 import { StockUpdates } from "@/components/warehouse/StockUpdates";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "@/hooks/useAuth";
@@ -148,6 +149,7 @@ function RootShell({ children }: { children: ReactNode }) {
 
 function AuthLifecycle() {
   useAuth();
+  useIdleSignOut();
   return null;
 }
 

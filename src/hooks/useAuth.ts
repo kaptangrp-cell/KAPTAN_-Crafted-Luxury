@@ -1,3 +1,4 @@
+import { idleKey, readActivity, sessionExpired } from "@/lib/session-idle";
 import { useEffect } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import type { User } from "@supabase/supabase-js";
@@ -15,6 +16,13 @@ export function useAuth() {
 
     function applySession(user: User | null) {
       if (!mounted) return;
+      if (user && sessionExpired(readActivity(idleKey(user)))) {
+        // Reject expired persisted sessions on reload, reconnect and token refresh.
+        user = null;
+        setTimeout(() => {
+          void supabase.auth.signOut({ scope: "local" });
+        }, 0);
+      }
       const currentRevision = ++revision;
       const store = useAuthStore.getState();
       clearAccountCache(queryClient, store.user?.id, user?.id);
@@ -55,7 +63,8 @@ export function useAuth() {
       if (
         event === "TOKEN_REFRESHED" &&
         session &&
-        session.user.id === useAuthStore.getState().user?.id
+        session.user.id === useAuthStore.getState().user?.id &&
+        !sessionExpired(readActivity(idleKey(session.user)))
       ) {
         useAuthStore.getState().setUser(session.user);
         return;

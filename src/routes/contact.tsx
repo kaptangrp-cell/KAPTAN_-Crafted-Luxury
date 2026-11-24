@@ -1,3 +1,4 @@
+import { BrandMotionVideo } from "@/components/media/BrandMotionVideo";
 import { useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { Mail, Phone, MapPin } from "lucide-react";
@@ -56,6 +57,7 @@ function ContactPage() {
 
         <div className="mt-12 grid gap-10 md:grid-cols-[1fr_1.5fr]">
           <div className="space-y-6">
+            <BrandMotionVideo name="09-talk-to-kaptan" title={t("brandFilms.contact")} />
             <div className="flex items-start gap-3">
               <Mail className="mt-1 text-gold" size={18} />
               <div>

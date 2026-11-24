@@ -476,7 +476,8 @@
     "welcomeBackToast": "Willkommen zurück!",
     "resetLinkSentToast": "Link zum Zurücksetzen wurde gesendet. Bitte prüfe deine E-Mails.",
     "authFailedToast": "Anmeldung fehlgeschlagen",
-    "googleSignInFailedToast": "Google-Anmeldung fehlgeschlagen"
+    "googleSignInFailedToast": "Google-Anmeldung fehlgeschlagen",
+    "idleSignedOut": "Sie wurden nach 60 Sekunden Inaktivität abgemeldet. Ihr Warenkorb bleibt gespeichert."
   },
   "resetPassword": {
     "title": "Passwort zurücksetzen",
@@ -1304,5 +1305,15 @@
     "privacy": "Datenschutz",
     "privacyText": "Informationen zur Verarbeitung personenbezogener Daten und zu Ihren Rechten finden Sie in unserer",
     "privacyLink": "Datenschutzerklärung"
+  },
+  "brandFilms": {
+    "logo": "Die KAPTAN Signatur",
+    "collections": "Unsere Kollektionen entdecken",
+    "promises": "Unser Versprechen an Sie",
+    "salt": "Salzlampen für ein gemütlicheres Zuhause",
+    "contact": "Mit KAPTAN sprechen",
+    "fireBowl": "Die Feuerschalen-Salzlampe",
+    "play": "{{title}} abspielen",
+    "pause": "{{title}} pausieren"
   }
 }

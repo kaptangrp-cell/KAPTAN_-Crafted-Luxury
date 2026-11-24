@@ -1,3 +1,4 @@
+import { BrandMotionVideo } from "@/components/media/BrandMotionVideo";
 import { Link } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
 
@@ -12,6 +13,10 @@ export function BrandStory({ compact = false }: { compact?: boolean }) {
         <h2 data-scroll-reveal className="mt-3 font-serif text-3xl text-white">
           {t("brand.valuesIntro")}
         </h2>
+        <div className="mt-8 grid items-center gap-6 md:grid-cols-[1fr_2fr]">
+          <BrandMotionVideo name="01-logo-reveal" title={t("brandFilms.logo")} square />
+          <BrandMotionVideo name="04-brand-promises" title={t("brandFilms.promises")} />
+        </div>
         <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
           {["crafted", "functional", "personal", "traceable", "lasting"].map((value) => (
             <div

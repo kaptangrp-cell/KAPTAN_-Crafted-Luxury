@@ -1,3 +1,4 @@
+import { BrandMotionVideo } from "@/components/media/BrandMotionVideo";
 import { translateCatalogText } from "@/lib/catalog-translation";
 import { productBenefitKey } from "@/lib/brand-product";
 import { collectionForCategory } from "@/lib/catalog-collections";
@@ -662,6 +663,16 @@ function ProductDetailPage() {
                 <Link to="/contact" className="mt-3 inline-block text-sm text-gold underline">
                   {t("brand.support")}
                 </Link>
+              </div>
+            )}
+            {product.slug === "himalayan-salt-fire-bowl-lamp-with-crystal-balls" && (
+              <div className="mt-8">
+                <BrandMotionVideo
+                  name={
+                    i18n.language.startsWith("de") ? "10-fire-bowl-lamp-DE" : "10-fire-bowl-lamp-EN"
+                  }
+                  title={t("brandFilms.fireBowl")}
+                />
               </div>
             )}
             {product.full_description && (
